@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Title>Rampastring.XNAUI</Title>
+    <Description>Rampastring XNA/MonoGame UI Library</Description>
+    <Company>Rampastring</Company>
+    <Product>Rampastring.XNAUI</Product>
+    <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
+    <Trademark></Trademark>
+	<AssemblyName>Rampastring.XNAUI</AssemblyName>
+    <RootNamespace>Rampastring.XNAUI</RootNamespace>
+    <ComVisibale>false</ComVisibale>
+    <CLSCompliant>false</CLSCompliant>
+    <LangVersion>preview</LangVersion>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Platforms>AnyCPU</Platforms>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <Configurations>Debug;Release</Configurations>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1509;1591;</NoWarn>
+    <DefineConstants>$(DefineConstants);DX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1509;1591;</NoWarn>
+    <DefineConstants>$(DefineConstants);DX</DefineConstants>
+  </PropertyGroup>
+	<Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+		<ItemGroup>
+			<TfmSpecificPackageFile Include="$(OutputPath)\x64\SDL2.dll">
+				<PackagePath>runtimes\win-x64\native\SDL2.dll</PackagePath>
+			</TfmSpecificPackageFile>
+			<TfmSpecificPackageFile Include="$(OutputPath)\x64\soft_oal.dll">
+				<PackagePath>runtimes\win-x64\native\soft_oal.dll</PackagePath>
+			</TfmSpecificPackageFile>
+			<TfmSpecificPackageFile Include="$(OutputPath)\x86\SDL2.dll">
+				<PackagePath>runtimes\win-x86\native\SDL2.dll</PackagePath>
+			</TfmSpecificPackageFile>
+			<TfmSpecificPackageFile Include="$(OutputPath)\x86\soft_oal.dll">
+				<PackagePath>runtimes\win-x86\native\soft_oal.dll</PackagePath>
+			</TfmSpecificPackageFile>
+		</ItemGroup>
+	</Target>
+    <ItemGroup>
+	    <Compile Remove="build\**" />
+	    <Compile Remove="References\**" />
+	    <EmbeddedResource Remove="build\**" />
+	    <EmbeddedResource Remove="References\**" />
+	    <None Remove="build\**" />
+	    <None Remove="References\**" />
+    </ItemGroup>
+    <ItemGroup>
+	    <Compile Remove="Input\KeyboardEventArgs.cs" />
+	    <Compile Remove="Input\KeyboardEventInput.cs" />
+    </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <!--Switching between Configurations within VS IDE requires reloading the project file-->
+  <ItemGroup Condition="$(DefineConstants.Contains('DX'))">
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
+    <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" Version="3.8.2.1105" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="ImeSharp" Version="1.4.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+    <PackageReference Include="TextCopy" Version="6.2.1" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Rampastring.Tools-2.0.6\Rampastring.Tools.csproj" />
+  </ItemGroup>
+</Project>

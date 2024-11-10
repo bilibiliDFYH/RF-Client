@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows7.0</TargetFramework>
+        <OutputType>WinExe</OutputType>
+        <Title>Ra2Client</Title>
+        <Description>Ra2 Client Library</Description>
+        <Company>Ra2Client</Company>
+        <Product>Ra2Client</Product>
+        <Copyright>Copyright © Snowy Studio 2024</Copyright>
+        <Trademark>Ra2Client</Trademark>
+        <Version>1.5.0.40</Version>
+        <FileVersion>1.5.0.40</FileVersion>
+        <AssemblyName>Ra2Client</AssemblyName>
+        <RootNamespace>Ra2Client</RootNamespace>
+        <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+        <AssemblyName>Ra2Client</AssemblyName>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <UseAppHost>false</UseAppHost>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>..\Bin\Resources\Binaries</OutputPath>
+        <ApplicationIcon>clienticon.ico</ApplicationIcon>
+        <UseWindowsForms>True</UseWindowsForms>
+        <IsPublishable>False</IsPublishable>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <Optimize>False</Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'" />
+    <ItemGroup>
+		    <Content Include="..\Bin\Resources\clienticon.ico" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Remove="Resources\**" />
+        <EmbeddedResource Remove="Resources\**" />
+        <None Remove="Resources\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
+        <PackageReference Include="lzo.net" Version="0.0.6" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+        <PackageReference Include="OpenMcdf" Version="2.3.1" />
+        <PackageReference Include="Sdcb.FFmpeg" Version="7.0.0" />
+        <PackageReference Include="SendGrid" Version="9.29.3" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+        <PackageReference Include="System.Management" Version="8.0.0" />
+        <PackageReference Include="System.DirectoryServices" Version="8.0.0" />
+  </ItemGroup>
+    <ItemGroup>
+       <ProjectReference Include="..\ClientCore\ClientCore.csproj" />
+       <ProjectReference Include="..\ClientGUI\ClientGUI.csproj" />
+       <ProjectReference Include="..\DTAConfig\DTAConfig.csproj" />
+       <ProjectReference Include="..\Localization\Localization.csproj" />
+       <ProjectReference Include="..\RandomMapGenerator\RandomMapGenerator.csproj" />
+  </ItemGroup>
+</Project>

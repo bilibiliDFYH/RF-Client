@@ -1,0 +1,1 @@
+dotnet build .\Rampastring.XNAUI.csproj -c WindowsDXRelease

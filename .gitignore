@@ -1,0 +1,33 @@
+﻿################################################################################
+# 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
+################################################################################
+
+/.vs/
+/Bin
+/ClientCore/bin
+/ClientCore/obj
+/ClientGUI/bin
+/ClientGUI/obj
+/DTAConfig/bin
+/ReunionServer/ReunionServer/bin
+/ReunionServer/ReunionServer/obj
+/ReunionServer/ReunionShareModel/bin
+/ReunionServer/ReunionShareModel/obj
+/DTAConfig/obj
+/DTAConfig/bin
+/Localization/bin
+/Localization/obj
+/Ra2Client/obj
+/Ra2Client/bin
+/Rampastring.XNAUI/.vs
+/Rampastring.XNAUI/bin
+/Rampastring.XNAUI/obj
+/Reunion/.vs
+/Reunion/obj
+/Reunion/bin
+/ClientUpdater/obj
+/ClientUpdater/bin
+/e -i HEAD~3
+*.TMP
+/RandomMapGenerator/obj
+/RandomMapGenerator/bin

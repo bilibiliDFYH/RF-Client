@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <Title>Client Core</Title>
+    <Description>Maple Client Core Library</Description>
+    <Company>Maple</Company>
+    <Product>Client Core</Product>
+    <Copyright>Copyright © Maple Studio 2023</Copyright>
+    <Trademark>Maple</Trademark>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <InformationalVersion>1.0.0.0</InformationalVersion>
+    <AssemblyName>ClientCore</AssemblyName>
+    <RootNamespace>ClientCore</RootNamespace>
+    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Resources\cncneticon.png" />
+    <None Remove="Resources\cncricon.png" />
+    <None Remove="Resources\d2kicon.png" />
+    <None Remove="Resources\dtaicon.png" />
+    <None Remove="Resources\moicon.png" />
+    <None Remove="Resources\raicon.png" />
+    <None Remove="Resources\rricon.png" />
+    <None Remove="Resources\reicon.png" />
+    <None Remove="Resources\ssicon.png" />
+    <None Remove="Resources\tdicon.png" />
+    <None Remove="Resources\tiicon.png" />
+    <None Remove="Resources\tsicon.png" />
+    <None Remove="Resources\unknownicon.png" />
+    <None Remove="Resources\yricon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\cncneticon.png" />
+    <EmbeddedResource Include="Resources\cncricon.png" />
+    <EmbeddedResource Include="Resources\d2kicon.png" />
+    <EmbeddedResource Include="Resources\dtaicon.png" />
+    <EmbeddedResource Include="Resources\moicon.png" />
+    <EmbeddedResource Include="Resources\raicon.png" />
+    <EmbeddedResource Include="Resources\rricon.png" />
+    <EmbeddedResource Include="Resources\reicon.png" />
+    <EmbeddedResource Include="Resources\ssicon.png" />
+    <EmbeddedResource Include="Resources\tdicon.png" />
+    <EmbeddedResource Include="Resources\tiicon.png" />
+    <EmbeddedResource Include="Resources\tsicon.png" />
+    <EmbeddedResource Include="Resources\unknownicon.png" />
+    <EmbeddedResource Include="Resources\yricon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Localization\Localization.csproj" />
+    <ProjectReference Include="..\Rampastring.XNAUI\Rampastring.XNAUI.csproj" />
+  </ItemGroup>
+</Project>

@@ -2,111 +2,44 @@
 
 基于 **CNCNET** 。
 
-## 原理速览
+## 项目结构
 
-重聚未来（以下简称重聚）的原理非常简单：替换根目录下的文件达成不同**任务**和 **Mod** 。
+### ClientCore
 
-------
+这里放的是一些底层的数据结构和方法。
 
-***<u>重聚约定：</u>***
+### ClientGUI
 
-> - **RUMIX.MIX**
->
->   存放需要注入的ini，比如一些修正代码之类。这个MIX不会动。
->
-> - **CORE.MIX**
->
->   里面有两个 ini（ rules 和 art ），原版的 **CORE.MIX** 让rules读rules.ini，尤复的 **CORE.MIX** 让rules读**rulesmd.ini**。art 同理。
->
-> - **EXPANDMD01.MIX**
->
->   存放 **MOD **文件。
->
-> - **MISSION.MIX**
->
->   存放任务地图文件。
->
-> - **SKIN.MIX**
->
->   存放皮肤文件。
+这里放的是三次开发的UI控件。
 
-> - **gamemd.exe**
->
->   官方的gamemd.exe文件，用来给**Ares**配合syringe.exe 传入 **-SPAWN** 启动游戏。
->
-> - **gamemd-spawn.exe**
->
->   重聚修改的 gamemd.exe ，传入 **-SPAWN** 以启动 **原生的 不使用扩展的** 游戏。 。
->
-> - **gamemd-np.exe**
->
->   修改np的 gamemd.exe ，传入 **-SPAWN **以启动 **NP** 的 MOD 。
+### ClientUpdater
 
-例如：
+这里是更新程序，独立于客户端的。
 
-​		同一任务包使用不同 **MOD** 玩，更改 **MOD.MIX** 即可。
+### DTAConfig
 
-​		同一任务包使用不同扩展玩，使用不同的 **gamemd** 启动即可。
+这里放的主要是设置界面的配置窗口。
 
-## 添加任务&任务包
+### Localization
 
-### Maps\Cp\Battle*.ini
+这里实现了多语言功能和一些扩展方法。
 
-在这里注册战役和任务包，不注册不会在客户端里显示。
+### RA2Client
 
-[Battles]下注册单个任务，等号左右都不能有重复的。
+客户端主要项目，大部分界面的实现和业务逻辑位于此。
 
-[MissionPack]下注册任务包，等号左右都不能有重复的。
+### Rampastring.Tools-2.0.6
 
-[任务ID]
+读写INI和一些封装的方法实现。
 
-Scenario = 使用的任务文件。全大写。可以跟相对路径，不过路径长会读不到。
+### Rampastring.XNAUI
 
-Description = 任务名称。
+这里放的是二次开发的UI控件。
 
-LongDescription = 任务简报
+### RandomMapGenerator
 
-BuildOffAlly = 能否在盟友基地旁造东西。
+这是用来生成随机地图的项目。
 
-Difficulty = 难度。
+### Reunion
 
-DefaultMod = 默认使用的MOD。比如原版任务应该默认用原版玩。
-
-## 添加多人地图&游戏模式
-
-### Maps/Multi/MPMaps*.ini
-
-在这里注册多人地图和游戏模式。
-
-[GameModes]下注册游戏模式。恩...实际上这里一般是工具生成的。
-
-Waypoint* = 路径点位置
-
-Description = 名称
-
-MinPlayers = 最小玩家数
-
-GameModes = 支持的游戏模式
-
-Author = 作者
-
-Size = 实际大小
-
-EnforceMaxPlayers = 是否使用MaxPlayers来限制地图的玩家数量
-
-[MultiMaps]下注册多人地图。
-
-
-
-## 添加Mod&AI
-
-### Mod&AI/Mod&AI*.ini
-
-在这里添加Mod或AI。
-
-[Mod]下注册Mod，等号左右都不能有重复的。
-
-[AI]下注册AI，等号左右都不能有重复的。
-
-
-
+这是用于生成启动游戏的exe。

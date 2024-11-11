@@ -304,13 +304,12 @@ namespace Ra2Client.Domain.Multiplayer
 
 
 
-                var sectionName = BaseFilePath.Remove(BaseFilePath.Length - 4);
-                var section = iniFile.GetSection(sectionName) ?? iniFile.GetSection(sectionName.Replace('\\','/'));
-                if (section == null)
-                {
+                var sectionName = BaseFilePath.Remove(BaseFilePath.Length - 4).Replace('\\', '/');
+                if(!iniFile.SectionExists(sectionName))
                     iniFile.AddSection(sectionName);
-                    section = iniFile.GetSection(sectionName);
-                }
+                
+                var section = iniFile.GetSection(sectionName);
+                
 
                 
                 Official = whitelist.Any(sectionName.Contains);
@@ -320,6 +319,7 @@ namespace Ra2Client.Domain.Multiplayer
                     PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.jpg"));
                 else
                 {
+                  
                     PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
                     if (!File.Exists($"{sectionName}.png"))
                         MapLoader.需要渲染的地图列表.Add(this);

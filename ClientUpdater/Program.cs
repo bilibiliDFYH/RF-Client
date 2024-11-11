@@ -29,6 +29,12 @@ internal sealed class Program
         defaultColor = Console.ForegroundColor;
 
         var errorLogPath = "Client/update_log.txt";
+        var logDirectory = Path.GetDirectoryName(errorLogPath);
+
+        if (!Directory.Exists(logDirectory))
+        {
+            Directory.CreateDirectory(logDirectory); // 创建日志文件的目录
+        }
         errorWriter = new StreamWriter(errorLogPath);
         Console.SetOut(errorWriter);
 
@@ -94,35 +100,61 @@ internal sealed class Program
                     DeleteListedFiles(baseDirectory, delUpdateFile);
                 }
 
-                foreach (FileInfo fileInfo in files)
+                const int maxRetryCount = 10;
+                const int retryDelay = 1000; // 1秒
+
+                // 先统一检查所有文件是否被占用
+                bool anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
+
+                int retryCount = 0;
+
+                // 如果文件被占用，最多尝试10次，每次间隔1秒
+                while (anyFileInUse && retryCount < maxRetryCount)
                 {
-                    FileInfo relativeFileInfo = SafePath.GetFile(fileInfo.FullName[updaterDirectory.FullName.Length..]);
-                    AssemblyName[] assemblies = Assembly.LoadFrom(executableFile.FullName).GetReferencedAssemblies();
+                    Write("发现文件被占用，等待 1 秒后重新检查...", ConsoleColor.Yellow);
+                    System.Threading.Thread.Sleep(retryDelay);
+                    anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
+                    retryCount++;
+                }
 
-                    if (relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(relativeExecutableFile.ToString()[..^relativeExecutableFile.Extension.Length], StringComparison.OrdinalIgnoreCase)
-                        || relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(SafePath.CombineFilePath("Resources", Path.GetFileNameWithoutExtension(relativeExecutableFile.Name)), StringComparison.OrdinalIgnoreCase))
+                if (anyFileInUse)
+                {
+                    Write("文件仍然被占用，无法完成更新。", ConsoleColor.Red);
+                }
+                else
+                {
+                    // 如果没有文件被占用，进行文件更新操作
+                    foreach (FileInfo fileInfo in files)
                     {
-                        Write($"跳过 {nameof(ClientUpdater)} 文件 {relativeFileInfo}");
-                    }
-                    else if (assemblies.Any(q => relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(q.Name, StringComparison.OrdinalIgnoreCase))
-                        || assemblies.Any(q => relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(SafePath.CombineFilePath("Resources", q.Name), StringComparison.OrdinalIgnoreCase)))
-                    {
-                        Write($"跳过 {nameof(ClientUpdater)} 依赖 {relativeFileInfo}");
-                    }
-                    else
-                    {
-                        try
+                        FileInfo relativeFileInfo = SafePath.GetFile(fileInfo.FullName[updaterDirectory.FullName.Length..]);
+                        AssemblyName[] assemblies = Assembly.LoadFrom(executableFile.FullName).GetReferencedAssemblies();
+
+                        // 检查文件是否为当前更新程序或其依赖项
+                        if (relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(relativeExecutableFile.ToString()[..^relativeExecutableFile.Extension.Length], StringComparison.OrdinalIgnoreCase)
+                            || relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(SafePath.CombineFilePath("Resources", Path.GetFileNameWithoutExtension(relativeExecutableFile.Name)), StringComparison.OrdinalIgnoreCase))
                         {
-                            FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName, relativeFileInfo.ToString());
-                            Write($"更新文件 -> {relativeFileInfo}");
-
-                            Directory.CreateDirectory(Path.GetDirectoryName(copiedFile.FullName));
-                            fileInfo.CopyTo(copiedFile.FullName, true);
+                            Write($"跳过 {nameof(ClientUpdater)} 文件 {relativeFileInfo}");
                         }
-                        catch (IOException ex)
+                        else if (assemblies.Any(q => relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(q.Name, StringComparison.OrdinalIgnoreCase))
+                            || assemblies.Any(q => relativeFileInfo.ToString()[..^relativeFileInfo.Extension.Length].Equals(SafePath.CombineFilePath("Resources", q.Name), StringComparison.OrdinalIgnoreCase)))
                         {
-                            Write($"Updating file failed: {ex}", ConsoleColor.Yellow);
-                            continue;
+                            Write($"跳过 {nameof(ClientUpdater)} 依赖 {relativeFileInfo}");
+                        }
+                        else
+                        {
+                            try
+                            {
+                                FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName, relativeFileInfo.ToString());
+                                Write($"更新文件 -> {relativeFileInfo}");
+
+                                Directory.CreateDirectory(Path.GetDirectoryName(copiedFile.FullName));
+                                fileInfo.CopyTo(copiedFile.FullName, true);
+                            }
+                            catch (IOException ex)
+                            {
+                                Write($"更新文件失败: {ex}", ConsoleColor.Yellow);
+                                continue;
+                            }
                         }
                     }
                 }
@@ -217,6 +249,22 @@ internal sealed class Program
             delUpdateFile.Delete();
 
             // Console.WriteLine($"删除文件: {delUpdateFile.FullName}");
+        }
+    }
+
+    private static bool IsFileInUse(FileInfo file)
+    {
+        try
+        {
+            using (FileStream fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                fs.Close(); // 文件可用，正常关闭流
+            }
+            return false; // 文件未被占用
+        }
+        catch (IOException)
+        {
+            return true; // 捕获IOException表示文件被占用
         }
     }
 

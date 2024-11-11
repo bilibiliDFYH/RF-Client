@@ -552,7 +552,7 @@ namespace DTAConfig.OptionPanels
             var sectionName = $"Maps\\Multi\\WorkShop\\{component.file}";
             if (!ini.SectionExists(sectionName))
                 ini.AddSection(sectionName);
-            ini.SetValue(sectionName, "Description", component.name)
+            ini.SetValue(sectionName, "Description", component.name[..component.name.LastIndexOf('_')])
                 .SetValue(sectionName, "Author", component.author)
                 .SetValue(sectionName, "Mission", sectionName);
             ini.WriteIniFile();

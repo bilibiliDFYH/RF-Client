@@ -365,9 +365,9 @@ namespace DTAConfig.OptionPanels
                 return;
             }
 
-            if(double.Parse(new FileInfo(path).Length.ToFileSizeString(1)) > 5)
+            if(double.Parse(new FileInfo(path).Length.ToFileSizeString(1)) > 500)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "压缩包不能超过5MB");
+                XNAMessageBox.Show(WindowManager, "错误", "压缩包不能超过500MB");
                 return;
             }
 

@@ -917,8 +917,8 @@ public static class Updater
                             UseShellExecute = true
                         });
 
-                        
-                        Restart?.Invoke(null, EventArgs.Empty);
+                        Environment.Exit(0);
+                        //Restart?.Invoke(null, EventArgs.Empty);
                     }
                     else
                     {

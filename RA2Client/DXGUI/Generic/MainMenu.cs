@@ -864,13 +864,13 @@ namespace Ra2Client.DXGUI.Generic
             PlayMusic();
             if (!ClientConfiguration.Instance.ModMode)
             {
-                if (NetWorkINISettings.Instance == null || Updater.ServerMirrors == null || Updater.ServerMirrors.Count < 1)
-                {
-                    lblUpdateStatus.Text = "没有可用的更新.".L10N("UI:Main:NoServerMirrorsAvailable");
-                    lblUpdateStatus.DrawUnderline = false;
-                }
+                //if (NetWorkINISettings.Instance == null || Updater.ServerMirrors == null || Updater.ServerMirrors.Count < 1)
+                //{
+                //    lblUpdateStatus.Text = "没有可用的更新.".L10N("UI:Main:NoServerMirrorsAvailable");
+                //    lblUpdateStatus.DrawUnderline = false;
+                //}
 
-                else if (UserINISettings.Instance.CheckForUpdates)
+                if (UserINISettings.Instance.CheckForUpdates)
                 {
                     CheckForUpdates();
                 }

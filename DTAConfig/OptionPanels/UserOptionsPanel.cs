@@ -39,9 +39,12 @@ namespace DTAConfig.OptionPanels
         private XNASuggestionTextBox tbSearch;
         private XNAClientButton 出题按钮,出题记录按钮;
         private XNAButton btnImg;
-        private List<string> Sides = [];
+        private List<string> Sides = ["苏军","盟军","尤里","中立"];
         private List<Component> 该用户所有组件 = [];
         private List<Component> 筛选后组件 = [];
+        private XNALabel 徽章值;
+        private XNAProgressBar 经验进度条;
+        private XNALabel 经验值;
 
         public override async void Initialize()
         {
@@ -83,10 +86,38 @@ namespace DTAConfig.OptionPanels
                 FontIndex = 0,
             };
 
+            var lbl徽章 = new XNALabel(WindowManager)
+            {
+                Text = "徽章:",
+                ClientRectangle = new Rectangle(btnImg.X + 150, lblID.Y + 40, 0, 0),
+                FontIndex = 0,
+            };
+
+            徽章值 = new XNALabel(WindowManager)
+            {
+                Text = "",
+                ClientRectangle = new Rectangle(btnImg.Right + 70, lbl徽章.Y, 0, 0),
+                FontIndex = 0,
+            };
+
+            经验进度条 = new XNAProgressBar(WindowManager)
+            {
+                Maximum = 100,
+                Value = 39,
+                ClientRectangle = new Rectangle(徽章值.Right + 100, 徽章值.Y, 100, 15),
+            };
+
+            经验值 = new XNALabel(WindowManager)
+            {
+                Text = "",
+                ClientRectangle = new Rectangle(经验进度条.Right + 10, 经验进度条.Y, 0, 0),
+                FontIndex = 0,
+            };
+
             var lblName = new XNALabel(WindowManager)
             {
                 Text = "昵称:",
-                ClientRectangle = new Rectangle(btnImg.X + 150, lblID.Y + 40, 0, 0),
+                ClientRectangle = new Rectangle(lbl徽章.X, lbl徽章.Y + 40, 0, 0),
                 FontIndex = 0,
             };
 
@@ -134,7 +165,7 @@ namespace DTAConfig.OptionPanels
             };
             出题记录按钮.LeftClick += 跳转出题记录窗口;
 
-            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
+            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值,经验进度条, 经验值,lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
 
             AddChild(UserControls);
 
@@ -532,6 +563,14 @@ namespace DTAConfig.OptionPanels
         {
             if (0 == user.id && null == user.username)
                 return;
+
+            var badge = NetWorkINISettings.Get<BadgeVo>($"user/getUserExp?userId={user.id}").GetAwaiter().GetResult().Item1;
+
+            徽章值.Text = badge.badgeName;
+            经验进度条.Maximum = badge.nextLevelExp;
+            经验进度条.Value = badge.exp;
+            经验值.Text = $"{badge.exp}/{badge.nextLevelExp}";
+
             UserINISettings.Instance.User = user;
             lblIDValue.Text = user.id.ToString();
             lblNameValue.Text = user.username;

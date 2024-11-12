@@ -11,6 +11,7 @@ namespace ClientCore.Entity
         public string role { get; set; } = string.Empty;
         public string tag { get; set; } = string.Empty;
         public int side { get; set; } = 3;
+        public int badge { get; set; } = 0;
 
     }
 }

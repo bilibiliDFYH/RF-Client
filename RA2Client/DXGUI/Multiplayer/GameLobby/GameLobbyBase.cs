@@ -2053,8 +2053,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
                     foreach (var file in Directory.GetFiles(fileType.Value))
                     {
-                        if (!value.TryGetValue(fileType.Key, out var hash)) return true;
-                        if (hash != new FileInfo(file).GetHashCode()) return true;
+                        if (!value.TryGetValue(file, out var hash)) return true;
+                        var newHash = new FileInfo(file).GetHashCode();
+                        if (hash != newHash) return true;
                     }
                 }
 
@@ -2139,7 +2140,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             settings.SetValue("Mission", newMission);
 
-            settings.SetValue("Ra2Mode", newMain == "RA2_Main");
+            settings.SetValue("Ra2Mode", newMain == "RA2_RA2");
 
             settings.SetValue("Name", ProgramConstants.PLAYERNAME);
             settings.SetValue("Scenario", ProgramConstants.SPAWNMAP_INI);

@@ -1390,8 +1390,9 @@ namespace Ra2Client.DXGUI.Generic
                     if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
                     foreach(var file in Directory.GetFiles(fileType.Value))
                     {
-                        if(!value.TryGetValue(fileType.Key, out var hash)) return true;
-                        if(hash != new FileInfo(file).GetHashCode()) return true;
+                        if(!value.TryGetValue(file, out var hash)) return true;
+                        var newHash = new FileInfo(file).GetHashCode();
+                        if (hash != newHash) return true;
                     }
                 }
 

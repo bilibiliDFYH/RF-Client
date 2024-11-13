@@ -16,6 +16,8 @@ namespace ClientCore.Entity
 
         public string badgeName { get; set; }
 
+        public List<Badge> canUseBadges { get; set; }
+
 
     }
 }

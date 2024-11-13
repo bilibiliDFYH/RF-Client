@@ -42,9 +42,35 @@ namespace DTAConfig.OptionPanels
         private List<string> Sides = ["苏军","盟军","尤里","中立"];
         private List<Component> 该用户所有组件 = [];
         private List<Component> 筛选后组件 = [];
-        private XNALabel 徽章值;
+        private XNALinkLabel 徽章值;
+        private XNADropDown dd徽章值;
         private XNAProgressBar 经验进度条;
         private XNALabel 经验值;
+        private List<Badge> _徽章列表 = [];
+
+        public List<Badge> 可选的徽章
+        {
+            get => _徽章列表;
+            set
+            {
+                _徽章列表.Clear();  // 先清空当前的徽章列表
+                if (value != null)
+                {
+                    dd徽章值.Items.Clear();
+                    value.ForEach(v =>
+                    {
+                        var item = new XNADropDownItem()
+                        {
+                            Text = v.name,
+                            Tag = v.id
+                        };
+                        dd徽章值.AddItem(item);
+                    });  // 这里可以添加到你的dd徽章值对象
+                    dd徽章值.SelectedIndex = dd徽章值.Items.FindIndex(i => i.Text == 徽章值.Text);
+                    _徽章列表.AddRange(value);  // 同时添加到内部字段中
+                }
+            }
+        }
 
         public override async void Initialize()
         {
@@ -93,17 +119,29 @@ namespace DTAConfig.OptionPanels
                 FontIndex = 0,
             };
 
-            徽章值 = new XNALabel(WindowManager)
+            徽章值 = new XNALinkLabel(WindowManager)
             {
                 Text = "",
                 ClientRectangle = new Rectangle(btnImg.Right + 70, lbl徽章.Y, 0, 0),
                 FontIndex = 0,
+                Visible = false
             };
+
+
+            dd徽章值 = new XNADropDown(WindowManager)
+            {
+                ClientRectangle = new Rectangle(btnImg.Right + 70, lbl徽章.Y, 100, 20),
+                FontIndex = 0,
+                
+            };
+
+            徽章值.LeftClick += 反转徽章显示状态;
+            dd徽章值.SelectedIndexChanged += 更新徽章值;
 
             经验进度条 = new XNAProgressBar(WindowManager)
             {
-                Maximum = 100,
-                Value = 39,
+                //Maximum = 100,
+                //Value = 39,
                 ClientRectangle = new Rectangle(徽章值.Right + 100, 徽章值.Y, 100, 15),
             };
 
@@ -165,7 +203,7 @@ namespace DTAConfig.OptionPanels
             };
             出题记录按钮.LeftClick += 跳转出题记录窗口;
 
-            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值,经验进度条, 经验值,lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
+            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值,经验进度条, 经验值,lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
 
             AddChild(UserControls);
 
@@ -305,6 +343,26 @@ namespace DTAConfig.OptionPanels
                 });
             }
             #endregion
+        }
+
+        private void 更新徽章值(object sender, EventArgs e)
+        {
+            Task.Run(async () =>
+            {
+                await NetWorkINISettings.Post<bool?>("user/updUserBadge", new BadgeDto()
+                {
+                    userId = UserINISettings.Instance.User.id,
+                    badgeId = (int)dd徽章值.SelectedItem.Tag
+                });
+                徽章值.Text = dd徽章值.SelectedItem.Text;
+            反转徽章显示状态(null, null);
+            });
+            
+        }
+
+        private void 反转徽章显示状态(object sender, EventArgs e)
+        {
+            (dd徽章值.Visible, 徽章值.Visible) = (徽章值.Visible, dd徽章值.Visible);
         }
 
         private void 登录()
@@ -570,6 +628,7 @@ namespace DTAConfig.OptionPanels
             经验进度条.Maximum = badge.nextLevelExp;
             经验进度条.Value = badge.exp;
             经验值.Text = $"{badge.exp}/{badge.nextLevelExp}";
+            可选的徽章 = badge.canUseBadges;
 
             UserINISettings.Instance.User = user;
             lblIDValue.Text = user.id.ToString();

@@ -567,8 +567,7 @@ namespace Ra2Client.DXGUI.Generic
 
             // 获取扩展使用情况
             GetUseExtension();
-            // _chkExtension.Checked = false;
-            // if (cmbGame.SelectedItem == null) return;
+   
             if (_extension == null)
             {
                 _chkExtension.AllowChecking = false;
@@ -672,7 +671,8 @@ namespace Ra2Client.DXGUI.Generic
 
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
-            GetMissionInfo(true);
+            Task.Run(() => { GetMissionInfo(true); });
+            
 
             ChkModify_CheckedChanged(null, null);
 
@@ -707,20 +707,20 @@ namespace Ra2Client.DXGUI.Generic
 
             _gameOptionsPanel.Visible = _chkModify.Checked;
 
-            bool isYR = !_screenMissions[_lbxCampaignList.SelectedIndex].YR;
-            bool isSelectedNotNull = _cmbGame.SelectedItem != null;
-            bool isModifyChecked = _chkModify.Checked;
-            bool isMd = ((Mod)(_cmbGame.SelectedItem.Tag)).md == "md";
+            //bool isYR = _screenMissions[_lbxCampaignList.SelectedIndex].YR;
+            //bool isSelectedNotNull = _cmbGame.SelectedItem != null;
+            //bool isModifyChecked = _chkModify.Checked;
+            //bool isMd = ((Mod)(_cmbGame.SelectedItem.Tag)).md == "md";
 
-            if ((isSelectedNotNull && isYR && !isModifyChecked) || (isMd && isYR))
-            {
-                _chkExtension.Checked = true;
-                _chkExtension.AllowChecking = false;
-            }
-            else
-            {
-                _chkExtension.AllowChecking = true;
-            }
+            //if ((isSelectedNotNull && isYR && !isModifyChecked) || (isMd && isYR))
+            //{
+            //    _chkExtension.Checked = true;
+            //    _chkExtension.AllowChecking = false;
+            //}
+            //else
+            //{
+            //    _chkExtension.AllowChecking = true;
+            //}
 
         }
 
@@ -1115,60 +1115,7 @@ namespace Ra2Client.DXGUI.Generic
                 _chkModify.AllowChecking = false;
             }
 
-            if (!string.IsNullOrEmpty(mission.Scenario))
-            {
-                string img = Path.Combine(ProgramConstants.GamePath, mission.Path,
-                    mission.Scenario.Substring(0, mission.Scenario.LastIndexOf('.')) + ".png");
-                if (File.Exists(img))
-                {
-                    // 加载图像
-                    var originalImage = System.Drawing.Image.FromFile(img);
-
-                    // 获取图像的宽高比例
-                    float imageAspectRatio = (float)originalImage.Width / originalImage.Height;
-
-                    // 设置预览框的大小为设计时的大小
-                    float boxWidth = MapPreviewBoxPosition.Width;
-                    float boxHeight = MapPreviewBoxPosition.Height;
-
-                    // 计算预览框的宽高比例
-                    float boxAspectRatio = boxWidth / boxHeight;
-
-                    // 如果图像的宽高比例大于预览框的宽高比例，则以预览框的宽度为基准调整高度
-                    if (imageAspectRatio > boxAspectRatio)
-                    {
-                        boxHeight = boxWidth / imageAspectRatio;
-                    }
-                    // 如果图像的宽高比例小于预览框的宽高比例，则以预览框的高度为基准调整宽度
-                    else
-                    {
-                        boxWidth = boxHeight * imageAspectRatio;
-                    }
-
-                    // 计算预览框的位置
-                    int x = MapPreviewBoxPosition.Left + (MapPreviewBoxPosition.Width - (int)boxWidth) / 2;
-                    int y = MapPreviewBoxPosition.Top + (MapPreviewBoxPosition.Height - (int)boxHeight) / 2;
-
-                    // 设置预览框的大小
-
-
-                    MapPreviewBoxAspectPosition = new Rectangle(x, y, (int)boxWidth, (int)boxHeight);
-
-                    _mapPreviewBox.ClientRectangle = MapPreviewBoxAspectPosition;
-
-                    // 将图像设置为预览框的纹理
-                    _mapPreviewBox.IdleTexture = AssetLoader.LoadTexture(img);
-
-                    // 设置预览框可见
-                    _mapPreviewBox.Visible = true;
-                }
-                else
-                    _mapPreviewBox.Visible = false;
-            }
-            else
-            {
-                _mapPreviewBox.Visible = false;
-            }
+            _mapPreviewBox.Visible = false;
 
             //重新加载Mod选择器
             _cmbGame.Items.Clear();
@@ -1199,29 +1146,80 @@ namespace Ra2Client.DXGUI.Generic
 
             CmbGame_SelectedChanged(_cmbGame, null);
 
-            // 刷新扩展使用情况
-            //  ExtensionChange();
-            //  cmbGame.SelectedIndex = cmbGame.Items.FindIndex(i => ((Mod)i.Tag).ID == Path.defaultMod);
-
-            //获取任务解析
-            GetMissionInfo(false);
-
             _btnLaunch.AllowClick = true;
 
-            if (!mission.Other)
+            _ = Task.Run(async () =>
             {
-                await updateMark(mission.SectionName).ConfigureAwait(false);
-                if (!_ratingBox.Visible)
-                {
-                    _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = true;
-                }
-            }
-            else
-            {
-                if (_ratingBox.Visible)
-                    _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = false;
-            }
+                //获取任务解析
+                //  GetMissionInfo(false);
 
+                if (!string.IsNullOrEmpty(mission.Scenario))
+                {
+                    string img = Path.Combine(ProgramConstants.GamePath, mission.Path,
+                        mission.Scenario[..mission.Scenario.LastIndexOf('.')] + ".png");
+                    if (File.Exists(img))
+                    {
+                        // 加载图像
+                        var originalImage = System.Drawing.Image.FromFile(img);
+
+                        // 获取图像的宽高比例
+                        float imageAspectRatio = (float)originalImage.Width / originalImage.Height;
+
+                        // 设置预览框的大小为设计时的大小
+                        float boxWidth = MapPreviewBoxPosition.Width;
+                        float boxHeight = MapPreviewBoxPosition.Height;
+
+                        // 计算预览框的宽高比例
+                        float boxAspectRatio = boxWidth / boxHeight;
+
+                        // 如果图像的宽高比例大于预览框的宽高比例，则以预览框的宽度为基准调整高度
+                        if (imageAspectRatio > boxAspectRatio)
+                        {
+                            boxHeight = boxWidth / imageAspectRatio;
+                        }
+                        // 如果图像的宽高比例小于预览框的宽高比例，则以预览框的高度为基准调整宽度
+                        else
+                        {
+                            boxWidth = boxHeight * imageAspectRatio;
+                        }
+
+                        // 计算预览框的位置
+                        int x = MapPreviewBoxPosition.Left + (MapPreviewBoxPosition.Width - (int)boxWidth) / 2;
+                        int y = MapPreviewBoxPosition.Top + (MapPreviewBoxPosition.Height - (int)boxHeight) / 2;
+
+                        // 设置预览框的大小
+
+
+                        MapPreviewBoxAspectPosition = new Rectangle(x, y, (int)boxWidth, (int)boxHeight);
+
+                        _mapPreviewBox.ClientRectangle = MapPreviewBoxAspectPosition;
+
+                        // 将图像设置为预览框的纹理
+                        _mapPreviewBox.IdleTexture = AssetLoader.LoadTexture(img);
+
+                        // 设置预览框可见
+                        _mapPreviewBox.Visible = true;
+                    }
+
+
+                }
+
+                if (!mission.Other)
+                {
+                    await updateMark(mission.SectionName).ConfigureAwait(false);
+                    if (!_ratingBox.Visible)
+                    {
+                        _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = true;
+                    }
+                }
+                else
+                {
+                    if (_ratingBox.Visible)
+                        _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = false;
+                }
+
+            });
+          
         }
 
         private void BtnCancel_LeftClick(object sender, EventArgs e)
@@ -1497,8 +1495,12 @@ namespace Ra2Client.DXGUI.Generic
 
             settings.SetValue("Mission", newMission);
 
-            settings.SetValue("Ra2Mode", mod.md != "md");
-
+            
+            //settings.SetValue("Ra2Mode", mod.md != "md");
+            if(_chkExtension.Checked)
+                settings.SetValue("Ra2Mode", mod.md != "md");
+            else//这里不知为何一定得写False，即使是用原版玩，用True会弹窗
+                settings.SetValue("Ra2Mode", false);
 
             if (_chkModify.Checked)
                 settings.SetValue("Scenario", "spawnmap.ini");

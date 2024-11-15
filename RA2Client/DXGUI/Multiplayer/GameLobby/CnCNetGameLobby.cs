@@ -315,7 +315,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChild(btnClosePass);
             PostInitialize();
 
-            btnRandomMap.ClientRectangle = new Rectangle(btnChangeTunnel.X - btnChangeTunnel.Width - 20,btnChangeTunnel.Y,btnChangeTunnel.Width,btnChangeTunnel.Height);
+            
         }
 
         private void BtnClosePass_LeftClick(object sender, EventArgs e)

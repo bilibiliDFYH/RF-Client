@@ -22,8 +22,7 @@ using XNATextBox = ClientGUI.XNATextBox;
 using Component = DTAConfig.Entity.Component;
 using SharpDX.MediaFoundation;
 using System.Timers;
-using static System.Windows.Forms.Design.AxImporter;
-using System.Xml;
+
 
 namespace DTAConfig.OptionPanels
 {
@@ -38,7 +37,7 @@ namespace DTAConfig.OptionPanels
         private XNAMultiColumnListBox mlbWorkshop;
         private XNASuggestionTextBox tbSearch;
         private XNAClientButton 出题按钮,出题记录按钮;
-        private XNAButton btnImg;
+        private XNATextBlock btnImg,等级图标;
         private List<string> Sides = ["苏军","盟军","尤里","中立"];
         private List<Component> 该用户所有组件 = [];
         private List<Component> 筛选后组件 = [];
@@ -93,9 +92,10 @@ namespace DTAConfig.OptionPanels
             AddChild(tabControl);
 
             #region 我的资料
-            btnImg = new XNAButton(WindowManager)
+            btnImg = new XNATextBlock(WindowManager)
             {
-                ClientRectangle = new Rectangle(30, 60, 125, 125)
+                ClientRectangle = new Rectangle(30, 60, 125, 125),
+                DrawBorders = false
             };
 
             var lblID = new XNALabel(WindowManager)
@@ -112,10 +112,24 @@ namespace DTAConfig.OptionPanels
                 FontIndex = 0,
             };
 
+            var lblName = new XNALabel(WindowManager)
+            {
+                Text = "昵称:",
+                ClientRectangle = new Rectangle(btnImg.X + 150, lblID.Y + 40, 0, 0),
+                FontIndex = 0,
+            };
+
+            lblNameValue = new XNALinkLabel(WindowManager)
+            {
+                Text = "点击登录或注册",
+                ClientRectangle = new Rectangle(btnImg.Right + 70, lblName.Y, 0, 0),
+                FontIndex = 0,
+            };
+
             var lbl徽章 = new XNALabel(WindowManager)
             {
                 Text = "徽章:",
-                ClientRectangle = new Rectangle(btnImg.X + 150, lblID.Y + 40, 0, 0),
+                ClientRectangle = new Rectangle(lblName.X, lblName.Y + 40, 0, 0),
                 FontIndex = 0,
             };
 
@@ -132,17 +146,23 @@ namespace DTAConfig.OptionPanels
             {
                 ClientRectangle = new Rectangle(btnImg.Right + 70, lbl徽章.Y, 100, 20),
                 FontIndex = 0,
-                
+                Visible = false
             };
 
-            徽章值.LeftClick += 反转徽章显示状态;
-            dd徽章值.SelectedIndexChanged += 更新徽章值;
+
+            等级图标 = new XNATextBlock(WindowManager)
+            {
+                ClientRectangle = new Rectangle(徽章值.Right + 100, 徽章值.Y, 34, 17),
+                BackgroundTexture = AssetLoader.LoadTextureUncached("chat_ic_lv0.png"),
+                DrawBorders = false,
+                Visible = false
+            };  
 
             经验进度条 = new XNAProgressBar(WindowManager)
             {
                 //Maximum = 100,
                 //Value = 39,
-                ClientRectangle = new Rectangle(徽章值.Right + 100, 徽章值.Y, 100, 15),
+                ClientRectangle = new Rectangle(等级图标.Right + 14, 等级图标.Y, 100, 17),
             };
 
             经验值 = new XNALabel(WindowManager)
@@ -150,25 +170,13 @@ namespace DTAConfig.OptionPanels
                 Text = "",
                 ClientRectangle = new Rectangle(经验进度条.Right + 10, 经验进度条.Y, 0, 0),
                 FontIndex = 0,
-            };
-
-            var lblName = new XNALabel(WindowManager)
-            {
-                Text = "昵称:",
-                ClientRectangle = new Rectangle(lbl徽章.X, lbl徽章.Y + 40, 0, 0),
-                FontIndex = 0,
-            };
-
-            lblNameValue = new XNALinkLabel(WindowManager)
-            {   Text = "点击登录或注册",
-                ClientRectangle = new Rectangle(btnImg.Right + 70, lblName.Y, 0, 0),
-                FontIndex = 0,
+                Visible = false
             };
 
             var lblSide = new XNALabel(WindowManager)
             {
                 Text = "阵营:",
-                ClientRectangle = new Rectangle(btnImg.X + 150, lblName.Y + 40, 0, 0),
+                ClientRectangle = new Rectangle(btnImg.X + 150, lbl徽章.Y + 40, 0, 0),
                 FontIndex = 0,
             };
 
@@ -188,7 +196,7 @@ namespace DTAConfig.OptionPanels
             出题按钮 = new XNAClientButton(WindowManager)
             {
                 Text = "我来出题",
-                X = lblcertify.Right + 120,
+                X = 等级图标.X,
                 Y = lblcertify.Y - 5,
                 Enabled = false
             };
@@ -203,7 +211,7 @@ namespace DTAConfig.OptionPanels
             };
             出题记录按钮.LeftClick += 跳转出题记录窗口;
 
-            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值,经验进度条, 经验值,lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
+            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值, 等级图标,经验进度条, 经验值,lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
 
             AddChild(UserControls);
 
@@ -349,9 +357,12 @@ namespace DTAConfig.OptionPanels
         {
             Task.Run(async () =>
             {
+                var user = UserINISettings.Instance.User;
+
+                if (user == null) return;
                 await NetWorkINISettings.Post<bool?>("user/updUserBadge", new BadgeDto()
                 {
-                    userId = UserINISettings.Instance.User.id,
+                    userId = user.id,
                     badgeId = (int)dd徽章值.SelectedItem.Tag
                 });
                 徽章值.Text = dd徽章值.SelectedItem.Text;
@@ -436,6 +447,13 @@ namespace DTAConfig.OptionPanels
             lblNameValue.Text = "点击登录或注册";
             lblNameValue.LeftClick += 跳转登录窗口;
             lblNameValue.LeftClick -= 跳转编辑用户窗口;
+            dd徽章值.SelectedIndexChanged -= 更新徽章值;
+            徽章值.LeftClick -= 反转徽章显示状态;
+            徽章值.Visible = false;
+            等级图标.BackgroundTexture = AssetLoader.LoadTexture($"chat_ic_lv0.png");
+            等级图标.Visible = false;
+            经验进度条.Visible = false;
+            经验值.Text = string.Empty;
             btnImg.Visible = false;
             lblcertify.Text = "点此认证";
             lblcertify.Enabled = false;
@@ -622,13 +640,22 @@ namespace DTAConfig.OptionPanels
             if (0 == user.id && null == user.username)
                 return;
 
-            var badge = NetWorkINISettings.Get<BadgeVo>($"user/getUserExp?userId={user.id}").GetAwaiter().GetResult().Item1;
+            Task.Run(() =>
+            {
+                var badge = NetWorkINISettings.Get<BadgeVo>($"user/getUserExp?userId={user.id}").GetAwaiter().GetResult().Item1;
 
-            徽章值.Text = badge.badgeName;
-            经验进度条.Maximum = badge.nextLevelExp;
-            经验进度条.Value = badge.exp;
-            经验值.Text = $"{badge.exp}/{badge.nextLevelExp}";
-            可选的徽章 = badge.canUseBadges;
+                徽章值.Text = badge.badgeName;
+                经验进度条.Maximum = badge.nextLevelExp;
+                经验进度条.Value = badge.exp;
+                经验值.Text = $"{badge.exp}/{badge.nextLevelExp}";
+                可选的徽章 = badge.canUseBadges;
+                等级图标.BackgroundTexture = AssetLoader.LoadTexture($"chat_ic_lv{badge.level}.png");
+                徽章值.Visible = true;
+                等级图标.Visible = true;
+                经验进度条.Visible = true;
+                徽章值.LeftClick += 反转徽章显示状态;
+                dd徽章值.SelectedIndexChanged += 更新徽章值;
+            });
 
             UserINISettings.Instance.User = user;
             lblIDValue.Text = user.id.ToString();
@@ -659,7 +686,7 @@ namespace DTAConfig.OptionPanels
                 3 => "中立",
                 _ => "中立",
             };
-            btnImg.IdleTexture = AssetLoader.LoadTexture($"Resources/{s}.png");
+            btnImg.BackgroundTexture = AssetLoader.LoadTexture($"Resources/{s}.png");
             tabControl.MakeSelectable(1);
             lblNameValue.LeftClick -= 跳转登录窗口;
             lblNameValue.LeftClick -= 跳转编辑用户窗口;

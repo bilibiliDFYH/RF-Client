@@ -519,43 +519,43 @@ public static class Updater
         ExecuteScript("updateexec");
     }
 
-    /// <summary>
-    /// Executes pre-update script file.
-    /// </summary>
-    /// <returns>True if succesful, otherwise false.</returns>
-    private static async ValueTask<bool> ExecutePreUpdateScriptAsync()
-    {
-        Logger.Log("更新：Downloading preupdateexec.");
-        try
-        {
-            var fileStream = new FileStream(SafePath.CombineFilePath(GamePath, "preupdateexec"), new FileStreamOptions
-            {
-                Access = FileAccess.Write,
-                BufferSize = 0,
-                Mode = FileMode.Create,
-                Options = FileOptions.Asynchronous | FileOptions.SequentialScan | FileOptions.WriteThrough,
-                Share = FileShare.None
-            });
+    ///// <summary>
+    ///// Executes pre-update script file.
+    ///// </summary>
+    ///// <returns>True if succesful, otherwise false.</returns>
+    //private static async ValueTask<bool> ExecutePreUpdateScriptAsync()
+    //{
+    //    Logger.Log("更新：Downloading preupdateexec.");
+    //    try
+    //    {
+    //        var fileStream = new FileStream(SafePath.CombineFilePath(GamePath, "preupdateexec"), new FileStreamOptions
+    //        {
+    //            Access = FileAccess.Write,
+    //            BufferSize = 0,
+    //            Mode = FileMode.Create,
+    //            Options = FileOptions.Asynchronous | FileOptions.SequentialScan | FileOptions.WriteThrough,
+    //            Share = FileShare.None
+    //        });
 
-            await using (fileStream.ConfigureAwait(false))
-            {
-                Stream stream = await SharedHttpClient.GetStreamAsync(ServerMirrors[currentServerMirrorIndex].URL + "preupdateexec").ConfigureAwait(false);
+    //        await using (fileStream.ConfigureAwait(false))
+    //        {
+    //            Stream stream = await SharedHttpClient.GetStreamAsync(ServerMirrors[currentServerMirrorIndex].URL + "preupdateexec").ConfigureAwait(false);
 
-                await using (stream.ConfigureAwait(false))
-                {
-                    await stream.CopyToAsync(fileStream).ConfigureAwait(false);
-                }
-            }
-        }
-        catch (Exception exception)
-        {
-            Logger.Log("更新：Warning: Downloading preupdateexec failed: " + exception.Message);
-            return false;
-        }
+    //            await using (stream.ConfigureAwait(false))
+    //            {
+    //                await stream.CopyToAsync(fileStream).ConfigureAwait(false);
+    //            }
+    //        }
+    //    }
+    //    catch (Exception exception)
+    //    {
+    //        Logger.Log("更新：Warning: Downloading preupdateexec failed: " + exception.Message);
+    //        return false;
+    //    }
 
-        ExecuteScript("preupdateexec");
-        return true;
-    }
+    //    ExecuteScript("preupdateexec");
+    //    return true;
+    //}
 
     /// <summary>
     /// Executes a script file.

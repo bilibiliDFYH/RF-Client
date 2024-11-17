@@ -287,7 +287,8 @@ namespace Localization.SevenZip
             Logger.Log(this.libraryFilePath);
             try
             {
-                this.sevenZipHandle = new SevenZipHandle(this.libraryFilePath);
+                this.sevenZipHandle = new SevenZipHandle(libraryFilePath);
+                
             }
             catch (Exception e)
             {

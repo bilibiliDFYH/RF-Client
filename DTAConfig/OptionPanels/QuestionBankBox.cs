@@ -80,7 +80,7 @@ namespace DTAConfig.OptionPanels
                 ClientRectangle = new Rectangle(280, 10, 0, 0)
             };
             lblScore = new XNALabel(WindowManager) {
-                Text = "59",
+                Text = "0",
                 ClientRectangle = new Rectangle(530,10,0,0)
             };
             lblProblem = new XNALabel(WindowManager)

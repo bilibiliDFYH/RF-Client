@@ -279,8 +279,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             btnChangeTunnel.Text = "Change Tunnel".L10N("UI:Main:ChangeTunnel");
 
             //ÔÝÊ±ÐÞ¸Ä²âÊÔ
-            //  btnChangeTunnel.LeftClick += BtnChangeTunnel_LeftClick;
-            btnChangeTunnel.LeftClick += MapSharingConfirmationPanel_MapDownloadConfirmed;
+              btnChangeTunnel.LeftClick += BtnChangeTunnel_LeftClick;
+            //btnChangeTunnel.LeftClick += MapSharingConfirmationPanel_MapDownloadConfirmed;
              btnClosePass = new XNAClientButton(WindowManager);
             btnClosePass.Text = "½â³ýÃÜÂë";
             btnClosePass.ClientRectangle = new Rectangle(btnChangeTunnel.X - 150, btnChangeTunnel.Y, btnChangeTunnel.Width, btnChangeTunnel.Height);

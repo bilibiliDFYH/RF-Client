@@ -22,6 +22,7 @@ using System.Text.RegularExpressions;
 using DTAConfig.Entity;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Windows.Forms;
+using ClientCore.Entity;
 
 namespace DTAConfig.OptionPanels
 {
@@ -58,9 +59,9 @@ namespace DTAConfig.OptionPanels
         /// <summary>
         /// 组件列表数据
         /// </summary>
-        private List<Component> _components = null;
+        private List<Component> _components = [];
 
-        private List<Component> All_components = null;
+        private List<Component> All_components = [];
 
 
         /// <summary>
@@ -221,10 +222,10 @@ namespace DTAConfig.OptionPanels
 #if RELEASE
                 All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1??[];
 #else
-                   _components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
-               // _components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
+                //All_components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
+                 All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
 #endif
-                
+
                 if (All_components.Count > 0)
                 {
                     ComboBoxtypes_SelectedIndexChanged(null, null);
@@ -552,10 +553,10 @@ namespace DTAConfig.OptionPanels
             if(!File.Exists(workshopIniPath))
                 File.Create(workshopIniPath).Close();
             var ini = new IniFile(workshopIniPath);
-            var sectionName = $"Maps\\Multi\\WorkShop\\{component.file}";
+            var sectionName = $"Maps/Multi/WorkShop/{component.file}";
             if (!ini.SectionExists(sectionName))
                 ini.AddSection(sectionName);
-            ini.SetValue(sectionName, "Description", component.name[..component.name.LastIndexOf('_')])
+            ini.SetValue(sectionName, "Description", component.name)
                 .SetValue(sectionName, "Author", component.author)
                 .SetValue(sectionName, "Mission", sectionName);
             ini.WriteIniFile();
@@ -563,7 +564,7 @@ namespace DTAConfig.OptionPanels
 
         public override bool Save()
         {
-            if(需要刷新)
+            if (需要刷新)
                 UserINISettings.Instance.ReLoadMissionList?.Invoke();
             需要刷新 = false;
             return false;

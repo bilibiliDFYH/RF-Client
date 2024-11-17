@@ -105,7 +105,7 @@ internal sealed class Program
 
                 // 先统一检查所有文件是否被占用
                 bool anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
-
+                bool 更新成功 = true;
                 int retryCount = 0;
 
                 // 如果文件被占用，最多尝试10次，每次间隔1秒
@@ -153,29 +153,34 @@ internal sealed class Program
                             catch (IOException ex)
                             {
                                 Write($"更新文件失败: {ex}", ConsoleColor.Yellow);
-                                continue;
+                                更新成功 = false;
+                                break;
                             }
                         }
                     }
                 }
 
-                FileInfo versionFile = SafePath.GetFile(updaterDirectory.FullName, versionFileName);
+                if (更新成功) {
+                    FileInfo versionFile = SafePath.GetFile(updaterDirectory.FullName, versionFileName);
 
-                if (versionFile.Exists)
-                {
-                    FileInfo destinationFile = SafePath.GetFile(baseDirectory.FullName, versionFile.Name);
-                    FileInfo relativeFileInfo = SafePath.GetFile(destinationFile.FullName[baseDirectory.FullName.Length..]);
+                    if (versionFile.Exists)
+                    {
+                        FileInfo destinationFile = SafePath.GetFile(baseDirectory.FullName, versionFile.Name);
+                        FileInfo relativeFileInfo = SafePath.GetFile(destinationFile.FullName[baseDirectory.FullName.Length..]);
 
-                    Write($"更新文件 -> {relativeFileInfo}");
-                    versionFile.CopyTo(destinationFile.FullName, true);
+                        Write($"更新文件 -> {relativeFileInfo}");
+                        versionFile.CopyTo(destinationFile.FullName, true);
+                    }
+
+                    if (updaterDirectory.Exists)
+                    {
+                        Directory.Delete(updaterDirectory.FullName, true);
+                    }
+
+                    Write("文件已经全部更新成功. 正在启动主程序..", ConsoleColor.Green);
                 }
-
-                if (updaterDirectory.Exists)
-                {
-                    Directory.Delete(updaterDirectory.FullName, true);
-                }
-
-                Write("文件已经全部更新成功. 正在启动主程序..", ConsoleColor.Green);
+                else
+                    Write("更新失败");
                 string launcherExe = clientExecutable.Name;
                 FileInfo launcherExeFile = SafePath.GetFile(baseDirectory.FullName, "Resources", "Binaries", launcherExe);
 

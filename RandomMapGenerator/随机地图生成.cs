@@ -11,10 +11,8 @@ namespace RandomMapGenerator
     public class 随机地图生成
     {
         public static string WorkingFolder;
-        private static string RenderderPath;
-        private const string 游戏目录 = "./";
-        private readonly static string ProgramFolder = Environment.CurrentDirectory;
-        private const string MapUnitsFolder = "Resources\\RandomMapGenerator_RA2\\MapUnits\\";
+        
+        private const string MapUnitsFolder = "MapUnits\\";
 
         public static void RunOptions(Options option)
         {
@@ -23,7 +21,7 @@ namespace RandomMapGenerator
             //var settings = new IniFile("settings.ini").GetSection("settings");
             //var workingFokderTemp = settings.GetStringValue("WorkingFolder", ".").EndsWith("\\") ? settings.GetStringValue("WorkingFolder", ".") : settings.GetStringValue("WorkingFolder", ".") + "\\";
 
-            WorkingFolder = Path.Combine(ProgramFolder, MapUnitsFolder, option.Type) + "\\";
+            WorkingFolder = Path.Combine(Constants.ProgramFolder, MapUnitsFolder, option.Type) + "\\";
 
             if (!Directory.Exists(WorkingFolder))
             {

@@ -478,7 +478,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public async void UseDownloadedData()
         {
-            lblannouncement.Text = GetContent((await NetWorkINISettings.Get<string>("anno/getAnnoByType?type=mainmenu")).Item1 ?? "暂无公告");
+            lblannouncement.Text = GetContent((await NetWorkINISettings.Get<string>("anno/getAnnoByType?type=mainMenu")).Item1 ?? "暂无公告");
         }
 
         private string GetContent(string content)

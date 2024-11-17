@@ -60,6 +60,9 @@ namespace DTAConfig.OptionPanels
         /// </summary>
         private List<Component> _components = null;
 
+        private List<Component> All_components = null;
+
+
         /// <summary>
         /// 当前选中的组件
         /// </summary>
@@ -185,21 +188,21 @@ namespace DTAConfig.OptionPanels
             if (comboBoxtypes.SelectedIndex < 0 || comboBoxtypes.SelectedIndex > comboBoxtypes.Items.Count)
                 return;
 
-            if (null == _components || 0 == _components.Count)
+            if (null == All_components || 0 == All_components.Count)
             {
                 comboBoxtypes.SelectedIndex = 0;
                 return;
             }
-                
-            var components = _components;
-            if (0 < comboBoxtypes.SelectedIndex)
-            {
+         
+         //   if (0 < comboBoxtypes.SelectedIndex)
+          //  {
                 CompList.ClearItems();
                 
-                components = _components.FindAll(p => p.type == comboBoxtypes.SelectedIndex - 1);
+                _components = All_components.FindAll(p => comboBoxtypes.SelectedIndex == 0 || p.type == comboBoxtypes.SelectedIndex - 1);
               
-            }
-            InitialComponetsList(components);
+          //  }
+            InitialComponetsList(_components);
+            CompList_SelectedChanged(null, null);
         }
 
 
@@ -216,13 +219,13 @@ namespace DTAConfig.OptionPanels
             Task.Run(async () =>
             {
 #if RELEASE
-                _components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1??[];
+                All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1??[];
 #else
                    _components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
                // _components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
 #endif
                 
-                if (_components.Count > 0)
+                if (All_components.Count > 0)
                 {
                     ComboBoxtypes_SelectedIndexChanged(null, null);
                 }

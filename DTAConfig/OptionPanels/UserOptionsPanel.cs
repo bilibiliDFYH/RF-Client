@@ -138,7 +138,6 @@ namespace DTAConfig.OptionPanels
                 Text = "",
                 ClientRectangle = new Rectangle(btnImg.Right + 70, lbl徽章.Y, 0, 0),
                 FontIndex = 0,
-                Visible = false
             };
 
 
@@ -146,8 +145,9 @@ namespace DTAConfig.OptionPanels
             {
                 ClientRectangle = new Rectangle(btnImg.Right + 70, lbl徽章.Y, 100, 20),
                 FontIndex = 0,
-                Visible = false
+                Visible = false,
             };
+            dd徽章值.RightClick += 反转徽章显示状态;
 
 
             等级图标 = new XNATextBlock(WindowManager)
@@ -155,13 +155,10 @@ namespace DTAConfig.OptionPanels
                 ClientRectangle = new Rectangle(徽章值.Right + 100, 徽章值.Y, 34, 17),
                 BackgroundTexture = AssetLoader.LoadTextureUncached("chat_ic_lv0.png"),
                 DrawBorders = false,
-                Visible = false
             };  
 
             经验进度条 = new XNAProgressBar(WindowManager)
             {
-                //Maximum = 100,
-                //Value = 39,
                 ClientRectangle = new Rectangle(等级图标.Right + 14, 等级图标.Y, 100, 17),
             };
 
@@ -170,7 +167,6 @@ namespace DTAConfig.OptionPanels
                 Text = "",
                 ClientRectangle = new Rectangle(经验进度条.Right + 10, 经验进度条.Y, 0, 0),
                 FontIndex = 0,
-                Visible = false
             };
 
             var lblSide = new XNALabel(WindowManager)
@@ -211,8 +207,8 @@ namespace DTAConfig.OptionPanels
             };
             出题记录按钮.LeftClick += 跳转出题记录窗口;
 
-            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值, 等级图标,经验进度条, 经验值,lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
-
+            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值, 等级图标, 经验进度条, 经验值, lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
+        
             AddChild(UserControls);
 
             #endregion
@@ -359,7 +355,7 @@ namespace DTAConfig.OptionPanels
             {
                 var user = UserINISettings.Instance.User;
 
-                if (user == null) return;
+                if (user == null || dd徽章值.SelectedItem == null) return;
                 await NetWorkINISettings.Post<bool?>("user/updUserBadge", new BadgeDto()
                 {
                     userId = user.id,
@@ -447,6 +443,8 @@ namespace DTAConfig.OptionPanels
             lblNameValue.Text = "点击登录或注册";
             lblNameValue.LeftClick += 跳转登录窗口;
             lblNameValue.LeftClick -= 跳转编辑用户窗口;
+            出题按钮.Enabled = false;
+            出题记录按钮.Enabled = false;
             dd徽章值.SelectedIndexChanged -= 更新徽章值;
             徽章值.LeftClick -= 反转徽章显示状态;
             徽章值.Visible = false;
@@ -498,8 +496,24 @@ namespace DTAConfig.OptionPanels
 
         private void Tab切换事件(object sender, EventArgs e)
         {
-            List<XNAControl> allControls = [..UserControls, ..WorkshopControls];
+ 
+            List<XNAControl> list = [徽章值, dd徽章值, 等级图标, 经验进度条, 经验值];
+
+            if (tabControl.SelectedTab == 1)
+            {
+                RemoveChild(list);
+            }
+            else
+            {
+                AddChild(list);
+            }
+
+            List<XNAControl> allControls = [.. UserControls, .. WorkshopControls];
             allControls.ForEach(c => c.Visible = !c.Visible);
+
+            //UserControls.ForEach(c => c.Visible = tabControl.SelectedTab == 0);
+            //WorkshopControls.ForEach(c => c.Visible = tabControl.SelectedTab != 0);
+
         }
 
         private void 跳转上传窗口(object sender, EventArgs e)
@@ -643,18 +657,22 @@ namespace DTAConfig.OptionPanels
             Task.Run(() =>
             {
                 var badge = NetWorkINISettings.Get<BadgeVo>($"user/getUserExp?userId={user.id}").GetAwaiter().GetResult().Item1;
-
-                徽章值.Text = badge.badgeName;
-                经验进度条.Maximum = badge.nextLevelExp;
-                经验进度条.Value = badge.exp;
-                经验值.Text = $"{badge.exp}/{badge.nextLevelExp}";
-                可选的徽章 = badge.canUseBadges;
-                等级图标.BackgroundTexture = AssetLoader.LoadTexture($"chat_ic_lv{badge.level}.png");
-                徽章值.Visible = true;
-                等级图标.Visible = true;
-                经验进度条.Visible = true;
-                徽章值.LeftClick += 反转徽章显示状态;
-                dd徽章值.SelectedIndexChanged += 更新徽章值;
+                if (badge != null)
+                {
+                    徽章值.Text = badge.badgeName;
+                    经验进度条.Maximum = badge.nextLevelExp;
+                    经验进度条.Value = badge.exp;
+                    经验值.Text = $"{badge.exp}/{badge.nextLevelExp}";
+                    可选的徽章 = badge.canUseBadges;
+                    等级图标.BackgroundTexture = AssetLoader.LoadTexture($"chat_ic_lv{badge.level}.png");
+                    徽章值.Visible = true;
+                    等级图标.Visible = true;
+                    经验进度条.Visible = true;
+                    徽章值.LeftClick -= 反转徽章显示状态;
+                    徽章值.LeftClick += 反转徽章显示状态;
+                    dd徽章值.SelectedIndexChanged -= 更新徽章值;
+                    dd徽章值.SelectedIndexChanged += 更新徽章值;
+                }
             });
 
             UserINISettings.Instance.User = user;
@@ -1104,7 +1122,7 @@ namespace DTAConfig.OptionPanels
             }
 
             //注册
-            var (r,msg) = NetWorkINISettings.Post<string>("user/register", new User()
+            var (r,msg) = NetWorkINISettings.Post<bool?>("user/register", new User()
             {
                 username = tbPlayerName.Text,
                 password = tbPassword.Password,
@@ -1112,12 +1130,12 @@ namespace DTAConfig.OptionPanels
                 side = ddSide.SelectedIndex
             }).GetAwaiter().GetResult();
 
-            if(r == null) {
+            if(r != true) {
                 XNAMessageBox.Show(WindowManager,"错误", msg);
                 return;
             }
 
-            XNAMessageBox.Show(WindowManager, "信息", r);
+            XNAMessageBox.Show(WindowManager, "信息", "注册成功");
             btnCancel.OnLeftClick();
 
         }
@@ -1297,6 +1315,7 @@ namespace DTAConfig.OptionPanels
                     {
                         XNAMessageBox.Show(WindowManager, "信息","修改成功!");
                         重新登录?.Invoke();
+                        Disable();
                     }
                     else
                     {

@@ -864,6 +864,13 @@ public class XNAControl : DrawableGameComponent
             RemoveChildImmediate(child);
     }
 
+    public void RemoveChild(List<XNAControl> childrens)
+    {
+        if (childrens.Count == 0) return;
+        childrens.ForEach(RemoveChild);
+    }
+
+
     /// <summary>
     /// Immediately removes a child from the control.
     /// </summary>

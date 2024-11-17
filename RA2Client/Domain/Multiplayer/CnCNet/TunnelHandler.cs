@@ -78,7 +78,14 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private List<CnCNetTunnel> tunnels2 = new List<CnCNetTunnel>();
         private void RefreshTunnelsAsync()
         {
-            List<CnCNetTunnel> tunnels = new List<CnCNetTunnel>() { CnCNetTunnel.Parse("111.180.189.148:50000;China;CN;联盟与争霸官方服务器;1;0;100;0;0;0;2;0") };
+            List<CnCNetTunnel> tunnels = [
+                CnCNetTunnel.Parse("111.180.189.148:50000;China;CN;联盟与争霸官方服务器;1;0;100;0;0;0;2;0"),
+                CnCNetTunnel.Parse("110.42.111.242:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("43.248.118.243:50000;China;CN;重聚未来赞助服务器;1;0;120;0;0;0;2;0"),
+                CnCNetTunnel.Parse("124.65.97.90:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("124.65.97.78:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
+                ];
 
 
             Task.Factory.StartNew(() =>

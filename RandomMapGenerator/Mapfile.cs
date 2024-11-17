@@ -345,11 +345,11 @@ namespace RandomMapGenerator
             map.WriteIniFile();
         }
 
-        private const string TemplateMap = "templateMap.map";
+       // private const string TemplateMap = "templateMap.map";
 
         public void SaveFullMap(string path)
         {
-            var fullMap = new IniFile(TemplateMap);
+            var fullMap = new IniFile(Constants.TemplateMapPath);
             //var settings = new IniFile(随机地图生成.WorkingFolder + "settings.ini");
             //var bottomSpace = settings.GetIntValue("settings", "BottomSpace", 4);
             fullMap.SetStringValue("Map", "Size", "0,0," + Width.ToString() + "," + Height.ToString());

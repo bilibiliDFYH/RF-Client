@@ -367,9 +367,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 string mapSHA1 = skirmishSettingsIni.GetStringValue("Settings", "Map", string.Empty);
 
-                int gameModeMapIndex = gameModeMapFilter.GetGameModeMaps().FindIndex(gmm => gmm.Map.SHA1 == mapSHA1);
-
-                if (gameModeMapIndex > -1)
+                //  int gameModeMapIndex = gameModeMapFilter.GetGameModeMaps().FindIndex(gmm => gmm.Map.SHA1 == mapSHA1);
+                int gameModeMapIndex = GetSortedGameModeMaps().OrderBy(o => o.Map?.MaxPlayers).ToList().FindIndex(map => map.Map.SHA1 == mapSHA1);
+                  if (gameModeMapIndex > -1)
                 {
                     lbGameModeMapList.SelectedIndex = gameModeMapIndex;
 

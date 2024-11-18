@@ -88,11 +88,6 @@ internal sealed class Program
                 IEnumerable<FileInfo> files = updaterDirectory.EnumerateFiles("*", SearchOption.AllDirectories);
                 FileInfo executableFile = SafePath.GetFile(Assembly.GetExecutingAssembly().Location);
                 FileInfo relativeExecutableFile = SafePath.GetFile(executableFile.FullName[baseDirectory.FullName.Length..]);
-#if DEBUG
-                const string versionFileName = "VersionDev";
-#else
-                const string versionFileName = "Version";
-#endif
 
                 FileInfo delUpdateFile = files.FirstOrDefault(file => file.Name.Equals("delUpdate", StringComparison.OrdinalIgnoreCase));
                 if (delUpdateFile != null)
@@ -112,7 +107,7 @@ internal sealed class Program
                 while (anyFileInUse && retryCount < maxRetryCount)
                 {
                     Write("发现文件被占用，等待 1 秒后重新检查...", ConsoleColor.Yellow);
-                    System.Threading.Thread.Sleep(retryDelay);
+                    Thread.Sleep(retryDelay);
                     anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
                     retryCount++;
                 }
@@ -160,27 +155,20 @@ internal sealed class Program
                     }
                 }
 
+                if (updaterDirectory.Exists)
+                {
+                    Directory.Delete(updaterDirectory.FullName, true);
+                }
+
                 if (更新成功) {
-                    FileInfo versionFile = SafePath.GetFile(updaterDirectory.FullName, versionFileName);
-
-                    if (versionFile.Exists)
-                    {
-                        FileInfo destinationFile = SafePath.GetFile(baseDirectory.FullName, versionFile.Name);
-                        FileInfo relativeFileInfo = SafePath.GetFile(destinationFile.FullName[baseDirectory.FullName.Length..]);
-
-                        Write($"更新文件 -> {relativeFileInfo}");
-                        versionFile.CopyTo(destinationFile.FullName, true);
-                    }
-
-                    if (updaterDirectory.Exists)
-                    {
-                        Directory.Delete(updaterDirectory.FullName, true);
-                    }
-
+                  
                     Write("文件已经全部更新成功. 正在启动主程序..", ConsoleColor.Green);
                 }
                 else
+                {
                     Write("更新失败");
+                }
+
                 string launcherExe = clientExecutable.Name;
                 FileInfo launcherExeFile = SafePath.GetFile(baseDirectory.FullName, "Resources", "Binaries", launcherExe);
 

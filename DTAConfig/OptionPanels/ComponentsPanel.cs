@@ -438,7 +438,14 @@ namespace DTAConfig.OptionPanels
                         lbprogress.Text = $"{progress:0.000}%";
                     });
               
-                        WriteConponentConfig(SevenZip.GetFile(strLocPath));
+                    WriteConponentConfig(SevenZip.GetFile(strLocPath));
+                    try
+                    {
+                        File.Delete(strLocPath);
+                    }catch (Exception ex)
+                    {
+                        Logger.Log(ex.ToString());
+                    }
                 });
                 mainButton.Text = "卸载";
             }

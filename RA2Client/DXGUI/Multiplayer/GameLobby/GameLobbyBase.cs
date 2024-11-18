@@ -1004,7 +1004,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 string.Format("The game host has disabled {0}".L10N("UI:Main:HostDisableSection"), type) :
                 string.Format("The game host has enabled {0}".L10N("UI:Main:HostEnableSection"), type));
 
-        private List<GameModeMap> GetSortedGameModeMaps()
+        public List<GameModeMap> GetSortedGameModeMaps()
         {
             var gameModeMaps = gameModeMapFilter.GetGameModeMaps();
 
@@ -2018,8 +2018,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             
             
-            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
-            spawnerSettingsFile.Delete();
+            var oldSpawnIni = new IniFile(spawnerSettingsFile.FullName);
+            
             if (Map.IsCoop)
             {
                 foreach (PlayerInfo pInfo in Players)
@@ -2041,11 +2041,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             bool 检测文件是否修改()
             {
-                string oldMain = spawnIni.GetValue("Settings", "Main", string.Empty);
-                string oldExtension = spawnIni.GetValue("Settings", "Extension", string.Empty);
-                string oldGame = spawnIni.GetValue("Settings", "Game", string.Empty);
-                string oldMission = spawnIni.GetValue("Settings", "Mission", string.Empty);
-                string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
+                string oldMain = oldSpawnIni.GetValue("Settings", "Main", string.Empty);
+                string oldExtension = oldSpawnIni.GetValue("Settings", "Extension", string.Empty);
+                string oldGame = oldSpawnIni.GetValue("Settings", "Game", string.Empty);
+                string oldMission = oldSpawnIni.GetValue("Settings", "Mission", string.Empty);
+                string oldAi = oldSpawnIni.GetValue("Settings", "AI", string.Empty);
 
                 if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
                     加载音乐 = false;
@@ -2133,8 +2133,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return null;
             }
 
-            var settings = new IniSection("Settings");
+            spawnerSettingsFile.Delete();
 
+            var settings = new IniSection("Settings");
+            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
             settings.SetValue("Main", newMain);
             //写入新游戏
             settings.SetValue("Game", newGame);

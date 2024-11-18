@@ -1972,7 +1972,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
 
-            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
+         //   var spawnIni = new IniFile(spawnerSettingsFile.FullName);
 
             string newGame = ((Mod)cmbGame.SelectedItem.Tag).FilePath;
             string newMain = ((Mod)cmbGame.SelectedItem.Tag).md == "md" ?
@@ -2011,10 +2011,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             
             string newAi = ((AI)cmbAI.SelectedItem.Tag).FilePath;
+
+            
+            
+            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
             spawnerSettingsFile.Delete();
-
-            spawnIni = new IniFile(spawnerSettingsFile.FullName);
-
             if (Map.IsCoop)
             {
                 foreach (PlayerInfo pInfo in Players)
@@ -2045,7 +2046,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
                     加载音乐 = false;
 
-
+                 
                 if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
 
                 foreach (var fileType in FilePaths)

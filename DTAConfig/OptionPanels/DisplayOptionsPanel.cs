@@ -605,7 +605,6 @@ namespace DTAConfig.OptionPanels
                 File.Delete(ProgramConstants.GamePath + "expandmd51.mix");
                 File.Delete(ProgramConstants.GamePath + "expandmd50.mix");
                 FileHelper.CopyDirectory(voice, "./");
-
             }
 
             if (IniSettings.ClientTheme != (string)ddClientTheme.SelectedItem.Tag)

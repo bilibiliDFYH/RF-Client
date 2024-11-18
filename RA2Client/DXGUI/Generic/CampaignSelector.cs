@@ -190,6 +190,18 @@ namespace Ra2Client.DXGUI.Generic
             _chkModify.ClientRectangle = new Rectangle(_tbMissionDescription.X + _tbMissionDescription.Width + 10, _tbMissionDescription.Y + 10, 0, 0);
             _chkModify.Text = "开启修改";
             _chkModify.CheckedChanged += ChkModify_CheckedChanged;
+            _chkModify.LeftClick += (_, _) => {
+
+                if (UserINISettings.Instance.ChkModifyIsFirst.Value)
+                {
+                    XNAMessageBox.Show(WindowManager, "开启修改", "开启后若勾选下面的游戏选项则会修改地图.\n" +
+                        "这些功能可以提供一些额外的体验，不过由于本质对地图进行了修改，所以有可能会导致地图触发流程出现问题。并且开启修改后无法自动进行下一关。\n");
+
+                    UserINISettings.Instance.ChkModifyIsFirst.Value = false;
+                    UserINISettings.Instance.SaveSettings();
+                }
+
+            };
             _chkModify.Checked = false;
             _chkModify.Visible = false;
 
@@ -198,6 +210,17 @@ namespace Ra2Client.DXGUI.Generic
             _chkExtension.ClientRectangle = new Rectangle(_chkModify.X, _chkModify.Y + 30, 0, 0);
             _chkExtension.Text = "启用扩展平台";
             _chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
+            _chkExtension.LeftClick += (_, _) => {
+                if (UserINISettings.Instance.ChkExtensionIsFirst.Value)
+                {
+                    XNAMessageBox.Show(WindowManager, "扩展平台", "打开后会启用扩展平台(如Ares,Phobos).\n" +
+                        "部分功能只有在开启扩展平台后才能使用。如shift连点器，部分皮肤（建造预览，飞机尾迹等等），同时也会修复一些原版的bug（特性）。" +
+                        "\n然而有些地图或任务使用了原版的特性，(如林德拉克计划)必须关闭扩展才能正常游玩。");
+
+                    UserINISettings.Instance.ChkExtensionIsFirst.Value = false;
+                    UserINISettings.Instance.SaveSettings();
+                }
+            };
             //var  ToolTip = new ToolTip(WindowManager, chkExtension) { Text = "启用合适的扩展平台（Ares,Phobos等）。"};
             AddChild(_chkExtension);
             _chkExtension.Visible = false;
@@ -500,16 +523,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private void ChkExtension_SelectedChanged(object sender, EventArgs e)
         {
-            //if (UserINISettings.Instance.ChkExtensionIsFirst.Value)
-            //{
-            //    XNAMessageBox.Show(WindowManager, "扩展平台", "打开后会启用Ares与Phobos.\n" +
-            //        "部分功能只有在开启扩展平台后才能使用。如shift连点器，部分皮肤（建造预览，飞机尾迹等等），同时也会修复一些原版的bug（特性）。" +
-            //        "\n然而有些地图或任务使用了原版的特性，(如林德拉克计划)必须不开启扩展才能正常游玩。");
-
-            //    UserINISettings.Instance.ChkExtensionIsFirst.Value = false;
-            //    UserINISettings.Instance.SaveSettings();
-            //}
-
             if (_lbxCampaignList.SelectedIndex != -1 && _lbxCampaignList.SelectedItem != null)
             {
                 _chkExtension.Visible = true;
@@ -696,14 +709,7 @@ namespace Ra2Client.DXGUI.Generic
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
 
-            //if (UserINISettings.Instance.ChkModifyIsFirst.Value)
-            //{
-            //    XNAMessageBox.Show(WindowManager, "开启修改", "开启后若勾选下面的游戏选项则会修改地图.\n" +
-            //        "这些功能可以提供一些额外的体验，不过由于本质对地图进行了修改，所以有可能会导致地图触发流程出现问题。并且开启修改后无法自动进行下一关。\n");
-
-            //    UserINISettings.Instance.ChkModifyIsFirst.Value = false;
-            //    UserINISettings.Instance.SaveSettings();
-            //}
+            
 
             _gameOptionsPanel.Visible = _chkModify.Checked;
 

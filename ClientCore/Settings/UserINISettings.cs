@@ -162,8 +162,9 @@ namespace ClientCore
 
             Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", false);
             StartCap = new BoolSetting(iniFile, OPTIONS, "StartCap", true);
-            GameModName = new StringSetting(iniFile, GAMEMOD, "items", string.Empty);
-            GameModPath = new StringSetting(iniFile, GAMEMOD, "Mod", string.Empty);
+
+            第一次下载扩展 = new BoolSetting(iniFile, OPTIONS, "FirstDownload", true);
+
         }
 
         public IniFile SettingsIni { get; private set; }
@@ -317,10 +318,9 @@ namespace ClientCore
         public BoolSetting RenderPreviewImage { get; private set; }
         //是否始终转换为简体CSF
         public BoolSetting SimplifiedCSF { get; private set; }
-        public StringSetting GameModName { get; private set; }
 
-        public StringSetting GameModPath { get; private set; }
         public Action ReLoadMissionList { get; set; }
+        public BoolSetting 第一次下载扩展 { get; set; }
 
         public bool IsGameFollowed(string gameName)
         {

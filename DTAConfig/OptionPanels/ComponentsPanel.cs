@@ -473,6 +473,13 @@ namespace DTAConfig.OptionPanels
 
         private void Btn_LeftClick(object sender, EventArgs e)
         {
+            if (UserINISettings.Instance.第一次下载扩展.Value)
+            {
+                XNAMessageBox.Show(WindowManager, "提示", "这里的扩展未能全部详细测试,若游玩过程遇到问题\n\n请不要联系原作者,\n\n先反馈重聚制作组,由我们详细测试复现后会反馈原作者,\n感谢大家理解和配合.");
+                UserINISettings.Instance.第一次下载扩展.Value = false;
+                UserINISettings.Instance.SaveSettings();
+                return;
+            }
             XNAClientButton button = (XNAClientButton)sender;
             if (button.Text == "安装")
             {

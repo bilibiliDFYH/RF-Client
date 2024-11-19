@@ -13,6 +13,8 @@ using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using DTAConfig.Entity;
 using DTAConfig;
+using DTAConfig.OptionPanels;
+using Localization.Tools;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -121,6 +123,9 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
         }
 
+        private Dictionary<string, Dictionary<string, int>> FileHash = [];
+        private Dictionary<string, string> FilePaths = [];
+
         private void BtnLaunch_LeftClick(object sender, EventArgs e)
         {
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
@@ -148,90 +153,121 @@ namespace Ra2Client.DXGUI.Generic
             bool OLD_YR_to_RA2 = spawnIni.GetValue("Settings", "YR_to_RA2", false);
             string oldMission = spawnIni.GetValue("Settings", "Mission", string.Empty);
             string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
-            
+
+            bool 加载音乐 = true;
             try
             {
 
-                if (oldMain != newMain)
+                bool 检测文件是否修改()
                 {
-                    if (oldMain != string.Empty)
+                    string oldGame = spawnIni.GetValue("Settings", "Game", string.Empty);
+
+                    string oldExtension = spawnIni.GetValue("Settings", "Extension", string.Empty);
+
+                    string oldMission = spawnIni.GetValue("Settings", "Mission", string.Empty);
+
+                    string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
+
+                    if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
+                        加载音乐 = false;
+
+                    if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
+
+                    foreach (var fileType in FilePaths)
                     {
-
-                        FileHelper.DelFiles(GetDeleteFile(oldMain));
-
+                        if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
+                        foreach (var file in Directory.GetFiles(fileType.Value))
+                        {
+                            if (!value.TryGetValue(file, out var hash)) return true;
+                            var newHash = new FileInfo(file).GetHashCode();
+                            if (hash != newHash) return true;
+                        }
                     }
 
-                    if (newMain != string.Empty)
+                    return false;
+                }
+
+                try
+                {
+
+                    if (检测文件是否修改())
+                    {
+
+                        GameOptionsPanel.清除缓存();
+
+                        FileHelper.CopyDirectory(newGame, "./");
+
+                        foreach (var extension in newExtension.Split(","))
+                        {
+                            string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
+                            if (extension.Contains("Ares"))
+                            {
+                                // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
+                                string extensionChild = extension == "Ares" ? "Ares3" : extension;
+                                directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
+                            }
+                            else if (extension.Contains("Phobos"))
+                            {
+                                // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
+                                string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
+                                directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
+                            }
+                            FileHelper.CopyDirectory(directoryPath, "./");
+                        }
+
+                        FileHelper.CopyDirectory(newAi, "./");
+
+                        FileHelper.CopyDirectory(newMission, "./");
+
                         FileHelper.CopyDirectory(newMain, "./");
 
-                }
+                        FilePaths["Game"] = newGame;
+                        FilePaths["Main"] = newMain;
+                        FilePaths["Mission"] = newMission;
+                        FilePaths["AI"] = newAi;
+                        //    FilePaths["Extension"] = directoryPath;
 
-                //如果和前一次使用的游戏不一样
-                if (oldGame != newGame)
-                {
-
-                    FileHelper.DelFiles(GetDeleteFile(oldGame));
-
-                    FileHelper.CopyDirectory(newGame, "./");
-                }
-
-                if (newExtension != oldExtension)
-                {
-                    foreach (var extension in oldExtension.Split(","))
-                    {
-                        string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
-
-                        if (extension.Contains("Ares"))
+                        foreach (var keyValue in FilePaths)
                         {
-                            // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                            string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                            directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
+                            if (!FileHash.ContainsKey(keyValue.Key))
+                                FileHash.Add(keyValue.Key, []);
+                            foreach (var fileName in Directory.GetFiles(keyValue.Value))
+                            {
+                                var file = new FileInfo(fileName);
+                                FileHash[keyValue.Key][fileName] = file.GetHashCode();
+                            }
                         }
-                        else if (extension.Contains("Phobos"))
-                        {
-                            // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                            string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                            directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
-                        }
-
-                        // 删除文件操作统一执行
-                        FileHelper.DelFiles(GetDeleteFile(directoryPath));
                     }
 
-                    foreach (var extension in newExtension.Split(","))
+                    if (加载音乐)
+                        Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
+
+                    if (File.Exists("ra2md.csf"))
                     {
-                        string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
-                        if (extension.Contains("Ares"))
+                        var d = new CSF("ra2md.csf").GetCsfDictionary();
+                        if (d != null)
                         {
-                            // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                            string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                            directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
+                            foreach (var item in UserINISettings.Instance.MusicNameDictionary.Keys)
+                            {
+                                if (d.ContainsKey(item))
+                                {
+                                    d[item] = UserINISettings.Instance.MusicNameDictionary[item];
+                                }
+                                else
+                                {
+                                    d.Add(item, UserINISettings.Instance.MusicNameDictionary[item]);
+                                }
+
+                            }
+                            CSF.WriteCSF(d, "ra2md.csf");
                         }
-                        else if (extension.Contains("Phobos"))
-                        {
-                            // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                            string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                            directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
-                        }
-                        FileHelper.CopyDirectory(directoryPath, "./");
                     }
-
                 }
-
-
-                if (oldAi != newAi)
+                catch (FileLockedException ex)
                 {
-
-                    FileHelper.DelFiles(GetDeleteFile(oldAi));
-                    FileHelper.CopyDirectory(newAi, "./");
+                    XNAMessageBox.Show(WindowManager, "错误", ex.Message);
+                    return;
                 }
-
-                if (oldMission != newMission)
-                {
-                    FileHelper.DelFiles(GetDeleteFile(oldMission));
-                    FileHelper.CopyDirectory(newMission, "./");
-                }
-
 
 
             }
@@ -240,6 +276,9 @@ namespace Ra2Client.DXGUI.Generic
                 XNAMessageBox.Show(WindowManager, "错误", ex.Message);
                 return;
             }
+
+            if (加载音乐)
+                Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
 
             spawnIni = new IniFile(spawnerSettingsFile.FullName);
 
@@ -255,7 +294,7 @@ namespace Ra2Client.DXGUI.Generic
 
             settings.SetValue("Mission", newMission); 
 
-            settings.SetValue("Ra2Mode", newMain == "RA2_Main");
+            settings.SetValue("Ra2Mode",false);
 
             settings.SetValue("Scenario", "spawnmap.ini");
             settings.SetValue("SaveGameName", sg.FileName);

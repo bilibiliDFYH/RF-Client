@@ -2037,7 +2037,7 @@ public class MissionPackInfoWindows : XNAWindow
             }
             if (missionMix)
             {
-                if (string.IsNullOrEmpty(_ctbMissionCount.Text))
+                if (string.IsNullOrEmpty(_ctbMissionCount?.Text))
                 {
                     XNAMessageBox.Show(WindowManager, "错误", "我们无法推测这个任务包有几关，你需要指定一下");
                     return;

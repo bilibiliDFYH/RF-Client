@@ -136,9 +136,11 @@ namespace ClientGUI
 
                 UserINISettings.Instance.暂停渲染地图?.Invoke();
 
-                ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments);
-                info.UseShellExecute = true;
-                info.WindowStyle = ProcessWindowStyle.Hidden;
+                ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments)
+                {
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
                 var gameProcess = Process.Start(info);
 
                 gameProcess.EnableRaisingEvents = true;

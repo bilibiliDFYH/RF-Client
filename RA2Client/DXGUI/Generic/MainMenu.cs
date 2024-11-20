@@ -880,8 +880,8 @@ namespace Ra2Client.DXGUI.Generic
                     lblUpdateStatus.Text = "Click to check for updates.".L10N("UI:Main:ClickToCheckUpdate");
                 }
             }
-            if (UserINISettings.Instance.StartCap)
-                CheckCampaign();
+            //if (UserINISettings.Instance.StartCap)
+            //    CheckCampaign();
 
             Verification_File();
             CheckHostName();

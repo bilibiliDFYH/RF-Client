@@ -81,7 +81,6 @@ namespace Ra2Client.DXGUI.Generic
         private XNAClientCheckBox _chkExtension;
         private XNAListBox _lbxInforBox;
         private XNAPanel _gameOptionsPanel;
-        private XNACheckBox _chkModify;
         private XNAClientRatingBox _ratingBox;
         private XNAClientButton _btnRatingDone;
         private XNALabel _lblRatingResult;
@@ -185,29 +184,9 @@ namespace Ra2Client.DXGUI.Generic
             _tbMissionDescription.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
                 _tbMissionDescription.Width, _tbMissionDescription.Height);
 
-            _chkModify = new XNAClientCheckBox(WindowManager);
-            _chkModify.Name = nameof(_chkModify);
-            _chkModify.ClientRectangle = new Rectangle(_tbMissionDescription.X + _tbMissionDescription.Width + 10, _tbMissionDescription.Y + 10, 0, 0);
-            _chkModify.Text = "开启修改";
-            _chkModify.CheckedChanged += ChkModify_CheckedChanged;
-            _chkModify.LeftClick += (_, _) => {
-
-                if (UserINISettings.Instance.ChkModifyIsFirst.Value)
-                {
-                    XNAMessageBox.Show(WindowManager, "开启修改", "开启后若勾选下面的游戏选项则会修改地图.\n" +
-                        "这些功能可以提供一些额外的体验，不过由于本质对地图进行了修改，所以有可能会导致地图触发流程出现问题。并且开启修改后无法自动进行下一关。\n");
-
-                    UserINISettings.Instance.ChkModifyIsFirst.Value = false;
-                    UserINISettings.Instance.SaveSettings();
-                }
-
-            };
-            _chkModify.Checked = false;
-            _chkModify.Visible = false;
-
             _chkExtension = new XNAClientCheckBox(WindowManager);
             _chkExtension.Name = nameof(_chkExtension);
-            _chkExtension.ClientRectangle = new Rectangle(_chkModify.X, _chkModify.Y + 30, 0, 0);
+            _chkExtension.ClientRectangle = new Rectangle(_tbMissionDescription.X + _tbMissionDescription.Width + 10, _tbMissionDescription.Y + 40, 0, 0);
             _chkExtension.Text = "启用扩展平台";
             _chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
             _chkExtension.LeftClick += (_, _) => {
@@ -228,7 +207,7 @@ namespace Ra2Client.DXGUI.Generic
             var lblModify = new XNALabel(WindowManager);
             lblModify.Name = nameof(lblModify);
             lblModify.Text = "注：某些修改可能会破坏战役流程。";
-            lblModify.ClientRectangle = new Rectangle(_chkModify.X + 100, _chkModify.Y, 0, 0);
+            lblModify.ClientRectangle = new Rectangle(_chkExtension.X + 100, _chkExtension.Y - 30, 0, 0);
 
             var lblDifficultyLevel = new XNALabel(WindowManager);
             lblDifficultyLevel.Name = "lblDifficultyLevel";
@@ -376,7 +355,6 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_ddSide);
             AddChild(_lbxInforBox);
             AddChild(_ddMissionPack);
-            AddChild(_chkModify);
             AddChild(lblalter);
             AddChild(lblModify);
             AddChild(_tbMissionDescription);
@@ -687,8 +665,6 @@ namespace Ra2Client.DXGUI.Generic
             Task.Run(() => { GetMissionInfo(true); });
             
 
-            ChkModify_CheckedChanged(null, null);
-
             if (((Mod)(_cmbGame.SelectedItem.Tag)).md == "md" && !_screenMissions[_lbxCampaignList.SelectedIndex].YR)
             {
                 _chkExtension.Checked = true;
@@ -700,33 +676,6 @@ namespace Ra2Client.DXGUI.Generic
             }
 
             base.OnSelectedChanged();
-
-        }
-
-
-        private void ChkModify_CheckedChanged(object sender, EventArgs e)
-        {
-            if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
-
-
-            
-
-            _gameOptionsPanel.Visible = _chkModify.Checked;
-
-            //bool isYR = _screenMissions[_lbxCampaignList.SelectedIndex].YR;
-            //bool isSelectedNotNull = _cmbGame.SelectedItem != null;
-            //bool isModifyChecked = _chkModify.Checked;
-            //bool isMd = ((Mod)(_cmbGame.SelectedItem.Tag)).md == "md";
-
-            //if ((isSelectedNotNull && isYR && !isModifyChecked) || (isMd && isYR))
-            //{
-            //    _chkExtension.Checked = true;
-            //    _chkExtension.AllowChecking = false;
-            //}
-            //else
-            //{
-            //    _chkExtension.AllowChecking = true;
-            //}
 
         }
 
@@ -842,8 +791,7 @@ namespace Ra2Client.DXGUI.Generic
                 }
 
                 campaignSettingsIni.SetValue("GameOptions", "chkExtension", _chkExtension.Checked);
-                campaignSettingsIni.SetValue("GameOptions", "chkModify", _chkModify.Checked);
-
+             
                 campaignSettingsIni.WriteIniFile();
             }
             catch (Exception ex)
@@ -900,8 +848,7 @@ namespace Ra2Client.DXGUI.Generic
                 }
 
                 _chkExtension.Checked = campaignSettingsIni.GetValue("GameOptions", "chkExtension", true);
-                _chkModify.Checked = campaignSettingsIni.GetValue("GameOptions", "chkModify", false);
-
+            
             }
             //if (ClientConfiguration.Instance.SaveSkirmishGameOptions)
             //{
@@ -1082,7 +1029,6 @@ namespace Ra2Client.DXGUI.Generic
             {
                 _tbMissionDescription.Text = string.Empty;
                 _btnLaunch.AllowClick = false;
-                _chkModify.Visible = false;
                 _chkExtension.Visible = false;
                 return;
             }
@@ -1103,23 +1049,13 @@ namespace Ra2Client.DXGUI.Generic
                 return;
             }
 
-            _chkModify.Visible = true;
             _chkExtension.Visible = true;
 
             _missionIndex = _lbxCampaignList.SelectedIndex;
             //改变
 
-
-            if (File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario)))
-            { // 如果地图文件不在mix里,那么可以尝试分析和修改
-
-                _chkModify.AllowChecking = true;
-            }
-            else
-            {
-                _chkModify.Checked = false;
-                _chkModify.AllowChecking = false;
-            }
+             // 如果地图文件不在mix里,那么可以尝试分析和修改
+            _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));
 
             _mapPreviewBox.Visible = false;
 
@@ -1265,7 +1201,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private string LaunchCheck()
         {
-            if (_chkModify.Checked)
+            //if (_chkModify.Checked)
                 if (_cmbGame.SelectedItem == null)
                     return "请选择游戏";
             return string.Empty;
@@ -1331,6 +1267,86 @@ namespace Ra2Client.DXGUI.Generic
 
             spawnerSettingsFile.Delete();
 
+            if (_gameOptionsPanel.Visible)
+            {
+                var mapName = SafePath.CombineFilePath(ProgramConstants.GamePath, Path.Combine(mission.Path, mission.Scenario));
+                if (!File.Exists(mapName)) return;
+
+                var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
+                if(!Directory.Exists(战役临时目录))
+                    Directory.CreateDirectory(战役临时目录);
+                else if (Directory.GetFiles(战役临时目录).Length > 0)
+                {
+                    Directory.Delete(战役临时目录, true);
+                    Directory.CreateDirectory(战役临时目录);
+                }
+
+                foreach (string file in Directory.GetFiles(SafePath.CombineFilePath(ProgramConstants.GamePath, mission.Path)))
+                {
+                    if (file == ProgramConstants.MISSION_MIX) continue;
+                    File.Copy(file, SafePath.CombineFilePath(战役临时目录, Path.GetFileName(file)));
+                }
+
+
+                var mapIni = new IniFile(SafePath.CombineFilePath(战役临时目录,mission.Scenario));
+
+                if (!_chkExtension.Checked)
+                {
+                    if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
+                    {
+                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
+                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+                    }
+                    else
+                    {
+                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
+                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
+                    }
+                }
+
+                if (!mapIni.SectionExists("General"))
+                    mapIni.AddSection("General");
+                if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
+                    mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
+
+                var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
+                //
+
+
+                IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
+                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
+                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
+
+                foreach (GameLobbyCheckBox chkBox in CheckBoxes)
+                {
+                    chkBox.ApplySpawnINICode(spawnIni);
+                    chkBox.ApplyMapCode(mapIni, null);
+                }
+
+                foreach (GameLobbyDropDown dd in DropDowns)
+                {
+                    dd.ApplySpawnIniCode(spawnIni);
+                    dd.ApplyMapCode(mapIni, null);
+                }
+                if (_cmbCredits.SelectedItem != null)
+                    Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text) / 100);
+
+                
+
+                if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !mission.YR)
+                {
+                    mapIni.RenameSection("Countries", "YBCountry");
+                }
+                mapIni.WriteIniFile();
+
+              
+                UserINISettings.Instance.CampaignDefaultGameSpeed.Value = 6 - _cmbGameSpeed.SelectedIndex;
+                UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;
+                UserINISettings.Instance.SaveSettings();
+
+                Mix.PackToMix(战役临时目录, Path.Combine(mission.Path, ProgramConstants.MISSION_MIX));
+            }
+
             #region 切换文件
 
             string oldMain = spawnIni.GetValue("Settings", "Main", string.Empty);
@@ -1349,7 +1365,7 @@ namespace Ra2Client.DXGUI.Generic
             
             Mod mod;
 
-            if (_chkModify.Checked) {
+            if (_gameOptionsPanel.Visible) {
 
                 mod = ((Mod)_cmbGame.SelectedItem.Tag);
 
@@ -1501,16 +1517,15 @@ namespace Ra2Client.DXGUI.Generic
 
             settings.SetValue("Mission", newMission);
 
-            
             //settings.SetValue("Ra2Mode", mod.md != "md");
             if(_chkExtension.Checked)
                 settings.SetValue("Ra2Mode", mod.md != "md");
             else//这里不知为何一定得写False，即使是用原版玩，用True会弹窗
                 settings.SetValue("Ra2Mode", false);
 
-            if (_chkModify.Checked)
-                settings.SetValue("Scenario", "spawnmap.ini");
-            else
+            //if (_chkModify.Checked)
+            //    settings.SetValue("Scenario", "spawnmap.ini");
+            //else
                 settings.SetValue("Scenario",  mission.Scenario);
 
             settings.SetValue("CampaignID", mission.Index);
@@ -1527,76 +1542,26 @@ namespace Ra2Client.DXGUI.Generic
             //   spawnStreamWriter.WriteLine("DifficultyModeHuman=" + (Path.PlayerAlwaysOnNormalDifficulty ? "1" : trbDifficultySelector.Value.ToString()));
             //  spawnStreamWriter.WriteLine("DifficultyModeComputer=" + GetComputerDifficulty());
 
-            var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
-            string difficultyName = DifficultyNames[_trbDifficultySelector.Value];
 
             //  spawnStreamWriter.WriteLine();
             //  spawnStreamWriter.WriteLine();
             //  spawnStreamWriter.WriteLine();
-
-            //如果开启修改
-            if (_chkModify.Checked)
-            {
-
-                var mapIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, Path.Combine(mission.Path, mission.Scenario)));
-
-                if (!_chkExtension.Checked && ((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
-                {
-                    Rampastring.Tools.IniFile.ConsolidateIniFiles(mapIni, new Rampastring.Tools.IniFile("Resources/rules_repair_ra2.ini"));
-                    Rampastring.Tools.IniFile.ConsolidateIniFiles(mapIni, new Rampastring.Tools.IniFile("Resources/repair_rules_ra2.ini"));
-                   
-                }
-
-                if (!mapIni.SectionExists("General"))
-                    mapIni.AddSection("General");
-                if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
-                    mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
-
-                Rampastring.Tools.IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
-                Rampastring.Tools.IniFile.ConsolidateIniFiles(mapIni, new Rampastring.Tools.IniFile("Client/custom_rules_all.ini"));
-                Rampastring.Tools.IniFile.ConsolidateIniFiles(mapIni, new Rampastring.Tools.IniFile("Resources/SkinRulesmd.ini"));
-
-                foreach (GameLobbyCheckBox chkBox in CheckBoxes)
-                {
-                    chkBox.ApplySpawnINICode(spawnIni);
-                    chkBox.ApplyMapCode(mapIni, null);
-                }
-
-                foreach (GameLobbyDropDown dd in DropDowns)
-                {
-                    dd.ApplySpawnIniCode(spawnIni);
-                    dd.ApplyMapCode(mapIni, null);
-                }
-                if(_cmbCredits.SelectedItem != null)
-                    Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text)/100);
-
-                mapIni.WriteIniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "spawnmap.ini"));
-
-                if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !mission.YR)
-                {
-                    var inifile = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "spawnmap.ini"));
-                        inifile.RenameSection("Countries", "YBCountry");
-                    inifile.WriteIniFile();
-                }
-            }
-            
             spawnIni.WriteIniFile();
-            UserINISettings.Instance.CampaignDefaultGameSpeed.Value = 6 - _cmbGameSpeed.SelectedIndex;
-            UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;
-            UserINISettings.Instance.SaveSettings();
             #endregion
 
             SaveSettings();
 
             ((MainMenuDarkeningPanel)Parent).Hide();
 
+            string difficultyName = DifficultyNames[_trbDifficultySelector.Value];
+
             _discordHandler.UpdatePresence(mission.GUIName, difficultyName, mission.IconPath, true);
 
 
           
             oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
-             
 
+          //  return;
 
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 

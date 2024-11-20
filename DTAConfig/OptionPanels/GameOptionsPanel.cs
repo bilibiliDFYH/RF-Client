@@ -95,6 +95,7 @@ namespace DTAConfig.OptionPanels
             chkStartCap.Name = "chkStartCap";
             chkStartCap.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkScrollCoasting.Y, 150, 20);
             chkStartCap.Text = "启动时是否检查任务包";
+            chkStartCap.Visible = false;
 
             chkTargetLines = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "UnitActionLines");
             chkTargetLines.Name = "chkTargetLines";
@@ -337,7 +338,7 @@ namespace DTAConfig.OptionPanels
                 lblScrollRateValue.Text = scrollRate.ToString();
             }
 
-            chkStartCap.Checked = UserINISettings.Instance.StartCap;
+            //chkStartCap.Checked = UserINISettings.Instance.StartCap;
             chkMultinuclear.Checked = UserINISettings.Instance.Multinuclear;
             chkRenderPreviewImage.Checked = UserINISettings.Instance.RenderPreviewImage;
             chkSimplifiedCSF.Checked = UserINISettings.Instance.SimplifiedCSF;
@@ -379,7 +380,7 @@ namespace DTAConfig.OptionPanels
             //    FileHelper.DelFiles(deleteFile);
             //    FileHelper.CopyDirectory(UserINISettings.Instance.GameModPath.Value.Split(',')[chkStartCap.SelectedIndex],"./");
 
-            IniSettings.StartCap.Value = chkStartCap.Checked;
+            //IniSettings.StartCap.Value = chkStartCap.Checked;
             IniSettings.Multinuclear.Value = chkMultinuclear.Checked;
             IniSettings.RenderPreviewImage.Value = chkRenderPreviewImage.Checked;
             IniSettings.SimplifiedCSF.Value = chkSimplifiedCSF.Checked;

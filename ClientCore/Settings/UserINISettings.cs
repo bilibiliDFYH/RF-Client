@@ -161,7 +161,7 @@ namespace ClientCore
             Mod_cath = new BoolSetting(iniFile, OPTIONS, "Mod_cath", true);
 
             Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", false);
-            StartCap = new BoolSetting(iniFile, OPTIONS, "StartCap", true);
+            //StartCap = new BoolSetting(iniFile, OPTIONS, "StartCap", true);
 
             第一次下载扩展 = new BoolSetting(iniFile, OPTIONS, "FirstDownload", true);
 
@@ -311,7 +311,7 @@ namespace ClientCore
 
 
         //启动时检查任务包
-        public BoolSetting StartCap { get; private set; }
+        //public BoolSetting StartCap { get; private set; }
         //调用多核
         public BoolSetting Multinuclear { get; private set; }
         //是否始终渲染预览图

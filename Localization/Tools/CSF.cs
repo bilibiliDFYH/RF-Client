@@ -18,7 +18,7 @@ namespace Localization.Tools
         public Dictionary<string, string> GetCsfDictionary()
         {
             // 检查 CSF 文件是否存在，如果存在则读取它，否则返回 null
-            return Path.Exists(csfPath) ? ReadCSF(csfPath) : null;
+            return File.Exists(csfPath) ? ReadCSF(csfPath) : null;
         }
 
         // 读取 CSF 文件头部信息的方法

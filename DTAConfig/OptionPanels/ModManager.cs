@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace DTAConfig.OptionPanels;
 

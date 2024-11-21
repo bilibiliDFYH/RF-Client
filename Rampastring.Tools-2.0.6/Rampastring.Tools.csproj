@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
+	  <LangVersion>12.0</LangVersion>
     <Title>Rampastring.Tools</Title>
     <Description>Rampastring's Generally Useful Library</Description>
     <Company>Rampastring</Company>
@@ -12,7 +13,6 @@
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
     <AnalysisLevel>preview-all</AnalysisLevel>
-    <LangVersion>preview</LangVersion>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Platforms>AnyCPU</Platforms>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>

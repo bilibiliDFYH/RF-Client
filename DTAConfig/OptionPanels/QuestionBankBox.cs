@@ -3,7 +3,6 @@ using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
 using DTAConfig.Entity;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;

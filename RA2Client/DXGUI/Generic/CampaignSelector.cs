@@ -21,7 +21,7 @@ using DTAConfig.OptionPanels;
 using Mission = DTAConfig.Entity.Mission;
 using DTAConfig;
 using DTAConfig.Settings;
-using Google.Protobuf;
+
 
 namespace Ra2Client.DXGUI.Generic
 {

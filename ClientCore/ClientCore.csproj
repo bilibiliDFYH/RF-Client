@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+	  <LangVersion>12.0</LangVersion>
     <Title>Client Core</Title>
     <Description>Maple Client Core Library</Description>
     <Company>Maple</Company>
@@ -14,6 +15,12 @@
     <RootNamespace>ClientCore</RootNamespace>
     <OutputPath>..\Bin\Resources\Binaries</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>7</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>7</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\cncneticon.png" />

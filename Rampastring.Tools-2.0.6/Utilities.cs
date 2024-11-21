@@ -27,12 +27,12 @@ public static class Utilities
 
         using Stream stream = fileInfo.OpenRead();
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms
-#if NET5_0_OR_GREATER
-        byte[] hash = SHA1.HashData(stream);
-#else
+//#if NET5_0_OR_GREATER
+ //       byte[] hash = SHA1.HashData(stream);
+//#else
         using SHA1 sha1 = SHA1.Create();
         byte[] hash = sha1.ComputeHash(stream);
-#endif
+//#endif
 #pragma warning restore CA5350 // Do Not Use Weak Cryptographic Algorithms
 
         return BytesToString(hash);

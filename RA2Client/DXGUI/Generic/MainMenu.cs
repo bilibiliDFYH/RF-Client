@@ -1424,7 +1424,14 @@ namespace Ra2Client.DXGUI.Generic
         }
 
         public string GetSwitchName() => "Main Menu".L10N("UI:Main:MainMenu");
-        [GeneratedRegex(@"^[\p{L}a-zA-Z0-9\.\-_]+$")]
-        private static partial Regex HostNameRegex();
+
+
+        private static readonly Regex HostNameRegexInstance =
+             new Regex(@"^[\p{L}a-zA-Z0-9\.\-_]+$", RegexOptions.Compiled);
+
+        public static Regex HostNameRegex()
+        {
+            return HostNameRegexInstance;
+        }
     }
 }

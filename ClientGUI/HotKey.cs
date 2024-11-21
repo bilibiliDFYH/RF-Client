@@ -85,17 +85,17 @@ namespace ClientGUI
 
         public bool PreFilterMessage(ref Message m)
         {
-            if(m.Msg == 786)
-            {
-                foreach(var id in lstHotkeyId)
-                {
-                    if (m.WParam == id)
-                    {
-                        OnHotkey?.Invoke((int)m.WParam);
-                        return true;
-                    }
-                }
-            }
+            //if (m.Msg == 786)
+            //{
+            //    foreach (var id in lstHotkeyId)
+            //    {
+            //        if (m.WParam == id)
+            //        {
+            //            OnHotkey?.Invoke((int)m.WParam);
+            //            return true;
+            //        }
+            //    }
+            //}
             return false;
         }
     }

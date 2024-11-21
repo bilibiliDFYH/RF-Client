@@ -180,7 +180,11 @@ namespace DTAConfig.Entity
             return input;
         }
 
-        [GeneratedRegex(@"[\u4e00-\u9fa5]")]
-        private static partial Regex 判断是否有中文正则();
+        private static readonly Regex 判断是否有中文正则实例 = new Regex(@"[\u4e00-\u9fa5]", RegexOptions.Compiled);
+
+        public static Regex 判断是否有中文正则()
+        {
+            return 判断是否有中文正则实例;
+        }
     }
 }

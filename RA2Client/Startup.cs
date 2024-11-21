@@ -20,7 +20,7 @@ using Microsoft.Win32;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using DTAConfig.OptionPanels;
-using Org.BouncyCastle.Pqc.Crypto.Lms;
+
 
 namespace Ra2Client
 {

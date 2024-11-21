@@ -3,7 +3,6 @@ using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
 using DTAConfig.Entity;
-using Google.Protobuf.WellKnownTypes;
 using Localization.Tools;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;

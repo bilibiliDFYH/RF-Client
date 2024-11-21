@@ -9,7 +9,7 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-using Google.Protobuf.WellKnownTypes;
+
 using Microsoft.VisualBasic.Logging;
 using Rampastring.Tools;
 using RandomMapGenerator;

@@ -21,7 +21,12 @@ internal class WinFormsIMEHandler : IMEHandler
     {
         InputMethod.Initialize(game.Window.Handle);
         InputMethod.TextInputCallback = OnTextInput;
-        InputMethod.TextCompositionCallback = (compositionText, cursorPosition) =>
+        //InputMethod.TextCompositionCallback = (compositionText, cursorPosition) =>
+        //{
+        //    Composition = compositionText.ToString();
+        //    CompositionCursorPos = cursorPosition;
+        //};
+        InputMethod.TextCompositionCallback = (compositionText, cursorPosition,_, _,_,_) =>
         {
             Composition = compositionText.ToString();
             CompositionCursorPos = cursorPosition;

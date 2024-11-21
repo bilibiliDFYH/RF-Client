@@ -7,7 +7,6 @@ using DTAConfig.Entity;
 using Localization;
 using Localization.Tools;
 using Microsoft.Xna.Framework;
-using Org.BouncyCastle.Asn1.Crmf;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
@@ -1187,8 +1186,12 @@ namespace DTAConfig.OptionPanels
         /// </summary>
         private void Reversal() => dyControls.ForEach(x => x.Visible = !x.Visible);
 
-        [GeneratedRegex("^[^\\d@][^@]*$")]
-        private static partial Regex 用户名规则();
+        private static readonly Regex 用户名规则实例 = new Regex(@"^[^\d@][^ @]*$", RegexOptions.Compiled);
+
+        public static Regex 用户名规则()
+        {
+            return 用户名规则实例;
+        }
     }
 
     public class 编辑窗口(WindowManager windowManager, List<string> sides) : 用户信息窗口(windowManager, sides)

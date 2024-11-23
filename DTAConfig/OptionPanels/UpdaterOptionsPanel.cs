@@ -234,7 +234,7 @@ namespace DTAConfig.OptionPanels
             }
 
             //保存服务器列表优先级配置
-            NetWorkINISettings.Instance.SetServerList();
+            NetWorkINISettings.Instance?.SetServerList();
             
             return restartRequired;
         }

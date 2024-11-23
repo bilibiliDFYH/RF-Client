@@ -628,18 +628,20 @@ public class ModManager : XNAWindow
 
         var aresVerison = string.Empty;
         var mixs = Directory.GetFiles(missionPackPath, "*.mix");
-        var maps = Directory.GetFiles(missionPackPath, "*.map");
+     //   var maps = Directory.GetFiles(missionPackPath, "*.map");
+
+        
+
         var csfs = Directory.GetFiles(missionPackPath, "*.csf");
         
-        var missionMix = true;
         var csfExist = false;
         if (csfs.Length > 0)
         {
             csfExist = true;
         }
-        var resultBox = new XNAMessageBox(WindowManager, "提示", "此任务包中没有显著的地图文件，可能封装在mix里，是否尝试导入?", XNAMessageBoxButtons.YesNo);
-        resultBox.YesClickedAction += (_) =>
-        {
+        //var resultBox = new XNAMessageBox(WindowManager, "提示", "此任务包中没有显著的地图文件，可能封装在mix里，是否尝试导入?", XNAMessageBoxButtons.YesNo);
+        //resultBox.YesClickedAction += (_) =>
+        //{
             var shps = Directory.GetFiles(missionPackPath, "*.shp")
             .Where(file => !Path.GetFileName(file).StartsWith("ls")&& !Path.GetFileName(file).StartsWith("gls"))
             .ToArray();
@@ -720,8 +722,12 @@ public class ModManager : XNAWindow
 
             missionPack.Mod = isMod ? missionPack.ID : md == "md" ? "YR" : "RA2";
 
-            #endregion
-            var infoWindows = new MissionPackInfoWindows(WindowManager, missionPack, "导入任务包", missionMix, csfExist);
+        var maps = 从mapselmd导入关卡($"{missionPackPath}/mapsel{md}.ini").ToArray();
+        if (maps.Length == 0)
+            maps = Directory.GetFiles(missionPackPath, "*.map");
+
+        #endregion
+        var infoWindows = new MissionPackInfoWindows(WindowManager, missionPack, "导入任务包", maps.Length == 0, csfExist);
             AddChild(infoWindows);
 
             // infoWindows.Enable();
@@ -743,6 +749,7 @@ public class ModManager : XNAWindow
 
                 var mod = new Mod();
 
+                var maps = Directory.GetFiles(missionPackPath, "*.map");
 
                 if (isMod)
                 {
@@ -759,6 +766,12 @@ public class ModManager : XNAWindow
 
                     //导入Mod
                     CopyModFile(missionPackPath, mod, covCsf);
+
+                    if (File.Exists($"{mod.FilePath}/mapsel{md}.ini"))
+                    {
+                        maps = 从mapselmd导入关卡($"{mod.FilePath}/mapsel{md}.ini").ToArray();
+                    }
+
                 }
 
                 #region 处理任务包文件和写入ini
@@ -766,14 +779,15 @@ public class ModManager : XNAWindow
                 //提取任务包文件
                 Directory.CreateDirectory(missionPack.FilePath);
 
-                var maps = Directory.GetFiles(missionPackPath, "*.map");
-
+            
                 //提取map文件
                 foreach (var map in maps)
                 {
-                    File.Copy(map, Path.Combine(missionPack.FilePath, Path.GetFileName(map)), true);
+                //    var mapName = Path.Combine(missionPack.FilePath, Path.GetFileName(map));
+                    if(File.Exists(map))
+                        File.Copy(map, Path.Combine(missionPack.FilePath, Path.GetFileName(map)), true);
                 }
-                Mix.PackFilesToMix(maps.ToList(), missionPack.FilePath, $"{ProgramConstants.MISSION_MIX}");
+                //Mix.PackFilesToMix(maps.ToList(), missionPack.FilePath, $"{ProgramConstants.MISSION_MIX}");
 
                 if (!isMod)
                 {
@@ -935,24 +949,51 @@ public class ModManager : XNAWindow
                     await RenderPreviewImageAsync(missionPack);
                 ReLoad();
             };
-        };
-        resultBox.NoClickedAction += (_) => { return; };
-        //判断是否有地图
-        if (mixs.Length == 0 && maps.Length == 0)
-        {
-            if (report) { 
-                resultBox.Show();
-            }
+     //   };
+       // resultBox.NoClickedAction += (_) => { return; };
 
-        }
-        else
-        {
-            missionMix = false;
-            resultBox.YesClickedAction.Invoke(resultBox);
-        }
+        ////判断是否有地图
+        //if (maps.Length == 0)
+        //{
+        //    if (report) { 
+        //        resultBox.Show();
+        //    }
+
+        //}
+        //else
+        //{
+        //    missionMix = false;
+        //    resultBox.YesClickedAction.Invoke(resultBox);
+        //}
 
         
     }
+
+    private List<string> 从mapselmd导入关卡(string mapselmd)
+    {
+        List<string> 关卡数 = [];
+        if(string.IsNullOrEmpty(mapselmd)||!File.Exists(mapselmd)) return 关卡数;
+        var iniFile = new IniFile(mapselmd);
+        if (!iniFile.SectionExists("GDI")) return 关卡数;
+        var sections = iniFile.GetSectionValues("GDI");
+        从Section导入(sections);
+        sections = iniFile.GetSectionValues("Nod");
+        从Section导入(sections);
+
+        void 从Section导入(List<string> sections)
+        {
+            foreach (var section in sections)
+            {
+                if (!iniFile.SectionExists(section)) continue;
+                var map = iniFile.GetValue(section, "Scenario", string.Empty);
+                if (map == string.Empty) continue;
+                关卡数.Add(map);
+            }
+        }
+
+        return 关卡数;
+    }
+
 
     protected List<string> GetDeleteFile(string oldGame)
     {
@@ -1938,8 +1979,22 @@ public class MissionPackInfoWindows : XNAWindow
         };
         AddChild(_ctbAuthor);
 
+        var lblMissionCount = new XNALabel(WindowManager)
+        {
+            Text = "任务关数",
+            ClientRectangle = new Rectangle(lblMissionPackName.X, 100, 0, 0),
+            Visible = false
+        };
+        AddChild(lblMissionCount);
 
-        //第二行
+        _ctbMissionCount = new XNATextBox(WindowManager)
+        {
+            ClientRectangle = new Rectangle(lblMissionCount.Right + 100, lblMissionCount.Y, CtbW, CtbH),
+            Visible = false
+        };
+
+         AddChild(_ctbMissionCount);
+
         var lblDescription = new XNALabel(WindowManager)
         {
             Text = "任务包介绍:",
@@ -2026,6 +2081,9 @@ public class MissionPackInfoWindows : XNAWindow
             ClientRectangle = new Rectangle(150, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnOk);
+
+        
+
         btnOk.LeftClick += (_, _) =>
         {
 

@@ -30,7 +30,7 @@ namespace Ra2Client.DXGUI.Generic
         private const int DefaultWidth = 650;
         private const int DefaultHeight = 600;
 
-        private static readonly string[] DifficultyNames = { "Easy", "Medium", "Hard" };
+        private static readonly string[] DifficultyNames = ["Easy", "Medium", "Hard"];
 
         private static readonly string[] DifficultyIniPaths =
         {
@@ -186,7 +186,7 @@ namespace Ra2Client.DXGUI.Generic
 
             _chkExtension = new XNAClientCheckBox(WindowManager);
             _chkExtension.Name = nameof(_chkExtension);
-            _chkExtension.ClientRectangle = new Rectangle(_tbMissionDescription.X + _tbMissionDescription.Width + 10, _tbMissionDescription.Y + 40, 0, 0);
+            _chkExtension.ClientRectangle = new Rectangle(_tbMissionDescription.X + _tbMissionDescription.Width + 10, _tbMissionDescription.Y, 0, 0);
             _chkExtension.Text = "启用扩展平台";
             _chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
             _chkExtension.LeftClick += (_, _) => {
@@ -207,7 +207,7 @@ namespace Ra2Client.DXGUI.Generic
             var lblModify = new XNALabel(WindowManager);
             lblModify.Name = nameof(lblModify);
             lblModify.Text = "注：某些修改可能会破坏战役流程。";
-            lblModify.ClientRectangle = new Rectangle(_chkExtension.X + 100, _chkExtension.Y - 30, 0, 0);
+            lblModify.ClientRectangle = new Rectangle(_chkExtension.X, _chkExtension.Y + 40, 0, 0);
 
             var lblDifficultyLevel = new XNALabel(WindowManager);
             lblDifficultyLevel.Name = "lblDifficultyLevel";
@@ -347,6 +347,8 @@ namespace Ra2Client.DXGUI.Generic
             var lblalter = new XNALabel(WindowManager);
             lblalter.Text = "这个任务有以下改动: ";
 
+            
+
             AddChild(lblSelectCampaign);
             AddChild(lblMissionDescriptionHeader);
             AddChild(_lbxCampaignList);
@@ -365,8 +367,8 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(lblEasy);
             AddChild(lblNormal);
             AddChild(lblHard);
-
             base.Initialize();
+
 
             _ddSide.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
             _ddDifficulty.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
@@ -419,6 +421,9 @@ namespace Ra2Client.DXGUI.Generic
             _cheaterWindow.Disable();
 
             LoadSettings();
+
+            RemoveChild(_mapPreviewBox);
+            AddChild(_mapPreviewBox);
 
 
         }
@@ -1060,10 +1065,16 @@ namespace Ra2Client.DXGUI.Generic
             _mapPreviewBox.Visible = false;
 
             //重新加载Mod选择器
+            _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
+
+            var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
+
             _cmbGame.Items.Clear();
 
             if (null == mission.Mod)
                 return;
+
+            
 
             if (mission.Mod.Count != 0) //如果任务指定了Mod
             {
@@ -1086,14 +1097,19 @@ namespace Ra2Client.DXGUI.Generic
             if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
                 _cmbGame.SelectedIndex = 0;
 
-            CmbGame_SelectedChanged(_cmbGame, null);
+            _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
 
             _btnLaunch.AllowClick = true;
+
 
             _ = Task.Run(async () =>
             {
                 //获取任务解析
                 //  GetMissionInfo(false);
+                if ((_cmbGame.SelectedItem?.Tag as Mod)?.ID != oldModID)
+                    CmbGame_SelectedChanged(null, null);
+                else
+                    GetMissionInfo(false);
 
                 if (!string.IsNullOrEmpty(mission.Scenario))
                 {
@@ -1405,6 +1421,8 @@ namespace Ra2Client.DXGUI.Generic
 
                 if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
 
+                if(FilePaths.Count == 0) return true;
+
                 foreach(var fileType in FilePaths)
                 {
                     if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
@@ -1539,13 +1557,6 @@ namespace Ra2Client.DXGUI.Generic
 
             UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;
 
-            //   spawnStreamWriter.WriteLine("DifficultyModeHuman=" + (Path.PlayerAlwaysOnNormalDifficulty ? "1" : trbDifficultySelector.Value.ToString()));
-            //  spawnStreamWriter.WriteLine("DifficultyModeComputer=" + GetComputerDifficulty());
-
-
-            //  spawnStreamWriter.WriteLine();
-            //  spawnStreamWriter.WriteLine();
-            //  spawnStreamWriter.WriteLine();
             spawnIni.WriteIniFile();
             #endregion
 

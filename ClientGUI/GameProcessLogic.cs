@@ -80,7 +80,8 @@ namespace ClientGUI
                 else
                     QResProcess.StartInfo.Arguments = "c=16 /R " + "\"" + SafePath.CombineFilePath(ProgramConstants.GamePath, gameExecutableName) + "\" " + additionalExecutableName + "-SPAWN";
                 QResProcess.EnableRaisingEvents = true;
-                QResProcess.Exited += new EventHandler(Process_Exited); 
+               // QResProcess.Exited += new EventHandler(Process_Exited); 
+
                 Logger.Log("启动命令: " + QResProcess.StartInfo.FileName);
                 Logger.Log("启动参数: " + QResProcess.StartInfo.Arguments);
                 try
@@ -141,41 +142,25 @@ namespace ClientGUI
                     UseShellExecute = true,
                     WindowStyle = ProcessWindowStyle.Hidden
                 };
-                var gameProcess = Process.Start(info);
 
-                gameProcess.EnableRaisingEvents = true;
+                var gameProcess = new Process
+                {
+                    StartInfo = info,
+                    EnableRaisingEvents = true
+                };
+
+                // 注册退出事件
                 gameProcess.Exited += Process_Exited;
 
                 Logger.Log("启动可执行文件: " + gameProcess.StartInfo.FileName);
                 Logger.Log("启动参数: " + gameProcess.StartInfo.Arguments);
 
-                //if ((RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                //    && Environment.ProcessorCount > 1 && SingleCoreAffinity)
-                //{
-                //    // 设置为所有核心
-                //    try
-                //    {
-                //        int processorCount = Environment.ProcessorCount;
-
-                //        // 确保不超过 long 的位移限制
-                //        if (processorCount >= 64)
-                //        {
-                //            processorCount = 63; // 限制为最大位移63，以避免溢出
-                //        }
-
-                //        long allCoresMask = (1L << processorCount) - 1;
-                //        gameProcess.ProcessorAffinity = new IntPtr(allCoresMask);
-                //    }
-                //    catch
-                //    {
-                //        gameProcess.ProcessorAffinity = 2;
-                //    }
-                //}
 
                 try
                 {
                     gameProcess.Start();
                     Logger.Log("游戏处理逻辑: 进程开始.");
+                //    gameProcess.WaitForExit();
                 }
                 catch (Exception ex)
                 {
@@ -201,27 +186,33 @@ namespace ClientGUI
             
             Process proc = (Process)sender;
 
-            var ps = Process.GetProcesses();
+            //var ps = Process.GetProcesses();
 
-            try
-            {
-                var p = ps.FirstOrDefault(p => p.ProcessName == Path.GetFileNameWithoutExtension(gameExecutableName));
-                if (p != null)
-                {
-                    p.EnableRaisingEvents = true;
-                    p.Exited += Process_Exited;
-                    return;
-                }
-            }
-            finally
-            {
-                Logger.Log("GameProcessLogic: Process exited.");
-                UserINISettings.Instance.继续渲染地图?.Invoke();
-                proc.Exited -= Process_Exited;
-                proc.Dispose();
-                GameProcessExited?.Invoke();
-            }
-           
+            //try
+            //{
+            //    var p = ps.FirstOrDefault(p => p.ProcessName == Path.GetFileNameWithoutExtension(gameExecutableName));
+            //    if (p != null)
+            //    {
+            //        p.EnableRaisingEvents = true;
+            //        p.Exited += Process_Exited;
+            //        return;
+            //    }
+            //}
+            //finally
+            //{
+            //    Logger.Log("GameProcessLogic: Process exited.");
+            //    UserINISettings.Instance.继续渲染地图?.Invoke();
+            //    proc.Exited -= Process_Exited;
+            //    proc.Dispose();
+            //    GameProcessExited?.Invoke();
+            //}
+
+            Logger.Log("GameProcessLogic: Process exited.");
+            UserINISettings.Instance.继续渲染地图?.Invoke();
+            proc.Exited -= Process_Exited;
+            proc.Dispose();
+            GameProcessExited?.Invoke();
+
         }
     }
 }

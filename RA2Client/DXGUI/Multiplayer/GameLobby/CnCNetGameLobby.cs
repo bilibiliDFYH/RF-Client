@@ -90,7 +90,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 new StringCommandHandler("FHSH", FileHashNotification),
                 new StringCommandHandler("MM", CheaterNotification),
                 new StringCommandHandler(DICE_ROLL_MESSAGE, HandleDiceRollResult),
-                new NoParamCommandHandler(CHEAT_DETECTED_MESSAGE, HandleCheatDetectedMessage),
+            //    new NoParamCommandHandler(CHEAT_DETECTED_MESSAGE, HandleCheatDetectedMessage),
                 new StringCommandHandler(CHANGE_TUNNEL_SERVER_MESSAGE, HandleTunnelServerChangeMessage),
 
                  
@@ -1443,7 +1443,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 Logger.Log("Game files modified during client session!");
                 channel.SendCTCPMessage(CHEAT_DETECTED_MESSAGE, QueuedMessageType.INSTANT_MESSAGE, 0);
-                HandleCheatDetectedMessage(ProgramConstants.PLAYERNAME);
+             //   HandleCheatDetectedMessage(ProgramConstants.PLAYERNAME);
             }
 
             base.StartGame();

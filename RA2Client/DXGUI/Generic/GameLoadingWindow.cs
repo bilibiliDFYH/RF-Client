@@ -231,6 +231,7 @@ namespace Ra2Client.DXGUI.Generic
                         {
                             if (!FileHash.ContainsKey(keyValue.Key))
                                 FileHash.Add(keyValue.Key, []);
+                            if (string.IsNullOrEmpty(keyValue.Value)) continue;
                             foreach (var fileName in Directory.GetFiles(keyValue.Value))
                             {
                                 var file = new FileInfo(fileName);

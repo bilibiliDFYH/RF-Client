@@ -26,6 +26,7 @@ using DTAConfig;
 using DTAConfig.Settings;
 using DTAConfig.OptionPanels;
 using XNATextBox = ClientGUI.XNATextBox;
+using System.Threading.Tasks;
 
 namespace Ra2Client.DXGUI
 {
@@ -58,16 +59,21 @@ namespace Ra2Client.DXGUI
         private static GraphicsDeviceManager graphics;
         ContentManager content;
 
+       public void ChangeTiTle(string s = "")
+        {
+            string windowTitle = ClientConfiguration.Instance.WindowTitle;
+            // 在主线程上执行 UI 更新逻辑
+           
+                Window.Title = $"{windowTitle} ver{Updater.GameVersion} {s}";
+        }
+
         protected override void Initialize()
         {
             Logger.Log("加载客户端UI。");
 
-            string windowTitle = ClientConfiguration.Instance.WindowTitle;
+            ChangeTiTle();
 
-            Window.Title = string.IsNullOrEmpty(windowTitle) ?
-                string.Format("{0} Client", MainClientConstants.GAME_NAME_SHORT) : windowTitle;
-            Window.Title += $" ver{Updater.GameVersion}";
-
+            
             base.Initialize();
 
             AssetLoader.Initialize(GraphicsDevice, content);
@@ -125,8 +131,11 @@ namespace Ra2Client.DXGUI
             WindowManager wm = new WindowManager(this, graphics);
             wm.Initialize(content, ProgramConstants.GetBaseResourcePath());
 
+            WindowManager.标题改变 += ChangeTiTle;
+         //   ClientConfiguration.标题改变 += ChangeTiTle;
+
             //注册隐藏全局快捷键
-            if(null == hotKey)
+            if (null == hotKey)
             {
                 hotKey = new HotKey(Window.Handle);
                 hotKey.OnHotkey += HotKey_OnHotkey;

@@ -59,7 +59,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Initialize()
         {
-
+            if (ProgramConstants.跳过Logo) index = 122;
             ClientRectangle = new Rectangle(0, 0, 1280, 768);
             Name = "LoadingScreen";
 
@@ -107,8 +107,8 @@ namespace Ra2Client.DXGUI.Generic
                 updaterInitTask.Start();
             }
 
-            mapLoadTask = mapLoader.LoadMapsAsync();
-          
+           // UserINISettings.Instance.WindowTitleProcess = $"已加载地图{1}个";
+
             if (Cursor.Visible)
             {
                 Cursor.Visible = false;
@@ -117,8 +117,7 @@ namespace Ra2Client.DXGUI.Generic
 
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
 
-            LeftClick += (_, _) => { index = 122; };
-
+            LeftClick += (_, _) => { if(index < 122) index = 122; };
         }
         private void PlayLoadMusic()
         {
@@ -185,7 +184,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             var keyPressed = e.PressedKey;
 
-            if (keyPressed == Keys.Escape)
+            if (keyPressed == Keys.Escape && index < 122)
             {
                 index = 122;
             }
@@ -196,7 +195,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if (UserINISettings.Instance.video_wallpaper && Directory.Exists("Resources/Dynamicbg"))
             {
-                if (time >= (index > 39 ? 3 : 5))//播放速度
+                if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
                 {
                     time = 0;
                     BackgroundTexture?.Dispose();
@@ -217,6 +216,7 @@ namespace Ra2Client.DXGUI.Generic
 
                         }
                         index++;
+                        mapLoadTask = mapLoader.LoadMapsAsync();
                         BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg"));
                     }
                 }
@@ -227,7 +227,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (updaterInitTask == null || updaterInitTask.Status == TaskStatus.RanToCompletion)
             {
-                if (mapLoadTask.Status == TaskStatus.RanToCompletion && (!UserINISettings.Instance.video_wallpaper || index > 123))
+                if (mapLoadTask?.Status == TaskStatus.RanToCompletion && (!UserINISettings.Instance.video_wallpaper || index >= 123))
                 {
                     outputDevice?.Stop();
                     themeSongLoad?.Dispose();

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ClientCore.Entity;
 using ClientCore.Enums;
 using ClientCore.Settings;
 using Rampastring.Tools;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace ClientCore
@@ -202,6 +204,9 @@ namespace ClientCore
         /*********/
         /* AUDIO */
         /*********/
+
+        
+
 
         public DoubleSetting ScoreVolume { get; private set; }
         public DoubleSetting SoundVolume { get; private set; }

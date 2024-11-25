@@ -173,6 +173,8 @@ namespace Ra2Client.DXGUI.Generic
 
                     if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
 
+                    if (FilePaths.Count == 0) return true;
+
                     foreach (var fileType in FilePaths)
                     {
                         if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;

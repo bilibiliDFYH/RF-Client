@@ -320,7 +320,7 @@ namespace Ra2Client.DXGUI.Generic
             btnCredits.IdleTexture = AssetLoader.LoadTexture("MainMenu/credits.png");
             btnCredits.HoverTexture = AssetLoader.LoadTexture("MainMenu/credits_c.png");
             btnCredits.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
-            btnCredits.LeftClick += BtnCredits_LeftClick;
+          //  btnCredits.LeftClick += BtnCredits_LeftClick;
             btnCredits.Text = "View Credits".L10N("UI:MainMenu:Credits");
 
 
@@ -1177,10 +1177,10 @@ namespace Ra2Client.DXGUI.Generic
         private void BtnStatistics_LeftClick(object sender, EventArgs e) =>
             innerPanel.Show(innerPanel.StatisticsWindow);
 
-        private void BtnCredits_LeftClick(object sender, EventArgs e)
-        {
-            ProcessLauncher.StartShellProcess(MainClientConstants.CREDITS_URL);
-        }
+        //private void BtnCredits_LeftClick(object sender, EventArgs e)
+        //{
+        //    ProcessLauncher.StartShellProcess(MainClientConstants.CREDITS_URL);
+        //}
 
         private void BtnExtras_LeftClick(object sender, EventArgs e) =>
             innerPanel.Show(innerPanel.ExtrasWindow);

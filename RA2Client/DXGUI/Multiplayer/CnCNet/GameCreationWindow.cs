@@ -110,7 +110,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblTunnelServer.Name = nameof(lblTunnelServer);
             lblTunnelServer.ClientRectangle = new Rectangle(UIDesignConstants.EMPTY_SPACE_SIDES +
                 UIDesignConstants.CONTROL_HORIZONTAL_MARGIN, lblPassword.Bottom + UIDesignConstants.CONTROL_VERTICAL_MARGIN * 4, 0, 0);
-            lblTunnelServer.Text = "服务器:".L10N("UI:Main:TunnelServer");
+            lblTunnelServer.Text = "服务器:";
             lblTunnelServer.Enabled = false;
             lblTunnelServer.Visible = false;
 

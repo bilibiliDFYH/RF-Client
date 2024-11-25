@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <LangVersion>12.0</LangVersion>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <LangVersion>13.0</LangVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <Title>Rampastring.XNAUI</Title>
     <Description>Rampastring XNA/MonoGame UI Library</Description>

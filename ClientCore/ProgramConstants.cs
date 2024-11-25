@@ -21,6 +21,8 @@ namespace ClientCore
 
         public static string CUR_SERVER_URL = "";
 
+        public static bool 跳过Logo = false;
+
         public static readonly string GamePath = SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName);
 
         //MOD游戏数据默认存放的MIX

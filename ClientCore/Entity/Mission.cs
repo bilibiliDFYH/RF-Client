@@ -15,8 +15,11 @@ namespace DTAConfig.Entity
         public Mission(IniFile iniFile, string sectionName, int index)
         {
             this.SectionName = sectionName;
-            if(MissionPack.MissionPacks != null&& MissionPack.MissionPacks.Count>0)
+            if (MissionPack.MissionPacks != null && MissionPack.MissionPacks.Count > 0)
+            {
                 MPack = MissionPack.MissionPacks.Find(m => m.ID == iniFile.GetValue(sectionName, "MissionPack", string.Empty));
+                MPack?.Missions.Add(this);
+            }
             Index = index;
             CD = iniFile.GetValue(sectionName, nameof(CD), 0);
             Side = iniFile.GetValue(sectionName, nameof(Side), 0);

@@ -3,6 +3,7 @@ using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 
 namespace DTAConfig.Entity;
@@ -68,6 +69,7 @@ public class MissionPack : InfoBaseClass
     public static void Load()
     {
         MissionPacks.Clear();
+        
         var missionPackFile = Directory.GetFiles("Maps/cp/", "battle*.ini");
         foreach (var file in missionPackFile)
         {
@@ -81,7 +83,7 @@ public class MissionPack : InfoBaseClass
                 var missionPackID = ini.GetValue("MissionPack", key, string.Empty);
 
                 var missionPack = new MissionPack(ini, missionPackID);
-
+                missionPack.Missions.Clear();
                 MissionPacks.Add((MissionPack)Init(ini, missionPackID, missionPack));
             }
         } 
@@ -200,6 +202,8 @@ public class MissionPack : InfoBaseClass
     /// 是否为玩家自行导入的任务包
     /// </summary>
     public bool Other { get; set; }
+
+    public List<Mission> Missions { get; set; } = [];
 
     public static readonly string ANNOTATION = "" +
         "# 在这里注册任务和任务包，任务和任务包词条一致，任务优先使用自身的词条。\r\n" +

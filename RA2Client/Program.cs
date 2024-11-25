@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClientCore;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -52,6 +53,9 @@ namespace Ra2Client
                         break;
                     case "-MULTIPLEINSTANCE":
                         multipleInstanceMode = true;
+                        break;
+                    case "-NOLOGO":
+                        ProgramConstants.跳过Logo = true;
                         break;
                     default:
                         unknownStartupParams.Add(argument);

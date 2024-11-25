@@ -320,11 +320,16 @@ namespace Ra2Client.Domain.Multiplayer
                 else
                 {
                   
-                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
+                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
                     if (!File.Exists($"{sectionName}.png"))
                         MapLoader.需要渲染的地图列表.Add(this);
                 }
                 #endregion
+
+                if (!iniFile.SectionExists(sectionName))
+                    iniFile.AddSection(sectionName);
+
+                section = iniFile.GetSection(sectionName);
 
                 Author = section.GetValueOrSetDefault("Author",() => GetMapIni(BaseFilePath).GetValue("Basic","Author","佚名"));
                 GameModes = section.GetStringValue("GameModes", "常规作战").Split(',');

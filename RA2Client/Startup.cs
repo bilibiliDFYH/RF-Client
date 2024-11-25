@@ -135,6 +135,8 @@ namespace Ra2Client
            // PreprocessorBackgroundTask.Instance.Run();
 
             var gameClass = new GameClass();
+          //  UserINISettings.标题改变 += gameClass.ChangeTiTle;
+
 
             int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             int currentHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;

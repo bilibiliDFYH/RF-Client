@@ -5,12 +5,13 @@ namespace Ra2Client.Domain
 {
     public static class MainClientConstants
     {
-        public const string CNCNET_TUNNEL_LIST_URL = "http://cncnet.org/master-list";
+        //public const string CNCNET_TUNNEL_LIST_URL = "http://cncnet.org/master-list";
+        public const string CNCNET_TUNNEL_LIST_URL = "http://tunnel.yra2.com";
 
         public static string GAME_NAME_LONG = "Red Alert 2 Reunion the Future Client";
         public static string GAME_NAME_SHORT = "Reunion";
 
-        public static string CREDITS_URL = Path.Combine(ProgramConstants.GamePath, "Resources\\ThanksList");
+        //public static string CREDITS_URL = Path.Combine(ProgramConstants.GamePath, "Resources\\ThanksList");
 
         public static string SUPPORT_URL_SHORT = "www.yra2.com";
 
@@ -32,7 +33,7 @@ namespace Ra2Client.Domain
 
             SUPPORT_URL_SHORT = clientConfiguration.ShortSupportURL;
 
-            CREDITS_URL = clientConfiguration.CreditsURL;
+          //  CREDITS_URL = clientConfiguration.CreditsURL;
 
             USE_ISOMETRIC_CELLS = clientConfiguration.UseIsometricCells;
             TDRA_WAYPOINT_COEFFICIENT = clientConfiguration.WaypointCoefficient;

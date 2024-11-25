@@ -1297,70 +1297,74 @@ namespace Ra2Client.DXGUI.Generic
                     Directory.CreateDirectory(战役临时目录);
                 }
 
-                foreach (string file in Directory.GetFiles(SafePath.CombineFilePath(ProgramConstants.GamePath, mission.Path)))
+                //foreach (string file in Directory.GetFiles(SafePath.CombineFilePath(ProgramConstants.GamePath, mission.Path)))
+                //{
+                //    if (file == ProgramConstants.MISSION_MIX) continue;
+                //    File.Copy(file, SafePath.CombineFilePath(战役临时目录, Path.GetFileName(file)));
+                //}
+
+                foreach (var m in mission.MPack.Missions)
                 {
-                    if (file == ProgramConstants.MISSION_MIX) continue;
-                    File.Copy(file, SafePath.CombineFilePath(战役临时目录, Path.GetFileName(file)));
-                }
+                    if (m.Scenario == string.Empty) continue;
+                    var mapIni = new IniFile(SafePath.CombineFilePath(mission.MPack.FilePath, m.Scenario));
 
-
-                var mapIni = new IniFile(SafePath.CombineFilePath(战役临时目录,mission.Scenario));
-
-                if (!_chkExtension.Checked)
-                {
-                    if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
+                    if (!_chkExtension.Checked)
                     {
-                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
-                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+                        if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
+                        {
+                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
+                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+                        }
+                        else
+                        {
+                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
+                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
+                        }
                     }
-                    else
+
+                    if (!mapIni.SectionExists("General"))
+                        mapIni.AddSection("General");
+                    if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
+                        mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
+
+                    var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
+                    //
+
+
+                    IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
+                    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
+                    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
+
+                    foreach (GameLobbyCheckBox chkBox in CheckBoxes)
                     {
-                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
-                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
+                        chkBox.ApplySpawnINICode(spawnIni);
+                        chkBox.ApplyMapCode(mapIni, null);
                     }
+
+                    foreach (GameLobbyDropDown dd in DropDowns)
+                    {
+                        dd.ApplySpawnIniCode(spawnIni);
+                        dd.ApplyMapCode(mapIni, null);
+                    }
+                    if (_cmbCredits.SelectedItem != null)
+                        Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text) / 100);
+
+
+
+                    if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !m.YR)
+                    {
+                        if(mapIni.SectionExists("Countries"))
+                            mapIni.RenameSection("Countries", "YBCountry");
+                    }
+
+                    mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario));
                 }
-
-                if (!mapIni.SectionExists("General"))
-                    mapIni.AddSection("General");
-                if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
-                    mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
-
-                var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
-                //
-
-
-                IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
-                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
-                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
-
-                foreach (GameLobbyCheckBox chkBox in CheckBoxes)
-                {
-                    chkBox.ApplySpawnINICode(spawnIni);
-                    chkBox.ApplyMapCode(mapIni, null);
-                }
-
-                foreach (GameLobbyDropDown dd in DropDowns)
-                {
-                    dd.ApplySpawnIniCode(spawnIni);
-                    dd.ApplyMapCode(mapIni, null);
-                }
-                if (_cmbCredits.SelectedItem != null)
-                    Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text) / 100);
-
-                
-
-                if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !mission.YR)
-                {
-                    mapIni.RenameSection("Countries", "YBCountry");
-                }
-                mapIni.WriteIniFile();
-
               
                 UserINISettings.Instance.CampaignDefaultGameSpeed.Value = 6 - _cmbGameSpeed.SelectedIndex;
                 UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;
                 UserINISettings.Instance.SaveSettings();
 
-                Mix.PackToMix(战役临时目录, Path.Combine(mission.Path, ProgramConstants.MISSION_MIX));
+                Mix.PackToMix(战役临时目录, Path.Combine(mission.MPack.FilePath, ProgramConstants.MISSION_MIX));
             }
 
             #region 切换文件

@@ -80,21 +80,21 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         {
             List<CnCNetTunnel> tunnels = [
                 CnCNetTunnel.Parse("111.180.189.148:50000;China;CN;联盟与争霸官方服务器;1;0;100;0;0;0;2;0"),
-                CnCNetTunnel.Parse("110.42.111.242:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
-                CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
-                CnCNetTunnel.Parse("43.248.118.243:50000;China;CN;重聚未来赞助服务器;1;0;120;0;0;0;2;0"),
-                CnCNetTunnel.Parse("124.65.97.90:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
-                CnCNetTunnel.Parse("124.65.97.78:50000;China;CN;重聚未来赞助服务器;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("110.42.111.242:50000;China;CN;重聚未来赞助服务器1;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;重聚未来赞助服务器2;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("43.248.118.243:50000;China;CN;重聚未来赞助服务器3;1;0;120;0;0;0;2;0"),
+                CnCNetTunnel.Parse("124.65.97.90:50000;China;CN;重聚未来赞助服务器4;1;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("124.65.97.78:50000;China;CN;重聚未来赞助服务器5;1;0;200;0;0;0;2;0"),
                 ];
 
 
             Task.Factory.StartNew(() =>
             {
                 tunnels2 = RefreshTunnels();
-
-
+                tunnels.AddRange(tunnels2);
+                wm.AddCallback(new Action<List<CnCNetTunnel>>(HandleRefreshedTunnels), tunnels);
             });
-            tunnels.AddRange(tunnels2);
+            
 
             wm.AddCallback(new Action<List<CnCNetTunnel>>(HandleRefreshedTunnels), tunnels);
         }
@@ -110,7 +110,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             for (int i = 0; i < Tunnels.Count; i++)
             {
-                if (Tunnels[i].Official || Tunnels[i].Recommended)
+            //    if (Tunnels[i].Official || Tunnels[i].Recommended)
                     pingTasks[i] = PingListTunnelAsync(i);
             }
 

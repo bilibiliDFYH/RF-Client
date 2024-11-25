@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Ra2Client": {
+      "commandName": "Project",
+      "commandLineArgs": "-NOLOGO"
+    }
+  }
+}

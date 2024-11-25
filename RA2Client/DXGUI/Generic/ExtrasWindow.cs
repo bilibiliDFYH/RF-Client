@@ -35,11 +35,11 @@ namespace Ra2Client.DXGUI.Generic
             btnExMapEditor.Text = "Map Editor".L10N("UI:Main:MapEditor");
             btnExMapEditor.LeftClick += BtnExMapEditor_LeftClick;
 
-            var btnExCredits = new XNAClientButton(WindowManager);
-            btnExCredits.Name = "btnExCredits";
-            btnExCredits.ClientRectangle = new Rectangle(76, 101, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
-            btnExCredits.Text = "Credits".L10N("UI:Main:Credits");
-            btnExCredits.LeftClick += BtnExCredits_LeftClick;
+            //var btnExCredits = new XNAClientButton(WindowManager);
+            //btnExCredits.Name = "btnExCredits";
+            //btnExCredits.ClientRectangle = new Rectangle(76, 101, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
+            //btnExCredits.Text = "Credits".L10N("UI:Main:Credits");
+            //btnExCredits.LeftClick += BtnExCredits_LeftClick;
 
             var btnExCancel = new XNAClientButton(WindowManager);
             btnExCancel.Name = "btnExCancel";
@@ -49,7 +49,7 @@ namespace Ra2Client.DXGUI.Generic
 
             AddChild(btnExStatistics);
             AddChild(btnExMapEditor);
-            AddChild(btnExCredits);
+          //  AddChild(btnExCredits);
             AddChild(btnExCancel);
 
             base.Initialize();
@@ -78,10 +78,10 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
         }
 
-        private void BtnExCredits_LeftClick(object sender, EventArgs e)
-        {
-            ProcessLauncher.StartShellProcess(MainClientConstants.CREDITS_URL);
-        }
+        //private void BtnExCredits_LeftClick(object sender, EventArgs e)
+        //{
+        //    ProcessLauncher.StartShellProcess(MainClientConstants.CREDITS_URL);
+        //}
 
         private void BtnExCancel_LeftClick(object sender, EventArgs e)
         {

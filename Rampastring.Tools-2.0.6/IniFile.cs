@@ -151,8 +151,8 @@ public class IniFile : IIniFile
 
     private IniFile ParseIniFile(Stream stream, Encoding encoding = null)
     {
-        if (encoding == null)
-            encoding = Encoding;
+       
+            encoding ??= Encoding;
 
         using var reader = new StreamReader(stream, encoding);
 
@@ -868,8 +868,8 @@ public class IniFile : IIniFile
     {
         var section = GetSection(sectionName);
 
-        if (section != null)
-            section.RemoveKey(key);
+       
+        section?.RemoveKey(key);
         return this;
     }
 }

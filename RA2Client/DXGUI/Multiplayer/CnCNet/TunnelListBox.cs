@@ -190,7 +190,13 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
             usageRatio *= 100.0;
 
-            return Convert.ToInt32(Math.Pow(tunnel.PingInMs, 2.0) * usageRatio);
+            // 计算评分
+            double result = Math.Pow(tunnel.PingInMs, 2.0) * usageRatio;
+
+            // 限制结果在 int 的范围内
+            result = Math.Clamp(result, int.MinValue, int.MaxValue);
+
+            return (int)result; // 安全转换
         }
 
         private void TunnelListBox_SelectedIndexChanged(object sender, EventArgs e)

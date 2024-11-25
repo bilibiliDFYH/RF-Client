@@ -18,6 +18,7 @@ using Rampastring.Tools;
 using Rampastring.XNAUI;
 using SharpDX.Direct2D1;
 using static System.Collections.Specialized.BitVector32;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 //using SharpDX.Direct3D9;
 //using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
@@ -105,14 +106,18 @@ namespace Ra2Client.Domain.Multiplayer
             // 使用ConcurrentBag代替List
             var concurrentGameModes = new ConcurrentBag<GameMode>(GameModes);
 
+            int 加载地图数量 = 0;
+
             Parallel.ForEach(maps, parallelOptions, map =>
             {
                 try
                 {
-                    var files = Directory.EnumerateFiles(map, "*.*", SearchOption.TopDirectoryOnly)
-                     .Where(file => file.ToLower().EndsWith(".map") ||
-                                    file.ToLower().EndsWith(".yrm") ||
-                                    file.ToLower().EndsWith(".mpr"));
+                    var files = maps.SelectMany(map =>
+                    Directory.GetFiles(map, "*.*", SearchOption.TopDirectoryOnly)
+                        .Where(file => file.ToLower().EndsWith(".map") ||
+                                       file.ToLower().EndsWith(".yrm") ||
+                                       file.ToLower().EndsWith(".mpr")))
+                    .ToList();
 
                     if (!files.Any()) return;
 
@@ -127,6 +132,15 @@ namespace Ra2Client.Domain.Multiplayer
                         try
                         {
                             LoadMultiMaps2(mpMapsIni, file);
+                            Interlocked.Increment(ref 加载地图数量);
+
+                            //Task.Run(() =>
+                            //{
+                            WindowManager.progress.Report($"已加载地图{加载地图数量}个");
+                            //ClientConfiguration.progress.Report($"已加载地图{加载地图数量}个");
+                            //UserINISettings.Instance.WindowTitleProcess = $"已加载地图{加载地图数量}个";
+                            //       }).Wait();
+
                         }
                         catch (Exception ex)
                         {
@@ -200,6 +214,14 @@ namespace Ra2Client.Domain.Multiplayer
 
             渲染地图();
         }
+
+        //private readonly IProgress<int> progress = new Progress<int>(count =>
+        //{
+        //    // 在主线程上执行 UI 更新逻辑
+        //    UserINISettings.Instance.WindowTitleProcess = $"已加载地图{count}个";
+        //});
+
+        
 
         internal static List<string> 检测重复地图()
         {

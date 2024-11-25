@@ -285,6 +285,13 @@ public class WindowManager : DrawableGameComponent
             UISettings.ActiveSettings = new UISettings();
     }
 
+    public static event Action<string> 标题改变;
+
+    public static readonly IProgress<string> progress = new Progress<string>(s =>
+    {
+        标题改变?.Invoke(s);
+    });
+
     private void GameWindowManager_ClientSizeChanged(object sender, EventArgs e)
     {
         WindowWidth = gameWindowManager.GetWindowWidth();

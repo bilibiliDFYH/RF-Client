@@ -13,7 +13,7 @@ internal sealed class Program
 {
     private const string Resources = "Resources";
     private const string Binaries = "Binaries";
-    private const int DotNetMajorVersion = 8; // 客户端.Net 版本要求
+    private const int DotNetMajorVersion = 6; // 客户端.Net 版本要求
 
     private static readonly Uri DotNetX64RuntimeDownloadLink = new(FormattableString.Invariant($"https://aka.ms/dotnet/{DotNetMajorVersion}.0/dotnet-runtime-win-x64.exe"));
     private static readonly Uri DotNetX64DesktopRuntimeDownloadLink = new(FormattableString.Invariant($"https://aka.ms/dotnet/{DotNetMajorVersion}.0/windowsdesktop-runtime-win-x64.exe"));
@@ -27,10 +27,14 @@ internal sealed class Program
         { (Architecture.X86, false), DotNetX86RuntimeDownloadLink },
         { (Architecture.X86, true), DotNetX86DesktopRuntimeDownloadLink },
     };
+    private static string[] Args;
 
     [STAThread]
     private static void Main(string[] args)
     {
+
+        Args = args;
+
         try
         {
 #if DEBUG
@@ -128,7 +132,7 @@ internal sealed class Program
             using var p = Process.Start(new ProcessStartInfo
             {
                 FileName = dotnetHost.FullName,
-                Arguments = "\"" + absPath + "\"",
+                Arguments = "\"" + absPath + "\" " + string.Join(" ", Args.Select(arg => "\"" + arg + "\"")),
                 CreateNoWindow = true,
                 UseShellExecute = false,
             });

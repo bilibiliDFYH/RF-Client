@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using Rampastring.Tools;
 
 namespace Ra2Client.Domain.Multiplayer.CnCNet
@@ -127,18 +129,34 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
         public void UpdatePing()
         {
-            using (Ping p = new Ping())
+            using Ping p = new Ping();
+            try
             {
-                try
+                PingReply reply = p.Send(IPAddress.Parse(Address), PING_TIMEOUT);
+                if (reply.Status == IPStatus.Success)
+                    PingInMs = Convert.ToInt32(reply.RoundtripTime);
+                else
                 {
-                    PingReply reply = p.Send(IPAddress.Parse(Address), PING_TIMEOUT);
-                    if (reply.Status == IPStatus.Success)
-                        PingInMs = Convert.ToInt32(reply.RoundtripTime);
+                    try
+                    {
+                        using TcpClient tcpClient = new TcpClient();
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        tcpClient.SendTimeout = PING_TIMEOUT;
+                        tcpClient.ReceiveTimeout = PING_TIMEOUT;
+                        // 尝试连接
+                        tcpClient.Connect(Address, Port);
+
+                        // 停止计时
+                        stopwatch.Stop();
+                        if (tcpClient.Connected)
+                            PingInMs = (int)stopwatch.ElapsedMilliseconds;
+                    }
+                    catch { }
                 }
-                catch (PingException ex)
-                {
-                    Logger.Log($"Caught an exception when pinging {Name} tunnel server: {ex.Message}");
-                }
+            }
+            catch (PingException ex)
+            {
+                Logger.Log($"Caught an exception when pinging {Name} tunnel server: {ex.Message}");
             }
         }
     }

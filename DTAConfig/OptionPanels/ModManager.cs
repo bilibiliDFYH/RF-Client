@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace DTAConfig.OptionPanels;
 
@@ -428,13 +429,18 @@ public class ModManager : XNAWindow
             //检测ARES
             if (File.Exists(Path.Combine(modPath, "Ares.dll")))
             {
-                aresVerison = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Ares.dll")).FileVersion;
+                //aresVerison = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Ares.dll")).FileVersion;
+                aresVerison = FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Ares.dll")).ProductVersion;
 
+                mod.ExtensionOn = true;
                 //如果用的自带的3.0p1
                 if (aresVerison != "3.0p1")
                 {
-                    mod.Extension += $"Ares{aresVerison}";
-                    mod.ExtensionOn = true;
+                    mod.Extension += $"Ares{aresVerison},";
+                }
+                else
+                {
+                    mod.Extension += $"Ares3,";
                 }
             }
 
@@ -444,71 +450,75 @@ public class ModManager : XNAWindow
             {
                 phobosVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Phobos.dll")).FileVersion;
 
+                mod.ExtensionOn = true;
                 //如果用的自带的36
                 if (phobosVersion != "0.0.0.36")
                 {
                     mod.Extension += $"Phobos{phobosVersion}";
-                    mod.ExtensionOn = true;
+                }
+                else
+                {
+                    mod.Extension += $"Phobos36";
                 }
             }
             //检测NP
 
-            string newFilePath = Path.Combine(modPath, "NPatch.mix");
+            //string newFilePath = Path.Combine(modPath, "NPatch.mix");
 
-            string CalculateMD5(string filePath)
-            {
-                using (var md5 = MD5.Create())
-                {
-                    using (var stream = File.OpenRead(filePath))
-                    {
-                        return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
-                    }
-                }
-            }
+            //string CalculateMD5(string filePath)
+            //{
+            //    using (var md5 = MD5.Create())
+            //    {
+            //        using (var stream = File.OpenRead(filePath))
+            //        {
+            //            return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+            //        }
+            //    }
+            //}
 
-            if (File.Exists(newFilePath))
-            {
+            //if (File.Exists(newFilePath))
+            //{
                 
-                string extensionPath = "Mod&AI\\Extension";
+            //    string extensionPath = "Mod&AI\\Extension";
                
-                string modExtension = "";
+            //    string modExtension = "";
 
-                // 计算新文件的哈希值
-                string newFileHash = CalculateMD5(newFilePath);
+            //    // 计算新文件的哈希值
+            //    string newFileHash = CalculateMD5(newFilePath);
 
-                // 检查Mod&AI\Extension目录下所有以NP开头的文件夹
-                bool hashMatchFound = false;
-                foreach (var dir in Directory.GetDirectories(extensionPath, "NP*"))
-                {
-                    string nPathMixFile = Path.Combine(dir, "NPatch.mix");
-                    if (File.Exists(nPathMixFile))
-                    {
-                        // 计算NPath.mix文件的哈希值
-                        string nPathMixHash = CalculateMD5(nPathMixFile);
+            //    // 检查Mod&AI\Extension目录下所有以NP开头的文件夹
+            //    bool hashMatchFound = false;
+            //    foreach (var dir in Directory.GetDirectories(extensionPath, "NP*"))
+            //    {
+            //        string nPathMixFile = Path.Combine(dir, "NPatch.mix");
+            //        if (File.Exists(nPathMixFile))
+            //        {
+            //            // 计算NPath.mix文件的哈希值
+            //            string nPathMixHash = CalculateMD5(nPathMixFile);
 
-                        // 比较哈希值
-                        if (nPathMixHash == newFileHash)
-                        {
-                            mod.Extension = new DirectoryInfo(dir).Name;
-                            hashMatchFound = true;
-                            break;
-                        }
-                    }
-                }
-                // 如果没有找到匹配的哈希值，创建新的NP文件夹
-                if (!hashMatchFound)
-                {
-                    string newDirName = "NP" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                    string newDirPath = Path.Combine(extensionPath, newDirName);
-                    Directory.CreateDirectory(newDirPath);
+            //            // 比较哈希值
+            //            if (nPathMixHash == newFileHash)
+            //            {
+            //                mod.Extension = new DirectoryInfo(dir).Name;
+            //                hashMatchFound = true;
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    // 如果没有找到匹配的哈希值，创建新的NP文件夹
+            //    if (!hashMatchFound)
+            //    {
+            //        string newDirName = "NP" + DateTime.Now.ToString("yyyyMMddHHmmss");
+            //        string newDirPath = Path.Combine(extensionPath, newDirName);
+            //        Directory.CreateDirectory(newDirPath);
 
-                    string newNPathMix = Path.Combine(newDirPath, "NPatch.mix");
-                    File.Copy(newFilePath, newNPathMix);
+            //        string newNPathMix = Path.Combine(newDirPath, "NPatch.mix");
+            //        File.Copy(newFilePath, newNPathMix);
 
-                    mod.Extension = newDirName;
-                }
+            //        mod.Extension = newDirName;
+            //    }
 
-            }
+            //}
 
             if (mod.Extension + "" == "")
             {

@@ -1965,8 +1965,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
         }
 
-        private Dictionary<string, Dictionary<string, int>> FileHash = [];
-        private Dictionary<string, string> FilePaths = [];
         /// <summary>
         /// Writes spawn.ini. Returns the player house info returned from the randomizer.
         /// </summary>
@@ -2036,6 +2034,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             PlayerHouseInfo[] houseInfos = Randomize(teamStartMappings);
+
+
+            var FilePaths = GameProcessLogic.FilePaths;
+            var FileHash = GameProcessLogic.FileHash;
 
             bool 加载音乐 = true;
 

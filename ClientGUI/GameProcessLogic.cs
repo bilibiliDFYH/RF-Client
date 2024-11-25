@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -26,11 +27,18 @@ namespace ClientGUI
         public static bool SingleCoreAffinity { get; set; }
 
         private static string gameExecutableName;
+
+        public static Dictionary<string, Dictionary<string, int>> FileHash = [];
+        public static Dictionary<string, string> FilePaths = [];
+
         /// <summary>
         /// Starts the main game process.
         /// </summary>
+        /// 
         public static void StartGameProcess(WindowManager windowManager)
         {
+            WindowManager.progress.Report("正在唤起游戏");
+
             Logger.Log("About to launch main game executable.");
 
             int waitTimes = 0;
@@ -159,6 +167,7 @@ namespace ClientGUI
                 try
                 {
                     gameProcess.Start();
+                    WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
                 //    gameProcess.WaitForExit();
                 }
@@ -186,27 +195,8 @@ namespace ClientGUI
             
             Process proc = (Process)sender;
 
-            //var ps = Process.GetProcesses();
 
-            //try
-            //{
-            //    var p = ps.FirstOrDefault(p => p.ProcessName == Path.GetFileNameWithoutExtension(gameExecutableName));
-            //    if (p != null)
-            //    {
-            //        p.EnableRaisingEvents = true;
-            //        p.Exited += Process_Exited;
-            //        return;
-            //    }
-            //}
-            //finally
-            //{
-            //    Logger.Log("GameProcessLogic: Process exited.");
-            //    UserINISettings.Instance.继续渲染地图?.Invoke();
-            //    proc.Exited -= Process_Exited;
-            //    proc.Dispose();
-            //    GameProcessExited?.Invoke();
-            //}
-
+            WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
             UserINISettings.Instance.继续渲染地图?.Invoke();
             proc.Exited -= Process_Exited;

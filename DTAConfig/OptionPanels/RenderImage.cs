@@ -1,5 +1,6 @@
 ﻿using ClientCore;
 using Rampastring.Tools;
+using Rampastring.XNAUI;
 using SharpDX.MediaFoundation.DirectX;
 using System;
 using System.Collections.Concurrent;
@@ -30,7 +31,7 @@ namespace DTAConfig
                 process.StartInfo.Arguments = strCmdText;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
-
+                WindowManager.progress.Report($"正在渲染预览图{mapName}...");
                 // 异步执行渲染单张图片的逻辑
                 await Task.Run(() =>
                 {

@@ -263,6 +263,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     输出目录 = ProgramConstants.GamePath + "Maps\\Multi\\Custom\\",
                 };
 
+                WindowManager.progress.Report("正在生成随机地图...");
+
                 随机地图生成.RunOptions(option);
 
 

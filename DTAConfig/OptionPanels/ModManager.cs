@@ -425,7 +425,7 @@ public class ModManager : XNAWindow
         submitbox.YesClickedAction += (_) => {
             #region Mod初步判断
             var aresVerison = string.Empty;
-
+            string extensionPath = "Mod&AI\\Extension";
             //检测ARES
             if (File.Exists(Path.Combine(modPath, "Ares.dll")))
             {
@@ -437,6 +437,9 @@ public class ModManager : XNAWindow
                 if (aresVerison != "3.0p1")
                 {
                     mod.Extension += $"Ares{aresVerison},";
+                    if(Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
+                        Directory.CreateDirectory($"{extensionPath}\\Ares\\Ares{aresVerison}");
+                    File.Copy(Path.Combine(modPath, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll"));
                 }
                 else
                 {
@@ -455,6 +458,9 @@ public class ModManager : XNAWindow
                 if (phobosVersion != "0.0.0.36")
                 {
                     mod.Extension += $"Phobos{phobosVersion}";
+                    if (Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
+                        Directory.CreateDirectory($"{extensionPath}\\Phobos\\Phobos{phobosVersion}");
+                    File.Copy(Path.Combine(modPath, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll"));
                 }
                 else
                 {

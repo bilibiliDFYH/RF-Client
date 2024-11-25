@@ -4,10 +4,10 @@
 	  <LangVersion>13.0</LangVersion>
     <Title>Client GUI</Title>
     <Description>Client GUI Library</Description>
-    <Company>Maple</Company>
+    <Company>Snowy</Company>
     <Product>Client GUI</Product>
-    <Copyright>Copyright © Maple Studio 2023</Copyright>
-    <Trademark>Maple</Trademark>
+    <Copyright>Copyright © Snowy Studio 2023</Copyright>
+    <Trademark>Snowy</Trademark>
     <Version>1.0.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
     <InformationalVersion>1.0.0.0</InformationalVersion>

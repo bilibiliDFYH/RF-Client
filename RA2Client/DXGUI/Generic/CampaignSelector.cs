@@ -1262,8 +1262,7 @@ namespace Ra2Client.DXGUI.Generic
             LaunchMission(_missionToLaunch);
         }
 
-        private Dictionary<string, Dictionary<string, int>> FileHash = [];
-        private Dictionary<string, string> FilePaths = [];
+
 
 
 
@@ -1382,7 +1381,8 @@ namespace Ra2Client.DXGUI.Generic
             //if(!mission.YR && ((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
             //    newReName = "Mod&AI/Extension/rename_RA2";
             string newAi = "Mod&AI/AI/Other";
-            
+            var FilePaths = GameProcessLogic.FilePaths;
+            var FileHash = GameProcessLogic.FileHash;
             Mod mod;
 
             if (_gameOptionsPanel.Visible) {
@@ -1446,9 +1446,9 @@ namespace Ra2Client.DXGUI.Generic
                
                 if (检测文件是否修改())
                 {
-
+                    WindowManager.progress.Report("正在清理缓存");
                     GameOptionsPanel.清除缓存();
-
+                    WindowManager.progress.Report("正在加载游戏文件");
                     FileHelper.CopyDirectory(newGame, "./");
                     
                     foreach (var extension in newExtension.Split(","))
@@ -1475,6 +1475,8 @@ namespace Ra2Client.DXGUI.Generic
 
                     FileHelper.CopyDirectory(newMain, "./");
 
+                    
+
                     FilePaths["Game"] = newGame;
                     FilePaths["Main"] = newMain;
                     FilePaths["Mission"] = newMission;
@@ -1493,9 +1495,11 @@ namespace Ra2Client.DXGUI.Generic
                     }
                 }
 
-                if(加载音乐)
+                if (加载音乐)
+                {
                     Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
-
+                    WindowManager.progress.Report("正在加载音乐");
+                }
                 if (File.Exists("ra2md.csf"))
                 {
                     var d = new CSF("ra2md.csf").GetCsfDictionary();
@@ -1516,7 +1520,8 @@ namespace Ra2Client.DXGUI.Generic
                         CSF.WriteCSF(d, "ra2md.csf");
                     }
                  }
-                }
+             
+            }
             catch (FileLockedException ex)
             {
                 XNAMessageBox.Show(WindowManager, "错误", ex.Message);
@@ -1526,6 +1531,7 @@ namespace Ra2Client.DXGUI.Generic
             #endregion
 
             #region 写入新设置
+            WindowManager.progress.Report("正在写入新设置");
             spawnIni = new IniFile(spawnerSettingsFile.FullName);
             var settings = new IniSection("Settings");
 
@@ -1572,8 +1578,6 @@ namespace Ra2Client.DXGUI.Generic
 
             _discordHandler.UpdatePresence(mission.GUIName, difficultyName, mission.IconPath, true);
 
-
-          
             oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
 
           //  return;

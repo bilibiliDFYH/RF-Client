@@ -59,12 +59,19 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Initialize()
         {
-            if (ProgramConstants.跳过Logo) index = 122;
+            
             ClientRectangle = new Rectangle(0, 0, 1280, 768);
             Name = "LoadingScreen";
 
-            if (!UserINISettings.Instance.video_wallpaper )
+            //if (ProgramConstants.跳过Logo)
+            //{
+            //    index = 123;
+               // BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg"));
+            //}
+
+            if (!UserINISettings.Instance.video_wallpaper || ProgramConstants.跳过Logo)
             {
+               
                 string path = $"Resources/{UserINISettings.Instance.ClientTheme}Wallpaper";
                 if (!Directory.Exists(path))
                     path = $"Resources/Wallpaper";
@@ -88,6 +95,7 @@ namespace Ra2Client.DXGUI.Generic
                     BackgroundTexture = AssetLoader.LoadTexture(Wallpaper[0]);
                 }
 
+              mapLoadTask = mapLoader.LoadMapsAsync();
             }
             else
             {
@@ -193,7 +201,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Update(GameTime gameTime)
         {
-            if (UserINISettings.Instance.video_wallpaper && Directory.Exists("Resources/Dynamicbg"))
+            if (UserINISettings.Instance.video_wallpaper && !ProgramConstants.跳过Logo && Directory.Exists("Resources/Dynamicbg"))
             {
                 if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
                 {
@@ -227,7 +235,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (updaterInitTask == null || updaterInitTask.Status == TaskStatus.RanToCompletion)
             {
-                if (mapLoadTask?.Status == TaskStatus.RanToCompletion && (!UserINISettings.Instance.video_wallpaper || index >= 123))
+                if (mapLoadTask?.Status == TaskStatus.RanToCompletion && (!UserINISettings.Instance.video_wallpaper || ProgramConstants.跳过Logo || index > 123))
                 {
                     outputDevice?.Stop();
                     themeSongLoad?.Dispose();

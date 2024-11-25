@@ -222,8 +222,8 @@ namespace DTAConfig.OptionPanels
 #if RELEASE
                 All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1??[];
 #else
-                //All_components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
-                 All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
+                All_components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
+                // All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
 #endif
 
                 if (All_components.Count > 0)

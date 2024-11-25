@@ -1,5 +1,5 @@
-﻿// <copyright file="AdvancedMessageBox.xaml.cs" company="Maple Studio">
-// Copyright (c) Maple Studio. All rights reserved.
+﻿// <copyright file="AdvancedMessageBox.xaml.cs" company="Snowy Studio">
+// Copyright (c) Snowy Studio. All rights reserved.
 // </copyright>
 
 namespace Reunion;

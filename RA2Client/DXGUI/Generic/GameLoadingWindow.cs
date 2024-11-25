@@ -123,9 +123,6 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
         }
 
-        private Dictionary<string, Dictionary<string, int>> FileHash = [];
-        private Dictionary<string, string> FilePaths = [];
-
         private void BtnLaunch_LeftClick(object sender, EventArgs e)
         {
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
@@ -155,6 +152,10 @@ namespace Ra2Client.DXGUI.Generic
             string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
 
             bool º”‘ÿ“Ù¿÷ = true;
+
+            var FilePaths = GameProcessLogic.FilePaths;
+            var FileHash = GameProcessLogic.FileHash;
+
             try
             {
 

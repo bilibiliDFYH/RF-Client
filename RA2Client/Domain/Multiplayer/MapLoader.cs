@@ -98,6 +98,8 @@ namespace Ra2Client.Domain.Multiplayer
 
             var gameModeIni = new IniFile(ClientConfiguration.Instance.GameModesIniPath, GameMode.ANNOTATION);
 
+            WindowManager.progress.Report("加载游戏模式");
+
             LoadGameModes(gameModeIni);
             LoadGameModeAliases(gameModeIni);
 
@@ -107,19 +109,23 @@ namespace Ra2Client.Domain.Multiplayer
             var concurrentGameModes = new ConcurrentBag<GameMode>(GameModes);
 
             int 加载地图数量 = 0;
+            int 总数 = 0;
 
             Parallel.ForEach(maps, parallelOptions, map =>
             {
                 try
                 {
-                    var files = maps.SelectMany(map =>
+                    var files = 
                     Directory.GetFiles(map, "*.*", SearchOption.TopDirectoryOnly)
                         .Where(file => file.ToLower().EndsWith(".map") ||
                                        file.ToLower().EndsWith(".yrm") ||
-                                       file.ToLower().EndsWith(".mpr")))
+                                       file.ToLower().EndsWith(".mpr"))
+                    .Distinct()
                     .ToList();
 
                     if (!files.Any()) return;
+
+                    Interlocked.Add(ref 总数, files.Count);
 
                     var ini = $"Maps\\Multi\\MPMaps{Path.GetFileName(map)}.ini";
                     if (!File.Exists(ini))
@@ -133,21 +139,15 @@ namespace Ra2Client.Domain.Multiplayer
                         {
                             LoadMultiMaps2(mpMapsIni, file);
                             Interlocked.Increment(ref 加载地图数量);
-
-                            //Task.Run(() =>
-                            //{
-                            WindowManager.progress.Report($"已加载地图{加载地图数量}个");
-                            //ClientConfiguration.progress.Report($"已加载地图{加载地图数量}个");
-                            //UserINISettings.Instance.WindowTitleProcess = $"已加载地图{加载地图数量}个";
-                            //       }).Wait();
-
+                         //   Console.WriteLine($"当前计数: {加载地图数量}, 文件: {file}");
+                            WindowManager.progress.Report($"已加载地图{加载地图数量}/{总数}");
                         }
                         catch (Exception ex)
                         {
                             exceptions.Add(ex);
                         }
                     });
-
+                        
                     mpMapsIni.WriteIniFile();
                 }
                 catch (Exception ex)
@@ -155,6 +155,8 @@ namespace Ra2Client.Domain.Multiplayer
                     exceptions.Add(ex);
                 }
             });
+
+          //  WindowManager.progress.Report(string.Empty);
 
             _ = Parallel.ForEach(concurrentGameModes, gameMode =>
             {
@@ -214,14 +216,6 @@ namespace Ra2Client.Domain.Multiplayer
 
             渲染地图();
         }
-
-        //private readonly IProgress<int> progress = new Progress<int>(count =>
-        //{
-        //    // 在主线程上执行 UI 更新逻辑
-        //    UserINISettings.Instance.WindowTitleProcess = $"已加载地图{count}个";
-        //});
-
-        
 
         internal static List<string> 检测重复地图()
         {
@@ -395,48 +389,6 @@ namespace Ra2Client.Domain.Multiplayer
                             new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
                 }
 
-            }
-        }
-
-        /// <summary>
-        /// Save cache of custom maps.
-        /// </summary>
-        /// <param name="customMaps">Custom maps to cache</param>
-        private void CacheCustomMaps(ConcurrentDictionary<string, Map> customMaps)
-        {
-            var customMapCache = new CustomMapCache
-            {
-                Maps = customMaps,
-                Version = CurrentCustomMapCacheVersion
-            };
-            var jsonData = JsonSerializer.Serialize(customMapCache, jsonSerializerOptions);
-
-            File.WriteAllText(CUSTOM_MAPS_CACHE, jsonData);
-        }
-
-        /// <summary>
-        /// Load previously cached custom maps
-        /// </summary>
-        /// <returns></returns>
-        private ConcurrentDictionary<string, Map> LoadCustomMapCache()
-        {
-            try
-            {
-                var jsonData = File.ReadAllText(CUSTOM_MAPS_CACHE);
-
-                var customMapCache = JsonSerializer.Deserialize<CustomMapCache>(jsonData, jsonSerializerOptions);
-
-                var customMaps = customMapCache?.Version == CurrentCustomMapCacheVersion && customMapCache.Maps != null
-                    ? customMapCache.Maps : new ConcurrentDictionary<string, Map>();
-
-                foreach (var customMap in customMaps.Values)
-                    customMap.CalculateSHA();
-
-                return customMaps;
-            }
-            catch (Exception)
-            {
-                return new ConcurrentDictionary<string, Map>();
             }
         }
 

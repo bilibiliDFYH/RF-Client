@@ -7,8 +7,8 @@
     <Description>Ra2Client Updater</Description>
     <Company></Company>
     <Product></Product>
-    <Copyright>Copyright © Maple Studio 2023</Copyright>
-    <Trademark>Maple</Trademark>
+    <Copyright>Copyright © Snowy Studio 2023</Copyright>
+    <Trademark>Snowy</Trademark>
     <AssemblyName>ClientUpdater</AssemblyName>
     <RootNamespace>ClientUpdater</RootNamespace>
     <ComVisible>false</ComVisible>

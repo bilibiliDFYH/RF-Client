@@ -128,13 +128,6 @@ namespace Ra2Client.DXGUI.Generic
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
             Logger.Log("Loading saved game " + sg.FileName);
 
-            FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
-
-            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
-
-            if (spawnerSettingsFile.Exists)
-                spawnerSettingsFile.Delete();
-
             var saveIni = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
 
             var newMain = saveIni.GetValue(sg.FileName, "Main", string.Empty);
@@ -142,149 +135,10 @@ namespace Ra2Client.DXGUI.Generic
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);
             string newAi = "Mod&AI/AI/Other";
             var newExtension = saveIni.GetValue(sg.FileName, "Extension", string.Empty);
-            bool NEW_YR_to_RA2 = saveIni.GetValue(sg.FileName, "YR_to_RA2", false);
-
-            string oldMain = spawnIni.GetValue("Settings", "Main", string.Empty);
-            string oldGame = spawnIni.GetValue("Settings", "Game", string.Empty);
-            string oldExtension = spawnIni.GetValue("Settings", "Extension", string.Empty);
-            bool OLD_YR_to_RA2 = spawnIni.GetValue("Settings", "YR_to_RA2", false);
-            string oldMission = spawnIni.GetValue("Settings", "Mission", string.Empty);
-            string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
 
             bool 加载音乐 = true;
 
-            var FilePaths = GameProcessLogic.FilePaths;
-            var FileHash = GameProcessLogic.FileHash;
-
-            try
-            {
-
-                bool 检测文件是否修改()
-                {
-                    string oldGame = spawnIni.GetValue("Settings", "Game", string.Empty);
-
-                    string oldExtension = spawnIni.GetValue("Settings", "Extension", string.Empty);
-
-                    string oldMission = spawnIni.GetValue("Settings", "Mission", string.Empty);
-
-                    string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
-
-                    if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
-                        加载音乐 = false;
-
-                    if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
-
-                    if (FilePaths.Count == 0) return true;
-
-                    foreach (var fileType in FilePaths)
-                    {
-                        if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
-                        foreach (var file in Directory.GetFiles(fileType.Value))
-                        {
-                            if (!value.TryGetValue(file, out var hash)) return true;
-                            var newHash = new FileInfo(file).GetHashCode();
-                            if (hash != newHash) return true;
-                        }
-                    }
-
-                    return false;
-                }
-
-                try
-                {
-
-                    if (检测文件是否修改())
-                    {
-
-                        GameOptionsPanel.清除缓存();
-
-                        FileHelper.CopyDirectory(newGame, "./");
-
-                        foreach (var extension in newExtension.Split(","))
-                        {
-                            string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
-                            if (extension.Contains("Ares"))
-                            {
-                                // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                                string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                                directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
-                            }
-                            else if (extension.Contains("Phobos"))
-                            {
-                                // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                                string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                                directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
-                            }
-                            FileHelper.CopyDirectory(directoryPath, "./");
-                        }
-
-                        FileHelper.CopyDirectory(newAi, "./");
-
-                        FileHelper.CopyDirectory(newMission, "./");
-
-                        FileHelper.CopyDirectory(newMain, "./");
-
-                        FilePaths["Game"] = newGame;
-                        FilePaths["Main"] = newMain;
-                        FilePaths["Mission"] = newMission;
-                        FilePaths["AI"] = newAi;
-                        //    FilePaths["Extension"] = directoryPath;
-
-                        foreach (var keyValue in FilePaths)
-                        {
-                            if (!FileHash.ContainsKey(keyValue.Key))
-                                FileHash.Add(keyValue.Key, []);
-                            if (string.IsNullOrEmpty(keyValue.Value)) continue;
-                            foreach (var fileName in Directory.GetFiles(keyValue.Value))
-                            {
-                                var file = new FileInfo(fileName);
-                                FileHash[keyValue.Key][fileName] = file.GetHashCode();
-                            }
-                        }
-                    }
-
-                    if (加载音乐)
-                        Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
-
-                    if (File.Exists("ra2md.csf"))
-                    {
-                        var d = new CSF("ra2md.csf").GetCsfDictionary();
-                        if (d != null)
-                        {
-                            foreach (var item in UserINISettings.Instance.MusicNameDictionary.Keys)
-                            {
-                                if (d.ContainsKey(item))
-                                {
-                                    d[item] = UserINISettings.Instance.MusicNameDictionary[item];
-                                }
-                                else
-                                {
-                                    d.Add(item, UserINISettings.Instance.MusicNameDictionary[item]);
-                                }
-
-                            }
-                            CSF.WriteCSF(d, "ra2md.csf");
-                        }
-                    }
-                }
-                catch (FileLockedException ex)
-                {
-                    XNAMessageBox.Show(WindowManager, "错误", ex.Message);
-                    return;
-                }
-
-
-            }
-            catch (FileLockedException ex)
-            {
-                XNAMessageBox.Show(WindowManager, "错误", ex.Message);
-                return;
-            }
-
-            if (加载音乐)
-                Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
-
-            spawnIni = new IniFile(spawnerSettingsFile.FullName);
+            var spawnIni = new IniFile();
 
             var settings = new IniSection("Settings");
 
@@ -309,7 +163,7 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("GameSpeed", UserINISettings.Instance.GameSpeed.Value);
          
             spawnIni.AddSection(settings);
-            spawnIni.WriteIniFile();
+            
 
             FileInfo spawnMapIniFile = SafePath.GetFile(ProgramConstants.GamePath, "spawnmap.ini");
 
@@ -327,24 +181,9 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
-            GameProcessLogic.StartGameProcess(WindowManager);
+            GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
         }
 
-        protected List<string> GetDeleteFile(string oldGame)
-        {
-            if (oldGame == null || oldGame == "")
-                return null;
-
-            List<string> deleteFile = new List<string>();
-
-            foreach (string file in Directory.GetFiles(oldGame))
-            {
-                deleteFile.Add(Path.GetFileName(file));
-
-            }
-
-            return deleteFile;
-        }
 
         private void BtnDelete_LeftClick(object sender, EventArgs e)
         {

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using Rampastring.Tools;
 using Localization;
+using Rampastring.XNAUI;
 
 namespace ClientCore
 {
@@ -127,5 +128,62 @@ namespace ClientCore
             if (exit)
                 Environment.Exit(1);
         };
+
+        public static bool 清除缓存()
+        {
+            try
+            {
+                string[] mixFile = ["ra2.mix", "ra2md.mix", "thememd.mix", "language.mix", "langmd.mix", "RF.mix"];
+
+                string[] iniFile = ["RA2RF.ini", "ddraw.ini", "KeyboardMD.ini"];
+
+                WindowManager.progress.Report("正在清理MIX文件...");
+                foreach (var mix in Directory.GetFiles(GamePath, "*.mix"))
+                {
+                    if (!Array.Exists(mixFile, file => file.Equals(Path.GetFileName(mix), StringComparison.OrdinalIgnoreCase)))
+                        File.Delete(mix);
+                }
+
+                WindowManager.progress.Report("正在清理INI文件...");
+                foreach (var ini in Directory.GetFiles(GamePath, "*.ini"))
+                {
+                    if (!Array.Exists(iniFile, file => file.Equals(Path.GetFileName(ini), StringComparison.OrdinalIgnoreCase)))
+                        File.Delete(ini);
+                }
+
+                WindowManager.progress.Report("正在清理SHP文件...");
+                foreach (var shp in Directory.GetFiles(GamePath, "*.shp"))
+                {
+                    File.Delete(shp);
+                }
+
+                WindowManager.progress.Report("正在清理PAL文件...");
+                foreach (var pal in Directory.GetFiles(GamePath, "*.pal"))
+                {
+                    File.Delete(pal);
+                }
+
+                WindowManager.progress.Report("正在清理CSF文件...");
+                foreach (var pal in Directory.GetFiles(GamePath, "*.csf"))
+                {
+                    File.Delete(pal);
+                }
+
+                WindowManager.progress.Report("正在清理其他文件...");
+                File.Delete("phobos.dll");
+                File.Delete("Ares.dll");
+                File.Delete("Mars.dll");
+                File.Delete("game.fnt");
+                File.Delete("Syringe.exe");
+                File.Delete("gamemd.exe");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message);
+                return false;
+            }
+
+        }
     }
 }

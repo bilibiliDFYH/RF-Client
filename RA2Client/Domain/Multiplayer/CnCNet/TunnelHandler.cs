@@ -90,9 +90,11 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             Task.Factory.StartNew(() =>
             {
+                WindowManager.progress.Report("获取联机服务器列表...");
                 tunnels2 = RefreshTunnels();
                 tunnels.AddRange(tunnels2);
                 wm.AddCallback(new Action<List<CnCNetTunnel>>(HandleRefreshedTunnels), tunnels);
+                WindowManager.progress.Report(string.Empty );
             });
             
 

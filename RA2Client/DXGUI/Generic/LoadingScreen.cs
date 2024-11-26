@@ -63,12 +63,6 @@ namespace Ra2Client.DXGUI.Generic
             ClientRectangle = new Rectangle(0, 0, 1280, 768);
             Name = "LoadingScreen";
 
-            //if (ProgramConstants.跳过Logo)
-            //{
-            //    index = 123;
-               // BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg"));
-            //}
-
             if (!UserINISettings.Instance.video_wallpaper || ProgramConstants.跳过Logo)
             {
                

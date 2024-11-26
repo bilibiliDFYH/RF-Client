@@ -429,17 +429,27 @@ public class ModManager : XNAWindow
             //检测ARES
             if (File.Exists(Path.Combine(modPath, "Ares.dll")))
             {
-                //aresVerison = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Ares.dll")).FileVersion;
                 aresVerison = FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Ares.dll")).ProductVersion;
 
                 mod.ExtensionOn = true;
+
                 //如果用的自带的3.0p1
                 if (aresVerison != "3.0p1")
                 {
                     mod.Extension += $"Ares{aresVerison},";
-                    if(Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
+                    if(!Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
                         Directory.CreateDirectory($"{extensionPath}\\Ares\\Ares{aresVerison}");
-                    File.Copy(Path.Combine(modPath, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll"));
+                    File.Copy(Path.Combine(modPath, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll");
+
+                    if (File.Exists(Path.Combine(modPath, "Ares.Mix")))
+                    {
+                        File.Copy(Path.Combine(modPath, "Ares.Mix"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.Mix");
+                    }
+                    if (File.Exists(Path.Combine(modPath, "Syringe.exe")))
+                    {
+                        File.Copy(Path.Combine(modPath, "Syringe.exe"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Syringe.exe");
+                    }
+
                 }
                 else
                 {
@@ -451,20 +461,21 @@ public class ModManager : XNAWindow
             //检测Phobos
             if (File.Exists(Path.Combine(modPath, "Phobos.dll")))
             {
-                phobosVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Phobos.dll")).FileVersion;
+                phobosVersion = FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Phobos.dll")).FileVersion;
 
                 mod.ExtensionOn = true;
                 //如果用的自带的36
                 if (phobosVersion != "0.0.0.36")
                 {
                     mod.Extension += $"Phobos{phobosVersion}";
-                    if (Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
+                    if (!Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
                         Directory.CreateDirectory($"{extensionPath}\\Phobos\\Phobos{phobosVersion}");
-                    File.Copy(Path.Combine(modPath, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll"));
+                    File.Copy(Path.Combine(modPath, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll");
+                    
                 }
                 else
                 {
-                    mod.Extension += $"Phobos36";
+                    mod.Extension += "Phobos36";
                 }
             }
             //检测NP
@@ -964,25 +975,7 @@ public class ModManager : XNAWindow
                 if (rander)
                     await RenderPreviewImageAsync(missionPack);
                 ReLoad();
-            };
-     //   };
-       // resultBox.NoClickedAction += (_) => { return; };
-
-        ////判断是否有地图
-        //if (maps.Length == 0)
-        //{
-        //    if (report) { 
-        //        resultBox.Show();
-        //    }
-
-        //}
-        //else
-        //{
-        //    missionMix = false;
-        //    resultBox.YesClickedAction.Invoke(resultBox);
-        //}
-
-        
+            };        
     }
 
     private List<string> 从mapselmd导入关卡(string mapselmd)
@@ -1999,14 +1992,14 @@ public class MissionPackInfoWindows : XNAWindow
         {
             Text = "任务关数",
             ClientRectangle = new Rectangle(lblMissionPackName.X, 100, 0, 0),
-            Visible = false
+            Visible = missionMix
         };
         AddChild(lblMissionCount);
 
         _ctbMissionCount = new XNATextBox(WindowManager)
         {
             ClientRectangle = new Rectangle(lblMissionCount.Right + 100, lblMissionCount.Y, CtbW, CtbH),
-            Visible = false
+            Visible = missionMix
         };
 
          AddChild(_ctbMissionCount);

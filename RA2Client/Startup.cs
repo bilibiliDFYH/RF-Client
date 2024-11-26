@@ -192,7 +192,7 @@ namespace Ra2Client
 
             // 删除完成后，删除 "del" 文件本身
             File.Delete("del");
-            GameOptionsPanel.清除缓存();
+            ProgramConstants.清除缓存();
         }
 
         /// <summary>

@@ -85,9 +85,10 @@ namespace Ra2Client.DXGUI.Generic
             {
                 UserINISettings.Instance.PrivacyPolicyAccepted.Value = true;
                 UserINISettings.Instance.SaveSettings();
-                // AlphaRate = -0.2f;
+                
                 Disable();
                 BoilerEventLog?.Invoke();
+                WindowManager.progress.Report(string.Empty);
             };
 
             base.Initialize();

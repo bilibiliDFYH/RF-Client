@@ -32,9 +32,6 @@ namespace Ra2Client.Domain.Multiplayer
         private const string MultiMapsSection = "MultiMaps";
         private const string GameModesSection = "GameModes";
         private const string GameModeAliasesSection = "GameModeAliases";
-        private const int CurrentCustomMapCacheVersion = 1;
-        private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { IncludeFields = true };
-
         /// <summary>
         /// List of game modes.
         /// </summary>
@@ -87,6 +84,7 @@ namespace Ra2Client.Domain.Multiplayer
             需要渲染的地图列表.Clear();
             Logger.Log("开始加载地图...");
 
+            WindowManager.progress.Report("正在转移根目录地图");
             LoadRootMaps();
 
             string[] maps = Directory.GetDirectories("Maps\\Multi");
@@ -98,7 +96,7 @@ namespace Ra2Client.Domain.Multiplayer
 
             var gameModeIni = new IniFile(ClientConfiguration.Instance.GameModesIniPath, GameMode.ANNOTATION);
 
-            WindowManager.progress.Report("加载游戏模式");
+            WindowManager.progress.Report("正在加载游戏模式");
 
             LoadGameModes(gameModeIni);
             LoadGameModeAliases(gameModeIni);
@@ -139,8 +137,8 @@ namespace Ra2Client.Domain.Multiplayer
                         {
                             LoadMultiMaps2(mpMapsIni, file);
                             Interlocked.Increment(ref 加载地图数量);
-                         //   Console.WriteLine($"当前计数: {加载地图数量}, 文件: {file}");
-                            WindowManager.progress.Report($"已加载地图{加载地图数量}/{总数}");
+                         
+                            WindowManager.progress.Report($"已加载地图{加载地图数量}/{总数},正在加载{file}");
                         }
                         catch (Exception ex)
                         {
@@ -156,7 +154,7 @@ namespace Ra2Client.Domain.Multiplayer
                 }
             });
 
-          //  WindowManager.progress.Report(string.Empty);
+            WindowManager.progress.Report(string.Empty);
 
             _ = Parallel.ForEach(concurrentGameModes, gameMode =>
             {

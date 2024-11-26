@@ -502,6 +502,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private void CheckDDRAW()
         {
+            WindowManager.progress.Report("检查渲染插件是否异常...");
+
             const string registryPath = @"SYSTEM\CurrentControlSet\Control\Session Manager";
             const string valueName = "ExcludeFromKnownDlls";
             const string dllName = "ddraw.dll";
@@ -679,6 +681,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private void CheckForbiddenFiles()
         {
+            WindowManager.progress.Report("检查违禁文件.....");
+
             List<string> presentFiles = ClientConfiguration.Instance.ForbiddenFiles.ToList()
                 .FindAll(f => !string.IsNullOrWhiteSpace(f) && SafePath.GetFile(ProgramConstants.GamePath, f).Exists);
 
@@ -694,9 +698,11 @@ namespace Ra2Client.DXGUI.Generic
 
         private void CheckPrivacyNotification()
         {
+            WindowManager.progress.Report("检查隐私通知.....");
             if (!UserINISettings.Instance.PrivacyPolicyAccepted)
             {
                 innerPanel.PrivacyWindow.BoilerEventLog += FirstRun;
+                WindowManager.progress.Report("等待隐私通知结果.....");
                 innerPanel.Show(innerPanel.PrivacyWindow);
             }
         }
@@ -710,7 +716,7 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         private void FirstRun()
         {
-            GameOptionsPanel.清除缓存();
+            ProgramConstants.清除缓存();
             var guideWindow = new GuideWindow(WindowManager);
             guideWindow.Show();
 
@@ -758,7 +764,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void Verification_File()
         {
-
+            WindowManager.progress.Report("验证文件完整性.....");
             string[] files = ["ra2.mix", "ra2md.mix", "language.mix", "langmd.mix", "RF.mix", "qres32.dll", "Resources/ccmixar.exe"];
             foreach (var file in files)
             {
@@ -864,12 +870,6 @@ namespace Ra2Client.DXGUI.Generic
             PlayMusic();
             if (!ClientConfiguration.Instance.ModMode)
             {
-                //if (NetWorkINISettings.Instance == null || Updater.ServerMirrors == null || Updater.ServerMirrors.Count < 1)
-                //{
-                //    lblUpdateStatus.Text = "没有可用的更新.".L10N("UI:Main:NoServerMirrorsAvailable");
-                //    lblUpdateStatus.DrawUnderline = false;
-                //}
-
                 if (UserINISettings.Instance.CheckForUpdates)
                 {
                     CheckForUpdates();
@@ -877,25 +877,26 @@ namespace Ra2Client.DXGUI.Generic
                 else
                 {
 
-                    lblUpdateStatus.Text = "Click to check for updates.".L10N("UI:Main:ClickToCheckUpdate");
+                    lblUpdateStatus.Text = "点击以检查更新.";
                 }
             }
-            //if (UserINISettings.Instance.StartCap)
-            //    CheckCampaign();
-
             Verification_File();
             CheckHostName();
             CheckForbiddenFiles();
             CheckPrivacyNotification();
             CheckDDRAW();
+
             if (MapLoader.rootMaps.Count != 0)
             {
                 XNAMessageBox.Show(WindowManager, "加载地图", $"检测到新地图,已移动至 Maps\\Multi\\Custom 文件夹. 包含:\n {string.Join("\n", MapLoader.rootMaps)}");
             }
+
+            WindowManager.progress.Report(string.Empty);
         }
 
         private void CheckHostName()
         {
+            WindowManager.progress.Report("验证主机名合法性.....");
             Regex regex = HostNameRegex();
             try
             {
@@ -1013,6 +1014,8 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         private void CheckForUpdates()
         {
+            WindowManager.progress.Report("检查更新...");
+
             if (Updater.ServerMirrors == null || Updater.ServerMirrors.Count < 1)
                 return;
 

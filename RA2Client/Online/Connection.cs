@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using ClientCore;
 using Localization;
 using Rampastring.Tools;
+using Rampastring.XNAUI;
 
 namespace Ra2Client.Online
 {
@@ -144,6 +145,8 @@ namespace Ra2Client.Online
         /// </summary>
         public void ConnectAsync()
         {
+            
+
             if (_isConnected)
                 throw new InvalidOperationException("The client is already connected!".L10N("UI:Main:ClientAlreadyConnected"));
 
@@ -159,6 +162,7 @@ namespace Ra2Client.Online
 
             Thread connection = new Thread(ConnectToServer);
             connection.Start();
+            
         }
 
         /// <summary>
@@ -166,6 +170,7 @@ namespace Ra2Client.Online
         /// </summary>
         private void ConnectToServer()
         {
+            WindowManager.progress.Report("正在连接联机大厅...");
             IList<Server> sortedServerList = GetServerListSortedByLatency();
 
             foreach (Server server in sortedServerList)
@@ -208,13 +213,15 @@ namespace Ra2Client.Online
                         HandleComm();
                         return;
                     }
+                    WindowManager.progress.Report(string.Empty);
                 }
                 catch (Exception ex)
                 {
                     Logger.Log("Unable to connect to the server. " + ex.Message);
                 }
+                
             }
-
+            
             Logger.Log("Connecting to CnCNet failed!");
             // Clear the failed server list in case connecting to all servers has failed
             failedServerIPs.Clear();

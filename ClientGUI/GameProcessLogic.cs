@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using ClientCore;
 using ClientCore.INIProcessing;
+using Localization.Tools;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 
@@ -30,14 +31,24 @@ namespace ClientGUI
 
         public static Dictionary<string, Dictionary<string, int>> FileHash = [];
         public static Dictionary<string, string> FilePaths = [];
+        private static string[] oldSaves;
 
         /// <summary>
         /// Starts the main game process.
         /// </summary>
         /// 
-        public static void StartGameProcess(WindowManager windowManager)
+        public static void StartGameProcess(WindowManager windowManager,IniFile iniFile = null)
         {
+
+            切换文件(iniFile.GetSection("Settings"));
+            spawnerSettingsFile.Delete();
+            iniFile.WriteIniFile(spawnerSettingsFile.FullName);
+
+            oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
+
             WindowManager.progress.Report("正在唤起游戏");
+
+            
 
             Logger.Log("About to launch main game executable.");
 
@@ -169,7 +180,6 @@ namespace ClientGUI
                     gameProcess.Start();
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
-                //    gameProcess.WaitForExit();
                 }
                 catch (Exception ex)
                 {
@@ -181,7 +191,6 @@ namespace ClientGUI
                     return;
                 }
 
-                
             }
 
             GameProcessStarted?.Invoke();
@@ -189,12 +198,169 @@ namespace ClientGUI
             Logger.Log("等待 qres.dat 或 " + gameExecutableName + " 退出.");
         }
 
-        static void Process_Exited(object sender, EventArgs e)
+        static readonly FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
+        private static void 加载音乐()
         {
+            Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
+            if (File.Exists("ra2md.csf"))
+            {
+                var d = new CSF("ra2md.csf").GetCsfDictionary();
+                if (d != null)
+                {
+                    foreach (var item in UserINISettings.Instance.MusicNameDictionary.Keys)
+                    {
+                        if (d.ContainsKey(item))
+                        {
+                            d[item] = UserINISettings.Instance.MusicNameDictionary[item];
+                        }
+                        else
+                        {
+                            d.Add(item, UserINISettings.Instance.MusicNameDictionary[item]);
+                        }
 
+                    }
+                    CSF.WriteCSF(d, "ra2md.csf");
+                }
+
+            }
+        }
+        private static void 获取新的存档()
+        {
+            var newSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
+
+            if (oldSaves.Length < newSaves.Length)
+            {
+
+                var iniFile = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
+                var spawn = new IniFile($"{ProgramConstants.GamePath}spawn.ini");
+                var game = spawn.GetValue("Settings", "Game", string.Empty);
+                var main = spawn.GetValue("Settings", "Main", string.Empty);
+                var mission = spawn.GetValue("Settings", "Mission", string.Empty);
+                var extension = spawn.GetValue("Settings", "Extension", string.Empty);
+                var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
+                var YR_to_RA2 = spawn.GetValue("Settings", "YR_to_RA2", false);
+                // 找到在 newSaves 中但不在 oldSaves 中的文件
+                var addedFiles = newSaves.Where(newFile => !oldSaves.Contains(newFile)).ToArray();
+
+                foreach (var fileFullPath in addedFiles)
+                {
+                    string fileName = Path.GetFileName(fileFullPath);
+
+                    iniFile.SetValue(fileName, "Game", game);
+                    iniFile.SetValue(fileName, "Extension", extension);
+                    iniFile.SetValue(fileName, "Main", main);
+                    iniFile.SetValue(fileName, "Mission", mission);
+                    iniFile.SetValue(fileName, "RA2Mode", YR_to_RA2);
+                }
+                iniFile.WriteIniFile();
+            }
+        }
+        public static void 切换文件(IniSection newSection)
+        {
             
-            Process proc = (Process)sender;
+            var oldSettings = new IniFile(spawnerSettingsFile.FullName);
 
+            if (!oldSettings.SectionExists("Settings")) return;
+
+            var oldSection = oldSettings.GetSection("Settings");
+
+            string oldMain = oldSection.GetValue("Main", string.Empty);
+            string oldExtension = oldSection.GetValue("Extension", string.Empty);
+            string oldGame = oldSection.GetValue("Game", string.Empty);
+            string oldMission = oldSection.GetValue("Mission", string.Empty);
+            string oldAi = oldSection.GetValue("AI", string.Empty);
+
+            string newMain = newSection.GetValue("Main", string.Empty);
+            string newExtension = newSection.GetValue("Extension", string.Empty);
+            string newGame = newSection.GetValue("Game", string.Empty);
+            string newMission = newSection.GetValue("Mission", string.Empty);
+            string newAi = newSection.GetValue("AI", string.Empty);
+
+            if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return;
+
+            if (FilePaths.Count == 0) return;
+
+            foreach (var fileType in FilePaths)
+            {
+                if (!FileHash.TryGetValue(fileType.Key, out var value)) return;
+                foreach (var file in Directory.GetFiles(fileType.Value))
+                {
+                    if (!value.TryGetValue(file, out var hash)) return;
+                    var newHash = new FileInfo(file).GetHashCode();
+                    if (hash != newHash) return;
+                }
+            }
+
+            try
+            {
+                
+                ProgramConstants.清除缓存();
+
+                WindowManager.progress.Report("正在加载游戏文件");
+                FileHelper.CopyDirectory(newGame, "./");
+
+                foreach (var extension in newExtension.Split(","))
+                {
+                    string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
+                    if (extension.Contains("Ares"))
+                    {
+                        // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
+                        string extensionChild = extension == "Ares" ? "Ares3" : extension;
+                        directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
+                    }
+                    else if (extension.Contains("Phobos"))
+                    {
+                        // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
+                        string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
+                        directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
+                    }
+                    FileHelper.CopyDirectory(directoryPath, "./");
+                }
+
+                FileHelper.CopyDirectory(newAi, "./");
+
+                FileHelper.CopyDirectory(newMission, "./");
+
+                FileHelper.CopyDirectory(newMain, "./");
+
+                FilePaths["Game"] = newGame;
+                FilePaths["Main"] = newMain;
+                FilePaths["Mission"] = newMission;
+                FilePaths["AI"] = newAi;
+
+
+                foreach (var keyValue in FilePaths)
+                {
+                    if (!FileHash.ContainsKey(keyValue.Key))
+                        FileHash.Add(keyValue.Key, []);
+                    foreach (var fileName in Directory.GetFiles(keyValue.Value))
+                    {
+                        var file = new FileInfo(fileName);
+                        FileHash[keyValue.Key][fileName] = file.GetHashCode();
+                    }
+                }
+
+                if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
+                {
+                    WindowManager.progress.Report("正在加载音乐");
+                    加载音乐();
+                }
+
+                WindowManager.progress.Report("正在加载语音");
+                
+            }
+
+            catch (FileLockedException ex)
+            {
+              
+              Logger.Log(ex.Message);
+                return;
+            }
+
+        }
+        private static void Process_Exited(object sender, EventArgs e)
+        {
+            Process proc = (Process)sender;
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
@@ -202,7 +368,7 @@ namespace ClientGUI
             proc.Exited -= Process_Exited;
             proc.Dispose();
             GameProcessExited?.Invoke();
-
+            获取新的存档();
         }
     }
 }

@@ -212,8 +212,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private LoadOrSaveGameOptionPresetWindow loadOrSaveGameOptionPresetWindow;
 
-        private string[] oldSaves;
-
         public override void Initialize()
         {
 
@@ -1965,16 +1963,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
         }
 
+
+
+
         /// <summary>
         /// Writes spawn.ini. Returns the player house info returned from the randomizer.
         /// </summary>
-        private PlayerHouseInfo[] WriteSpawnIni()
+        private PlayerHouseInfo[] WriteSpawnIni(IniFile spawnIni)
         {
             Logger.Log("Writing spawn.ini");
 
-            FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
-
-         //   var spawnIni = new IniFile(spawnerSettingsFile.FullName);
 
             string newGame = ((Mod)cmbGame.SelectedItem.Tag).FilePath;
             string newMain = ((Mod)cmbGame.SelectedItem.Tag).md == "md" ?
@@ -2008,15 +2006,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             }
 
-            
             string newMission = Map.Mission;
 
-            
             string newAi = ((AI)cmbAI.SelectedItem.Tag).FilePath;
 
-            
-            
-            var oldSpawnIni = new IniFile(spawnerSettingsFile.FullName);
             
             if (Map.IsCoop)
             {
@@ -2035,112 +2028,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             PlayerHouseInfo[] houseInfos = Randomize(teamStartMappings);
 
-
-            var FilePaths = GameProcessLogic.FilePaths;
-            var FileHash = GameProcessLogic.FileHash;
-
-            bool 加载音乐 = true;
-
-            bool 检测文件是否修改()
-            {
-                string oldMain = oldSpawnIni.GetValue("Settings", "Main", string.Empty);
-                string oldExtension = oldSpawnIni.GetValue("Settings", "Extension", string.Empty);
-                string oldGame = oldSpawnIni.GetValue("Settings", "Game", string.Empty);
-                string oldMission = oldSpawnIni.GetValue("Settings", "Mission", string.Empty);
-                string oldAi = oldSpawnIni.GetValue("Settings", "AI", string.Empty);
-
-                if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
-                    加载音乐 = false;
-
-                 
-                if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
-
-                if (FilePaths.Count == 0) return true;
-
-                foreach (var fileType in FilePaths)
-                {
-                    if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
-                    foreach (var file in Directory.GetFiles(fileType.Value))
-                    {
-                        if (!value.TryGetValue(file, out var hash)) return true;
-                        var newHash = new FileInfo(file).GetHashCode();
-                        if (hash != newHash) return true;
-                    }
-                }
-
-                return false;
-            }
-
-            try
-            {
-                if (检测文件是否修改())
-                {
-                    
-                    GameOptionsPanel.清除缓存();
-
-
-
-                    FileHelper.CopyDirectory(newGame, "./");
-
-                    foreach (var extension in newExtension.Split(","))
-                    {
-                        string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
-                        if (extension.Contains("Ares"))
-                        {
-                            // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                            string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                            directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
-                        }
-                        else if (extension.Contains("Phobos"))
-                        {
-                            // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                            string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                            directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
-                        }
-                        FileHelper.CopyDirectory(directoryPath, "./");
-                    }
-
-                    FileHelper.CopyDirectory(newAi, "./");
-
-                    FileHelper.CopyDirectory(newMission, "./");
-
-                    FileHelper.CopyDirectory(newMain, "./");
-                }
-
-                if(加载音乐)
-                Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
-                if (File.Exists("ra2md.csf"))
-                {
-                    var d = new CSF("ra2md.csf").GetCsfDictionary();
-                    if (d != null)
-                    {
-                        foreach (var item in UserINISettings.Instance.MusicNameDictionary.Keys)
-                        {
-                            if (d.ContainsKey(item))
-                            {
-                                d[item] = UserINISettings.Instance.MusicNameDictionary[item];
-                            }
-                            else
-                            {
-                                d.Add(item, UserINISettings.Instance.MusicNameDictionary[item]);
-                            }
-
-                        }
-                        CSF.WriteCSF(d, "ra2md.csf");
-                    }
-
-                }
-            }
-            catch (FileLockedException ex)
-            {
-                XNAMessageBox.Show(WindowManager, "错误", ex.Message);
-                return null;
-            }
-
-            spawnerSettingsFile.Delete();
-
             var settings = new IniSection("Settings");
-            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
+            
             settings.SetValue("Main", newMain);
             //写入新游戏
             settings.SetValue("Game", newGame);
@@ -2283,10 +2172,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
             }
 
-            spawnIni.WriteIniFile();
-
-
-            oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
+         
 
             return houseInfos;
         }
@@ -2639,8 +2525,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             PlayerHouseInfo[] houseInfos = [];
 
-
-            houseInfos = WriteSpawnIni();
+            var spawnIni = new IniFile();
+            houseInfos = WriteSpawnIni(spawnIni);
 
             if (houseInfos == null)
                 return;
@@ -2650,9 +2536,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
-            GameProcessLogic.StartGameProcess(WindowManager);
+            GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
             UpdateDiscordPresence(true);
         }
+
+       
 
         private void GameProcessExited_Callback() => AddCallback(new Action(GameProcessExited), null);
 
@@ -2674,34 +2562,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             UpdateDiscordPresence(true);
 
-            var newSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
-
-            if (oldSaves.Length < newSaves.Length)
-            {
-
-                var iniFile = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
-                var spawn = new IniFile($"{ProgramConstants.GamePath}spawn.ini");
-                var game = spawn.GetValue("Settings", "Game", string.Empty);
-                var main = spawn.GetValue("Settings", "Main", string.Empty);
-                var mission = spawn.GetValue("Settings", "Mission", string.Empty);
-                var extension = spawn.GetValue("Settings", "Extension", string.Empty);
-                var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
-                var YR_to_RA2 = spawn.GetValue("Settings", "YR_to_RA2", false);
-                // 找到在 newSaves 中但不在 oldSaves 中的文件
-                var addedFiles = newSaves.Where(newFile => !oldSaves.Contains(newFile)).ToArray();
-
-                foreach (var fileFullPath in addedFiles)
-                {
-                    string fileName = Path.GetFileName(fileFullPath);
-
-                    iniFile.SetValue(fileName, "Game", game);
-                    iniFile.SetValue(fileName, "Extension", extension);
-                    iniFile.SetValue(fileName, "Main", main);
-                    iniFile.SetValue(fileName, "Mission", mission);
-                    iniFile.SetValue(fileName, "RA2Mode", YR_to_RA2);
-                }
-                iniFile.WriteIniFile();
-            }
         }
 
         /// <summary>

@@ -227,7 +227,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             tbPreview.BackgroundTexture = AssetLoader.LoadTextureUncached("gamecreationoptionsbg.png");
             var t = new Thread(() =>
             {
-
+                WindowManager.progress.Report("正在生成随机地图...");
                 string strCmdText;
                 Random r = new Random();
                 string Generate = (string)ddClimate.SelectedItem.Tag;
@@ -263,7 +263,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     输出目录 = ProgramConstants.GamePath + "Maps\\Multi\\Custom\\",
                 };
 
-                WindowManager.progress.Report("正在生成随机地图...");
+                
 
                 随机地图生成.RunOptions(option);
 
@@ -337,6 +337,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                         Stop = false;
                         return;
                     }
+                    WindowManager.progress.Report(string.Empty);
                 }
                 btnGenerate.Enabled = true;
                 btnSave.Enabled = true;

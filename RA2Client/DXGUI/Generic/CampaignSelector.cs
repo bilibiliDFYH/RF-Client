@@ -21,6 +21,7 @@ using DTAConfig.OptionPanels;
 using Mission = DTAConfig.Entity.Mission;
 using DTAConfig;
 using DTAConfig.Settings;
+using System.Reflection;
 
 
 namespace Ra2Client.DXGUI.Generic
@@ -46,15 +47,11 @@ namespace Ra2Client.DXGUI.Generic
             this._discordHandler = discordHandler;
         }
 
-        //public static CampaignSelector GetInstance(WindowManager windowManager, DiscordHandler discordHandler)
-        //{
-        //    return _instance ??= new CampaignSelector(windowManager, discordHandler);
-        //}
 
-        private DiscordHandler _discordHandler;
+        private readonly DiscordHandler _discordHandler;
 
-        private List<Mission> _missions = new();
-        private List<Mission> _screenMissions = new();
+        private readonly List<Mission> _missions = [];
+        private readonly List<Mission> _screenMissions = [];
         private XNAListBox _lbxCampaignList;
         private XNALabel _lblScreen;
         private XNADropDown _ddDifficulty;
@@ -75,7 +72,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private Rectangle MapPreviewBoxAspectPosition { get; set; }
 
-        private XNALabel _lblGame;
         private GameLobbyDropDown _cmbGame;
         private GameLobbyDropDown _cmbGameSpeed;
         private XNAClientCheckBox _chkExtension;
@@ -381,7 +377,7 @@ namespace Ra2Client.DXGUI.Generic
             //ReadDrop();
 
 
-            _lblGame = FindChild<XNALabel>("lblGame");
+           // _lblGame = FindChild<XNALabel>("lblGame");
             _cmbGame = FindChild<GameLobbyDropDown>("cmbGame");
             // lbCampaignList.SelectedIndex = 1;
             //    LbxCampaignListSelectedIndexChanged(lbCampaignList, new EventArgs());
@@ -1276,11 +1272,7 @@ namespace Ra2Client.DXGUI.Generic
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
             Logger.Log("About to write spawn.ini.");
 
-            FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
-
-            var spawnIni = new IniFile(spawnerSettingsFile.FullName);
-
-            spawnerSettingsFile.Delete();
+            var spawnIni = new IniFile();
 
             if (_gameOptionsPanel.Visible)
             {
@@ -1295,12 +1287,6 @@ namespace Ra2Client.DXGUI.Generic
                     Directory.Delete(战役临时目录, true);
                     Directory.CreateDirectory(战役临时目录);
                 }
-
-                //foreach (string file in Directory.GetFiles(SafePath.CombineFilePath(ProgramConstants.GamePath, mission.Path)))
-                //{
-                //    if (file == ProgramConstants.MISSION_MIX) continue;
-                //    File.Copy(file, SafePath.CombineFilePath(战役临时目录, Path.GetFileName(file)));
-                //}
 
                 foreach (var m in mission.MPack.Missions)
                 {
@@ -1368,21 +1354,16 @@ namespace Ra2Client.DXGUI.Generic
 
             #region 切换文件
 
-            string oldMain = spawnIni.GetValue("Settings", "Main", string.Empty);
-
             string newMain;
             string newGame;
             string newExtension = string.Empty;
-
-            bool 加载音乐 = true;
 
             string newMission = mission.Path;
             //string newReName = "Mod&AI/Extension/rename_YR";
             //if(!mission.YR && ((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
             //    newReName = "Mod&AI/Extension/rename_RA2";
             string newAi = "Mod&AI/AI/Other";
-            var FilePaths = GameProcessLogic.FilePaths;
-            var FileHash = GameProcessLogic.FileHash;
+          
             Mod mod;
 
             if (_gameOptionsPanel.Visible) {
@@ -1408,131 +1389,12 @@ namespace Ra2Client.DXGUI.Generic
                     newExtension = mod.Extension;
                 }
             }
-            
-            
-            bool 检测文件是否修改()
-            {
-                string oldGame = spawnIni.GetValue("Settings", "Game", string.Empty);
-
-                string oldExtension = spawnIni.GetValue("Settings", "Extension", string.Empty);
-
-                string oldMission = spawnIni.GetValue("Settings", "Mission", string.Empty);
-
-                string oldAi = spawnIni.GetValue("Settings", "AI", string.Empty);
-
-                if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
-                    加载音乐 = false;
-
-                if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
-
-                if(FilePaths.Count == 0) return true;
-
-                foreach(var fileType in FilePaths)
-                {
-                    if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
-                    foreach(var file in Directory.GetFiles(fileType.Value))
-                    {
-                        if(!value.TryGetValue(file, out var hash)) return true;
-                        var newHash = new FileInfo(file).GetHashCode();
-                        if (hash != newHash) return true;
-                    }
-                }
-
-                return false;
-            }
-
-            try
-            {
-               
-                if (检测文件是否修改())
-                {
-                    WindowManager.progress.Report("正在清理缓存");
-                    GameOptionsPanel.清除缓存();
-                    WindowManager.progress.Report("正在加载游戏文件");
-                    FileHelper.CopyDirectory(newGame, "./");
-                    
-                    foreach (var extension in newExtension.Split(","))
-                    {
-                        string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
-                        if (extension.Contains("Ares"))
-                        {
-                            // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                            string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                            directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
-                        }
-                        else if (extension.Contains("Phobos"))
-                        {
-                            // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                            string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                            directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
-                        }
-                        FileHelper.CopyDirectory(directoryPath, "./");
-                    }
-
-                    FileHelper.CopyDirectory(newAi, "./");
-
-                    FileHelper.CopyDirectory(newMission, "./");
-
-                    FileHelper.CopyDirectory(newMain, "./");
-
-                    
-
-                    FilePaths["Game"] = newGame;
-                    FilePaths["Main"] = newMain;
-                    FilePaths["Mission"] = newMission;
-                    FilePaths["AI"] = newAi;
-                //    FilePaths["Extension"] = directoryPath;
-
-                    foreach(var keyValue in FilePaths)
-                    {
-                        if (!FileHash.ContainsKey(keyValue.Key))
-                            FileHash.Add(keyValue.Key, []);
-                        foreach (var fileName in Directory.GetFiles(keyValue.Value))
-                        {
-                            var file = new FileInfo(fileName);
-                            FileHash[keyValue.Key][fileName] = file.GetHashCode();
-                        }
-                    }
-                }
-
-                if (加载音乐)
-                {
-                    Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
-                    WindowManager.progress.Report("正在加载音乐");
-                }
-                if (File.Exists("ra2md.csf"))
-                {
-                    var d = new CSF("ra2md.csf").GetCsfDictionary();
-                    if (d != null)
-                    {
-                        foreach (var item in UserINISettings.Instance.MusicNameDictionary.Keys)
-                        {
-                            if (d.ContainsKey(item))
-                            {
-                                d[item] = UserINISettings.Instance.MusicNameDictionary[item];
-                            }
-                            else
-                            {
-                                d.Add(item, UserINISettings.Instance.MusicNameDictionary[item]);
-                            }
-
-                        }
-                        CSF.WriteCSF(d, "ra2md.csf");
-                    }
-                 }
-             
-            }
-            catch (FileLockedException ex)
-            {
-                XNAMessageBox.Show(WindowManager, "错误", ex.Message);
-                return;
-            }
 
             #endregion
 
             #region 写入新设置
             WindowManager.progress.Report("正在写入新设置");
-            spawnIni = new IniFile(spawnerSettingsFile.FullName);
+
             var settings = new IniSection("Settings");
 
             settings.SetValue("Main", newMain);
@@ -1545,16 +1407,12 @@ namespace Ra2Client.DXGUI.Generic
 
             settings.SetValue("Mission", newMission);
 
-            //settings.SetValue("Ra2Mode", mod.md != "md");
             if(_chkExtension.Checked)
                 settings.SetValue("Ra2Mode", mod.md != "md");
             else//这里不知为何一定得写False，即使是用原版玩，用True会弹窗
                 settings.SetValue("Ra2Mode", false);
 
-            //if (_chkModify.Checked)
-            //    settings.SetValue("Scenario", "spawnmap.ini");
-            //else
-                settings.SetValue("Scenario",  mission.Scenario);
+            settings.SetValue("Scenario", mission.Scenario);
 
             settings.SetValue("CampaignID", mission.Index);
             settings.SetValue("IsSinglePlayer", true);
@@ -1567,70 +1425,38 @@ namespace Ra2Client.DXGUI.Generic
 
             UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;
 
-            spawnIni.WriteIniFile();
             #endregion
 
             SaveSettings();
 
-            ((MainMenuDarkeningPanel)Parent).Hide();
+        //    ((MainMenuDarkeningPanel)Parent).Hide();
 
             string difficultyName = DifficultyNames[_trbDifficultySelector.Value];
 
             _discordHandler.UpdatePresence(mission.GUIName, difficultyName, mission.IconPath, true);
 
-            oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
-
-          //  return;
-
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
-            GameProcessLogic.StartGameProcess(WindowManager);
+            GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
         }
 
-        private string[] oldSaves;
+        //private void 保存配置(IniFile settings)
+        //{
+            
+        //};
 
         private int GetComputerDifficulty() =>
             Math.Abs(_trbDifficultySelector.Value - 2);
 
         private void GameProcessExited_Callback()
         {
-            var newSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
-
-            if (oldSaves.Length < newSaves.Length)
-            {
-
-                var iniFile = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
-                var spawn = new IniFile($"{ProgramConstants.GamePath}spawn.ini");
-                var game = spawn.GetValue("Settings", "Game", string.Empty);
-                var main = spawn.GetValue("Settings", "Main", string.Empty);
-                var mission = spawn.GetValue("Settings", "Mission", string.Empty);
-                var extension = spawn.GetValue("Settings", "Extension", string.Empty);
-                var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
-                var YR_to_RA2 = spawn.GetValue("Settings", "YR_to_RA2", false);
-                // 找到在 newSaves 中但不在 oldSaves 中的文件
-                var addedFiles = newSaves.Where(newFile => !oldSaves.Contains(newFile)).ToArray();
-
-                foreach (var fileFullPath in addedFiles)
-                {
-                    string fileName = Path.GetFileName(fileFullPath);
-
-                    iniFile.SetValue(fileName, "Game", game);
-                    iniFile.SetValue(fileName, "Extension", extension);
-                    iniFile.SetValue(fileName, "Main", main);
-                    iniFile.SetValue(fileName, "Mission", mission);
-                    iniFile.SetValue(fileName, "RA2Mode", YR_to_RA2);
-                }
-                iniFile.WriteIniFile();
-            }
-
-
             WindowManager.AddCallback(new Action(GameProcessExited), null);
         }
 
         protected virtual void GameProcessExited()
         {
             GameProcessLogic.GameProcessExited -= GameProcessExited_Callback;
-            // Logger.Log("GameProcessExited: Updating Discord Presence.");
+         
             _discordHandler.UpdatePresence();
         }
 

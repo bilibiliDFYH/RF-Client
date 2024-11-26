@@ -230,59 +230,10 @@ namespace DTAConfig.OptionPanels
         {
             XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "清理确认", "您确定要清理文件缓存吗？", XNAMessageBoxButtons.YesNo);
             xNAMessageBox.Show();
-            xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"提示",清除缓存()?"清理成功！":"清理失败，可能是某个文件被占用了。") ;
+            xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"提示", ProgramConstants.清除缓存()?"清理成功！":"清理失败，可能是某个文件被占用了。") ;
         }
 
-        public static bool 清除缓存()
-        {
-            try
-            {
-                string[] mixFile = { "ra2.mix", "ra2md.mix", "thememd.mix", "language.mix", "langmd.mix", "RF.mix" };
-
-                string[] iniFile = { "RA2RF.ini", "ddraw.ini", "KeyboardMD.ini" };
-
-                foreach (var mix in Directory.GetFiles(ProgramConstants.GamePath, "*.mix"))
-                {
-                    if (!Array.Exists(mixFile, file => file.Equals(Path.GetFileName(mix), StringComparison.OrdinalIgnoreCase)))
-                        File.Delete(mix);
-                }
-
-                foreach (var ini in Directory.GetFiles(ProgramConstants.GamePath, "*.ini"))
-                {
-                    if (!Array.Exists(iniFile, file => file.Equals(Path.GetFileName(ini), StringComparison.OrdinalIgnoreCase)))
-                        File.Delete(ini);
-                }
-
-                foreach (var shp in Directory.GetFiles(ProgramConstants.GamePath, "*.shp"))
-                {
-                    File.Delete(shp);
-                }
-
-                foreach (var pal in Directory.GetFiles(ProgramConstants.GamePath, "*.pal"))
-                {
-                    File.Delete(pal);
-                }
-
-                foreach (var pal in Directory.GetFiles(ProgramConstants.GamePath, "*.csf"))
-                {
-                    File.Delete(pal);
-                }
-
-                File.Delete("phobos.dll");
-                File.Delete("Ares.dll");
-                File.Delete("Mars.dll");
-                File.Delete("game.fnt");
-                File.Delete("Syringe.exe");
-                File.Delete("gamemd.exe");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex.Message);
-                return false;
-            }
-
-        }
+        
 
         /// <summary>
         /// 调用单核/多核 false/true

@@ -583,44 +583,18 @@ namespace Ra2Client.DXGUI.Generic
 
         private void ActivateSecretFunction()
         {
-            //List<string> strings = new List<string>
-            //{
-            //    "三星大头兵可以借助自家部队拆除围墙!",
-            //    "遥控坦克和驱逐舰对打会同归于尽",
-            //    "黑鹰战机和入侵者战机的价格是一样的",
-            //    "两个维修IFV互相维修仍会被大量蜘蛛击杀",
-            //    "只要您手速够快，建筑和飞机也能使用路径点",
-            //    "在PVP中，可以将尤里藏于建筑后面，让进攻的敌人摸不着头脑",
-            //    "海豚可以直接攻击岸边的树",
-            //    "冰天雪地中一共有338课树",
-            //    "在原版中，闪电风暴有概率一次劈掉基地",
-            //    "海豚是盟军训练的，而乌贼是苏军“心灵控制”的",
-            //    "在某些需要工程师占领的任务中，也可以使用间谍进入来完成任务",
-            //    "在游戏中躲在高架桥下可以躲避核弹轰炸。",
-            //    "海豚也可以解除蜘蛛。",
-            //    "飞机有可能扔出两发子弹"
-            //};
-
-            //XNAMessageBox.Show(WindowManager, "您知道吗", strings[new Random().Next(strings.Count)]);
-
-            //var game = new MinesweeperGame(WindowManager);
-            //game.Enable();
-            //var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, game);
-            //dp.BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 0), 1, 1);
-            //   dp.ClientRectangle = new Rectangle(0, 0, (MinesweeperGame.Columns) * 21, (MinesweeperGame.Rows + 4) * 21);
-            // dp.CenterOnParent();
 
             if (!minesweeperGameWindow.Enabled)
             {
-                Console.WriteLine("扫雷");
+                WindowManager.progress.Report("***触发彩蛋***");
                 minesweeperGameWindow.Enable();
 
                 minesweeperGameWindow.EnabledChanged += (s, args) =>
                 {
 
                     minesweeperGameWindow.EnabledChanged -= (s, args) => { };
+                    WindowManager.progress.Report(string.Empty);
 
-                    Console.WriteLine("Minesweeper game window enabled changed.");
                 };
             }
         }

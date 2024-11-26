@@ -80,13 +80,13 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         {
             List<CnCNetTunnel> tunnels = [
                 CnCNetTunnel.Parse("110.42.111.242:50000;China;CN;中国华东服务器-EA01;1;0;300;0;0;0;2;0"), // 浙江宁波
-                CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;中国华中服务器-MD01;1;0;300;0;0;0;2;0"), // 湖北十堰
+                CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;中国华中服务器-CT01;1;0;300;0;0;0;2;0"), // 湖北十堰
                 CnCNetTunnel.Parse("43.248.118.243:50000;China;CN;中国华东服务器-EA02;1;0;120;0;0;0;2;0"), // 江苏镇江
-                // CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国西南服务器-WE01;1;0;120;0;0;0;2;0"),     // 四川成都，待添加
-                CnCNetTunnel.Parse("124.65.97.90:50000;China;CN;中国华北服务器-NR01;1;0;300;0;0;0;2;0"),   // 北京
-                CnCNetTunnel.Parse("124.65.97.78:50000;China;CN;中国华北服务器-NR02;1;0;300;0;0;0;2;0"),   // 北京
-                // CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国华南服务器-SU01;1;0;160;0;0;0;2;0"),     // 广东广州，待定
-                CnCNetTunnel.Parse("154.12.187.10:50000;China;CN;美国服务器-US01;1;0;200;0;0;0;2;0"),     // 美国圣何塞
+                // CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国西南服务器-SW01;1;0;120;0;0;0;2;0"), // 四川成都，待添加
+                CnCNetTunnel.Parse("124.65.97.90:50000;China;CN;中国华北服务器-NR01;1;0;300;0;0;0;2;0"), // 北京
+                CnCNetTunnel.Parse("124.65.97.78:50000;China;CN;中国华北服务器-NR02;1;0;300;0;0;0;2;0"), // 北京
+                // CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国华南服务器-SU01;1;0;160;0;0;0;2;0"), // 广东广州，待定
+                CnCNetTunnel.Parse("154.12.187.10:50000;United States;US;北美服务器-US01;1;0;200;0;0;0;2;0"), // 美国圣何塞
                 ];
 
 

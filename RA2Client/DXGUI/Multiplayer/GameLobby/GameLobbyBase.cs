@@ -1223,15 +1223,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (Map != null)
             {
 
-                //if (!Map.ExtensionOn)
-                //{
-                //    chkExtension.AllowChecking = false;
-                //    chkExtension.Checked = false;
-                //}
-                //else
-                //{
-                //    chkExtension.AllowChecking = true;
-                //}
                 cmbGame.Items.Clear();
                 if (Map.Mod != null && Map.Mod.Count != 0)
                 {

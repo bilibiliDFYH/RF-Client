@@ -135,7 +135,7 @@ namespace ClientCore
             {
                 string[] mixFile = ["ra2.mix", "ra2md.mix", "thememd.mix", "language.mix", "langmd.mix", "RF.mix"];
 
-                string[] iniFile = ["RA2RF.ini", "ddraw.ini", "KeyboardMD.ini"];
+                string[] iniFile = ["RA2RF.ini", "ddraw.ini", "KeyboardMD.ini","spawnmap.ini"];
 
                 WindowManager.progress.Report("正在清理MIX文件...");
                 foreach (var mix in Directory.GetFiles(GamePath, "*.mix"))

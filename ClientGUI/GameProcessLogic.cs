@@ -10,6 +10,7 @@ using ClientCore.INIProcessing;
 using Localization.Tools;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
+using SharpDX.XAudio2;
 
 namespace ClientGUI
 {
@@ -29,7 +30,7 @@ namespace ClientGUI
 
         private static string gameExecutableName;
 
-        public static Dictionary<string, Dictionary<string, int>> FileHash = [];
+        public static Dictionary<string, Dictionary<string, string>> FileHash = [];
         public static Dictionary<string, string> FilePaths = [];
         private static string[] oldSaves;
 
@@ -264,33 +265,44 @@ namespace ClientGUI
 
             var oldSection = oldSettings.GetSection("Settings");
 
-            string oldMain = oldSection.GetValue("Main", string.Empty);
-            string oldExtension = oldSection.GetValue("Extension", string.Empty);
-            string oldGame = oldSection.GetValue("Game", string.Empty);
-            string oldMission = oldSection.GetValue("Mission", string.Empty);
-            string oldAi = oldSection.GetValue("AI", string.Empty);
-
             string newMain = newSection.GetValue("Main", string.Empty);
             string newExtension = newSection.GetValue("Extension", string.Empty);
             string newGame = newSection.GetValue("Game", string.Empty);
             string newMission = newSection.GetValue("Mission", string.Empty);
             string newAi = newSection.GetValue("AI", string.Empty);
 
-            if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return;
+            string oldMain = oldSection.GetValue("Main", string.Empty);
+            string oldExtension = oldSection.GetValue("Extension", string.Empty);
+            string oldGame = oldSection.GetValue("Game", string.Empty);
+            string oldMission = oldSection.GetValue("Mission", string.Empty);
+            string oldAi = oldSection.GetValue("AI", string.Empty);
 
-            if (FilePaths.Count == 0) return;
-
-            foreach (var fileType in FilePaths)
+            bool 是否修改()
             {
-                if (!FileHash.TryGetValue(fileType.Key, out var value)) return;
-                foreach (var file in Directory.GetFiles(fileType.Value))
+                
+                if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
+
+                if (FilePaths.Count == 0) return true;
+
+                foreach (var fileType in FilePaths)
                 {
-                    if (!value.TryGetValue(file, out var hash)) return;
-                    var newHash = new FileInfo(file).GetHashCode();
-                    if (hash != newHash) return;
+                    if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
+                    if (string.IsNullOrEmpty(fileType.Value)) continue;
+                    foreach (var file in Directory.GetFiles(fileType.Value))
+                    {
+                        if(Path.GetExtension(file) == ".ini") continue;
+                        if (!value.TryGetValue(file, out var hash)) return true;
+
+                        var newHash = file.ComputeHash();
+                        if (hash != newHash) return true;
+                    }
                 }
+
+                return false;
             }
 
+            
+            if(是否修改())
             try
             {
                 
@@ -333,11 +345,15 @@ namespace ClientGUI
                 {
                     if (!FileHash.ContainsKey(keyValue.Key))
                         FileHash.Add(keyValue.Key, []);
+
+                        if (string.IsNullOrEmpty(keyValue.Value)) continue;
+
                     foreach (var fileName in Directory.GetFiles(keyValue.Value))
                     {
-                        var file = new FileInfo(fileName);
-                        FileHash[keyValue.Key][fileName] = file.GetHashCode();
-                    }
+                            if (Path.GetExtension(fileName) == ".ini") continue;
+              
+                        FileHash[keyValue.Key][fileName] = fileName.ComputeHash();
+                        }
                 }
 
                 if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
@@ -347,7 +363,8 @@ namespace ClientGUI
                 }
 
                 WindowManager.progress.Report("正在加载语音");
-                
+                FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", "./");
+
             }
 
             catch (FileLockedException ex)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using ClientCore;
 using ClientGUI;
 using Localization;
@@ -32,6 +33,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientCheckBox chkMainMenuMusic;
         private XNAClientCheckBox chkStopMusicOnMenu;
         private MusicWindow musicWindow;
+        private XNAClientDropDown ddVoice;
 
         public override void Initialize()
         {
@@ -155,6 +157,23 @@ namespace DTAConfig.OptionPanels
                 trbClientVolume.Bottom + 12, 0, 0);
             chkScoreShuffle.Text = "Shuffle Music".L10N("UI:DTAConfig:ShuffleMusic");
 
+            var lblVoice = new XNALabel(WindowManager);
+            lblVoice.Name = "lblVoice";
+            lblVoice.ClientRectangle = new Rectangle(chkScoreShuffle.X, trbClientVolume.Bottom + 16, 0, 0);
+            lblVoice.Text = "Voice:".L10N("UI:Main:Voice");
+            AddChild(lblVoice);
+
+            ddVoice = new XNAClientDropDown(WindowManager);
+            ddVoice.Name = "ddVoice";
+            ddVoice.ClientRectangle = new Rectangle(lblVoice.Right + 12, lblVoice.Top - 2, 160, 20);
+            AddChild(ddVoice);
+
+            foreach (string voice in Directory.GetDirectories("Resources/Voice"))
+            {
+                ddVoice.AddItem(voice);
+            }
+
+
             // 主菜单音乐
             chkMainMenuMusic = new XNAClientCheckBox(WindowManager);
             chkMainMenuMusic.Name = "chkMainMenuMusic";
@@ -255,6 +274,8 @@ namespace DTAConfig.OptionPanels
 
             chkMainMenuMusic.Checked = IniSettings.PlayMainMenuMusic;
             chkStopMusicOnMenu.Checked = IniSettings.StopMusicOnMenu;
+
+            ddVoice.SelectedIndex = ddVoice.Items.FindIndex(item => item.Text == UserINISettings.Instance.Voice.Value);
         }
 
         public override bool Save()
@@ -271,6 +292,8 @@ namespace DTAConfig.OptionPanels
 
             IniSettings.PlayMainMenuMusic.Value = chkMainMenuMusic.Checked;
             IniSettings.StopMusicOnMenu.Value = chkStopMusicOnMenu.Checked;
+
+            UserINISettings.Instance.Voice.Value = ddVoice.SelectedItem.Text;
 
             return restartRequired;
         }

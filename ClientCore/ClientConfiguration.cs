@@ -174,8 +174,6 @@ namespace ClientCore
 
         public int ThemeCount => clientDefinitionsIni.GetSectionKeys("Themes").Count;
 
-        public int VoiceCount => clientDefinitionsIni.GetSectionKeys("Voice").Count;
-
         public int LanguageCount => clientDefinitionsIni.GetSectionKeys("Language") == null ? 0 : clientDefinitionsIni.GetSectionKeys("Language").Count;
 
         public string LocalGame => clientDefinitionsIni.GetStringValue(SETTINGS, "LocalGame", "DTA");

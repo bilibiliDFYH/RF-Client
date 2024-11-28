@@ -34,6 +34,7 @@ namespace ClientGUI
         public static Dictionary<string, string> FilePaths = [];
         private static string[] oldSaves;
 
+        
         /// <summary>
         /// Starts the main game process.
         /// </summary>
@@ -145,8 +146,6 @@ namespace ClientGUI
                     gameExecutableName = "gamemd-spawn.exe";
                     arguments = "-SPAWN " + extraCommandLine;
                 }
-
-                
 
                 FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.GamePath, gameExecutableName);
                 if (!File.Exists(gameFileInfo.FullName))
@@ -303,7 +302,8 @@ namespace ClientGUI
 
             
             if(是否修改())
-            try
+            {
+                try
             {
                 
                 ProgramConstants.清除缓存();
@@ -317,14 +317,14 @@ namespace ClientGUI
                     if (extension.Contains("Ares"))
                     {
                         // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                        string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                        directoryPath = $"Mod&AI/Extension/Ares/{extensionChild}";
+                       // string extensionChild = extension == "Ares" ? "Ares3" : extension;
+                        directoryPath = $"Mod&AI/Extension/Ares/{extension}";
                     }
                     else if (extension.Contains("Phobos"))
                     {
                         // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                        string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                        directoryPath = $"Mod&AI/Extension/Phobos/{extensionChild}";
+                     //   string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
+                        directoryPath = $"Mod&AI/Extension/Phobos/{extension}";
                     }
                     FileHelper.CopyDirectory(directoryPath, "./");
                 }
@@ -369,11 +369,11 @@ namespace ClientGUI
 
             catch (FileLockedException ex)
             {
-              
+          //    XNAMessageBox.Show(windowManager, "错误", ex.Message);
               Logger.Log(ex.Message);
                 return;
             }
-
+            }
         }
         private static void Process_Exited(object sender, EventArgs e)
         {
@@ -387,5 +387,8 @@ namespace ClientGUI
             GameProcessExited?.Invoke();
             获取新的存档();
         }
+
+        public static (List<string>,List<string>) 支持的扩展() => ([.. Directory.GetDirectories("Mod&AI/Extension/Ares")], [.. Directory.GetDirectories("Mod&AI/Extension/Phobos")]);
+        
     }
 }

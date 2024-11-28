@@ -679,12 +679,12 @@ namespace Ra2Client.DXGUI.Generic
             base.OnSelectedChanged();
 
         }
-
+        IniFile infoini = null;
         /// <summary>
         /// 异步获取任务信息
         /// </summary>
         /// <param name="modChange"> 是否忽视缓存 </param>
-        private async void GetMissionInfo(bool modChange)
+        private async Task GetMissionInfo(bool modChange)
         {
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
@@ -704,7 +704,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (string.IsNullOrEmpty(missionInfo) || modChange) // 如果不在内存中
             {
-                var infoini = new IniFile(Path.Combine(ProgramConstants.GamePath, "Resources/missioninfo.ini"));
+                infoini ??= new IniFile(Path.Combine(ProgramConstants.GamePath, "Resources/missioninfo.ini"));
                 if (!modChange)
                 {
 
@@ -748,7 +748,7 @@ namespace Ra2Client.DXGUI.Generic
 
             mission.MissionInfo = missionInfo;
 
-            foreach (string info in missionInfo!.Split("@"))
+            foreach (string info in missionInfo.Split("@"))
             {
                 _lbxInforBox.AddItem(info);
             }

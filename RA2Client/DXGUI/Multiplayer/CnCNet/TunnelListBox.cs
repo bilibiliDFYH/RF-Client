@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
+using System.Threading.Tasks;
 
 namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 {
@@ -178,7 +179,11 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                     SelectedIndex = tunnelIndex;
                 }
             }
-            SelectedIndex = GetMinms();
+            Task.Run(() =>
+            {
+                SelectedIndex = GetMinms();
+            });
+            
         }
 
         private int GetTunnelRating(CnCNetTunnel tunnel)

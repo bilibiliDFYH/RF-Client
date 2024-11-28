@@ -37,7 +37,6 @@ namespace DTAConfig.OptionPanels
         private XNAClientCheckBox chkBorderlessClient;
         private XNAClientDropDown ddClientTheme;
         private XNAClientDropDown ddLanguage;
-        private XNAClientDropDown ddVoice;
         private XNAClientDropDown ddStart;
 
 
@@ -212,28 +211,6 @@ namespace DTAConfig.OptionPanels
                 ddLanguage.AddItem(item1);
             }
 
-            // 语音
-            var lblVoice = new XNALabel(WindowManager);
-            lblVoice.Name = "lblVoice";
-            lblVoice.ClientRectangle = new Rectangle(chkBorderlessClient.X, chkBorderlessClient.Bottom + 16, 0, 0);
-            lblVoice.Text = "Voice:".L10N("UI:Main:Voice");
-            AddChild(lblVoice);
-            
-            ddVoice = new XNAClientDropDown(WindowManager);
-            ddVoice.Name = "ddVoice";
-            ddVoice.ClientRectangle = new Rectangle(lblVoice.Right + 12, lblVoice.Top - 2, 160, ddRenderer.Height);
-            AddChild(ddVoice);
-
-            int VoiceCount = ClientConfiguration.Instance.VoiceCount;
-            for (int i = 0; i < VoiceCount; i++)
-            {
-                XNADropDownItem item1 = new XNADropDownItem();
-                item1.Text = ClientConfiguration.Instance.GetVoiceInfoFromIndex(i)[0].L10N("UI:Voice:" + ClientConfiguration.Instance.GetVoiceInfoFromIndex(i)[0]);
-                item1.Tag = ClientConfiguration.Instance.GetVoiceInfoFromIndex(i)[0];
-                if (Directory.Exists(ClientConfiguration.Instance.GetVoiceInfoFromIndex(i)[1]))
-                    ddVoice.AddItem(item1);
-            }
-
             // 主题
             var lblClientTheme = new XNALabel(WindowManager);
             lblClientTheme.Name = "lblClientTheme";
@@ -261,7 +238,7 @@ namespace DTAConfig.OptionPanels
             // 随机启动封面
             chkRandom_wallpaper = new XNAClientCheckBox(WindowManager);
             chkRandom_wallpaper.Name = "chkRandom_wallpaper";
-            chkRandom_wallpaper.ClientRectangle = new Rectangle(lblVoice.X, lblVoice.Bottom + 16, 0, 0);
+            chkRandom_wallpaper.ClientRectangle = new Rectangle(chkBorderlessClient.X, chkBorderlessClient.Bottom + 16, 0, 0);
             chkRandom_wallpaper.Text = "Random start cover".L10N("UI:Main:RanWall");
             chkRandom_wallpaper.Checked = false;
             AddChild(chkRandom_wallpaper);
@@ -492,10 +469,6 @@ namespace DTAConfig.OptionPanels
                 ddi => (string)ddi.Tag == UserINISettings.Instance.Language);
             ddLanguage.SelectedIndex = selectedLanguageIndex > -1 ? selectedLanguageIndex : 0;
 
-            int selectedVoiceIndex = ddVoice.Items.FindIndex(
-                ddi => (string)ddi.Tag == UserINISettings.Instance.Voice);
-            ddVoice.SelectedIndex = selectedVoiceIndex > -1 ? selectedVoiceIndex : 0;
-
             string currentClientRes = IniSettings.ClientResolutionX.Value + "x" + IniSettings.ClientResolutionY.Value;
 
             int clientResIndex = ddClientResolution.Items.FindIndex(i => (string)i.Tag == currentClientRes);
@@ -586,26 +559,6 @@ namespace DTAConfig.OptionPanels
                 }
                 IniSettings.Language.Value = (string)ddLanguage.SelectedItem.Tag;
             }
-            string voice = ClientConfiguration.Instance.GetVoicePath(UserINISettings.Instance.Voice);
-            if (voice == null)
-            {
-                voice = ClientConfiguration.Instance.GetVoiceInfoFromIndex(0)[1];
-            }
-            else
-            {
-                voice = ClientConfiguration.Instance.GetVoiceInfoFromIndex(ddVoice.SelectedIndex)[1];
-            }
-
-
-            //if (ddVoice.SelectedItem?.Tag != null && IniSettings.Voice != (string)ddVoice.SelectedItem.Tag)
-            //{
-
-            //    File.Delete(ProgramConstants.GamePath + "audiomd.mix");
-            //    File.Delete(ProgramConstants.GamePath + "audio.mix");
-            //    File.Delete(ProgramConstants.GamePath + "expandmd51.mix");
-            //    File.Delete(ProgramConstants.GamePath + "expandmd50.mix");
-            //    FileHelper.CopyDirectory(voice, "./");
-            //}
 
             if (IniSettings.ClientTheme != (string)ddClientTheme.SelectedItem.Tag)
             {
@@ -613,9 +566,6 @@ namespace DTAConfig.OptionPanels
                 restartRequired = true;
             }
 
-
-
-            IniSettings.Voice.Value = (string)ddVoice.SelectedItem?.Tag ?? string.Empty;
             IniSettings.ClientTheme.Value = (string)ddClientTheme.SelectedItem.Tag;
 
             //随机壁纸

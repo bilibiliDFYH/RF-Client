@@ -35,6 +35,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientCheckBox chkShowHiddenObjects;
         private XNAClientCheckBox chkStartCap;
         private XNAClientCheckBox chkMultinuclear;
+        private XNAClientCheckBox chkForceEnableGameOptions;
 
         private XNAControl topBar;
 
@@ -108,6 +109,13 @@ namespace DTAConfig.OptionPanels
             chkMultinuclear.Name = "chkMultinuclear";
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
             chkMultinuclear.Text = "尝试多核运行";
+
+            chkForceEnableGameOptions = new XNAClientCheckBox(WindowManager)
+            {
+                Name = nameof(chkForceEnableGameOptions),
+                ClientRectangle = new Rectangle(chkMultinuclear.X, chkMultinuclear.Top - 25, 150, 20),
+                Text = "允许其他Mod使用不推荐的游戏选项"
+            };
 
             chkShowHiddenObjects = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ShowHidden");
             chkShowHiddenObjects.Name = "chkShowHiddenObjects";
@@ -224,6 +232,7 @@ namespace DTAConfig.OptionPanels
             AddChild(btnModManager);
             AddChild(btnConfigureHotkeys);
             AddChild(btnRecover);
+            //AddChild(chkForceEnableGameOptions);
         }
       
         private void BtnRecover_LeftClick(object sender, EventArgs e)
@@ -294,6 +303,7 @@ namespace DTAConfig.OptionPanels
             chkRenderPreviewImage.Checked = UserINISettings.Instance.RenderPreviewImage;
             chkSimplifiedCSF.Checked = UserINISettings.Instance.SimplifiedCSF;
             tbPlayerName.Text = UserINISettings.Instance.PlayerName;
+            chkForceEnableGameOptions.Checked = UserINISettings.Instance.ForceEnableGameOptions.Value;
         }
 
         public bool HasChinese(string str)
@@ -335,8 +345,9 @@ namespace DTAConfig.OptionPanels
             IniSettings.Multinuclear.Value = chkMultinuclear.Checked;
             IniSettings.RenderPreviewImage.Value = chkRenderPreviewImage.Checked;
             IniSettings.SimplifiedCSF.Value = chkSimplifiedCSF.Checked;
+            IniSettings.ForceEnableGameOptions.Value = chkForceEnableGameOptions.Checked;
             ClientConfiguration.Instance.ExtraExeCommandLineParameters = tbStartCommand.Text;
-            // }
+      
 
             return restartRequired;
         }

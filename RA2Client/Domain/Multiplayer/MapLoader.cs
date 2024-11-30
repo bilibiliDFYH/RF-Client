@@ -273,7 +273,7 @@ namespace Ra2Client.Domain.Multiplayer
         private void 渲染地图()
         {
             Task.Run(async () =>
-            {
+            {   
                 var semaphore = new SemaphoreSlim(5); // 最大并发数，例如10
                 var tasks = 需要渲染的地图列表.Select(async map =>
                 {

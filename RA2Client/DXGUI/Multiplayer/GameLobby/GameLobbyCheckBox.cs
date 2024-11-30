@@ -80,6 +80,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public string Extension = string.Empty;
         public List<string> ControlIndex;
 
+        public bool basis = true;
+
         public override void Initialize()
         {
             // Find the game lobby that this control belongs to and register ourselves as a game option.

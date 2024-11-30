@@ -146,6 +146,7 @@ namespace ClientCore
             GameSpeed = new IntSetting(iniFile, OPTIONS, "GameSpeed", 1);
             RenderPreviewImage = new BoolSetting(iniFile, OPTIONS, "RenderPreviewImage", true);
             SimplifiedCSF = new BoolSetting(iniFile, OPTIONS, "SimplifiedCSF", true);
+            ForceEnableGameOptions = new BoolSetting(iniFile, OPTIONS, "ForceEnableGameOptions", true);
             PreloadMapPreviews = new BoolSetting(iniFile, VIDEO, "PreloadMapPreviews", false);
             ForceLowestDetailLevel = new BoolSetting(iniFile, VIDEO, "ForceLowestDetailLevel", false);
             MinimizeWindowsOnGameStart = new BoolSetting(iniFile, OPTIONS, "MinimizeWindowsOnGameStart", true);
@@ -323,6 +324,9 @@ namespace ClientCore
         public BoolSetting RenderPreviewImage { get; private set; }
         //是否始终转换为简体CSF
         public BoolSetting SimplifiedCSF { get; private set; }
+        
+        public BoolSetting ForceEnableGameOptions { get; private set; }
+
 
         public Action ReLoadMissionList { get; set; }
         public BoolSetting 第一次下载扩展 { get; set; }

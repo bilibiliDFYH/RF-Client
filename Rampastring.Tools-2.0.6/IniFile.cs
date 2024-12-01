@@ -348,7 +348,13 @@ public class IniFile : IIniFile
     /// <param name="section">The section to add.</param>
     public IniFile AddSection(IniSection section)
     {
-        Sections.Add(section);
+        if(!Sections.Exists(s => s.SectionName == section.SectionName))
+            Sections.Add(section);
+        else
+        {
+            IniSection s = Sections.Find(s => s.SectionName == section.SectionName);
+            s.Keys.AddRange(section.Keys);
+        }
         return this;
     }
 

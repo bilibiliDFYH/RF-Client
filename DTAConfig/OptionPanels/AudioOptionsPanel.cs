@@ -159,7 +159,7 @@ namespace DTAConfig.OptionPanels
 
             var lblVoice = new XNALabel(WindowManager);
             lblVoice.Name = "lblVoice";
-            lblVoice.ClientRectangle = new Rectangle(chkScoreShuffle.X, trbClientVolume.Bottom + 16, 0, 0);
+            lblVoice.ClientRectangle = new Rectangle(chkScoreShuffle.X + 400, trbClientVolume.Bottom + 16, 0, 0);
             lblVoice.Text = "Voice:".L10N("UI:Main:Voice");
             AddChild(lblVoice);
 
@@ -170,7 +170,7 @@ namespace DTAConfig.OptionPanels
 
             foreach (string voice in Directory.GetDirectories("Resources/Voice"))
             {
-                ddVoice.AddItem(voice);
+                ddVoice.AddItem(Path.GetFileName(voice));
             }
 
 
@@ -293,7 +293,7 @@ namespace DTAConfig.OptionPanels
             IniSettings.PlayMainMenuMusic.Value = chkMainMenuMusic.Checked;
             IniSettings.StopMusicOnMenu.Value = chkStopMusicOnMenu.Checked;
 
-            UserINISettings.Instance.Voice.Value = ddVoice.SelectedItem.Text;
+            UserINISettings.Instance.Voice.Value = ddVoice.SelectedItem?.Text;
 
             return restartRequired;
         }

@@ -1981,20 +1981,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 var extensionGame = ((Mod)cmbGame.SelectedItem.Tag).Extension.Split(",").ToList();
                 var extensionAI = ((AI)cmbAI.SelectedItem.Tag).Extension.Split(",").ToList();
-                //if (extensionAI != null && extensionGame != "NP")
-                //{
-                //    var s1 = new List<string>(extensionGame.Split(','));
-                //    var s2 = new List<string>(extensionAI.Split(','));
-
-                //    UpdateListItems(s1, s2, "Ares");
-                //    UpdateListItems(s1, s2, "Phobos");
-
-                //    newExtension = string.Join(",", s1.Intersect(s2));
-                //}
-                //else
-                //{
-                //    newExtension = extensionGame;
-                //}
+               
                 var (Ares, Phobos) = GameProcessLogic.支持的扩展();
                 if(extensionGame.Remove("Ares"))
                     extensionGame.AddRange(Ares);
@@ -2008,8 +1995,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (extensionAI.Remove("Phobos"))
                     extensionAI.AddRange(Phobos);
 
-                //  extensionGame.Replace("Ares", string.Join(",", Ares));
-                //  extensionGame.Replace("Phobos", string.Join(",", Phobos));
                 newExtension = string.Join(",", extensionGame.Intersect(extensionAI));
             }
 

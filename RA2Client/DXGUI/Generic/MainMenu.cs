@@ -940,7 +940,7 @@ namespace Ra2Client.DXGUI.Generic
         private void UpdateWindow_UpdateFailed(object sender, UpdateFailureEventArgs e)
         {
             innerPanel.Hide();
-            lblUpdateStatus.Text = "Updating failed! Click to retry.".L10N("UI:Main:UpdateFailedClickToRetry");
+            lblUpdateStatus.Text = "检查更新失败，点击以重试.";
             lblUpdateStatus.DrawUnderline = true;
             lblUpdateStatus.Enabled = true;
             UpdateInProgress = false;
@@ -1022,7 +1022,7 @@ namespace Ra2Client.DXGUI.Generic
             Updater.CheckForUpdates();
             innerPanel.UpdateQueryWindow.GetUpdateContentsAsync(Updater.versionState.ToString(), VersionState.UPTODATE.ToString());
             lblUpdateStatus.Enabled = false;
-            lblUpdateStatus.Text = "Checking for " + "updates...".L10N("UI:Main:CheckingForUpdate");
+            lblUpdateStatus.Text = "检查更新中...";
             lastUpdateCheckTime = DateTime.Now;
         }
 
@@ -1064,7 +1064,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             else if (Updater.versionState == VersionState.UNKNOWN)
             {
-                lblUpdateStatus.Text = "Checking for updates failed! Click to retry.".L10N("UI:Main:CheckUpdateFailedClickToRetry");
+                lblUpdateStatus.Text = "检查更新失败，点击以重试.";
                 lblUpdateStatus.Enabled = true;
                 lblUpdateStatus.DrawUnderline = true;
             }

@@ -1374,20 +1374,24 @@ namespace Ra2Client.DXGUI.Generic
                         (mod.md == "md" ?"Mod&AI/Main/RA2_YR":"Mod&AI/Main/RA2_RA2");
 
                 newGame = mod.FilePath;
-                if (_chkExtension.Checked)
-                {
-                    newExtension = mod.Extension;
-                }
             }
             else {
                mod = Mod.Mods.Find(m => m.ID == _screenMissions[_lbxCampaignList.SelectedIndex].DefaultMod);
                 newMain = mission.YR ? "Mod&AI/Main/YR_YR" :
                         (mod.md == "md" ? "Mod&AI/Main/RA2_YR" : "Mod&AI/Main/RA2_RA2");
                 newGame = mod.FilePath;
-                if (_chkExtension.Checked)
-                {
-                    newExtension = mod.Extension;
-                }
+            }
+
+            if (_chkExtension.Checked)
+            {
+                var (Ares, Phobos) = GameProcessLogic.支持的扩展();
+                var extension = mod.Extension.Split(",").ToList();
+                if (extension.Remove("Ares"))
+                    extension.Add("Ares3");
+                if (extension.Remove("Phobos"))
+                    extension.Add("Phobos36");
+
+                newExtension = string.Join(",", extension);
             }
 
             #endregion

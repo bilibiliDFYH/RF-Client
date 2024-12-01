@@ -154,7 +154,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     catch { }
                 }
             }
-            catch (PingException ex)
+            catch (Exception ex)
             {
                 Logger.Log($"Caught an exception when pinging {Name} tunnel server: {ex.Message}");
             }

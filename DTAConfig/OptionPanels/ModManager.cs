@@ -470,7 +470,7 @@ public class ModManager : XNAWindow
                     mod.Extension += $"Phobos{phobosVersion}";
                     if (!Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
                         Directory.CreateDirectory($"{extensionPath}\\Phobos\\Phobos{phobosVersion}");
-                    File.Copy(Path.Combine(modPath, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll");
+                    File.Copy(Path.Combine(modPath, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll",true);
                     
                 }
                 else
@@ -539,7 +539,7 @@ public class ModManager : XNAWindow
 
             if (mod.Extension + "" == "")
             {
-                mod.Extension = "Ares3,Phobos";
+                mod.Extension = "Ares,Phobos";
             }
 
             
@@ -744,7 +744,7 @@ public class ModManager : XNAWindow
 
             if (missionPack.Extension + "" == "")
             {
-                missionPack.Extension = "Ares3,Phobos";
+                missionPack.Extension = "Ares,Phobos";
             }
 
             missionPack.Mod = isMod ? missionPack.ID : md == "md" ? "YR" : "RA2";
@@ -787,7 +787,7 @@ public class ModManager : XNAWindow
                     mod.UseAI = md == "md" ? "YRAI" : "RA2AI";
 
                     mod.FilePath = $"Mod&AI/Mod/{DirectoryName}";
-                    mod.Extension = "Ares3,Phobos";
+                    mod.Extension = "Ares,Phobos";
                     mod.MuVisible = false;
                     mod.Author = missionPack.Author;
 

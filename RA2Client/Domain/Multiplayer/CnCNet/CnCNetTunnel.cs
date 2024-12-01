@@ -97,7 +97,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             {
                 Logger.Log($"Contacting tunnel at {Address}:{Port}");
 
-                string addressString = $"http://{Address}:{Port}/request?clients={playerCount}&password=0";
+                string addressString = $"http://{Address}:{Port}/request?clients={playerCount}";
                 Logger.Log($"Downloading from {addressString}");
 
                 using (var client = new ExtendedWebClient(REQUEST_TIMEOUT))

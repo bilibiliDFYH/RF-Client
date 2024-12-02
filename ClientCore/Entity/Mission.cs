@@ -36,16 +36,14 @@ namespace DTAConfig.Entity
             if (!string.IsNullOrEmpty(modStr))
             {
                 Mod = [.. modStr.Split(',')];
-                DefaultMod = iniFile.GetValue(sectionName, "DefaultMod", Mod[0]);
+                DefaultMod = iniFile.GetValue(sectionName, "DefaultMod", MPack != null ? MPack.DefaultMod : Mod[0]);
             }
 
             Path = iniFile.GetValue(sectionName, "Mission", MPack != null ? MPack.FilePath : string.Empty);
             Scenario = iniFile.GetValue(sectionName, nameof(Scenario), string.Empty);
             Difficulty = iniFile.GetValue(sectionName, "Difficulty", MPack != null ? MPack.Difficulty:"中等"); //难度筛选用
             Other = iniFile.GetValue(sectionName, "Other", MPack?.Other ?? false);
-            MuExtension = iniFile.GetValue(sectionName, "MuExtension", MPack?.MuExtension ?? false);
-            Extension = iniFile.GetValue(sectionName, "Extension", MPack != null ? MPack.Extension : string.Empty);
-
+           
             YR = iniFile.GetValue(sectionName, "YR", MPack == null || MPack.YR);
            
             MissionInfo = string.Empty;

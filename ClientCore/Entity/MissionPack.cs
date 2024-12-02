@@ -56,9 +56,8 @@ public class MissionPack : InfoBaseClass
             }
         }
         Mod = string.Join(",", modSet);
+        DefaultMod = iniFile.GetValue(ID, "DefaultMod", Mod.Split(',')[0]);
         //Console.WriteLine(Mod);
-        Extension = iniFile.GetValue(ID, "Extension", string.Empty);
-        MuExtension = iniFile.GetValue(ID, "MuExtension", false);
         Other = iniFile.GetValue(ID, "Other", false);
         YR = iniFile.GetValue(ID, "YR", true);
         //  Author = iniFile.GetValue(ID, "Author", string.Empty);
@@ -103,8 +102,7 @@ public class MissionPack : InfoBaseClass
             .SetValue(ID, "Mission", FilePath)
             .SetValue(ID, "YR", YR)
             .SetValue(ID, "Mod", Mod)
-            .SetValue(ID, "Extension", Extension)
-            .SetValue(ID, "MuExtension", MuExtension)
+            .SetValue(ID, "DefaultMod", DefaultMod)
             .SetValue(ID, "Other", Other)
             .SetValue(ID, "Author", Author)
             .SetValue(ID, "MissionPack", ID)
@@ -132,8 +130,6 @@ public class MissionPack : InfoBaseClass
         stringBuilder.AppendLine($"Sides: {Sides}");
         stringBuilder.AppendLine($"Difficulty: {Difficulty}");
         stringBuilder.AppendLine($"Mod: {Mod.TrimEnd(',')}"); // 移除尾部的逗号
-        stringBuilder.AppendLine($"Extension: {Extension}");
-        stringBuilder.AppendLine($"MuExtension: {MuExtension}");
         stringBuilder.AppendLine($"Other: {Other}");
         stringBuilder.AppendLine($"YR: {YR}");
         stringBuilder.AppendLine($"BuildOffAlly: {BuildOffAlly}");
@@ -160,8 +156,6 @@ public class MissionPack : InfoBaseClass
             { "注册于", FileName ?? $"Maps/Cp/battle{ID}.ini" },
             { "支持的Mod", Mod },
             { "是否为尤里任务包",YR? "是": "否"},
-            { "可用的扩展", Extension },
-            { "是否必须使用扩展", MuExtension.ToString() },
             { "是否为玩家导入", Other.ToString() },
             { "作者", Author }
 
@@ -187,13 +181,9 @@ public class MissionPack : InfoBaseClass
     /// </summary>
     public string Mod { get; set; } = string.Empty;
     /// <summary>
-    /// 支持的扩展平台
+    /// 默认选择的游戏
     /// </summary>
-    public string Extension { get; set; }
-    /// <summary>
-    /// 是否必须使用扩展平台 
-    /// </summary>
-    public bool MuExtension { get; set; }
+    public string DefaultMod { get; set; } = string.Empty;
     /// <summary>
     /// 是否为尤复任务
     /// </summary>

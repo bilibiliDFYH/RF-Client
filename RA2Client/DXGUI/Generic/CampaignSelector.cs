@@ -22,6 +22,7 @@ using Mission = DTAConfig.Entity.Mission;
 using DTAConfig;
 using DTAConfig.Settings;
 using System.Reflection;
+using System.Windows.Forms;
 
 
 namespace Ra2Client.DXGUI.Generic
@@ -250,8 +251,24 @@ namespace Ra2Client.DXGUI.Generic
                 Text = "导入任务包",
                 SelectAction = () =>
                 {
-                    ModManagerEnabled(2);
-                    _modManager.BtnNew.OnLeftClick();
+                   // ModManagerEnabled(2);
+                   // _modManager.BtnNew.OnLeftClick();
+
+                    var folderBrowser = new FolderBrowserDialog
+                    {
+                        Description = "请选择目录"
+                    };
+                    if (folderBrowser.ShowDialog() != DialogResult.OK)
+                        return;
+                    var path = folderBrowser.SelectedPath;
+
+                    var id = _modManager.导入任务包(path);
+
+                    //ReLoadMissionList();
+                    ReadMissionList();
+
+                    _lbxCampaignList.SelectedIndex = _screenMissions.FindIndex(m => m?.MPack?.ID == id);
+                    _lbxCampaignList.TopIndex = _lbxCampaignList.SelectedIndex;
 
                 }
             });
@@ -377,12 +394,20 @@ namespace Ra2Client.DXGUI.Generic
             //ReadDrop();
 
 
-           // _lblGame = FindChild<XNALabel>("lblGame");
-            _cmbGame = FindChild<GameLobbyDropDown>("cmbGame");
+            var _lblGame = new XNALabel(WindowManager)
+            {
+                Text = "使用游戏：",
+                ClientRectangle = new Rectangle(_chkExtension.Right + 25,_chkExtension.Y,0,0)
+            };
+            _cmbGame = new GameLobbyDropDown(WindowManager) {
+                ClientRectangle = new Rectangle(_lblGame.Right + 75, _chkExtension.Y, 122, 23)
+            };
             // lbCampaignList.SelectedIndex = 1;
             //    LbxCampaignListSelectedIndexChanged(lbCampaignList, new EventArgs());
             _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
-            // CmbGame_SelectedChanged(cmbGame, new EventArgs());
+
+            AddChild(_lblGame);
+            AddChild(_cmbGame);
 
             _cmbGame.RightClick += (_, _) => _modMenu.Open(GetCursorPoint());
             _gameOptionsPanel = FindChild<XNAPanel>("GameOptionsPanel");
@@ -1089,6 +1114,8 @@ namespace Ra2Client.DXGUI.Generic
                     _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
                 }
             }
+
+            _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == mission.DefaultMod);
 
             if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
                 _cmbGame.SelectedIndex = 0;

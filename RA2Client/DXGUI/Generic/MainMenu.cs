@@ -676,7 +676,8 @@ namespace Ra2Client.DXGUI.Generic
         private void CheckCampaign_YesClicked(XNAMessageBox messageBox)
         {
             var modManager = ModManager.GetInstance(WindowManager);
-            modManager.ImportMissionPack(ProgramConstants.GamePath, false);
+            //modManager.ImportMissionPack(ProgramConstants.GamePath, false);
+          //  modManager.导入Mod(ProgramConstants.GamePath);
         }
 
         private void CheckForbiddenFiles()

@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using System.Reflection;
+using System.Xml.Linq;
 
 namespace DTAConfig.OptionPanels;
 
@@ -342,7 +344,6 @@ public class ModManager : XNAWindow
                             rules.SetStringValue("General", "BaseUnit", mvc + ",null;尤复引擎玩原版必须要有三个基地车");
                         rules.WriteIniFile();
                         allFiles.Add(Path.Combine(mod.FilePath, Path.GetFileName(ini)));
-                        mod.ExtensionOn = false;
                     }
                     else
                         allFiles.Add(ini);
@@ -388,10 +389,10 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
         }
        
-        mod.Create(); //写入INI文件
+        //mod.Create(); //写入INI文件
 
        
-        ReLoad(); //重新载入
+        //ReLoad(); //重新载入
         #endregion
     }
 
@@ -633,7 +634,260 @@ public class ModManager : XNAWindow
     }
 
     /// <summary>
-    /// 导入任务包
+    /// 导入任务包.
+    /// </summary>
+    public string 导入任务包(string path)
+    {
+        if(!判断是否为任务包()) return "未找到任务包文件";
+
+        var isYR = 判断是否为尤复(path);
+
+        var id = FunExtensions.GetTimeStamp();
+        var missionPack = new MissionPack()
+        {
+            ID = id,
+            FilePath = $"Maps\\CP\\{id}",
+            Name = Path.GetFileName(path),
+            YR = isYR,
+            Other = true,
+        };
+
+        if(导入Mod(path,isYR) != string.Empty)
+            missionPack.Mod = id;
+        else
+            missionPack.Mod = isYR ? "YR" : "RA2";
+
+        整合任务包文件(missionPack, missionPack.FilePath);
+
+        var mapSelINI = "Resources//mapselmd.ini";
+        if (File.Exists(Path.Combine(missionPack.FilePath, "mapselmd.ini")))
+            mapSelINI = Path.Combine(missionPack.FilePath, "mapselmd.ini");
+
+        var missionINI = "Resources//missionmd.ini";
+        if(File.Exists(Path.Combine(missionPack.FilePath, "missionmd.ini")))
+            missionINI = Path.Combine(missionPack.FilePath, "missionmd.ini");
+        var csfPath = $"Mod&AI//Mod//{missionPack.Mod}//ra2md.csf";
+
+        写入INI(missionPack, mapSelINI, missionINI,csfPath);
+    }
+
+    private void 写入INI(MissionPack mission, string mapSelINI, string missionINI,string csf)
+    {
+        var battleINI = new IniFile($"Maps\\CP\\battle{mission.ID}");
+       
+    }
+
+    private void 整合任务包文件(MissionPack missionPack, string missionPackPath)
+    {
+        var maps = Directory.GetFiles(missionPack.FilePath, "*.map").ToList();
+        var md = missionPack.YR ? "md" : string.Empty;
+
+        //如果没地图,有ini,按ini来
+        //如果没地图,没ini,按ini来
+        //如果有地图,有ini,按地图来
+        //如果有地图,没ini,按地图来
+
+        missionPack.Create();
+        var battleINI = new IniFile($"Maps\\CP\\battle{missionPack.ID}");
+        if(!battleINI.SectionExists("Battles"))
+            battleINI.AddSection("Battles");
+
+        //先确定可用的ini
+        var mapSelINIPath = "Resources//mapselmd.ini";
+        if (File.Exists(Path.Combine(missionPack.FilePath, $"mapsel{md}.ini")))
+            mapSelINIPath = Path.Combine(missionPack.FilePath, $"mapsel{md}.ini");
+
+        var missionINIPath = "Resources//missionmd.ini";
+        if (File.Exists(Path.Combine(missionPack.FilePath, $"mission{md}.ini")))
+            missionINIPath = Path.Combine(missionPack.FilePath, $"mission{md}.ini");
+
+        var csfPath = $"Mod&AI//Mod//{missionPack.Mod}//ra2md.csf";
+        var csf = new CSF(csfPath).GetCsfDictionary();
+
+        var missionINI = new IniFile(missionINIPath);
+        var mapSelINI = new IniFile(mapSelINIPath);
+
+        if (maps.Length == 0) //如果有地图
+        {
+            添加默认地图("GDI");
+            添加默认地图("Nod");
+        }
+
+        void 添加默认地图(string typeName){
+            var GDI = mapSelINI.GetSection(typeName);
+            if (GDI == null) return;
+            
+            var keys = mapSelINI.GetSectionKeys(typeName);
+            foreach(var key in keys)
+            {
+                var sectionName = mapSelINI.GetValue(typeName, key, string.Empty);
+                var map = mapSelINI.GetValue(sectionName, "Scenario", string.Empty);
+                if (map != string.Empty)
+                    maps.Add(map);
+            }
+            
+        }
+
+
+
+        var count = 1;
+        battleINI.SetValue("Battles", missionPack.ID, missionPack.ID)
+            foreach (var map in maps)
+        {
+            var sectionName = missionPack.ID + count;
+            battleINI.SetValue("Battles", sectionName, sectionName);
+            if (!battleINI.SectionExists(sectionName))
+                battleINI.AddSection(sectionName);
+            battleINI.SetValue(sectionName, "Scenario", map);
+
+            var Name = missionINI.GetValue(map, "UIName", string.Empty);//任务名称
+            var LoadMsg = missionINI.GetValue(map, "LSLoadMessage", string.Empty); //任务地点
+            var Briefing = missionINI.GetValue(map, "Briefing", string.Empty); //任务描述
+            var LoadBrief = missionINI.GetValue(map, "LSLoadBriefing", string.Empty); //任务目标
+
+            battleINI.SetValue(sectionName, "Description", csf[Name]);
+            var LongDescription = csf[Briefing] + Environment.NewLine + csf[LoadBrief] + Environment.NewLine + csf[LoadMsg];
+            battleINI.SetValue(sectionName, "LongDescription", LongDescription);
+
+            battleINI.SetValue(sectionName, "MissionPack", missionPack.ID);
+
+            if (map.StartsWith("all"))
+                battleINI.SetValue(sectionName, "SideName", "Allied");
+            else if (map.StartsWith("sov"))
+                battleINI.SetValue(sectionName, "SideName", "Soviet");
+
+            count++;
+        }
+
+
+    }
+
+
+
+    private bool 判断是否为Mod(string path,bool isYR)
+    {
+        var shps = Directory.GetFiles(path, "*.shp")
+           .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
+           .ToArray();
+        var vxls = Directory.GetFiles(path, "*.vxl");
+        var pals = Directory.GetFiles(path, "*.pal")
+            .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
+            .ToArray();
+
+        var mixs = Directory.GetFiles(path, $"expand{md}*.mix")
+            .ToArray();
+
+        var inis = Directory.GetFiles(path, $"*.ini")
+            .Where(file => Path.GetFileName(file) != $"battle{md}.ini" && Path.GetFileName(file) != $"mapsel{md}.ini" && Path.GetFileName(file) != $"missionPack{md}.ini")
+            .ToArray();
+
+        return shps.Length + vxls.Length + pals.Length + mixs.Length + inis.Length == 0;
+    }
+
+    private bool 判断是否为任务包(string path)
+    {
+        return Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0;
+    }
+
+    private static bool 判断是否为尤复(string path)
+    {
+        string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.mix", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
+        
+        return YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "*.md.map", ).Length != 0;
+    }
+
+    private string 导入Mod(string path,bool? isYR = null)
+    {
+        isYR ??= 判断是否为尤复(path);
+        var md = isYR.GetValueOrDefault() ? "md" : string.Empty;
+
+        if(判断是否为Mod(path,md)) return "没有发现要导入的Mod文件";
+
+        var id = FunExtensions.GetTimeStamp();
+
+        var mod = new Mod
+        {
+            ID = id,
+            FilePath = $"Mod&AI\\Mod\\{id}",
+            Name = Path.GetFileName(path),
+            UseAI = isYR.GetValueOrDefault() ? "YRAI" : "RA2AI",
+            md = md
+        };
+   
+        (mod.Extension, mod.ExtensionOn) = 处理扩展情况(path);
+
+        CopyModFile(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
+
+        mod.Create(); //写入INI文件
+        ReLoad(); //重新载入
+
+        return string.Empty;
+    }
+
+    private static (string,bool) 处理扩展情况(string path)
+    {
+        var (extension, extensionOn) = ("", false);
+        
+        string extensionPath = "Mod&AI\\Extension";
+        //检测ARES
+        if (File.Exists(Path.Combine(path, "Ares.dll")))
+        {
+            var aresVerison = FileVersionInfo.GetVersionInfo(Path.Combine(path, "Ares.dll")).ProductVersion;
+
+            extensionOn = true;
+
+            //如果用的自带的3.0p1
+            if (aresVerison == "3.0p1")
+                extension += $"Ares";
+            else
+            {
+                extension += $"Ares{aresVerison},";
+                if (!Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
+                    Directory.CreateDirectory($"{extensionPath}\\Ares\\Ares{aresVerison}");
+
+                File.Copy(Path.Combine(path, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll");
+
+                if (File.Exists(Path.Combine(path, "Ares.Mix")))
+                {
+                    File.Copy(Path.Combine(path, "Ares.Mix"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.Mix");
+                }
+                if (File.Exists(Path.Combine(path, "Syringe.exe")))
+                {
+                    File.Copy(Path.Combine(path, "Syringe.exe"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Syringe.exe");
+                }
+
+            }
+        }
+
+       
+        //检测Phobos
+        if (File.Exists(Path.Combine(path, "Phobos.dll")))
+        {
+            var phobosVersion = FileVersionInfo.GetVersionInfo(Path.Combine(path, "Phobos.dll")).FileVersion;
+
+            extensionOn = true;
+            //如果用的自带的36
+            if (phobosVersion != "0.0.0.36")
+            {
+                extension += $",Phobos{phobosVersion}";
+                if (!Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
+                    Directory.CreateDirectory($"{extensionPath}\\Phobos\\Phobos{phobosVersion}");
+                File.Copy(Path.Combine(path, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll", true);
+
+            }
+            else
+            {
+                extension += ",Phobos";
+            }
+        }
+
+        return (extension, extensionOn);
+    }
+
+
+
+    /// <summary>
+    /// 导入任务包.
     /// </summary>
     /// <param name="path">路径</param>
     /// <param name="report">是否显示警告</param>
@@ -642,8 +896,10 @@ public class ModManager : XNAWindow
         if (string.IsNullOrEmpty(path))
         {
             //让玩家选择任务包文件夹
-            var folderBrowser = new FolderBrowserDialog();
-            folderBrowser.Description = "请选择任务包所在的目录";
+            var folderBrowser = new FolderBrowserDialog
+            {
+                Description = "请选择任务包所在的目录"
+            };
             if (folderBrowser.ShowDialog() != DialogResult.OK)
                 return;
             path = folderBrowser.SelectedPath;
@@ -870,8 +1126,8 @@ public class ModManager : XNAWindow
                 // Console.WriteLine(missionPack.FileName);
 
                 var mission = maps;
-                //var mission = allMaps.ToList();
-                //mission.AddRange(sovMaps);
+                //var missionPack = allMaps.ToList();
+                //missionPack.AddRange(sovMaps);
 
                 var count = 0;
                 if (!iniFile.SectionExists("Battles"))

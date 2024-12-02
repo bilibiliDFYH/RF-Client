@@ -68,5 +68,11 @@ namespace Localization.Tools
             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }
 
+        public static string GetTimeStamp()
+        {
+            TimeSpan ts = DateTime.Now - DateTime.UnixEpoch;
+            return Convert.ToInt64(ts.TotalSeconds).ToString();
+        }
+
     }
 }

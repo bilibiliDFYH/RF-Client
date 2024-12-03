@@ -808,23 +808,23 @@ namespace Ra2Client.DXGUI.Generic
                     campaignSettingsIni.AddSection("GameOptions");
                 foreach (GameLobbyDropDown dd in DropDowns)
                 {
-                    campaignSettingsIni.SetValue("GameOptions", dd.Name, dd.UserSelectedIndex + "");
+                    campaignSettingsIni.SetValue("GameOptions", dd.Name ?? nameof(dd), dd.UserSelectedIndex + "");
                 }
 
                 foreach (GameLobbyCheckBox cb in CheckBoxes)
                 {
-                    campaignSettingsIni.SetValue("GameOptions", cb.Name, cb.Checked.ToString());
+                    campaignSettingsIni.SetValue("GameOptions", cb.Name ?? nameof(cb), cb.Checked.ToString());
                 }
 
                 campaignSettingsIni.SetValue("GameOptions", "chkExtension", _chkExtension.Checked);
              
                 campaignSettingsIni.WriteIniFile();
-            }
+        }
             catch (Exception ex)
             {
                 Logger.Log("Saving campaign settings failed! Reason: " + ex.Message);
             }
-        }
+}
 
         /// <summary>
         /// 载入上次保存的设置
@@ -844,6 +844,7 @@ namespace Ra2Client.DXGUI.Generic
                 if (foundIndex >= 0)
                 {
                     _lbxCampaignList.SelectedIndex = foundIndex;
+                    _lbxCampaignList.TopIndex = foundIndex;
                 }
 
                 string SidesFilterTag = campaignSettingsIni.GetValue("Settings", "SidesFilter", string.Empty);
@@ -882,7 +883,7 @@ namespace Ra2Client.DXGUI.Generic
             {
                 foreach (GameLobbyDropDown dd in DropDowns)
                 {
-                    dd.UserSelectedIndex = campaignSettingsIni.GetValue("GameOptions", dd.Name, dd.UserSelectedIndex);
+                    dd.UserSelectedIndex = campaignSettingsIni.GetValue("GameOptions", dd.Name ?? nameof(dd), dd.UserSelectedIndex);
 
                     if (dd.UserSelectedIndex > -1 && dd.UserSelectedIndex < dd.Items.Count)
                         dd.SelectedIndex = dd.UserSelectedIndex;
@@ -890,9 +891,11 @@ namespace Ra2Client.DXGUI.Generic
 
                 foreach (GameLobbyCheckBox cb in CheckBoxes)
                 {
-                    cb.Checked = campaignSettingsIni.GetValue("GameOptions", cb.Name, cb.Checked);
+                    cb.Checked = campaignSettingsIni.GetValue("GameOptions", cb.Name ?? nameof(cb), cb.Checked);
                 }
             }
+
+            ChkExtension_SelectedChanged(null, null);
             //}
         }
 

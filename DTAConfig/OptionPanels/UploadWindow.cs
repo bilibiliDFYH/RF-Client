@@ -37,7 +37,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientButton btnSelect;
         private XNAClientButton btnSelectOther;
         private XNAClientTabControl tabControl;
-        private List<string> types = ["地图", "任务包", "Mod","地图包"];
+        private List<string> types = ["地图", "任务包", "Mod","地图包","其他"];
 
         public bool Uploaded = false;
 
@@ -213,6 +213,7 @@ namespace DTAConfig.OptionPanels
 
         private void Tab切换事件(object sender, EventArgs e)
         {
+            
             switch (tabControl.SelectedTab)
             {
                 case 0:
@@ -385,6 +386,7 @@ namespace DTAConfig.OptionPanels
                         { new StringContent(UserINISettings.Instance.User.id.ToString(), encoding: null),"uploadUser"},
                         { fileContent, "file", Path.GetFileName(path) }
                     };
+            WindowManager.progress.Report("正在上传任务包...");
            var (r,msg) = NetWorkINISettings.Post<bool?>("component/addComponent", componentDTO).GetAwaiter().GetResult();
 
             if (r != true)
@@ -402,7 +404,8 @@ namespace DTAConfig.OptionPanels
             }
             XNAMessageBox.Show(WindowManager, "信息", "上传成功！");
             Uploaded = true;
-            Disable();
+            Disable(); 
+            WindowManager.progress.Report("");
 
         }
 

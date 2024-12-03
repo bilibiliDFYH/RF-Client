@@ -314,6 +314,7 @@ namespace Ra2Client.Domain.Multiplayer
                 });
 
                 await Task.WhenAll(tasks); // 等待所有任务完成
+                WindowManager.progress.Report("");
             });
         }
         

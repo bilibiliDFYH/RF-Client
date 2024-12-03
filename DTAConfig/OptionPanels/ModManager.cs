@@ -86,7 +86,10 @@ public class ModManager : XNAWindow
             Text = "删除",
             SelectAction = () => BtnDel.OnLeftClick()
         });
-        _modMenu.AddItem(new XNAContextMenuItem { Text = "编辑CSF", SelectAction = EditCsf });
+        _modMenu.AddItem(new XNAContextMenuItem 
+        { Text = "编辑CSF", 
+            SelectAction = EditCsf
+        });
 
         AddChild(_modMenu);
 
@@ -204,7 +207,7 @@ public class ModManager : XNAWindow
         //};
 
         //foreach (var baseInfo in infoBases){
-        //    ListBoxModAi.AddItem(new XNAListBoxItem { Text = baseInfo.Name, Tag = baseInfo });
+        //    ListBoxModAi.AddItem(new XNAListBoxItem { Text = baseInfo.任务名称, Tag = baseInfo });
         //}
 
         //ListBoxModAi.SelectedIndexChanged += ListBoxModAISelectedIndexChanged;
@@ -257,7 +260,7 @@ public class ModManager : XNAWindow
     /// </summary>
     /// <param name="modPath">mod原路径</param>
     /// <param name="mod">mod信息</param>
-    private void CopyModFile(string modPath,Mod mod,bool covCsf)
+    private void 整合Mod文件(string modPath,Mod mod,bool covCsf)
     {
         #region 导入Mod文件
 
@@ -395,7 +398,7 @@ public class ModManager : XNAWindow
         #endregion
     }
 
-    private void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf)
+    private static void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf)
     {
 
         if(!Directory.Exists(missionPack.FilePath))
@@ -437,6 +440,8 @@ public class ModManager : XNAWindow
             File.Copy(Path.Combine(MissionPackPath, "mapselmd.ini"), Path.Combine(missionPack.FilePath, "mapselmd.ini"), true);
         if (File.Exists(Path.Combine(MissionPackPath, "game.fnt")))
             File.Copy(Path.Combine(MissionPackPath, "game.fnt"), Path.Combine(missionPack.FilePath, "game.fnt"), true);
+
+        missionPack.Create();
     }
 
     /// <summary>
@@ -444,46 +449,47 @@ public class ModManager : XNAWindow
     /// </summary>
     public string 导入任务包(string path)
     {
-        if(!判断是否为任务包(path)) throw new Exception("未找到任务包文件");
+        if (!判断是否为任务包(path))
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "没有发现要导入的任务包");
+            return string.Empty;
+        }
 
-        var isYR = 判断是否为尤复(path);
+        bool isYR = 判断是否为尤复(path);
 
         var id = FunExtensions.GetTimeStamp();
-        var missionPack = new MissionPack()
+        var missionPack = new MissionPack
         {
             ID = id,
             FilePath = $"Maps\\CP\\{id}",
             Name = Path.GetFileName(path),
             YR = isYR,
             Other = true,
-            LongDescription = Path.GetFileName(path)
+            LongDescription = Path.GetFileName(path),
+            Mod = isYR ? "YR" : "RA2"
         };
-
-        missionPack.Mod = isYR ? "YR" : "RA2";
         missionPack.DefaultMod = missionPack.Mod;
 
-        if (导入Mod(path, isYR) == string.Empty)
+        if (导入Mod(path, isYR) == string.Empty) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
             missionPack.DefaultMod = id;
         }
 
-
         整合任务包文件(path, missionPack,UserINISettings.Instance.SimplifiedCSF.Value);
 
-        写入INI(missionPack);
+        写入任务INI(missionPack);
 
         ReLoad();
 
         return id;
     }
 
-    private void 写入INI(MissionPack missionPack)
+    private void 写入任务INI(MissionPack missionPack)
     {
         var maps = Directory.GetFiles(missionPack.FilePath, "*.map").ToList();
         var md = missionPack.YR ? "md" : string.Empty;
 
-        missionPack.Create();
         var battleINI = new IniFile($"Maps\\CP\\battle{missionPack.ID}.ini");
         if(!battleINI.SectionExists("Battles"))
             battleINI.AddSection("Battles");
@@ -503,7 +509,7 @@ public class ModManager : XNAWindow
         var missionINI = new IniFile(missionINIPath);
         var mapSelINI = new IniFile(mapSelINIPath);
 
-        if (maps.Count == 0) //如果有地图
+        if (maps.Count == 0) //如果没有地图
         {
             添加默认地图("GDI");
             添加默认地图("Nod");
@@ -517,50 +523,52 @@ public class ModManager : XNAWindow
             foreach(var key in keys)
             {
                 var sectionName = mapSelINI.GetValue(typeName, key, string.Empty);
+                if(sectionName == string.Empty) continue;
 
                 var map = mapSelINI.GetValue(sectionName, "Scenario", string.Empty);
+                if (map == string.Empty) continue;
 
                 if ((map.ToLower().EndsWith("md.map") && !missionPack.YR) || !map.ToLower().EndsWith("md.map") && missionPack.YR) continue;
 
-                if (map != string.Empty)
-                    maps.Add(map);
+                maps.Add(map);
             }
             
         }
 
         var count = 1;
-        battleINI.SetValue("Battles", missionPack.ID, missionPack.ID);
+        //battleINI.SetValue("Battles", missionPack.ID, missionPack.ID);
 
         foreach (var map in maps)
         {
             var mapName = Path.GetFileName(map);
 
             var sectionName = missionPack.ID + count;
-            battleINI.SetValue("Battles", sectionName, sectionName);
+            
             if (!battleINI.SectionExists(sectionName))
                 battleINI.AddSection(sectionName);
-            battleINI.SetValue(sectionName, "Scenario", mapName);
 
-            var Name = missionINI.GetValue(mapName, "UIName", string.Empty);//任务名称
-            var LoadMsg = missionINI.GetValue(mapName, "LSLoadMessage", string.Empty); //任务地点
-            var Briefing = missionINI.GetValue(mapName, "Briefing", string.Empty); //任务描述
-            var LoadBrief = missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty); //任务目标
-
-            battleINI.SetValue(sectionName, "Description", csf?.GetValueOrDefault(Name) ?? $"第{count}关");
-            var LongDescription = csf?.GetValueOrDefault(LoadMsg) ?? "" + "@@" + csf?.GetValueOrDefault(Briefing) ?? "" + "@" + (csf?.GetValueOrDefault(LoadBrief) ?? "").Replace("任务目标", "@任务目标");
-            battleINI.SetValue(sectionName, "LongDescription", LongDescription);
-
-            battleINI.SetValue(sectionName, "MissionPack", missionPack.ID);
-
+            var 阵营 = "";
             if (mapName.ToLower().Contains("all"))
-                battleINI.SetValue(sectionName, "SideName", "Allied");
+                阵营 = "Allied";
             else if (mapName.ToLower().Contains("sov"))
-                battleINI.SetValue(sectionName, "SideName", "Soviet");
+                阵营 = "Soviet";
 
+            var 任务名称 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "UIName", string.Empty)) ?? $"第{count}关";//任务名称
+            var 任务地点 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadMessage", string.Empty)) ?? ""; //任务地点
+            var 任务简报 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "任务简报", string.Empty)) ?? ""; //任务描述
+            var 任务目标 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty)) ?? ""; //任务目标
+
+            var LongDescription = 任务地点 + "@@" + 任务简报 + "@" + 任务目标.Replace("任务目标", "@任务目标");
+
+            battleINI.SetValue("Battles", sectionName, sectionName)
+                     .SetValue(sectionName, "Scenario", mapName)
+                     .SetValue(sectionName, "Description", 任务名称)
+                     .SetValue(sectionName, "LongDescription", LongDescription)
+                     .SetValue(sectionName, "MissionPack", missionPack.ID)
+                     .SetValue(sectionName, "SideName", 阵营)
+                     ;
             count++;
         }
-
-        
 
         battleINI.WriteIniFile();
 
@@ -569,8 +577,6 @@ public class ModManager : XNAWindow
             {
                 await RenderPreviewImageAsync(missionPack);
             });
-        
-
     }
 
 
@@ -629,7 +635,7 @@ public class ModManager : XNAWindow
    
         (mod.Extension, mod.ExtensionOn) = 处理扩展情况(path);
 
-        CopyModFile(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
+        整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
         ReLoad(); //重新载入
 
@@ -1168,7 +1174,7 @@ public class ModManager : XNAWindow
 
     //        var md = string.Empty;
     //        var missionPack = new MissionPack();
-    //        missionPack.ID = missionPack.Name = DirectoryName;
+    //        missionPack.ID = missionPack.任务名称 = DirectoryName;
     //        missionPack.BuildOffAlly = true;
     //        missionPack.Other = true;
     //        var modID = string.Empty;
@@ -1271,7 +1277,7 @@ public class ModManager : XNAWindow
     //            {
 
     //                mod.ID = DirectoryName;
-    //                mod.Name = missionPack.Name;
+    //                mod.任务名称 = missionPack.任务名称;
     //                mod.md = md;
     //                mod.UseAI = md == "md" ? "YRAI" : "RA2AI";
 
@@ -1281,7 +1287,7 @@ public class ModManager : XNAWindow
     //                mod.Author = missionPack.Author;
 
     //                //导入Mod
-    //                CopyModFile(missionPackPath, mod, covCsf);
+    //                整合Mod文件(missionPackPath, mod, covCsf);
 
     //                if (File.Exists($"{mod.FilePath}/mapsel{md}.ini"))
     //                {
@@ -1380,11 +1386,11 @@ public class ModManager : XNAWindow
 
     //                iniFile.SetValue(key, "Scenario", Path.GetFileName(file).ToUpper());
 
-    //                //Console.WriteLine($"LoadMsg:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}");
+    //                //Console.WriteLine($"任务地点:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}");
     //                if (csfJson != null)
     //                {
     //                    // 构建我们要查找的键
-    //                    string keyToSearch = $"LoadMsg:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}";
+    //                    string keyToSearch = $"任务地点:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}";
 
     //                    // 尝试从csfJson中获取值
     //                    if (csfJson.TryGetValue(keyToSearch, out var value))
@@ -1588,7 +1594,7 @@ public class ModManager : XNAWindow
     //        //            // 比较哈希值
     //        //            if (nPathMixHash == newFileHash)
     //        //            {
-    //        //                mod.Extension = new DirectoryInfo(dir).Name;
+    //        //                mod.Extension = new DirectoryInfo(dir).任务名称;
     //        //                hashMatchFound = true;
     //        //                break;
     //        //            }
@@ -1616,7 +1622,7 @@ public class ModManager : XNAWindow
 
 
 
-    //        mod.ID = mod.Name = DirectoryName;
+    //        mod.ID = mod.任务名称 = DirectoryName;
 
 
     //        mod.md = string.Empty;
@@ -1644,8 +1650,8 @@ public class ModManager : XNAWindow
 
     //                        var country = rules.GetValue("Countries", c, string.Empty);
     //                        if (country == "GDI") break;
-    //                        if (csf.ContainsKey($"Name:{country}"))
-    //                            mod.Countries += csf[$"Name:{country}"] + ",";
+    //                        if (csf.ContainsKey($"任务名称:{country}"))
+    //                            mod.Countries += csf[$"任务名称:{country}"] + ",";
     //                        else
     //                        {
     //                            mod.Countries = mod.md == string.Empty ? "美国,韩国,法国,德国,英国,利比亚,伊拉克,古巴,苏联," : "美国,韩国,法国,德国,英国,利比亚,伊拉克,古巴,苏联,尤里,";
@@ -1679,7 +1685,7 @@ public class ModManager : XNAWindow
     //            infoWindows.Dispose();
     //            if (mod == null)
     //                return;
-    //            CopyModFile(modPath, mod,csf);
+    //            整合Mod文件(modPath, mod,csf);
     //        };
     //    };
 

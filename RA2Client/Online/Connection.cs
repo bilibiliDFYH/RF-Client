@@ -53,7 +53,8 @@ namespace Ra2Client.Online
             //new Server("91.217.189.76", "GameSurge IP 91.217.189.76", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
             //new Server("195.68.206.250", "GameSurge IP 195.68.206.250", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
             //new Server("irc.gamesurge.net", "GameSurge", new int[1] { 6667 }),
-            new("online.yra2.com","www.yra2.com",[6668,6669])
+            new("online.yra2.com","a-root.zj.yra2.com",[6667,6697,6900]),
+            new("online.ru2023.top","b-root.hb.ru2023.top",[6667,6697,6900])
 
             //new Server("www.yra2.com", "ergo.test", new int[1] { 6668 })
         }.AsReadOnly();

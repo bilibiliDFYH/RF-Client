@@ -335,16 +335,29 @@ namespace Ra2Client.Domain.Multiplayer
                                     file.ToLower().EndsWith(".yrm") ||
                                     file.ToLower().EndsWith(".mpr")
                                     ) && !是否为任务图(file)
-                                    )
-                                     ;
+                                    ).ToList();
 
-            rootMaps = customMaps.ToList();
+            
+
+            foreach(var d in Directory.GetDirectories("maps"))
+            {
+                if (Path.GetFileName(d) == "CP" || Path.GetFileName(d) == "Multi") continue;
+                var maps = Directory.EnumerateFiles(d, "*.*", SearchOption.TopDirectoryOnly)
+                                     .Where(file => (file.ToLower().EndsWith(".map") ||
+                                    file.ToLower().EndsWith(".yrm") ||
+                                    file.ToLower().EndsWith(".mpr")
+                                    ) && !是否为任务图(file)
+                                    ).ToList();
+                customMaps.AddRange(maps);
+            }
+
+            rootMaps = customMaps;
 
             foreach (var customMap in customMaps)
             {
                 var fileName = Path.GetFileName(customMap);
                 var destFileName = Path.Combine(CUSTOM_MAPS_DIRECTORY, fileName);
-                File.Move(fileName, destFileName,true);
+                File.Move(customMap, destFileName,true);
             }
 
         }

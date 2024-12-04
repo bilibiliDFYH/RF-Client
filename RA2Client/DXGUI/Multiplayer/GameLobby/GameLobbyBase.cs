@@ -1995,7 +1995,37 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (extensionAI.Remove("Phobos"))
                     extensionAI.AddRange(Phobos);
 
-                newExtension = string.Join(",", extensionGame.Intersect(extensionAI));
+
+                var ExtensionList = extensionGame.Intersect(extensionAI).ToList();
+                if(ExtensionList.Count(e => e.Contains("Ares")) > 1)
+                {
+                    if (ExtensionList.Contains(ProgramConstants.ARES)){
+                        ExtensionList.RemoveAll(e => e.Contains("Ares"));
+                        ExtensionList.Add(ProgramConstants.ARES);
+                    }
+                    else
+                    {
+                        ExtensionList.Remove(ExtensionList.Find(e => e.Contains("Ares")));
+                    }
+
+                }
+
+                if (ExtensionList.Count(e => e.Contains("Phobos")) > 1)
+                {
+                    if (ExtensionList.Contains(ProgramConstants.PHOBOS))
+                    {
+                        ExtensionList.RemoveAll(e => e.Contains("Phobos"));
+                        ExtensionList.Add(ProgramConstants.ARES);
+                    }
+                    else
+                    {
+                        ExtensionList.Remove(ExtensionList.Find(e => e.Contains("Phobos")));
+                    }
+
+                }
+
+                newExtension = string.Join(",", ExtensionList);
+                
             }
 
             /**

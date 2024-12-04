@@ -83,11 +83,12 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;中国华中服务器-CT01;0;0;320;0;0;0;2;0"),
                 CnCNetTunnel.Parse("43.248.118.243:50000;China;CN;中国华东服务器-EA02;0;0;120;0;0;0;2;0"),
                 CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国西南服务器-本区域待上线;0;0;120;0;0;0;2;0"),
-                CnCNetTunnel.Parse("124.65.97.90:50000;China;CN;中国华北服务器-NR01;0;0;320;0;0;0;2;0"),
-                CnCNetTunnel.Parse("124.65.97.78:50000;China;CN;中国华北服务器-NR02;0;0;320;0;0;0;2;0"),
+                CnCNetTunnel.Parse("117.72.98.111:50000;China;CN;中国华北服务器-NR01;0;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("39.106.254.31:50000;China;CN;中国华北服务器-NR02;0;0;200;0;0;0;2;0"),
                 CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国华南服务器-本区域待上线;0;0;120;0;0;0;2;0"),
                 CnCNetTunnel.Parse("0.0.0.0:50000;Hong Kong;HK;亚洲服务器-本区域待上线;0;0;200;0;0;0;2;0"),
                 CnCNetTunnel.Parse("154.12.187.10:50000;United States;US;北美服务器-US01;0;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("45.88.193.16:50000;United States;US;北美服务器-US02;0;0;200;0;0;0;2;0"),
                 ];
 
 

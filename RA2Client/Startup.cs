@@ -20,6 +20,7 @@ using Microsoft.Win32;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using DTAConfig.OptionPanels;
+using ClientGUI;
 
 
 namespace Ra2Client
@@ -144,18 +145,15 @@ namespace Ra2Client
             UserINISettings.Instance.ClientResolutionX = new IntSetting(UserINISettings.Instance.SettingsIni, UserINISettings.VIDEO, "ClientResolutionX", currentWidth);
             UserINISettings.Instance.ClientResolutionY = new IntSetting(UserINISettings.Instance.SettingsIni, UserINISettings.VIDEO, "ClientResolutionY", currentHeight);
 
-#if DEBUG
-            gameClass.Run();
-#else
-             try
+            try
             {
                 gameClass.Run();
             }
             catch(Exception ex)
             {
                 PreStartup.LogException(ex);
+                CDebugView.OutputDebugInfo(ex.Message);
             }    
-#endif
         }
 
         private void UpdaterDel()
@@ -192,7 +190,7 @@ namespace Ra2Client
 
             // 删除完成后，删除 "del" 文件本身
             File.Delete("del");
-            ProgramConstants.清除缓存();
+            ProgramConstants.clearCache();
         }
 
         /// <summary>

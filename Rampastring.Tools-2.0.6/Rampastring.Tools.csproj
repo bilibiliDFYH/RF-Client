@@ -10,6 +10,7 @@
     <Trademark></Trademark>
     <AssemblyName>Rampastring.Tools</AssemblyName>
     <RootNamespace>Rampastring.Tools</RootNamespace>
+    <Nullable>disable</Nullable>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
     <AnalysisLevel>preview-all</AnalysisLevel>

@@ -17,17 +17,37 @@ public class IniFile : IIniFile
     private const string TextBlockBeginIdentifier = "$$$TextBlockBegin$$$";
     private const string TextBlockEndIdentifier = "$$$TextBlockEnd$$$";
 
+    public string FileName { get; set; }
+    public Encoding Encoding { get; set; } = new UTF8Encoding(false);
+
     /// <summary>
-        /// 重聚未来字符画
-        /// </summary>
-        private readonly string art = @"
-;  ____                           _                     _     _                 __           _                         
-; |  _ \    ___   _   _   _ __   (_)   ___    _ __     | |_  | |__     ___     / _|  _   _  | |_   _   _   _ __    ___ 
-; | |_) |  / _ \ | | | | | '_ \  | |  / _ \  | '_ \    | __| | '_ \   / _ \   | |_  | | | | | __| | | | | | '__|  / _ \
-; |  _ <  |  __/ | |_| | | | | | | | | (_) | | | | |   | |_  | | | | |  __/   |  _| | |_| | | |_  | |_| | | |    |  __/
-; |_| \_\  \___|  \__,_| |_| |_| |_|  \___/  |_| |_|    \__| |_| |_|  \___|   |_|    \__,_|  \__|  \__,_| |_|     \___|
-;
-";
+    /// Gets or sets a value that determines whether the parser should only parse 
+    /// pre-determined (via <see cref="AddSection(string)"/>) sections or all sections in the INI file.
+    /// </summary>
+    public bool AllowNewSections { get; set; } = true;
+
+    /// <summary>
+    /// Comment line to write to the INI file when it's written.
+    /// </summary>
+    public string Comment { get; set; }
+
+    private int _lastSectionIndex = 0;
+    /// <summary>
+    /// List of all sections in the INI file.
+    /// </summary>
+    protected List<IniSection> Sections = new List<IniSection>();
+
+    /// <summary>
+    /// 重聚未来字符画
+    /// </summary>
+    private readonly string art = @"
+                    ;  ____                           _                     _     _                 __           _                         
+                    ; |  _ \    ___   _   _   _ __   (_)   ___    _ __     | |_  | |__     ___     / _|  _   _  | |_   _   _   _ __    ___ 
+                    ; | |_) |  / _ \ | | | | | '_ \  | |  / _ \  | '_ \    | __| | '_ \   / _ \   | |_  | | | | | __| | | | | | '__|  / _ \
+                    ; |  _ <  |  __/ | |_| | | | | | | | | (_) | | | | |   | |_  | | | | |  __/   |  _| | |_| | | |_  | |_| | | |    |  __/
+                    ; |_| \_\  \___|  \__,_| |_| |_| |_|  \___/  |_| |_|    \__| |_| |_|  \___|   |_|    \__,_|  \__|  \__,_| |_|     \___|
+                    ;
+                    ";
 
     #region Static methods
 
@@ -63,6 +83,7 @@ public class IniFile : IIniFile
     /// Creates a new INI file instance and parses it.
     /// </summary>
     /// <param name="filePath">The path of the INI file.</param>
+    /// <param name="comment">A comment to write to the INI file when it's written.</param>
     public IniFile(string filePath, string comment = "")
     {
         FileName = filePath;
@@ -105,26 +126,10 @@ public class IniFile : IIniFile
         ParseIniFile(stream, encoding);
     }
 
-    public string FileName { get; set; }
-    public Encoding Encoding { get; set; } = new UTF8Encoding(false);
-
-    /// <summary>
-    /// Gets or sets a value that determines whether the parser should only parse 
-    /// pre-determined (via <see cref="AddSection(string)"/>) sections or all sections in the INI file.
-    /// </summary>
-    public bool AllowNewSections { get; set; } = true;
-
-    /// <summary>
-    /// Comment line to write to the INI file when it's written.
-    /// </summary>
-    public string Comment { get; set; }
-
-    protected List<IniSection> Sections = new List<IniSection>();
-    private int _lastSectionIndex = 0;
-
     public void Parse()
     {
-        if (FileName is null) return;
+        if (FileName is null) 
+            return;
 
         FileInfo fileInfo = SafePath.GetFile(FileName);
 

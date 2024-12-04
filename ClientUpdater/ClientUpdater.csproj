@@ -11,6 +11,7 @@
     <Trademark>Snowy</Trademark>
     <AssemblyName>ClientUpdater</AssemblyName>
     <RootNamespace>ClientUpdater</RootNamespace>
+    <Nullable>disable</Nullable>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
     <AnalysisLevel>latest-all</AnalysisLevel>

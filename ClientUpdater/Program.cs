@@ -35,6 +35,7 @@ internal sealed class Program
         {
             Directory.CreateDirectory(logDirectory); // 创建日志文件的目录
         }
+
         errorWriter = new StreamWriter(errorLogPath);
         Console.SetOut(errorWriter);
 
@@ -43,9 +44,8 @@ internal sealed class Program
             Write("Ra2Client更新器", ConsoleColor.Green);
             Write(string.Empty);
 
-// #if DEBUG
-//            args = new string[] { "Ra2Client.dll", "D:\\Reunion-Developer\\Bin" };
-// #endif
+            //调试使用的参数
+            //args = new string[] { "Ra2Client.dll", @"D:\RF-Client\Bin" };
             if (args.Length < 2 || string.IsNullOrEmpty(args[0]) || string.IsNullOrEmpty(args[1]) || !SafePath.GetDirectory(args[1].Replace("\"", null, StringComparison.OrdinalIgnoreCase)).Exists)
             {
                 Write("无效参数!", ConsoleColor.Red);
@@ -100,7 +100,7 @@ internal sealed class Program
 
                 // 先统一检查所有文件是否被占用
                 bool anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
-                bool 更新成功 = true;
+                bool bUpdateSuc = true;
                 int retryCount = 0;
 
                 // 如果文件被占用，最多尝试10次，每次间隔1秒
@@ -148,7 +148,7 @@ internal sealed class Program
                             catch (IOException ex)
                             {
                                 Write($"更新文件失败: {ex}", ConsoleColor.Yellow);
-                                更新成功 = false;
+                                bUpdateSuc = false;
                                 break;
                             }
                         }
@@ -160,8 +160,8 @@ internal sealed class Program
                     Directory.Delete(updaterDirectory.FullName, true);
                 }
 
-                if (更新成功) {
-                  
+                if (bUpdateSuc)
+                {
                     Write("文件已经全部更新成功. 正在启动主程序..", ConsoleColor.Green);
                 }
                 else
@@ -253,6 +253,7 @@ internal sealed class Program
             {
                 fs.Close(); // 文件可用，正常关闭流
             }
+
             return false; // 文件未被占用
         }
         catch (IOException)

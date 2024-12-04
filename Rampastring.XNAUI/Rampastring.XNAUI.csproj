@@ -9,8 +9,9 @@
     <Product>Rampastring.XNAUI</Product>
     <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
     <Trademark></Trademark>
-	<AssemblyName>Rampastring.XNAUI</AssemblyName>
+	  <AssemblyName>Rampastring.XNAUI</AssemblyName>
     <RootNamespace>Rampastring.XNAUI</RootNamespace>
+    <Nullable>disable</Nullable>
     <ComVisibale>false</ComVisibale>
     <CLSCompliant>false</CLSCompliant>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>

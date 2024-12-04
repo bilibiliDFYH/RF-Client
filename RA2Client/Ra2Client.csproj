@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0-windows7.0</TargetFramework>
-		<LangVersion>13.0</LangVersion>
+		    <LangVersion>13.0</LangVersion>
         <OutputType>WinExe</OutputType>
         <Title>Ra2Client</Title>
         <Description>Ra2 Client Library</Description>
@@ -13,6 +13,7 @@
         <FileVersion>1.5.0.44</FileVersion>
         <AssemblyName>Ra2Client</AssemblyName>
         <RootNamespace>Ra2Client</RootNamespace>
+        <Nullable>disable</Nullable>
         <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
         <AssemblyName>Ra2Client</AssemblyName>
         <ApplicationManifest>app.manifest</ApplicationManifest>

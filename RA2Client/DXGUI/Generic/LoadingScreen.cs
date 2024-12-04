@@ -53,7 +53,7 @@ namespace Ra2Client.DXGUI.Generic
         private int time;
         private int index = 1;
 
-        private Song themeSongLoad;
+        //private Song themeSongLoad;
         private AudioFileReader audioFile;
         private WaveOutEvent outputDevice;
 
@@ -63,7 +63,7 @@ namespace Ra2Client.DXGUI.Generic
             ClientRectangle = new Rectangle(0, 0, 1280, 768);
             Name = "LoadingScreen";
 
-            if (!UserINISettings.Instance.video_wallpaper || ProgramConstants.跳过Logo)
+            if (!UserINISettings.Instance.video_wallpaper || ProgramConstants.SkipLogo)
             {
                
                 string path = $"Resources/{UserINISettings.Instance.ClientTheme}Wallpaper";
@@ -83,20 +83,18 @@ namespace Ra2Client.DXGUI.Generic
                     int i = random.Next(0, Wallpaper.Length);
                     BackgroundTexture = AssetLoader.LoadTexture(Wallpaper[i]);
                 }
-               
                 else if (Wallpaper.Length > 0)
                 {
                     BackgroundTexture = AssetLoader.LoadTexture(Wallpaper[0]);
                 }
-
-              mapLoadTask = mapLoader.LoadMapsAsync();
             }
             else
             {
                 //themeSongLoad = new Song("Resources/themeSongLoad.wma");
                 PlayLoadMusic();
             }
-         
+            mapLoadTask = mapLoader.LoadMapsAsync();
+
             base.Initialize();
 
             CenterOnParent();
@@ -195,47 +193,52 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Update(GameTime gameTime)
         {
-            if (UserINISettings.Instance.video_wallpaper && !ProgramConstants.跳过Logo && Directory.Exists("Resources/Dynamicbg"))
+            if(!ProgramConstants.SkipLogo)
             {
-                if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
+                if (UserINISettings.Instance.video_wallpaper && Directory.Exists("Resources/Dynamicbg"))
                 {
-                    time = 0;
-                    BackgroundTexture?.Dispose();
-                    if (index < 122)
+                    if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
                     {
-                        
-                        BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/eawwlogo" + index + ".jpg"));
-                        index++;
+                        time = 0;
+                        BackgroundTexture?.Dispose();
+                        if (index < 122)
+                        {
+
+                            BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/eawwlogo" + index + ".jpg"));
+                            index++;
+                        }
+                        else
+                        {
+                            try
+                            {
+                                MediaPlayer.Stop();
+                            }
+                            catch (Exception ex)
+                            {
+                                CDebugView.OutputDebugInfo("播放失败:" + ex.Message);
+                            }
+                            index++;
+                            BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
+                        }
                     }
                     else
-                    {
-                        try
-                        {
-                            MediaPlayer.Stop();
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                        index++;
-                        mapLoadTask = mapLoader.LoadMapsAsync();
-                        BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg"));
-                    }
+                        time++;
                 }
-                else
-                    time++;
-            }
-            base.Update(gameTime);
 
-            if (updaterInitTask == null || updaterInitTask.Status == TaskStatus.RanToCompletion)
-            {
-                if (mapLoadTask?.Status == TaskStatus.RanToCompletion && (!UserINISettings.Instance.video_wallpaper || ProgramConstants.跳过Logo || index > 123))
+                if (index >= 123)
                 {
+                    CDebugView.OutputDebugInfo("3");
                     outputDevice?.Stop();
-                    themeSongLoad?.Dispose();
+                    //themeSongLoad?.Dispose();
                     Finish();
                 }
             }
+            else
+            {
+                BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
+                Finish();
+            }
+            base.Update(gameTime);
         }
     }
 

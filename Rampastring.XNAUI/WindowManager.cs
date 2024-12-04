@@ -718,7 +718,6 @@ public class WindowManager : DrawableGameComponent
 
 #if DEBUG
         Renderer.DrawString("Active Control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
-
 #endif
         if (Cursor.Visible)
             Cursor.Draw(gameTime);

@@ -14,15 +14,16 @@ namespace Rampastring.Tools;
 /// </summary>
 public class IniSection : IIniSection
 {
+    public string SectionName { get; set; }
+
+    public List<KeyValuePair<string, string>> Keys = new List<KeyValuePair<string, string>>();
+
     public IniSection() { }
 
     public IniSection(string sectionName)
     {
         SectionName = sectionName;
     }
-
-    public string SectionName { get; set; }
-    public List<KeyValuePair<string, string>> Keys = new List<KeyValuePair<string, string>>();
 
     /// <summary>
     /// Adds a key to the INI section.

@@ -13,6 +13,7 @@
     <InformationalVersion>1.0.0.0</InformationalVersion>
     <AssemblyName>ClientGUI</AssemblyName>
     <RootNamespace>ClientGUI</RootNamespace>
+    <Nullable>disable</Nullable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>

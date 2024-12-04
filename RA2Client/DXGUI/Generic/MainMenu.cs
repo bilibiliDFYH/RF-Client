@@ -717,7 +717,7 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         private void FirstRun()
         {
-            ProgramConstants.清除缓存();
+            ProgramConstants.clearCache();
             var guideWindow = new GuideWindow(WindowManager);
             guideWindow.Show();
 

@@ -306,7 +306,7 @@ namespace ClientGUI
                 try
             {
                 
-                ProgramConstants.清除缓存();
+                ProgramConstants.clearCache();
 
                 WindowManager.progress.Report("正在加载游戏文件");
                 FileHelper.CopyDirectory(newGame, "./");

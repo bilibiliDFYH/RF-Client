@@ -12,10 +12,10 @@
     <Trademark>Snowy</Trademark>
     <AssemblyName>Reunion</AssemblyName>
     <RootNamespace>Reunion</RootNamespace>
+    <Nullable>disable</Nullable>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
     <AnalysisLevel>latest-all</AnalysisLevel>
-    <Nullable>enable</Nullable>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Platform>AnyCPU</Platform>
     <ApplicationIcon>clienticon.ico</ApplicationIcon>
@@ -40,18 +40,6 @@
 <ItemGroup>
   <Content Include="clienticon.ico" />
 </ItemGroup>
-  <ItemGroup>    
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>

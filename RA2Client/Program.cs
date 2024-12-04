@@ -1,4 +1,5 @@
 ﻿using ClientCore;
+using ClientGUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +39,8 @@ namespace Ra2Client
         [STAThread]
         static void Main(string[] args)
         {
+            CDebugView.SetDebugName("Ra2Client");
+
             bool noAudio = false;
             bool multipleInstanceMode = false;
             List<string> unknownStartupParams = new List<string>();
@@ -55,7 +58,7 @@ namespace Ra2Client
                         multipleInstanceMode = true;
                         break;
                     case "-NOLOGO":
-                        ProgramConstants.跳过Logo = true;
+                        ProgramConstants.SkipLogo = true;
                         break;
                     default:
                         unknownStartupParams.Add(argument);

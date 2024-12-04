@@ -994,9 +994,7 @@ namespace Ra2Client.DXGUI.Generic
             {
                 string name = _screenMissions[_lbxCampaignList.SelectedIndex].SectionName;
                 _scoreLevel = ratingBox.CheckedIndex + 1;
-#if DEBUG
-                Console.WriteLine("任务：{0},评分：{1}", name, _scoreLevel);
-#endif
+                CDebugView.OutputDebugInfo("任务：{0},评分：{1}", name, _scoreLevel);
             }
         }
 

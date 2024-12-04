@@ -15,6 +15,7 @@ using Rampastring.Tools;
 using ClientCore;
 using Localization;
 using DTAConfig.Entity;
+using ClientGUI;
 
 namespace Ra2Client
 {

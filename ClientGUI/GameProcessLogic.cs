@@ -258,11 +258,7 @@ namespace ClientGUI
         public static void 切换文件(IniSection newSection)
         {
             
-            var oldSettings = new IniFile(spawnerSettingsFile.FullName);
-
-            if (!oldSettings.SectionExists("Settings")) return;
-
-            var oldSection = oldSettings.GetSection("Settings");
+            
 
             string newMain = newSection.GetValue("Main", string.Empty);
             string newExtension = newSection.GetValue("Extension", string.Empty);
@@ -270,15 +266,22 @@ namespace ClientGUI
             string newMission = newSection.GetValue("Mission", string.Empty);
             string newAi = newSection.GetValue("AI", string.Empty);
 
-            string oldMain = oldSection.GetValue("Main", string.Empty);
-            string oldExtension = oldSection.GetValue("Extension", string.Empty);
-            string oldGame = oldSection.GetValue("Game", string.Empty);
-            string oldMission = oldSection.GetValue("Mission", string.Empty);
-            string oldAi = oldSection.GetValue("AI", string.Empty);
+           
 
             bool 是否修改()
             {
-                
+                var oldSettings = new IniFile(spawnerSettingsFile.FullName);
+
+                if (!oldSettings.SectionExists("Settings")) return true;
+
+                var oldSection = oldSettings.GetSection("Settings");
+
+                string oldMain = oldSection.GetValue("Main", string.Empty);
+                string oldExtension = oldSection.GetValue("Extension", string.Empty);
+                string oldGame = oldSection.GetValue("Game", string.Empty);
+                string oldMission = oldSection.GetValue("Mission", string.Empty);
+                string oldAi = oldSection.GetValue("AI", string.Empty);
+
                 if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
 
                 if (FilePaths.Count == 0) return true;
@@ -356,7 +359,7 @@ namespace ClientGUI
                         }
                 }
 
-                if (oldGame != newGame && File.Exists($"{newGame}\\thememd.mix"))
+                if (File.Exists($"{newGame}\\thememd.mix"))
                 {
                     WindowManager.progress.Report("正在加载音乐");
                     加载音乐();

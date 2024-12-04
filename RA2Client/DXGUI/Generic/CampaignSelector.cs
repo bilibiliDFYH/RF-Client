@@ -1320,57 +1320,63 @@ namespace Ra2Client.DXGUI.Generic
                 {
                     if (m.Scenario == string.Empty) continue;
                     var mapIni = new IniFile(SafePath.CombineFilePath(mission.MPack.FilePath, m.Scenario));
-
-                    if (!_chkExtension.Checked)
+                    if (mapIni.GetSections().Count == 0)
                     {
-                        if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
+                        File.Copy(SafePath.CombineFilePath(mission.MPack.FilePath, m.Scenario), SafePath.CombineFilePath(战役临时目录, m.Scenario));
+                    }
+                    else
+                    {
+                        if (!_chkExtension.Checked)
                         {
-                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
-                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+                            if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
+                            {
+                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
+                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+                            }
+                            else
+                            {
+                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
+                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
+                            }
                         }
-                        else
+
+                        if (!mapIni.SectionExists("General"))
+                            mapIni.AddSection("General");
+                        if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
+                            mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
+
+                        var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
+                        //
+
+
+                        IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
+                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
+                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
+
+                        foreach (GameLobbyCheckBox chkBox in CheckBoxes)
                         {
-                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
-                            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
+                            chkBox.ApplySpawnINICode(spawnIni);
+                            chkBox.ApplyMapCode(mapIni, null);
                         }
+
+                        foreach (GameLobbyDropDown dd in DropDowns)
+                        {
+                            dd.ApplySpawnIniCode(spawnIni);
+                            dd.ApplyMapCode(mapIni, null);
+                        }
+                        if (_cmbCredits.SelectedItem != null)
+                            Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text) / 100);
+
+
+
+                        if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !m.YR)
+                        {
+                            if (mapIni.SectionExists("Countries"))
+                                mapIni.RenameSection("Countries", "YBCountry");
+                        }
+
+                        mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario));
                     }
-
-                    if (!mapIni.SectionExists("General"))
-                        mapIni.AddSection("General");
-                    if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
-                        mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
-
-                    var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
-                    //
-
-
-                    IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
-                    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
-                    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
-
-                    foreach (GameLobbyCheckBox chkBox in CheckBoxes)
-                    {
-                        chkBox.ApplySpawnINICode(spawnIni);
-                        chkBox.ApplyMapCode(mapIni, null);
-                    }
-
-                    foreach (GameLobbyDropDown dd in DropDowns)
-                    {
-                        dd.ApplySpawnIniCode(spawnIni);
-                        dd.ApplyMapCode(mapIni, null);
-                    }
-                    if (_cmbCredits.SelectedItem != null)
-                        Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text) / 100);
-
-
-
-                    if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !m.YR)
-                    {
-                        if(mapIni.SectionExists("Countries"))
-                            mapIni.RenameSection("Countries", "YBCountry");
-                    }
-
-                    mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario));
                 }
               
                 UserINISettings.Instance.CampaignDefaultGameSpeed.Value = 6 - _cmbGameSpeed.SelectedIndex;
@@ -1547,6 +1553,8 @@ namespace Ra2Client.DXGUI.Generic
 
                 _lbxCampaignList.AddItem(item);
             }
+
+            _lbxCampaignList.TopIndex = -1;
         }
 
         public void ReadMissionList()

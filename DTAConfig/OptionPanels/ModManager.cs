@@ -536,7 +536,7 @@ public class ModManager : XNAWindow
         }
 
         var count = 1;
-        //battleINI.SetValue("Battles", missionPack.ID, missionPack.ID);
+        battleINI.SetValue("Battles", missionPack.ID, missionPack.ID);
 
         foreach (var map in maps)
         {
@@ -555,15 +555,15 @@ public class ModManager : XNAWindow
 
             var 任务名称 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "UIName", string.Empty)) ?? $"第{count}关";//任务名称
             var 任务地点 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadMessage", string.Empty)) ?? ""; //任务地点
-            var 任务简报 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "任务简报", string.Empty)) ?? ""; //任务描述
+            var 任务简报 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "Briefing", string.Empty)) ?? ""; //任务描述
             var 任务目标 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty)) ?? ""; //任务目标
 
-            var LongDescription = 任务地点 + "@@" + 任务简报 + "@" + 任务目标.Replace("任务目标", "@任务目标");
+            var LongDescription = 任务地点 + "@@" + 任务简报 + "@" + 任务目标;
 
             battleINI.SetValue("Battles", sectionName, sectionName)
                      .SetValue(sectionName, "Scenario", mapName)
                      .SetValue(sectionName, "Description", 任务名称)
-                     .SetValue(sectionName, "LongDescription", LongDescription)
+                     .SetValue(sectionName, "LongDescription", LongDescription.Replace("\n", "@"))
                      .SetValue(sectionName, "MissionPack", missionPack.ID)
                      .SetValue(sectionName, "SideName", 阵营)
                      ;
@@ -644,7 +644,7 @@ public class ModManager : XNAWindow
 
     private static (string,bool) 处理扩展情况(string path)
     {
-        var (extension, extensionOn) = ("", false);
+        var (extension, extensionOn) = (string.Empty, false);
         
         string extensionPath = "Mod&AI\\Extension";
         //检测ARES
@@ -698,6 +698,9 @@ public class ModManager : XNAWindow
                 extension += ",Phobos";
             }
         }
+
+        if (extension == string.Empty)
+            extension = $"{ProgramConstants.ARES},{ProgramConstants.PHOBOS}";
 
         return (extension, extensionOn);
     }
@@ -2539,7 +2542,7 @@ public class EditCSFWindows : XNAWindow
         if (!string.IsNullOrEmpty(_tbSearch.Text) && _tbSearch.Text != "搜索键或值")
             foreach (var (k, v) in _csfDictionary)
             {
-                if (k.Contains(_tbSearch.Text) || v.Contains(_tbSearch.Text))
+                if (k.ToUpper().Contains(_tbSearch.Text.ToUpper()) || v.ToUpper().Contains(_tbSearch.Text.ToUpper()))
                 {
                     _mcListBoxCsfInfo.AddItem(new[] { new XNAListBoxItem(k), new XNAListBoxItem(v) });
                 }

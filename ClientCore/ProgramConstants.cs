@@ -179,6 +179,7 @@ namespace ClientCore
                 File.Delete("game.fnt");
                 File.Delete("Syringe.exe");
                 File.Delete("gamemd.exe");
+
                 return true;
             }
             catch (Exception ex)

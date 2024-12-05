@@ -19,6 +19,7 @@ using System.Security.Cryptography;
 using System.Diagnostics;
 using System.Reflection;
 using System.Xml.Linq;
+using Microsoft.Xna.Framework.Input;
 
 namespace DTAConfig.OptionPanels;
 
@@ -898,6 +899,8 @@ public class ModManager : XNAWindow
     }
 
 
+
+
     private void BtnDel_LeftClick(object sender, EventArgs e)
     {
         if (!((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).CanDel)
@@ -908,7 +911,7 @@ public class ModManager : XNAWindow
 
         if (DDModAI.SelectedIndex == 2)
         {
-            var missionPack = ListBoxModAi.SelectedItem.Tag as MissionPack;
+            if (ListBoxModAi.SelectedItem.Tag is not MissionPack missionPack) return;
 
             var inifile = new IniFile(missionPack.FileName);
             var m = string.Empty;
@@ -921,14 +924,14 @@ public class ModManager : XNAWindow
 
             var xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
                 $"您真的要删除任务包{missionPack.Name}吗？它包含以下任务：{Environment.NewLine}{m} ", XNAMessageBoxButtons.YesNo);
-            xNAMessageBox.YesClickedAction += DelMissionPack;
+            xNAMessageBox.YesClickedAction +=(_) => DelMissionPack(missionPack);
             xNAMessageBox.NoClickedAction += (_) => ReLoad();
             xNAMessageBox.Show();
         }
         else
         {
-            Mod mod = ListBoxModAi.SelectedItem.Tag as Mod;
-            if (mod == null) return;
+            if (ListBoxModAi.SelectedItem.Tag is not Mod mod) return;
+
             foreach (var missionPack in MissionPack.MissionPacks)
             {
                 if (missionPack.Mod.Contains(mod.ID))
@@ -940,67 +943,63 @@ public class ModManager : XNAWindow
 
             XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
                 "您真的要删除Mod" + ListBoxModAi.SelectedItem.Text + "吗？", XNAMessageBoxButtons.YesNo);
-            xNAMessageBox.YesClickedAction += DelMod;
+            xNAMessageBox.YesClickedAction += (_) => DelMod(mod) ;
             xNAMessageBox.NoClickedAction += (_) => ReLoad();
             xNAMessageBox.Show();
         }
     }
 
-    private void DelMissionPack(XNAMessageBox box)
+    private void DelMissionPack(MissionPack missionPack)
     {
-        var missionPack = ListBoxModAi.SelectedItem.Tag as MissionPack;
-        var iniFile = new IniFile(missionPack!.FileName);
-        var messageBox = new XNAMessageBox(WindowManager, "删除确认", "需要同时删除本地文件吗", XNAMessageBoxButtons.YesNo);
-
-        iniFile.SetValue("MissionPack", missionPack.ID, string.Empty);
-        var modid = iniFile.GetValue(missionPack.ID, "Mod", string.Empty);
-        if (!string.IsNullOrEmpty(modid)&&missionPack.ID == modid )
+        var iniFile = new IniFile(missionPack.FileName);
+        if (iniFile.GetSection("MissionPack").Keys.Count == 1)
+            File.Delete(missionPack.FileName);
+        else
         {
-            var mod = Mod.Mods.Find(m => m.ID == iniFile.GetValue(missionPack.ID, "Mod", string.Empty));
-            if (mod != null)
+            iniFile.RemoveKey("MissionPack", missionPack.ID);
+            var modid = iniFile.GetValue(missionPack.ID, "Mod", string.Empty);
+            if (!string.IsNullOrEmpty(modid) && missionPack.ID == modid)
             {
-                var modiniFile = new IniFile(mod.FileName);
-                modiniFile.SetValue("Mod", mod.ID, string.Empty);
-                modiniFile.RemoveSection(mod.ID);
-                modiniFile.WriteIniFile();
-                messageBox.Tag = mod;
+                var mod = Mod.Mods.Find(m => m.ID == iniFile.GetValue(missionPack.ID, "Mod", string.Empty));
+                if (mod != null)
+                {
+                    var modiniFile = new IniFile(mod.FileName);
+                    modiniFile.SetValue("Mod", mod.ID, string.Empty);
+                    modiniFile.RemoveSection(mod.ID);
+                    modiniFile.WriteIniFile();
+                }
+            }
+            foreach (var fore in iniFile.GetSections())
+            {
+                if (iniFile.GetValue(fore, "MissionPack", string.Empty) == missionPack.ID)
+                {
+                    iniFile.RemoveKey("Battles", fore);
+                    iniFile.RemoveSection(fore);
+                }
             }
         }
-            foreach (var fore in iniFile.GetSections())
-        {
-            if (iniFile.GetValue(fore, "MissionPack", string.Empty) == missionPack.ID)
-            {
-                iniFile.SetValue("Battles", fore, string.Empty);
-                iniFile.RemoveSection(fore);
-            }
 
+        try
+        {
+            Directory.Delete(((MissionPack)ListBoxModAi.SelectedItem.Tag).FilePath, true);
+            Directory.Delete(missionPack.FilePath, true);
+        }
+        catch
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
         }
 
         iniFile.WriteIniFile();
         
-        messageBox.YesClickedAction += DelMissionPackFile;
-        messageBox.NoClickedAction += (_) => ReLoad();
-        messageBox.Show();
+
     }
 
-    private void DelMod(XNAMessageBox box)
+    private void DelMod(Mod mod)
     {
-       
-        var mod = ListBoxModAi.SelectedItem.Tag as Mod;
-        var iniFile = new IniFile(mod!.FileName);
+        var iniFile = new IniFile(mod.FileName);
         iniFile.SetValue("Mod",mod.ID,string.Empty);
         iniFile.RemoveSection(mod.ID);
         iniFile.WriteIniFile();
-        var messageBox = new XNAMessageBox(WindowManager, "删除确认", "需要同时删除本地Mod文件吗",XNAMessageBoxButtons.YesNo);
-        
-        messageBox.YesClickedAction += DelModFile;
-        messageBox.NoClickedAction += (_) => ReLoad();
-        messageBox.Show();
-        
-    }
-
-    private void DelModFile(XNAMessageBox messageBox)
-    {
         try
         {
             Directory.Delete(((Mod)ListBoxModAi.SelectedItem.Tag).FilePath, true);
@@ -1009,28 +1008,6 @@ public class ModManager : XNAWindow
         {
             XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
         }
-        ReLoad();
-    }
-
-    private void DelMissionPackFile(XNAMessageBox messageBox)
-    {
-        
-        if (messageBox.Tag != null)
-        {
-            var missionPack = (Mod)messageBox.Tag;
-            try
-            {
-                Directory.Delete(((MissionPack)ListBoxModAi.SelectedItem.Tag).FilePath, true);
-                Directory.Delete(missionPack.FilePath, true);
-                File.Delete(missionPack.FileName);
-            }
-            catch
-            {
-                XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
-            }
-            
-        }
-        ReLoad();
     }
 
     private void BtnReturn_LeftClick(object sender, EventArgs e)

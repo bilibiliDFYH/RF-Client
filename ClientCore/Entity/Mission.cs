@@ -49,23 +49,23 @@ namespace DTAConfig.Entity
             MissionInfo = string.Empty;
             
             // 如果有中文，那就自动换行。（英文会自己换行不清楚为什么）
-            if (HasChinese(GUIDescription))
-            {
+            //if (HasChinese(GUIDescription))
+            //{
 
-                var description = string.Empty;
-                foreach (var s in GUIDescription.Split("\r\n"))
-                {
-                    var s1 = s + '@';
-                    if (s1.Length > 39)
-                    {
+            //    var description = string.Empty;
+            //    foreach (var s in GUIDescription.Split("\r\n"))
+            //    {
+            //        var s1 = s + '@';
+            //        if (s1.Length > 39)
+            //        {
 
-                        s1 = InsertFormat(s1, 39, "@");
-                    }
-                    description += s1;
-                }
+            //            s1 = InsertFormat(s1, 39, "@");
+            //        }
+            //        description += s1;
+            //    }
 
-                GUIDescription = description;
-            }
+            //    GUIDescription = description;
+            //}
             GUIDescription = GUIDescription.Replace("@", Environment.NewLine);
         }
 

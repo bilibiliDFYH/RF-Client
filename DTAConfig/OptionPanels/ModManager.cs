@@ -963,10 +963,7 @@ public class ModManager : XNAWindow
                 var mod = Mod.Mods.Find(m => m.ID == iniFile.GetValue(missionPack.ID, "Mod", string.Empty));
                 if (mod != null)
                 {
-                    var modiniFile = new IniFile(mod.FileName);
-                    modiniFile.SetValue("Mod", mod.ID, string.Empty);
-                    modiniFile.RemoveSection(mod.ID);
-                    modiniFile.WriteIniFile();
+                    DelMod(mod);
                 }
             }
             foreach (var fore in iniFile.GetSections())
@@ -997,7 +994,7 @@ public class ModManager : XNAWindow
     private void DelMod(Mod mod)
     {
         var iniFile = new IniFile(mod.FileName);
-        iniFile.SetValue("Mod",mod.ID,string.Empty);
+        iniFile.RemoveKey("Mod",mod.ID);
         iniFile.RemoveSection(mod.ID);
         iniFile.WriteIniFile();
         try

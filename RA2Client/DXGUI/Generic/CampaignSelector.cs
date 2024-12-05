@@ -903,6 +903,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var missionPack = _screenMissions[_lbxCampaignList.SelectedIndex].MPack;
             if (missionPack == null) return;
+           
 
             //var index = _modManager.ListBoxModAi.Items.FindIndex(m => ((MissionPack)m.Tag).ID == missionPack.ID);
             //if (index == -1) return;
@@ -1536,6 +1537,7 @@ namespace Ra2Client.DXGUI.Generic
 
                     item.IsHeader = true;
                     item.Selectable = false;
+                    item.TextColor = Color.Blue;
                 }
                 else
                 {

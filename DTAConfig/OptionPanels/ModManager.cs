@@ -517,6 +517,7 @@ public class ModManager : XNAWindow
                 var map = mapSelINI.GetValue(sectionName, "Scenario", string.Empty);
                 if (map == string.Empty) continue;
 
+                if(mapSelINIPath == "Resources//mapselmd.ini" && missionINIPath == "Resources//missionmd.ini")
                 if ((map.ToLower().EndsWith("md.map") && !missionPack.YR) || !map.ToLower().EndsWith("md.map") && missionPack.YR) continue;
 
                 maps.Add(map);
@@ -550,7 +551,7 @@ public class ModManager : XNAWindow
             var LongDescription = 任务地点 + "@@" + 任务简报 + "@" + 任务目标;
 
             battleINI.SetValue("Battles", sectionName, sectionName)
-                     .SetValue(sectionName, "Scenario", mapName)
+                     .SetValue(sectionName, "Scenario", mapName.ToUpper())
                      .SetValue(sectionName, "Description", 任务名称)
                      .SetValue(sectionName, "LongDescription", LongDescription.Replace("\n", "@"))
                      .SetValue(sectionName, "MissionPack", missionPack.ID)
@@ -917,6 +918,12 @@ public class ModManager : XNAWindow
      
     public void 删除任务包(MissionPack missionPack)
     {
+        if (!missionPack.CanDel)
+        {
+            XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
+            return;
+        }
+
         var inifile = new IniFile(missionPack.FileName);
         var m = string.Empty;
 
@@ -964,18 +971,24 @@ public class ModManager : XNAWindow
         try
         {
             Directory.Delete(missionPack.FilePath, true);
-    }
+        }
         catch
         {
             XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
         }
 
 
-触发刷新?.Invoke();
+        触发刷新?.Invoke();
     }
 
     public void DelMod(Mod mod)
     {
+        if (!mod.CanDel)
+        {
+            XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
+            return;
+        }
+
         var iniFile = new IniFile(mod.FileName);
         if (iniFile.GetSection("Mod").Keys.Count == 1)
             File.Delete(mod.FileName);
@@ -988,7 +1001,7 @@ public class ModManager : XNAWindow
         try
         {
             Directory.Delete(mod.FilePath, true);
-        }
+    }
         catch
         {
             XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");

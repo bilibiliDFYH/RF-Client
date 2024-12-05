@@ -23,7 +23,7 @@ using DTAConfig;
 using DTAConfig.Settings;
 using System.Reflection;
 using System.Windows.Forms;
-
+using System.Text;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -1060,7 +1060,8 @@ namespace Ra2Client.DXGUI.Generic
                 return;
             }
             Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
-            _tbMissionDescription.Text = mission.GUIDescription;
+            _tbMissionDescription.Text = GetFixedFormatText(mission.GUIDescription);
+
             // 如果不是任务
             if (string.IsNullOrEmpty(mission.Scenario))
             {
@@ -1247,8 +1248,6 @@ namespace Ra2Client.DXGUI.Generic
             return string.Empty;
         }
 
-
-
         protected List<string> GetDeleteFile(string oldGame)
         {
             if (oldGame == null || oldGame == "")
@@ -1264,7 +1263,6 @@ namespace Ra2Client.DXGUI.Generic
 
             return deleteFile;
         }
-
 
         private bool AreFilesModified()
         {
@@ -1285,10 +1283,6 @@ namespace Ra2Client.DXGUI.Generic
         {
             LaunchMission(_missionToLaunch);
         }
-
-
-
-
 
         /// <summary>
         /// Starts a singleplayer Path.
@@ -1704,5 +1698,42 @@ namespace Ra2Client.DXGUI.Generic
             return "Skirmish Lobby".L10N("UI:Main:SkirmishLobby");
         }
 
+        private string GetFixedFormatText(string strDes)
+        {
+            string strTmp = strDes.Replace("\r\n\r\n\r\n","\r\n").Replace("。", "。\r\n").Replace("!", "!\r\n");
+            string[] strArr = strTmp.Split("\r\n");
+            StringBuilder sBuff = new StringBuilder();
+            for (int i = 0; i < strArr.Length; i++)
+            {
+                if (strArr[i].Length > 39)
+                {
+                    var lstStr = SplitLongString(strArr[i]);
+                    foreach(string str in lstStr)
+                    {
+                        sBuff.Append(str + "\r\n");
+                    }
+                }
+                else
+                    sBuff.Append(strArr[i] + "\r\n");
+            }
+            strTmp = sBuff.ToString();
+            sBuff.Clear();
+            return strTmp;
+        }
+
+        private List<string> SplitLongString(string strText, int nSize = 39)
+        {
+            int nLen = strText.Length;
+            int nCount = (int)Math.Ceiling(nLen * 1.0 / nSize);
+            List<string> lstStrs = new List<string>();
+            for (int i = 0; i < nCount; i++)
+            {
+                if(i < (nCount- 1))
+                    lstStrs.Add(strText.Substring(i * nSize, nSize));
+                else
+                    lstStrs.Add(strText.Substring(i * nSize));
+            }
+            return lstStrs;
+        }
     }
 }

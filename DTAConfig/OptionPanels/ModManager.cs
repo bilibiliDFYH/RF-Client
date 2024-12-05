@@ -37,10 +37,8 @@ public class ModManager : XNAWindow
     public XNAClientButton BtnNew;
     public XNAClientButton BtnDel;
 
-    public delegate void MyEventHandler(object sender, EventArgs e);
     private XNAContextMenu _modMenu;
-    public event MyEventHandler MyEvent;
-
+    public Action 触发刷新;
 
     public override void Initialize()
     {
@@ -194,25 +192,6 @@ public class ModManager : XNAWindow
 
     private void DDModAI_SelectedIndexChanged(object sender, EventArgs e)
     {
-
-        //ListBoxModAi.SelectedIndexChanged -= ListBoxModAISelectedIndexChanged;
-        //ListBoxModAi.SelectedIndex = -1;
-        //ListBoxModAi.Clear();
-
-        //IEnumerable<InfoBaseClass> infoBases = DDModAI.SelectedIndex switch
-        //{
-        //    0 => Mod.Mods,
-        //    1 => AI.AIs,
-        //    2 => MissionPack.MissionPacks,
-        //    -1 => Mod.Mods,
-        //};
-
-        //foreach (var baseInfo in infoBases){
-        //    ListBoxModAi.AddItem(new XNAListBoxItem { Text = baseInfo.任务名称, Tag = baseInfo });
-        //}
-
-        //ListBoxModAi.SelectedIndexChanged += ListBoxModAISelectedIndexChanged;
-        //ListBoxModAi.SelectedIndex = 0;
 
         ListBoxModAi.SelectedIndexChanged -= ListBoxModAISelectedIndexChanged;
         ListBoxModAi.SelectedIndex = -1;
@@ -471,7 +450,7 @@ public class ModManager : XNAWindow
         };
         missionPack.DefaultMod = missionPack.Mod;
 
-        if (导入Mod(path, isYR) == string.Empty) //说明检测到Mod
+        if (导入Mod(path, isYR,false) == string.Empty) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
             missionPack.DefaultMod = id;
@@ -483,6 +462,15 @@ public class ModManager : XNAWindow
 
         ReLoad();
 
+        //渲染预览图
+        if (UserINISettings.Instance.RenderPreviewImage.Value)
+            Task.Run(async () =>
+            {
+                await RenderPreviewImageAsync(missionPack);
+            });
+
+        触发刷新?.Invoke();
+
         return id;
     }
 
@@ -492,7 +480,7 @@ public class ModManager : XNAWindow
         var md = missionPack.YR ? "md" : string.Empty;
 
         var battleINI = new IniFile($"Maps\\CP\\battle{missionPack.ID}.ini");
-        if(!battleINI.SectionExists("Battles"))
+        if (!battleINI.SectionExists("Battles"))
             battleINI.AddSection("Battles");
 
         //先确定可用的ini
@@ -573,11 +561,6 @@ public class ModManager : XNAWindow
 
         battleINI.WriteIniFile();
 
-        if(UserINISettings.Instance.RenderPreviewImage.Value)
-            Task.Run(async() =>
-            {
-                await RenderPreviewImageAsync(missionPack);
-            });
     }
 
 
@@ -616,7 +599,7 @@ public class ModManager : XNAWindow
         return YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*.md.map").Length != 0;
     }
 
-    private string 导入Mod(string path,bool? isYR = null)
+    private string 导入Mod(string path,bool? isYR = null,bool reload = true)
     {
         isYR ??= 判断是否为尤复(path);
         var md = isYR.GetValueOrDefault() ? "md" : string.Empty;
@@ -638,7 +621,8 @@ public class ModManager : XNAWindow
 
         整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
-        ReLoad(); //重新载入
+        if(reload)
+            ReLoad();
 
         return string.Empty;
     }
@@ -872,23 +856,19 @@ public class ModManager : XNAWindow
         var path = folderBrowser.SelectedPath;
 
         if (DDModAI.SelectedIndex == 0)
-            //ImportMod();
             导入Mod(path);
         if (DDModAI.SelectedIndex == 2)
-        {
-          //  ImportMissionPack();
           导入任务包(path);
-        }
     }
 
 
     private void ReLoad()
     {
-        Mod.Load();
+        Mod.reLoad();
        
-        MissionPack.Load();
+        MissionPack.reLoad();
 
-        AI.Load();
+        AI.reLoad();
 
        // listBoxModAI.Clear();
 
@@ -913,20 +893,7 @@ public class ModManager : XNAWindow
         {
             if (ListBoxModAi.SelectedItem.Tag is not MissionPack missionPack) return;
 
-            var inifile = new IniFile(missionPack.FileName);
-            var m = string.Empty;
-
-            foreach (var s in inifile.GetSections())
-            {
-                if(inifile.GetValue(s,"MissionPack",string.Empty) == missionPack.ID)
-                 m += inifile.GetValue(s, "Description", s) + Environment.NewLine; 
-            }
-
-            var xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
-                $"您真的要删除任务包{missionPack.Name}吗？它包含以下任务：{Environment.NewLine}{m} ", XNAMessageBoxButtons.YesNo);
-            xNAMessageBox.YesClickedAction +=(_) => DelMissionPack(missionPack);
-            xNAMessageBox.NoClickedAction += (_) => ReLoad();
-            xNAMessageBox.Show();
+            删除任务包(missionPack);
         }
         else
         {
@@ -944,12 +911,28 @@ public class ModManager : XNAWindow
             XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
                 "您真的要删除Mod" + ListBoxModAi.SelectedItem.Text + "吗？", XNAMessageBoxButtons.YesNo);
             xNAMessageBox.YesClickedAction += (_) => DelMod(mod) ;
-            xNAMessageBox.NoClickedAction += (_) => ReLoad();
             xNAMessageBox.Show();
         }
     }
+     
+    public void 删除任务包(MissionPack missionPack)
+    {
+        var inifile = new IniFile(missionPack.FileName);
+        var m = string.Empty;
 
-    private void DelMissionPack(MissionPack missionPack)
+        foreach (var s in inifile.GetSections())
+        {
+            if (inifile.GetValue(s, "MissionPack", string.Empty) == missionPack.ID)
+                m += inifile.GetValue(s, "Description", s) + Environment.NewLine;
+        }
+
+        var xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
+            $"您真的要删除任务包{missionPack.Name}吗？它包含以下任务：{Environment.NewLine}{m} ", XNAMessageBoxButtons.YesNo);
+        xNAMessageBox.YesClickedAction += (_) => { DelMissionPack(missionPack); ReLoad(); };
+        xNAMessageBox.Show();
+    }
+
+    public void DelMissionPack(MissionPack missionPack)
     {
         var iniFile = new IniFile(missionPack.FileName);
         if (iniFile.GetSection("MissionPack").Keys.Count == 1)
@@ -957,15 +940,6 @@ public class ModManager : XNAWindow
         else
         {
             iniFile.RemoveKey("MissionPack", missionPack.ID);
-            var modid = iniFile.GetValue(missionPack.ID, "Mod", string.Empty);
-            if (!string.IsNullOrEmpty(modid) && missionPack.ID == modid)
-            {
-                var mod = Mod.Mods.Find(m => m.ID == iniFile.GetValue(missionPack.ID, "Mod", string.Empty));
-                if (mod != null)
-                {
-                    DelMod(mod);
-                }
-            }
             foreach (var fore in iniFile.GetSections())
             {
                 if (iniFile.GetValue(fore, "MissionPack", string.Empty) == missionPack.ID)
@@ -974,32 +948,46 @@ public class ModManager : XNAWindow
                     iniFile.RemoveSection(fore);
                 }
             }
+            iniFile.WriteIniFile();
+        }
+
+        
+        if (!string.IsNullOrEmpty(missionPack.DefaultMod))
+        {
+            var mod = Mod.Mods.Find(m => m.ID == missionPack.DefaultMod);
+            if (mod != null && mod.CanDel)
+            {
+                DelMod(mod);
+            }
         }
 
         try
         {
-            Directory.Delete(((MissionPack)ListBoxModAi.SelectedItem.Tag).FilePath, true);
             Directory.Delete(missionPack.FilePath, true);
-        }
+    }
         catch
         {
             XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
         }
 
-        iniFile.WriteIniFile();
-        
 
+触发刷新?.Invoke();
     }
 
-    private void DelMod(Mod mod)
+    public void DelMod(Mod mod)
     {
         var iniFile = new IniFile(mod.FileName);
-        iniFile.RemoveKey("Mod",mod.ID);
-        iniFile.RemoveSection(mod.ID);
-        iniFile.WriteIniFile();
+        if (iniFile.GetSection("Mod").Keys.Count == 1)
+            File.Delete(mod.FileName);
+        else
+        {
+            iniFile.RemoveKey("Mod", mod.ID);
+            iniFile.RemoveSection(mod.ID);
+            iniFile.WriteIniFile();
+        }
         try
         {
-            Directory.Delete(((Mod)ListBoxModAi.SelectedItem.Tag).FilePath, true);
+            Directory.Delete(mod.FilePath, true);
         }
         catch
         {
@@ -1010,7 +998,7 @@ public class ModManager : XNAWindow
     private void BtnReturn_LeftClick(object sender, EventArgs e)
     {
         //CampaignSelector.GetInstance().ScreenMission();
-        MyEvent?.Invoke(this, EventArgs.Empty);
+        //触发刷新?.Invoke();
         ListBoxModAi.Clear();
         _mcListBoxInfo.ClearItems();
         Parent.RemoveChild(this);

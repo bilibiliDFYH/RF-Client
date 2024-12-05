@@ -256,7 +256,7 @@ namespace Ra2Client.DXGUI.Generic
             btnLoadGame.HoverTexture = AssetLoader.LoadTexture("MainMenu/loadmission_c.png");
             btnLoadGame.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnLoadGame.LeftClick += BtnLoadGame_LeftClick;
-            btnLoadGame.Text = "Load Game".L10N("UI:Main:LoadGame");
+            btnLoadGame.Text = "reLoad Game".L10N("UI:Main:LoadGame");
             btnLoadGame.Tag = "载入存档";
 
             btnSkirmish = new XNAClientButton(WindowManager);

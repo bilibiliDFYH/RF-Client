@@ -65,7 +65,7 @@ public class Mod : InfoBaseClass
     }
 
 
-    public static void Load()
+    public static void reLoad()
     {
 
         Mods.Clear();

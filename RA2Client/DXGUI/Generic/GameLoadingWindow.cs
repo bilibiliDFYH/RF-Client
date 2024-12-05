@@ -60,7 +60,7 @@ namespace Ra2Client.DXGUI.Generic
             btnLaunch = new XNAClientButton(WindowManager);
             btnLaunch.Name = nameof(btnLaunch);
             btnLaunch.ClientRectangle = new Rectangle(125, 345, 110, 23);
-            btnLaunch.Text = "Load".L10N("UI:Main:ButtonLoad");
+            btnLaunch.Text = "reLoad".L10N("UI:Main:ButtonLoad");
             btnLaunch.AllowClick = false;
             btnLaunch.LeftClick += BtnLaunch_LeftClick;
 

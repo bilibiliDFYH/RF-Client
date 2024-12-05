@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections;
+using System.Threading;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -237,7 +238,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             base.Initialize();
 
             _modManager = ModManager.GetInstance(WindowManager);
-            _modManager.MyEvent += (_, _) => ReloadMod();
+            _modManager.触发刷新 += ReloadMod;
             PlayerOptionsPanel = FindChild<XNAPanel>(nameof(PlayerOptionsPanel));
 
             btnLeaveGame = FindChild<XNAClientButton>(nameof(btnLeaveGame));
@@ -718,7 +719,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 loadOrSaveGameOptionPresetWindow.Disable();
                 var loadConfigMenuItem = new XNAContextMenuItem()
                 {
-                    Text = "Load".L10N("UI:Main:ButtonLoad"),
+                    Text = "reLoad".L10N("UI:Main:ButtonLoad"),
                     SelectAction = () => loadOrSaveGameOptionPresetWindow.Show(true)
                 };
                 var saveConfigMenuItem = new XNAContextMenuItem()
@@ -1196,27 +1197,33 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
         }
 
+        private CancellationTokenSource _cts;
         private void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
         {
-
-
-            if (lbGameModeMapList.SelectedIndex < 0 || lbGameModeMapList.SelectedIndex >= lbGameModeMapList.ItemCount)
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+            _ = Task.Run(async () =>
             {
-                ChangeMap(null);
-                return;
-            }
+                if (lbGameModeMapList.SelectedIndex < 0 || lbGameModeMapList.SelectedIndex >= lbGameModeMapList.ItemCount)
+                {
+                    ChangeMap(null);
+                    return;
+                }
 
-            ReloadMod();
+                ReloadMod();
 
-            XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
+                XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
 
 
-            GameModeMap = (GameModeMap)item.Tag;
+                GameModeMap = (GameModeMap)item.Tag;
 
-            // if(GameModeMap != null)
-            ChangeMap(GameModeMap);
+                // if(GameModeMap != null)
+                ChangeMap(GameModeMap);
 
-            cmbGame.OnSelectedChanged();
+                cmbGame.OnSelectedChanged();
+            },token);
         }
 
         public void ReloadMod()
@@ -1927,36 +1934,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             return houseInfos;
         }
-
-
-        void UpdateListItems(List<string> s1, List<string> s2, string prefix)
-        {
-            // 找到s1中匹配前缀的索引
-            int index = s1.IndexOf(prefix);
-
-            // 如果找到了匹配项
-            if (index != -1)
-            {
-                // 从s2中找到以prefix开头的项
-                var matchingItems = s2.Where(s => s.StartsWith(prefix)).ToList();
-
-                // 如果s2中有以prefix开头的项
-                if (matchingItems.Any())
-                {
-                    // 用s2中的第一个匹配项替换s1中的对应项
-                    s1[index] = matchingItems.First();
-
-                    // 将s2中的其它匹配项添加到s1中
-                    foreach (var matchingItem in matchingItems.Skip(1))
-                    {
-                        s1.Add(matchingItem);
-                    }
-                }
-            }
-        }
-
-
-
 
         /// <summary>
         /// Writes spawn.ini. Returns the player house info returned from the randomizer.

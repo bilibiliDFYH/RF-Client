@@ -65,7 +65,7 @@ public class AI : InfoBaseClass
     public static bool QueryID(string id)
         => AIs.Find(m => m.ID == id) != null;
 
-    public static void Load()
+    public static void reLoad()
     {
 
         AIs.Clear();

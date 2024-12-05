@@ -140,7 +140,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             btnLoadMPGame = new XNAClientButton(WindowManager);
             btnLoadMPGame.Name = nameof(btnLoadMPGame);
             btnLoadMPGame.ClientRectangle = new Rectangle(btnLoadMPGameX, btnCreateGame.Y, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
-            btnLoadMPGame.Text = "Load Game".L10N("UI:Main:LoadGame");
+            btnLoadMPGame.Text = "reLoad Game".L10N("UI:Main:LoadGame");
             btnLoadMPGame.LeftClick += BtnLoadMPGame_LeftClick;
 
 

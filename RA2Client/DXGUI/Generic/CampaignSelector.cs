@@ -23,6 +23,7 @@ using DTAConfig;
 using DTAConfig.Settings;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Threading;
 
 
 namespace Ra2Client.DXGUI.Generic
@@ -141,7 +142,7 @@ namespace Ra2Client.DXGUI.Generic
             _lbxCampaignList.RightClick += LbxCampaignListRightClick;
 
             _modManager = ModManager.GetInstance(WindowManager);
-            _modManager.MyEvent += (_, _) => ReadMissionList();
+            _modManager.触发刷新 += ReadMissionList;
             //modManager.EnabledChanged += CampaignSelector_EnabledChanged;
 
             _lblScreen = new XNALabel(WindowManager);
@@ -263,9 +264,6 @@ namespace Ra2Client.DXGUI.Generic
                     var path = folderBrowser.SelectedPath;
 
                     var id = _modManager.导入任务包(path);
-
-                    //ReLoadMissionList();
-                    ReadMissionList();
 
                     _lbxCampaignList.SelectedIndex = _screenMissions.FindIndex(m => m?.MPack?.ID == id);
                     _lbxCampaignList.TopIndex = _lbxCampaignList.SelectedIndex;
@@ -546,7 +544,7 @@ namespace Ra2Client.DXGUI.Generic
 
             // 优先级 任务>任务包>Mod
 
-            if (_cmbGame.SelectedItem.Tag is not Mod mod)
+            if (_cmbGame.SelectedItem?.Tag is not Mod mod)
                 return;
 
             Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
@@ -901,15 +899,19 @@ namespace Ra2Client.DXGUI.Generic
 
         protected virtual void DelConf()
         {
-            ModManagerEnabled(2);
+            //ModManagerEnabled(2);
 
             var missionPack = _screenMissions[_lbxCampaignList.SelectedIndex].MPack;
             if (missionPack == null) return;
 
-            var index = _modManager.ListBoxModAi.Items.FindIndex(m => ((MissionPack)m.Tag).ID == missionPack.ID);
-            if (index == -1) return;
-            _modManager.ListBoxModAi.SelectedIndex = index;
-            _modManager.BtnDel.OnLeftClick();
+            //var index = _modManager.ListBoxModAi.Items.FindIndex(m => ((MissionPack)m.Tag).ID == missionPack.ID);
+            //if (index == -1) return;
+            //_modManager.ListBoxModAi.SelectedIndex = index;
+
+
+            _modManager.删除任务包(missionPack);
+
+            
         }
 
         /// <summary>
@@ -1049,10 +1051,17 @@ namespace Ra2Client.DXGUI.Generic
             ScreenMission();
         }
 
+        private CancellationTokenSource _cts;
+
         private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
         {
-
-            if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            CancellationToken token = _cts.Token;
+            _ = Task.Run(async () =>
+            {
+                if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
             {
                 _tbMissionDescription.Text = string.Empty;
                 _btnLaunch.AllowClick = false;
@@ -1125,14 +1134,13 @@ namespace Ra2Client.DXGUI.Generic
 
             _btnLaunch.AllowClick = true;
 
+       
 
-            _ = Task.Run(async () =>
-            {
-                //获取任务解析
-                //  GetMissionInfo(false);
+            
+                
                 if ((_cmbGame.SelectedItem?.Tag as Mod)?.ID != oldModID)
                     CmbGame_SelectedChanged(null, null);
-                else
+                else//获取任务解析
                     GetMissionInfo(false);
 
                 if (!string.IsNullOrEmpty(mission.Scenario))
@@ -1200,7 +1208,7 @@ namespace Ra2Client.DXGUI.Generic
                         _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = false;
                 }
 
-            });
+            }, token);
           
         }
 
@@ -1560,9 +1568,8 @@ namespace Ra2Client.DXGUI.Generic
         public void ReadMissionList()
         {
 
-            MissionPack.MissionPacks.Clear();
             _missions.Clear();
-
+         
             _ddSide.SelectedIndexChanged -= DDDifficultySelectedIndexChanged;
             _ddDifficulty.SelectedIndexChanged -= DDDifficultySelectedIndexChanged;
             _ddMissionPack.SelectedIndexChanged -= DDDifficultySelectedIndexChanged;
@@ -1584,6 +1591,8 @@ namespace Ra2Client.DXGUI.Generic
             {
                  ParseBattleIni(file);
             }
+
+            
 
             //if (Missions.oldSaves == 0)
             //    ParseBattleIni("INI/" + ClientConfiguration.Instance.BattleFSFileName);
@@ -1643,22 +1652,6 @@ namespace Ra2Client.DXGUI.Generic
 
             // 读取任务ini
             var battleIni = new IniFile(battleIniFileInfo.FullName);
-
-            // 读取任务包
-           
-
-            if (battleIni.SectionExists("MissionPack"))
-            {
-                foreach (var s in battleIni.GetSectionKeys("MissionPack"))
-                {
-                    string value = battleIni.GetValue("MissionPack", s, string.Empty);
-                    if (battleIni.SectionExists(value))
-                    {
-                        MissionPack missionPack = new MissionPack(battleIni, value);
-                        MissionPack.MissionPacks.Add(missionPack);
-                    }
-                }
-            }
 
             // 读取任务
             List<string> battleKeys = battleIni.GetSectionKeys("Battles");

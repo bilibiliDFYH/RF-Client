@@ -39,6 +39,7 @@ public class MissionPack : InfoBaseClass
             );
         Description = iniFile.GetValue(ID, "Description", iniFile.GetValue(ID, "Name", ID));
         FilePath = iniFile.GetValue(ID, "Mission", ID);
+       // FileName = iniFile.FileName;
         Sides = iniFile.GetValue(ID, "SideName", string.Empty);
         Difficulty = iniFile.GetValue(ID, "Difficulty", "中等");
 
@@ -65,7 +66,7 @@ public class MissionPack : InfoBaseClass
 
     }
 
-    public static void Load()
+    public static void reLoad()
     {
         MissionPacks.Clear();
         
@@ -83,7 +84,8 @@ public class MissionPack : InfoBaseClass
 
                 var missionPack = new MissionPack(ini, missionPackID);
                 missionPack.Missions.Clear();
-                MissionPacks.Add((MissionPack)Init(ini, missionPackID, missionPack));
+                var m = (MissionPack)Init(ini, missionPackID, missionPack);
+                MissionPacks.Add(m);
             }
         } 
     }
@@ -153,7 +155,7 @@ public class MissionPack : InfoBaseClass
             { "路径", FilePath },
             { "阵营", Sides },
             { "难度", Difficulty },
-            { "注册于", FileName ?? $"Maps/Cp/battle{ID}.ini" },
+            { "注册于", FileName},
             { "支持的Mod", Mod },
             { "是否为尤里任务包",YR? "是": "否"},
             { "是否为玩家导入", Other.ToString() },

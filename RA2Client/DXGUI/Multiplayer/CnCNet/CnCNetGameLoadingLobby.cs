@@ -708,7 +708,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             broadcastChannel.SendCTCPMessage(sb.ToString(), QueuedMessageType.SYSTEM_MESSAGE, 20);
         }
 
-        public override string GetSwitchName() => "Load Game".L10N("UI:Main:LoadGame");
+        public override string GetSwitchName() => "reLoad Game".L10N("UI:Main:LoadGame");
 
         protected override void UpdateDiscordPresence(bool resetTimer = false)
         {

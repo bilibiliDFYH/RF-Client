@@ -96,8 +96,8 @@ namespace Ra2Client
             Logger.Log("载入客户端配置.");
             UserINISettings.Initialize(ClientConfiguration.Instance.SettingsIniName);
 
-            Mod.Load();
-            AI.Load();
+            Mod.reLoad();
+            AI.reLoad();
 
             //   Try to load translations
             try

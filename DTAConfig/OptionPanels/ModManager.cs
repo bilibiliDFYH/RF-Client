@@ -46,7 +46,7 @@ public class ModManager : XNAWindow
     {
         base.Initialize();
         
-        ClientRectangle = new Rectangle(0, 0, 640, 384);
+        ClientRectangle = new Rectangle(0, 0, 750, 384);
         CenterOnParent();
 
         var lblTittle = new XNALabel(WindowManager)
@@ -61,7 +61,7 @@ public class ModManager : XNAWindow
 
         DDModAI = new XNADropDown(WindowManager)
         {
-            ClientRectangle = new Rectangle(25, 30, 80, 40)
+            ClientRectangle = new Rectangle(25, 30, 200, 40)
         };
 
         DDModAI.AddItem(["Mod","AI","任务包"]);
@@ -96,7 +96,7 @@ public class ModManager : XNAWindow
 
         ListBoxModAi = new XNAListBox(WindowManager)
         {
-            ClientRectangle = new Rectangle(DDModAI.X, DDModAI.Y + 40, 130, 260),
+            ClientRectangle = new Rectangle(DDModAI.X, DDModAI.Y + 40, 260, 260),
             LineHeight = 25,
             SelectedIndex = 2,
             FontIndex = 2
@@ -127,7 +127,7 @@ public class ModManager : XNAWindow
 
         _mcListBoxInfo = new XNAMultiColumnListBox(WindowManager)
         {
-            ClientRectangle = new Rectangle(ListBoxModAi.X + ListBoxModAi.Width + 30, ListBoxModAi.Y, 420, ListBoxModAi.Height),
+            ClientRectangle = new Rectangle(ListBoxModAi.X + ListBoxModAi.Width + 20, ListBoxModAi.Y, 420, ListBoxModAi.Height),
             LineHeight = 25,
             FontIndex = 2
         }.AddColumn("属性", 160).AddColumn("信息", 260) ;

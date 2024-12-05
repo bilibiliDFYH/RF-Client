@@ -227,16 +227,23 @@ namespace Ra2Client.DXGUI.Generic
 
                 if (index >= 123)
                 {
-                    CDebugView.OutputDebugInfo("3");
-                    outputDevice?.Stop();
-                    //themeSongLoad?.Dispose();
-                    Finish();
+                    if(null == mapLoadTask || mapLoadTask?.Status == TaskStatus.RanToCompletion)
+                    {
+                        CDebugView.OutputDebugInfo("load map completed0:{0}", mapLoadTask?.Status);
+                        outputDevice?.Stop();
+                        //themeSongLoad?.Dispose();
+                        Finish();
+                    }
                 }
             }
             else
             {
-                BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
-                Finish();
+                if (null == mapLoadTask || mapLoadTask?.Status == TaskStatus.RanToCompletion)
+                {
+                    BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
+                    CDebugView.OutputDebugInfo("load map completed1:{0}", mapLoadTask?.Status);
+                    Finish();
+                }
             }
             base.Update(gameTime);
         }

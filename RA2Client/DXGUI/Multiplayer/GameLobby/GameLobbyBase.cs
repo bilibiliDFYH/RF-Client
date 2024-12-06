@@ -1604,7 +1604,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     //dd.Items[0].Selectable = false;
                     for (int i = 0; i < RandomSelectorCount; i++)
+                    {
+                        if (dd.Items.Count <= i) break;
                         dd.Items[i].Selectable = false;
+                    }
                 }
             }
             else
@@ -1613,7 +1616,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     //dd.Items[0].Selectable = true;
                     for (int i = 0; i < RandomSelectorCount; i++)
+                    { if (dd.Items.Count <= i) break;
                         dd.Items[i].Selectable = true;
+                    }
                 }
             }
 

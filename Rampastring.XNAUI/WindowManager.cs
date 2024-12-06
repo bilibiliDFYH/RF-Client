@@ -292,6 +292,10 @@ public class WindowManager : DrawableGameComponent
         标题改变?.Invoke(s);
     });
 
+    public static void Report(string s = "") => progress.Report(s);
+
+
+
     private void GameWindowManager_ClientSizeChanged(object sender, EventArgs e)
     {
         WindowWidth = gameWindowManager.GetWindowWidth();

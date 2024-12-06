@@ -61,7 +61,7 @@ namespace Ra2Client.DXGUI.Generic
         private XNADropDown _ddMissionPack;
         private GameLobbyDropDown _cmbCredits;
         private XNAClientButton _btnLaunch;
-        private XNATextBlock _tbMissionDescription;
+        private XNAListBox _tbMissionDescriptionList;
         private XNATrackbar _trbDifficultySelector;
 
         Tuple<int, List<string>> _extension;
@@ -170,21 +170,23 @@ namespace Ra2Client.DXGUI.Generic
                 lblSelectCampaign.Y, 0, 0);
             lblMissionDescriptionHeader.Text = "MISSION DESCRIPTION:".L10N("UI:Main:MissionDescription");
 
-            _tbMissionDescription = new XNATextBlock(WindowManager);
-            _tbMissionDescription.Name = "tbMissionDescription";
-            _tbMissionDescription.ClientRectangle = new Rectangle(
+            _tbMissionDescriptionList = new XNAListBox(WindowManager);
+            _tbMissionDescriptionList.Name = "tbMissionDescription";
+            _tbMissionDescriptionList.ClientRectangle = new Rectangle(
                 lblMissionDescriptionHeader.X,
                 lblMissionDescriptionHeader.Bottom + 6,
                 600, 300);
-            _tbMissionDescription.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
-            _tbMissionDescription.Alpha = 1.0f;
-            _tbMissionDescription.FontIndex = 1;
-            _tbMissionDescription.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
-                _tbMissionDescription.Width, _tbMissionDescription.Height);
+            _tbMissionDescriptionList.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
+            _tbMissionDescriptionList.Alpha = 1.0f;
+            _tbMissionDescriptionList.FontIndex = 1;
+            _tbMissionDescriptionList.LineHeight = 20;
+            //_tbMissionDescriptionList.
+            _tbMissionDescriptionList.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
+                _tbMissionDescriptionList.Width, _tbMissionDescriptionList.Height);
 
             _chkExtension = new XNAClientCheckBox(WindowManager);
             _chkExtension.Name = nameof(_chkExtension);
-            _chkExtension.ClientRectangle = new Rectangle(_tbMissionDescription.X + _tbMissionDescription.Width + 10, _tbMissionDescription.Y, 0, 0);
+            _chkExtension.ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0, 0);
             _chkExtension.Text = "启用扩展平台";
             _chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
             _chkExtension.LeftClick += (_, _) => {
@@ -213,14 +215,14 @@ namespace Ra2Client.DXGUI.Generic
             lblDifficultyLevel.FontIndex = 1;
             Vector2 textSize = Renderer.GetTextDimensions(lblDifficultyLevel.Text, lblDifficultyLevel.FontIndex);
             lblDifficultyLevel.ClientRectangle = new Rectangle(
-                _tbMissionDescription.X + (_tbMissionDescription.Width - (int)textSize.X),
-                _tbMissionDescription.Bottom, (int)textSize.X, (int)textSize.Y);
+                _tbMissionDescriptionList.X + (_tbMissionDescriptionList.Width - (int)textSize.X),
+                _tbMissionDescriptionList.Bottom, (int)textSize.X, (int)textSize.Y);
 
             _trbDifficultySelector = new XNATrackbar(WindowManager);
             _trbDifficultySelector.Name = "trbDifficultySelector";
             _trbDifficultySelector.ClientRectangle = new Rectangle(
-                _tbMissionDescription.X, lblDifficultyLevel.Bottom + 6,
-                _tbMissionDescription.Width - 255, 35);
+                _tbMissionDescriptionList.X, lblDifficultyLevel.Bottom + 6,
+                _tbMissionDescriptionList.Width - 255, 35);
             _trbDifficultySelector.MinValue = 0;
             _trbDifficultySelector.MaxValue = 2;
             _trbDifficultySelector.BackgroundTexture = AssetLoader.CreateTexture(
@@ -307,7 +309,7 @@ namespace Ra2Client.DXGUI.Generic
             lblNormal.Text = "NORMAL".L10N("UI:Main:DifficultyNormal");
             textSize = Renderer.GetTextDimensions(lblNormal.Text, lblNormal.FontIndex);
             lblNormal.ClientRectangle = new Rectangle(
-                _tbMissionDescription.X + (_tbMissionDescription.Width - (int)textSize.X) / 2,
+                _tbMissionDescriptionList.X + (_tbMissionDescriptionList.Width - (int)textSize.X) / 2,
                 lblEasy.Y, (int)textSize.X, (int)textSize.Y);
 
             var lblHard = new XNALabel(WindowManager);
@@ -315,7 +317,7 @@ namespace Ra2Client.DXGUI.Generic
             lblHard.FontIndex = 1;
             lblHard.Text = "HARD".L10N("UI:Main:DifficultyHard");
             lblHard.ClientRectangle = new Rectangle(
-                _tbMissionDescription.Right - lblHard.Width,
+                _tbMissionDescriptionList.Right - lblHard.Width,
                 lblEasy.Y, 1, 1);
 
             _btnLaunch = new XNAClientButton(WindowManager);
@@ -370,7 +372,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_ddMissionPack);
             AddChild(lblalter);
             AddChild(lblModify);
-            AddChild(_tbMissionDescription);
+            AddChild(_tbMissionDescriptionList);
             AddChild(lblDifficultyLevel);
             AddChild(_btnLaunch);
             AddChild(btnCancel);
@@ -1032,19 +1034,9 @@ namespace Ra2Client.DXGUI.Generic
             if (_lbxCampaignList.HoveredIndex < 0 || _lbxCampaignList.HoveredIndex >= _lbxCampaignList.Items.Count)
                 return;
 
-            // if (string.IsNullOrEmpty(_screenMissions[_lbxCampaignList.HoveredIndex].Scenario))
-            // {
-
             _lbxCampaignList.SelectedIndex = _lbxCampaignList.HoveredIndex;
 
-            //if (!lbCampaignList.Items.Any(i => i.VisibilityChecker == null || i.VisibilityChecker()))
-            //    return;
-
-            //    toggleFavoriteItem.Text = GameModeMap.IsFavorite ? "Remove Favorite".L10N("UI:Main:RemoveFavorite") : "Add Favorite".L10N("UI:Main:AddFavorite");
-
-
             _campaignMenu.Open(GetCursorPoint());
-            // }
         }
 
         private void DDDifficultySelectedIndexChanged(object sender, EventArgs e)
@@ -1054,92 +1046,94 @@ namespace Ra2Client.DXGUI.Generic
 
         private CancellationTokenSource _cts;
 
+        private void SetDescriptionList(string description)
+        {
+            foreach (var s in description.Split("\r\n"))
+            {
+                _tbMissionDescriptionList.AddItem(s, Color.White, false);
+            }
+        }
+
         private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
         {
             _cts?.Cancel();
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
+
             _ = Task.Run(async () =>
             {
+                _tbMissionDescriptionList.Clear();
+
                 if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
-            {
-                _tbMissionDescription.Text = string.Empty;
-                _btnLaunch.AllowClick = false;
-                _chkExtension.Visible = false;
-                return;
-            }
-            Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
-            _tbMissionDescription.Text = GetFixedFormatText(mission.GUIDescription);
-
-            // 如果不是任务
-            if (string.IsNullOrEmpty(mission.Scenario))
-            {
-                //tbMissionDescription.Text = Path.D;
-                _btnLaunch.AllowClick = false;
-                return;
-            }
-
-            //如果任务没启用
-            if (!mission.Enabled)
-            {
-                _btnLaunch.AllowClick = false;
-                return;
-            }
-
-            _chkExtension.Visible = true;
-
-            _missionIndex = _lbxCampaignList.SelectedIndex;
-            //改变
-
-             // 如果地图文件不在mix里,那么可以尝试分析和修改
-            _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));
-
-            _mapPreviewBox.Visible = false;
-
-            //重新加载Mod选择器
-            _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
-
-            var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
-
-            _cmbGame.Items.Clear();
-
-            if (null == mission.Mod)
-                return;
-
-            
-
-            if (mission.Mod.Count != 0) //如果任务指定了Mod
-            {
-                foreach (var item in mission.Mod)
                 {
-
-                    Mod mod = Mod.Mods.Find(i => i.ID == item && i.CpVisible);
-                    if (mod != null)
-                        _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
-                }
-            }
-            else
-            {
-                foreach (var mod in Mod.Mods.Where(mod => mod.CpVisible))
-                {
-                    _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
-                }
-            }
-
-            _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == mission.DefaultMod);
-
-            if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
-                _cmbGame.SelectedIndex = 0;
-
-            _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
-
-            _btnLaunch.AllowClick = true;
-
-       
-
-            
                 
+                    _btnLaunch.AllowClick = false;
+                    _chkExtension.Visible = false;
+                    return;
+                }
+
+                Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
+                    //  _tbMissionDescriptionList.Text = GetFixedFormatText(mission.GUIDescription);
+
+                SetDescriptionList(mission.GUIDescription);
+               
+
+                // 如果不是任务
+                if (string.IsNullOrEmpty(mission.Scenario) || !mission.Enabled)
+                {
+                    _btnLaunch.AllowClick = false;
+                    return;
+                }
+
+                _chkExtension.Visible = true;
+
+                _missionIndex = _lbxCampaignList.SelectedIndex;
+                //改变
+
+                 // 如果地图文件存在
+                _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));
+
+                _mapPreviewBox.Visible = false;
+
+                //重新加载Mod选择器
+                _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
+
+                var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
+
+                _cmbGame.Items.Clear();
+
+                if (null == mission.Mod)
+                    return;
+
+
+                if (mission.Mod.Count != 0) //如果任务指定了Mod
+                {
+                    foreach (var item in mission.Mod)
+                    {
+
+                        Mod mod = Mod.Mods.Find(i => i.ID == item && i.CpVisible);
+                        if (mod != null)
+                            _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
+                    }
+                }
+                else
+                {
+                    foreach (var mod in Mod.Mods.Where(mod => mod.CpVisible))
+                    {
+                        _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
+                    }
+                }
+
+                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == mission.DefaultMod);
+
+                if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
+                    _cmbGame.SelectedIndex = 0;
+
+                _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
+
+                _btnLaunch.AllowClick = true;
+
                 if ((_cmbGame.SelectedItem?.Tag as Mod)?.ID != oldModID)
                     CmbGame_SelectedChanged(null, null);
                 else//获取任务解析
@@ -1537,7 +1531,7 @@ namespace Ra2Client.DXGUI.Generic
 
                     item.IsHeader = true;
                     item.Selectable = false;
-                    item.TextColor = Color.Blue;
+                    item.TextColor = Color.DodgerBlue;
                 }
                 else
                 {

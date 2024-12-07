@@ -538,68 +538,66 @@ namespace Ra2Client.DXGUI.Generic
         /// 返回当前可使用扩展平台情况
         /// </summary>
         /// <returns>键：0表示必须使用扩展平台,1表示可用可不用</returns>
-        private void GetUseExtension()
-        {
-            //  Tuple<int, List<string>> Extension = new Dictionary<int, List<string>>();
-            List<string> list;
+        //private void GetUseExtension()
+        //{
+        //    //  Tuple<int, List<string>> Extension = new Dictionary<int, List<string>>();
+        //    List<string> list;
 
 
-            // 优先级 任务>任务包>Mod
+        //    // 优先级 任务>任务包>Mod
 
-            if (_cmbGame.SelectedItem?.Tag is not Mod mod)
-                return;
+            
 
-            Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
+        //    Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
 
-            if (mission.MuExtension || mod.ExtensionOn)
-            {  //如果任务，任务包，Mod 有必须使用扩展的
-               // Extension.Add(0, null);
-                _extension = new Tuple<int, List<string>>(0, null);
-                return;
-            }
+        //    if (mod.ExtensionOn)
+        //    {  //如果任务，任务包，Mod 有必须使用扩展的
+        //       // Extension.Add(0, null);
+        //        _extension = new Tuple<int, List<string>>(0, null);
+        //        return;
+        //    }
 
-            ////如果都不是空那就取交集
-            //if(!string.IsNullOrEmpty(mission.Extension) && !string.IsNullOrEmpty(mod.Extension))
-            //{
-            //    var missionExtensions = mission.Extension.Split(',').ToList();
-            //    var modExtensions = mod.Extension.Split(',').ToList();
-            //    list = missionExtensions.Intersect(modExtensions).ToList();
-            //}
-            //else
-            //{
-            //    //如果都是空那就没有可用的扩展。
-            //    if (string.IsNullOrEmpty(mission.Extension) && string.IsNullOrEmpty(mod.Extension))
-            //        list = null;
-            //    else if (!string.IsNullOrEmpty(mission.Extension))
-            //        list = mission.Extension.Split(',').ToList();
-            //    else if(!string.IsNullOrEmpty(mod.Extension))
-            //        list = mod.Extension.Split(',').ToList();
-            //}
+        //    ////如果都不是空那就取交集
+        //    //if(!string.IsNullOrEmpty(mission.Extension) && !string.IsNullOrEmpty(mod.Extension))
+        //    //{
+        //    //    var missionExtensions = mission.Extension.Split(',').ToList();
+        //    //    var modExtensions = mod.Extension.Split(',').ToList();
+        //    //    list = missionExtensions.Intersect(modExtensions).ToList();
+        //    //}
+        //    //else
+        //    //{
+        //    //    //如果都是空那就没有可用的扩展。
+        //    //    if (string.IsNullOrEmpty(mission.Extension) && string.IsNullOrEmpty(mod.Extension))
+        //    //        list = null;
+        //    //    else if (!string.IsNullOrEmpty(mission.Extension))
+        //    //        list = mission.Extension.Split(',').ToList();
+        //    //    else if(!string.IsNullOrEmpty(mod.Extension))
+        //    //        list = mod.Extension.Split(',').ToList();
+        //    //}
 
-            _extension = new Tuple<int, List<string>>(1, null);
-        }
+        //    _extension = new Tuple<int, List<string>>(1, null);
+        //}
 
         public void ExtensionChange()
         {
 
             // 获取扩展使用情况
-            GetUseExtension();
-   
-            if (_extension == null)
-            {
-                _chkExtension.AllowChecking = false;
-                _chkExtension.Checked = false;
-            }
-            // 刷新扩展按钮
-            else if (_extension.Item1 == 0)
+            //GetUseExtension();
+
+            if (_cmbGame.SelectedItem?.Tag is not Mod mod)
+                return;
+
+            if (mod.ExtensionOn)
             {
                 _chkExtension.AllowChecking = false;
                 _chkExtension.Checked = true;
 
             }
-            else if (_extension.Item1 == 1)
+            
+            if(mod.Extension == string.Empty)
             {
-                //  _chkExtension.Checked = false;
+                _chkExtension.AllowChecking = false;
+                _chkExtension.Checked = false;
             }
 
 
@@ -617,7 +615,7 @@ namespace Ra2Client.DXGUI.Generic
                     foreach (var e in chk.Extension.Split(','))
                     {
 
-                        if (_extension == null || _extension.Item2 != null && _extension.Item2.Find(ex => ex == e) == null)  // 当该单选框所需要的扩展不在当前可用扩展中时
+                        if (!mod.Extension.Contains(e))  // 当该单选框所需要的扩展不在当前可用扩展中时
                         {
 
                             chk.Checked = false;
@@ -653,7 +651,7 @@ namespace Ra2Client.DXGUI.Generic
                     foreach (var e in dd.Extension.Split(','))
                     {
 
-                        if (_extension.Item2 != null && _extension.Item2.Find(ex => ex == e) == null)
+                        if (!mod.Extension.Contains(e))
                         {
 
                             dd.SelectedIndex = dd.defaultIndex;
@@ -689,9 +687,9 @@ namespace Ra2Client.DXGUI.Generic
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             Task.Run(() => { GetMissionInfo(true); });
-            
 
-            if (((Mod)(_cmbGame.SelectedItem.Tag)).md == "md" && !_screenMissions[_lbxCampaignList.SelectedIndex].YR)
+
+            if (((Mod)(_cmbGame.SelectedItem.Tag)).md != "md")
             {
                 _chkExtension.Checked = true;
                 _chkExtension.AllowChecking = false;

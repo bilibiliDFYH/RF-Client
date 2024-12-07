@@ -615,7 +615,8 @@ public class ModManager : XNAWindow
             FilePath = $"Mod&AI\\Mod\\{id}",
             Name = Path.GetFileName(path),
             UseAI = isYR.GetValueOrDefault() ? "YRAI" : "RA2AI",
-            md = md
+            md = md,
+            MuVisible = reload
         };
    
         (mod.Extension, mod.ExtensionOn) = 处理扩展情况(path);

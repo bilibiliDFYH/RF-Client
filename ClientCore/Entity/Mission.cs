@@ -119,14 +119,6 @@ namespace DTAConfig.Entity
         /// </summary>
         public bool Enabled { get; }
         /// <summary>
-        /// 是否必须使用扩展平台
-        /// </summary>
-        public bool MuExtension { get; }
-        /// <summary>
-        /// 可用的扩展平台
-        /// </summary>
-        public string Extension { get; }
-        /// <summary>
         ///  属于哪个任务包
         /// </summary>
         public MissionPack MPack { get; }

@@ -41,8 +41,12 @@ namespace ClientGUI
         /// 
         public static void StartGameProcess(WindowManager windowManager,IniFile iniFile = null)
         {
-
-            切换文件(iniFile.GetSection("Settings"));
+            string r = 切换文件(iniFile.GetSection("Settings"));
+            if (r != string.Empty)
+            {
+                XNAMessageBox.Show(windowManager, "错误", r);
+                return;
+            }
             spawnerSettingsFile.Delete();
             iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
@@ -255,11 +259,8 @@ namespace ClientGUI
                 iniFile.WriteIniFile();
             }
         }
-        public static void 切换文件(IniSection newSection)
+        public static string 切换文件(IniSection newSection)
         {
-            
-            
-
             string newMain = newSection.GetValue("Main", string.Empty);
             string newExtension = newSection.GetValue("Extension", string.Empty);
             string newGame = newSection.GetValue("Game", string.Empty);
@@ -276,13 +277,13 @@ namespace ClientGUI
 
                 var oldSection = oldSettings.GetSection("Settings");
 
-                string oldMain = oldSection.GetValue("Main", string.Empty);
+             //   string oldMain = oldSection.GetValue("Main", string.Empty);
                 string oldExtension = oldSection.GetValue("Extension", string.Empty);
                 string oldGame = oldSection.GetValue("Game", string.Empty);
                 string oldMission = oldSection.GetValue("Mission", string.Empty);
                 string oldAi = oldSection.GetValue("AI", string.Empty);
 
-                if (oldMain != newMain || oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
+                if (oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
 
                 if (FilePaths.Count == 0) return true;
 
@@ -368,15 +369,18 @@ namespace ClientGUI
                 WindowManager.progress.Report("正在加载语音");
                 FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", "./");
 
+                    return string.Empty;
             }
 
             catch (FileLockedException ex)
             {
-          //    XNAMessageBox.Show(windowManager, "错误", ex.Message);
+            //  XNAMessageBox.Show(windowManager, "错误", ex.Message);
               Logger.Log(ex.Message);
-                return;
+                return ex.Message;
             }
+                
             }
+            return string.Empty;
         }
         private static void Process_Exited(object sender, EventArgs e)
         {

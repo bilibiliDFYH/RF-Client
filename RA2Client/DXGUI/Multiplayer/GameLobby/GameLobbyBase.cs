@@ -435,15 +435,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChild(MapPreviewBox);
             InitializeGameOptionPresetUI();
 
-            CmbGame_SelectedChanged(cmbGame, null);
-
-           // chkExtension.Checked = true;
-
-            //foreach (var item in Children)
-            //{
-            //    item.Visible = false;
-            //}
-
+           /// CmbGame_SelectedChanged(cmbGame, null);
         }
 
         private void 删除重复地图()
@@ -497,10 +489,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 chkExtension.Checked = true;
                 chkExtension.AllowChecking = false;
             }
-            else
-            {
-                chkExtension.AllowChecking = true;
-            }
+
 
         }
 
@@ -637,10 +626,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 chkExtension.Checked = false;
                 chkExtension.AllowChecking = false;
             }
-            else
-            {
-                chkExtension.AllowChecking = true;
-            }
+
             #endregion
 
             #region 处理AI

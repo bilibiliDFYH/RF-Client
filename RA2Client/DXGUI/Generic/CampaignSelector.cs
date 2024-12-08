@@ -689,7 +689,7 @@ namespace Ra2Client.DXGUI.Generic
             Task.Run(() => { GetMissionInfo(true); });
 
 
-            if (((Mod)(_cmbGame.SelectedItem.Tag)).md != "md")
+            if (((Mod)(_cmbGame.SelectedItem.Tag)).md == "md" && !_screenMissions[_lbxCampaignList.SelectedIndex].YR)
             {
                 _chkExtension.Checked = true;
                 _chkExtension.AllowChecking = false;
@@ -713,67 +713,74 @@ namespace Ra2Client.DXGUI.Generic
 
             _lbxInforBox.Clear();
 
-            Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
-
-            if (_cmbGame.SelectedItem == null || _cmbGame.SelectedItem.Tag is not Mod mod)
-                return;
-
-            string missionInfo = string.Empty;
-            if (!modChange)
-                missionInfo = mission.MissionInfo;
-            Rulesmd rulesmd = null;
-            if (mod.rules != string.Empty)
-                rulesmd = new(mod.rules, mod.ID);
-
-            if (string.IsNullOrEmpty(missionInfo) || modChange) // 如果不在内存中
+            try
             {
-                infoini ??= new IniFile(Path.Combine(ProgramConstants.GamePath, "Resources/missioninfo.ini"));
+                Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
+
+                if (_cmbGame.SelectedItem == null || _cmbGame.SelectedItem.Tag is not Mod mod)
+                    return;
+
+                string missionInfo = string.Empty;
                 if (!modChange)
+                    missionInfo = mission.MissionInfo;
+                Rulesmd rulesmd = null;
+                if (mod.rules != string.Empty)
+                    rulesmd = new(mod.rules, mod.ID);
+
+                if (string.IsNullOrEmpty(missionInfo) || modChange) // 如果不在内存中
                 {
-
-                    if (infoini.GetSection(mission.SectionName) != null)
+                    infoini ??= new IniFile(Path.Combine(ProgramConstants.GamePath, "Resources/missioninfo.ini"));
+                    if (!modChange)
                     {
-                        missionInfo = infoini.GetValue(mission.SectionName, "info", string.Empty);
-                    }
-                    else { missionInfo = string.Empty; }
-                }
-                if (string.IsNullOrEmpty(missionInfo) && rulesmd != null || modChange) // 如果不在缓存中
-                {
-                    //解析
-                    string mapPath = Path.Combine(mission.Path, mission.Scenario);
-                    var iniFile = new IniFile(mapPath);
 
-                    var csfPath = Path.Combine(ProgramConstants.GamePath, mission.Path, "ra2md.csf");
-                    if (!File.Exists(csfPath))
-                        csfPath = Path.Combine(ProgramConstants.GamePath, mod.FilePath, "ra2md.csf");
-                    Dictionary<string, string> csf = new CSF(csfPath).GetCsfDictionary();
-
-                    if (csf != null && rulesmd != null) // 若csf解析成功
-                    {
-                        List<string> allSession = iniFile.GetSections();
-
-                        foreach (string session in allSession)
+                        if (infoini.GetSection(mission.SectionName) != null)
                         {
-
-                            string info = new GameObject(session, csf, iniFile.GetSection(session), rulesmd).GetInfo();
-                            if (!string.IsNullOrEmpty(info))
-                            {
-                                missionInfo += info + "@";
-                            }
-
+                            missionInfo = infoini.GetValue(mission.SectionName, "info", string.Empty);
                         }
+                        else { missionInfo = string.Empty; }
                     }
+                    if (string.IsNullOrEmpty(missionInfo) && rulesmd != null || modChange) // 如果不在缓存中
+                    {
+                        //解析
+                        string mapPath = Path.Combine(mission.Path, mission.Scenario);
+                        var iniFile = new IniFile(mapPath);
 
-                    infoini.SetValue(mission.SectionName, "info", missionInfo);
-                    infoini.WriteIniFile();
+                        var csfPath = Path.Combine(ProgramConstants.GamePath, mission.Path, "ra2md.csf");
+                        if (!File.Exists(csfPath))
+                            csfPath = Path.Combine(ProgramConstants.GamePath, mod.FilePath, "ra2md.csf");
+                        Dictionary<string, string> csf = new CSF(csfPath).GetCsfDictionary();
+
+                        if (csf != null && rulesmd != null) // 若csf解析成功
+                        {
+                            List<string> allSession = iniFile.GetSections();
+
+                            foreach (string session in allSession)
+                            {
+
+                                string info = new GameObject(session, csf, iniFile.GetSection(session), rulesmd).GetInfo();
+                                if (!string.IsNullOrEmpty(info))
+                                {
+                                    missionInfo += info + "@";
+                                }
+
+                            }
+                        }
+
+                        infoini.SetValue(mission.SectionName, "info", missionInfo);
+                        infoini.WriteIniFile();
+                    }
+                }
+
+                mission.MissionInfo = missionInfo;
+
+                foreach (string info in missionInfo.Split("@"))
+                {
+                    _lbxInforBox.AddItem(info);
                 }
             }
-
-            mission.MissionInfo = missionInfo;
-
-            foreach (string info in missionInfo.Split("@"))
+            catch (Exception ex)
             {
-                _lbxInforBox.AddItem(info);
+
             }
 
         }
@@ -1074,9 +1081,6 @@ namespace Ra2Client.DXGUI.Generic
                 Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
                     //  _tbMissionDescriptionList.Text = GetFixedFormatText(mission.GUIDescription);
 
-                SetDescriptionList(mission.GUIDescription);
-               
-
                 // 如果不是任务
                 if (string.IsNullOrEmpty(mission.Scenario) || !mission.Enabled)
                 {
@@ -1123,10 +1127,12 @@ namespace Ra2Client.DXGUI.Generic
                     }
                 }
 
-                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == mission.DefaultMod);
+                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == oldModID);
 
                 if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
                     _cmbGame.SelectedIndex = 0;
+
+                CmbGame_SelectedChanged(null, null);
 
                 _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
 
@@ -1201,6 +1207,8 @@ namespace Ra2Client.DXGUI.Generic
                     if (_ratingBox.Visible)
                         _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = false;
                 }
+
+                SetDescriptionList(mission.GUIDescription);
 
             }, token);
           
@@ -1416,9 +1424,9 @@ namespace Ra2Client.DXGUI.Generic
                 var (Ares, Phobos) = GameProcessLogic.支持的扩展();
                 var extension = mod.Extension.Split(",").ToList();
                 if (extension.Remove("Ares"))
-                    extension.Add("Ares3");
+                    extension.Add(ProgramConstants.ARES);
                 if (extension.Remove("Phobos"))
-                    extension.Add("Phobos36");
+                    extension.Add(ProgramConstants.PHOBOS);
 
                 newExtension = string.Join(",", extension);
             }

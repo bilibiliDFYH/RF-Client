@@ -106,7 +106,7 @@ internal sealed class Program
             selections);
     }
 
-    private static void StartProcess(string relPath, bool run32Bit = true, bool runDesktop = true)
+    private static void StartProcess(string relPath, bool run32Bit = false, bool runDesktop = true)
     {
         try
         {

@@ -141,8 +141,6 @@ public class ModManager : XNAWindow
             Text = "选择可查看详细信息"
         };
         
-
-
         _btnReturn = new XNAClientButton(WindowManager)
         {
             Text = "确定",
@@ -176,6 +174,9 @@ public class ModManager : XNAWindow
         AddChild(btnReload);
 
         Enabled = false;
+
+     //   EnabledChanged += ModManager_EnabledChanged;
+
         ReLoad();
     }
 
@@ -623,8 +624,11 @@ public class ModManager : XNAWindow
 
         整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
-        if(reload)
+        if (reload)
+        {
             ReLoad();
+            触发刷新?.Invoke();
+        }
 
         return string.Empty;
     }
@@ -700,6 +704,8 @@ public class ModManager : XNAWindow
             UpdateAI(ListBoxModAi.SelectedItem.Tag as AI);
         if (DDModAI.SelectedIndex == 2)
             UpdateMissionPack(ListBoxModAi.SelectedItem.Tag as MissionPack);
+
+       
     }
 
     /// <summary>
@@ -742,6 +748,7 @@ public class ModManager : XNAWindow
             }
 
             ReLoad(); //重新载入
+            触发刷新?.Invoke();
         };
     }
 
@@ -764,6 +771,7 @@ public class ModManager : XNAWindow
             ai.Create(); //写入INI文件
 
             ReLoad(); //重新载入
+            触发刷新?.Invoke();
         };
     }
 
@@ -812,6 +820,7 @@ public class ModManager : XNAWindow
                await RenderPreviewImageAsync(missionPack);
 
             ReLoad(); //重新载入
+            触发刷新?.Invoke();
         };
     }
 
@@ -880,7 +889,7 @@ public class ModManager : XNAWindow
         LoadModInfo();
     }
 
-
+    
 
 
     private void BtnDel_LeftClick(object sender, EventArgs e)
@@ -936,7 +945,7 @@ public class ModManager : XNAWindow
 
         var xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
             $"您真的要删除任务包{missionPack.Name}吗？它包含以下任务：{Environment.NewLine}{m} ", XNAMessageBoxButtons.YesNo);
-        xNAMessageBox.YesClickedAction += (_) => { DelMissionPack(missionPack); ReLoad(); };
+        xNAMessageBox.YesClickedAction += (_) => { DelMissionPack(missionPack); };
         xNAMessageBox.Show();
     }
 
@@ -978,7 +987,7 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
         }
 
-
+        ReLoad();
         触发刷新?.Invoke();
     }
 
@@ -1002,11 +1011,14 @@ public class ModManager : XNAWindow
         try
         {
             Directory.Delete(mod.FilePath, true);
-    }
+        }
         catch
         {
             XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
         }
+
+        ReLoad();
+        触发刷新?.Invoke();
     }
 
     private void BtnReturn_LeftClick(object sender, EventArgs e)
@@ -1740,7 +1752,7 @@ public class ModInfoWindows : XNAWindow
 
     private readonly string _title;
 
-    private XNATextBox _ctbModID;
+    //private XNATextBox _ctbModID;
     private XNATextBox _ctbModName;
     private XNATextBox _ctbAuthor;
     private XNATextBox _ctbModDescription;
@@ -1780,24 +1792,24 @@ public class ModInfoWindows : XNAWindow
         AddChild(_lblTitle);
 
         //第一行
-        var lblModID = new XNALabel(WindowManager)
-        {
-            Text = "ModID(唯一):",
-            ClientRectangle = new Rectangle(20, 60, 0, 0)
+        //var lblModID = new XNALabel(WindowManager)
+        //{
+        //    Text = "ModID(唯一):",
+        //    ClientRectangle = new Rectangle(20, 60, 0, 0)
             
-        };
-        AddChild(lblModID);
+        //};
+        //AddChild(lblModID);
 
-        _ctbModID = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblModID.Right + 100, lblModID.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbModID);
+        //_ctbModID = new XNATextBox(WindowManager)
+        //{
+        //    ClientRectangle = new Rectangle(lblModID.Right + 100, lblModID.Y, CtbW, CtbH)
+        //};
+        //AddChild(_ctbModID);
 
         var lblModName = new XNALabel(WindowManager)
         {
             Text = "Mod名称:",
-            ClientRectangle = new Rectangle(300, lblModID.Y, 0, 0)
+            ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
         AddChild(lblModName);
 
@@ -1811,7 +1823,7 @@ public class ModInfoWindows : XNAWindow
         var lblAuthor = new XNALabel(WindowManager)
         {
             Text = "Mod作者:",
-            ClientRectangle = new Rectangle(lblModID.X, 100, 0, 0)
+            ClientRectangle = new Rectangle(lblModName.X, 100, 0, 0)
         };
         AddChild(lblAuthor);
 
@@ -1824,7 +1836,7 @@ public class ModInfoWindows : XNAWindow
         var lblVersion = new XNALabel(WindowManager)
         {
             Text = "Mod版本:",
-            ClientRectangle = new Rectangle(lblModName.X, lblAuthor.Y, 0, 0)
+            ClientRectangle = new Rectangle(300, lblAuthor.Y, 0, 0)
         };
         AddChild(lblVersion);
 
@@ -1838,7 +1850,7 @@ public class ModInfoWindows : XNAWindow
         var lblDescription = new XNALabel(WindowManager)
         {
             Text = "Mod介绍:",
-            ClientRectangle = new Rectangle(lblModID.X, 140, 0, 0)
+            ClientRectangle = new Rectangle(lblModName.X, 140, 0, 0)
         };
         AddChild(lblDescription);
 
@@ -1851,7 +1863,7 @@ public class ModInfoWindows : XNAWindow
         var lblCountries = new XNALabel(WindowManager)
         {
             Text = "Mod国家:",
-            ClientRectangle = new Rectangle(lblModName.X, lblDescription.Y, 0, 0)
+            ClientRectangle = new Rectangle(lblVersion.X, lblDescription.Y, 0, 0)
         };
         AddChild(lblCountries);
 
@@ -1865,7 +1877,7 @@ public class ModInfoWindows : XNAWindow
         var lblModPath = new XNALabel(WindowManager)
         {
             Text = "Mod路径:",
-            ClientRectangle = new Rectangle(lblModID.X, 180, 0, 0),
+            ClientRectangle = new Rectangle(lblModName.X, 180, 0, 0),
             Visible = false
         };
         AddChild(lblModPath);
@@ -1890,7 +1902,7 @@ public class ModInfoWindows : XNAWindow
         var lblCp = new XNALabel(WindowManager)
         {
             Text = "兼容战役",
-            ClientRectangle = new Rectangle(lblModID.X, 220, 0, 0)
+            ClientRectangle = new Rectangle(lblModName.X, 220, 0, 0)
         };
         AddChild(lblCp);
 
@@ -1938,9 +1950,6 @@ public class ModInfoWindows : XNAWindow
         AddChild(btnOk);
         btnOk.LeftClick += (_, _) =>
         {
-            if (Mod.QueryID(_ctbModID.Text) &&_title == "导入Mod")
-                XNAMessageBox.Show(WindowManager,"错误", "该ModID已存在。");
-            else
                 Disable();
         };
 
@@ -1958,7 +1967,7 @@ public class ModInfoWindows : XNAWindow
 
         _lblTitle.Text = _title;
         _ctbCp.Text = _mod.Compatible;
-        _ctbModID.Text = _mod.ID;
+        //_ctbModID.Text = _mod.ID;
         _ctbModName.Text = _mod.Name;
         _ctbModDescription.Text = _mod.Description;
         _ctbVersion.Text = _mod.Version;
@@ -1983,11 +1992,12 @@ public class ModInfoWindows : XNAWindow
         if (_cancel)
             return null;
 
-        _mod.ID = _ctbModID.Text.Trim(); //id
+    //    _mod.ID = _ctbModID.Text.Trim(); //id
+      //  _mod.ID = _mod.ID;
        _mod.Name = _ctbModName.Text.Trim(); //名称
        _mod.Description = _ctbModDescription.Text.Trim(); //介绍
        _mod.Version = _ctbVersion.Text.Trim(); //版本号
-       _mod.FilePath = $"Mod&AI/Mod/{_ctbModID.Text.Trim()}"; //路径
+      // _mod.FilePath = _mod.FilePath; //路径
        _mod.Compatible = _ctbCp.Text.Trim(); //兼容的战役
         _mod.Countries = _ctbCountries.Text.Trim(); //国家
        _mod.MuVisible = _chkMutil.Checked; //遭遇战可用

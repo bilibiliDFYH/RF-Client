@@ -360,7 +360,7 @@ namespace ClientGUI
                         }
                 }
 
-                if (File.Exists($"{newGame}\\thememd.mix"))
+                if (!File.Exists($"{newGame}\\thememd.mix"))
                 {
                     WindowManager.progress.Report("正在加载音乐");
                     加载音乐();

@@ -230,6 +230,8 @@ namespace Ra2Client.DXGUI.Generic
         public override void Initialize()
         {
 
+           // Mix.UnPackMix("/mix","E:\\Documents\\My_File\\RA2Setup\\Updater\\expandmd06.mix");
+            
             topBar.SetSecondarySwitch(cncnetLobby);
             GameProcessLogic.GameProcessExited += SharedUILogic_GameProcessExited;
 

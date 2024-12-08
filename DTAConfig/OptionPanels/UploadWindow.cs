@@ -56,7 +56,7 @@ namespace DTAConfig.OptionPanels
                 FontIndex = 1,
             };
 
-            foreach (var item in types) tabControl.AddTab(item, UIDesignConstants.BUTTON_WIDTH_133);
+            foreach (var item in types) tabControl.AddTab(item, UIDesignConstants.BUTTON_WIDTH_92);
 
             tabControl.SelectedIndexChanged += Tab切换事件;
             tabControl.MakeUnselectable(1);
@@ -130,7 +130,7 @@ namespace DTAConfig.OptionPanels
             //第四行
             var lblDescription = new XNALabel(WindowManager)
             {
-                Text = "地图介绍:",
+                Text = "介绍:",
                 ClientRectangle = new Rectangle(lblName.X, lblVersion.Y + 40, 0, 0)
             };
             AddChild(lblDescription);
@@ -229,7 +229,7 @@ namespace DTAConfig.OptionPanels
                     切换到地图包类型();
                     break;
                 default:
-                    切换到地图类型();
+                    切换到地图包类型();
                     break;
             }
         }
@@ -418,45 +418,44 @@ namespace DTAConfig.OptionPanels
             {
                 #region 打包地图
                 // 如果是 .yrm、.mpr 或 .map 文件，压缩成 .7z 文件
-                if (extension == ".yrm" || extension == ".mpr" || extension == ".map")
-                {
-                    string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-                    var originalFileName = Path.GetFileNameWithoutExtension(selectedFile);
-                    var newFileName = $"{originalFileName}_{timestamp}{extension}";
-                    var directoryPath = $"{originalFileName}_{timestamp}";
-
-                    if (!Directory.Exists($"./tmp/{directoryPath}/{directoryPath}"))
-                        Directory.CreateDirectory($"./tmp/{directoryPath}/{directoryPath}");
-
-                    // 复制并重命名文件
-                    File.Copy(selectedFile, Path.Combine($"./tmp/{directoryPath}/", newFileName), true);
-
-                    foreach (var file in OtherFiles)
-                    {
-                        File.Copy(file, $"./tmp/{directoryPath}/{directoryPath}/{Path.GetFileName(file)}", true);
-                    }
-
-                    string compressedFile = Path.Combine(
-                        $"./tmp/",
-                        $"{directoryPath}.7z"
-                    );
-
-                    SevenZip.CompressWith7Zip($"./tmp/{directoryPath}/*", compressedFile);
-                    try
-                    {
-                        Directory.Delete($"./tmp/{directoryPath}", true);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Log($"目录./tmp/{directoryPath}删除失败:{ex.Message}");
-                    }
-                    return compressedFile;
-                }
-                else
+                if (extension != ".yrm" && extension != ".mpr" && extension != ".map")
                     return string.Empty;
+
+
+                string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+                var originalFileName = Path.GetFileNameWithoutExtension(selectedFile);
+                var newFileName = $"{originalFileName}_{timestamp}{extension}";
+                var directoryPath = $"{originalFileName}_{timestamp}";
+
+                if (!Directory.Exists($"./tmp/{directoryPath}/{directoryPath}"))
+                    Directory.CreateDirectory($"./tmp/{directoryPath}/{directoryPath}");
+
+                // 复制并重命名文件
+                File.Copy(selectedFile, Path.Combine($"./tmp/{directoryPath}/", newFileName), true);
+
+                foreach (var file in OtherFiles)
+                {
+                    File.Copy(file, $"./tmp/{directoryPath}/{directoryPath}/{Path.GetFileName(file)}", true);
+                }
+
+                string compressedFile = Path.Combine(
+                    $"./tmp/",
+                    $"{directoryPath}.7z"
+                );
+
+                SevenZip.CompressWith7Zip($"./tmp/{directoryPath}/*", compressedFile);
+                try
+                {
+                    Directory.Delete($"./tmp/{directoryPath}", true);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"目录./tmp/{directoryPath}删除失败:{ex.Message}");
+                }
+                return compressedFile;
                 #endregion
             }
-            else
+            else if(tabControl.SelectedTab == 3)
             {
                 #region 打包多地图
 
@@ -490,7 +489,12 @@ namespace DTAConfig.OptionPanels
                 return compressedFile;
                 #endregion
             }
+            else
+            {
+                if(extension!=".7z") return string.Empty;
+                return selectedFile;
 
+            }
         }
 
         private void BtnSelect_LeftClick(object sender, EventArgs e)
@@ -521,7 +525,7 @@ namespace DTAConfig.OptionPanels
                 }
                 #endregion
             }
-            else
+            else if(tabControl.SelectedTab == 3)
             {
                 #region 选择多地图
                 // 打开文件对话框选择多个地图文件
@@ -540,7 +544,32 @@ namespace DTAConfig.OptionPanels
                 // 显示文件数在按钮上
                 btnSelect.Text = $"已选择 {MapFiles.Length} 个文件";
                 #endregion
+            }else
+            {
+                #region 选择其他
+                // 打开文件对话框选择地图
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Filter = "Map Files (*.7z)|*.7z",
+                    Title = "选择压缩文件"
+                };
+
+                if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+
+                string selectedFile = openFileDialog.FileName;
+
+
+                btnSelect.Text = selectedFile;
+
+
+                // 自动设置 _ctbName 文本框的值
+                if (string.IsNullOrEmpty(_ctbName.Text))
+                {
+                    _ctbName.Text = Path.GetFileNameWithoutExtension(btnSelect.Text);
+                }
+                #endregion
             }
+
 
 
         }

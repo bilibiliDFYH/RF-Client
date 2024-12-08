@@ -435,7 +435,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChild(MapPreviewBox);
             InitializeGameOptionPresetUI();
 
-           /// CmbGame_SelectedChanged(cmbGame, null);
+            CmbGame_SelectedChanged(cmbGame, null);
         }
 
         private void 删除重复地图()
@@ -1625,8 +1625,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 bool disabled = disableCount >= randomSides.Length - 1;
 
+                
                 foreach (XNADropDown dd in ddPlayerSides)
+                {
+                if (1 + c < dd.Items.Count)
                     dd.Items[1 + c].Selectable = !disabled;
+                }
 
                 foreach (PlayerInfo pInfo in playerInfos)
                 {
@@ -1646,8 +1650,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (disabled)
                 {
                     foreach (XNADropDown dd in ddPlayerSides)
-                        dd.Items[i + RandomSelectorCount].Selectable = false;
-
+                    {
+                        if (i + RandomSelectorCount < dd.Items.Count)
+                            dd.Items[i + RandomSelectorCount].Selectable = false;
+                    }
                     // Change the sides of players that use the disabled
                     // side to the default side
                     foreach (PlayerInfo pInfo in playerInfos)
@@ -1659,7 +1665,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 else
                 {
                     foreach (XNADropDown dd in ddPlayerSides)
-                        dd.Items[i + RandomSelectorCount].Selectable = true;
+                    {
+                        if (i + RandomSelectorCount < dd.Items.Count)
+                            dd.Items[i + RandomSelectorCount].Selectable = true;
+                    }
                 }
             }
 
@@ -1693,7 +1702,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 foreach (XNADropDown dd in ddPlayerSides)
                 {
-                    if (dd.Items.Count > SideCount + RandomSelectorCount)
+                    if (SideCount + RandomSelectorCount < dd.Items.Count )
                         dd.Items[SideCount + RandomSelectorCount].Selectable = true;
                 }
             }

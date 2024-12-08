@@ -62,7 +62,7 @@ namespace DTAConfig.Entity
 
             t.ID = ID;
             t.Name = iniFile.GetValue(ID, "Name", ID);
-            t.Description = iniFile.GetValue(ID, "Description", ID);
+            t.Description = iniFile.GetValue(ID, "Description", t.Name);
             t.FileName = iniFile.FileName;
             t.Version = iniFile.GetValue(ID, "Version", string.Empty);
             t.Author = iniFile.GetValue(ID, "Author", string.Empty);

@@ -331,7 +331,22 @@ namespace Ra2Client.Domain.Multiplayer
 
                 section = iniFile.GetSection(sectionName);
 
-                Author = section.GetValueOrSetDefault("Author",() => GetMapIni(BaseFilePath).GetValue("Basic","Author","佚名"));
+                Author = section.GetValue("Author",string.Empty);
+                if (Author == string.Empty)
+                {
+                    Author = GetMapIni(BaseFilePath).GetValue("Basic", "Author", "佚名");
+                    if (Author == "佚名")
+                    {
+                        var name = mapini.GetValue("Basic", "Name", string.Empty).Split("by ");
+
+                        if(name.Length > 1)
+                            Author = name[1];
+                    }
+                    section.SetValue("Author", Author);
+                }
+               
+
+
                 GameModes = section.GetStringValue("GameModes", "常规作战").Split(',');
                 Mission = section.GetStringValue("Mission", string.Empty);
                 if(!Directory.Exists(Mission))

@@ -1428,7 +1428,7 @@ namespace Ra2Client.DXGUI.Generic
                 if (extension.Remove("Phobos"))
                     extension.Add(ProgramConstants.PHOBOS);
 
-                newExtension = string.Join(",", extension);
+                newExtension = string.Join(",", extension.Distinct());
             }
 
             #endregion

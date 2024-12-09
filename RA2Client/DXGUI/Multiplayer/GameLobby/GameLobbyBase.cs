@@ -851,7 +851,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (disableGameOptionUpdateBroadcast)
+            if (Name != "SkirmishLobby" && disableGameOptionUpdateBroadcast)
                 return;
 
             var dd = (GameLobbyDropDown)sender;
@@ -938,6 +938,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             ListMaps();
 
+            
+
             if (lbGameModeMapList.SelectedIndex == -1)
                 lbGameModeMapList.SelectedIndex = 0; // Select default GameModeMap
             else
@@ -945,7 +947,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (GameModeMap != null)
             {
-                lblModeText.Text = GameModeMap.GameMode.modeText.L10N("UI:ModeText:" + GameModeMap.GameMode.Name);
+                if (ddGameModeMapFilter.SelectedIndex == 0)
+                    lblModeText.Text = "收藏的地图";
+                else
+                    lblModeText.Text = GameModeMaps.GameModes[ddGameModeMapFilter.SelectedIndex-1].modeText.L10N("UI:ModeText:" + GameModeMap.GameMode.Name);
             }
             else
             {
@@ -1184,7 +1189,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         }
 
         private CancellationTokenSource _cts;
-        private void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
+        private async void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
         {
             _cts?.Cancel();
             _cts?.Dispose();
@@ -1992,7 +1997,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     if (ExtensionList.Contains(ProgramConstants.PHOBOS))
                     {
                         ExtensionList.RemoveAll(e => e.Contains("Phobos"));
-                        ExtensionList.Add(ProgramConstants.ARES);
+                        ExtensionList.Add(ProgramConstants.PHOBOS);
                     }
                     else
                     {
@@ -2001,7 +2006,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 }
 
-                newExtension = string.Join(",", ExtensionList);
+                newExtension = string.Join(",", ExtensionList.Distinct());
                 
             }
 

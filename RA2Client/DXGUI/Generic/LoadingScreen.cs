@@ -87,13 +87,15 @@ namespace Ra2Client.DXGUI.Generic
                 {
                     BackgroundTexture = AssetLoader.LoadTexture(Wallpaper[0]);
                 }
+
+                mapLoadTask = mapLoader.LoadMapsAsync();
             }
             else
             {
                 //themeSongLoad = new Song("Resources/themeSongLoad.wma");
                 PlayLoadMusic();
             }
-            mapLoadTask = mapLoader.LoadMapsAsync();
+            
 
             base.Initialize();
 
@@ -172,8 +174,8 @@ namespace Ra2Client.DXGUI.Generic
                 cncnetManager.Connect();
             }
             
-            if (UserINISettings.Instance.video_wallpaper)
-                UnloadContent();
+            //if (UserINISettings.Instance.video_wallpaper)
+            //    UnloadContent();
 
             WindowManager.RemoveControl(this);
             Cursor.Visible = visibleSpriteCursor;
@@ -193,58 +195,47 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Update(GameTime gameTime)
         {
-            if(!ProgramConstants.SkipLogo)
+            if (UserINISettings.Instance.video_wallpaper && !ProgramConstants.SkipLogo)
             {
-                if (UserINISettings.Instance.video_wallpaper && Directory.Exists("Resources/Dynamicbg"))
+                if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
                 {
-                    if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
+                    time = 0;
+                    BackgroundTexture?.Dispose();
+                    if (index <= 122)
                     {
-                        time = 0;
-                        BackgroundTexture?.Dispose();
-                        if (index < 122)
-                        {
 
-                            BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/eawwlogo" + index + ".jpg"));
-                            index++;
-                        }
-                        else
-                        {
-                            try
-                            {
-                                MediaPlayer.Stop();
-                            }
-                            catch (Exception ex)
-                            {
-                                CDebugView.OutputDebugInfo("播放失败:" + ex.Message);
-                            }
-                            index++;
-                            BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
-                        }
+                        BackgroundTexture = (AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/eawwlogo" + index + ".jpg"));
+                        index++;
                     }
-                    else
-                        time++;
                 }
+                else
+                    time++;
+                
 
-                if (index >= 123)
+                if (index == 123)
                 {
-                    if(null == mapLoadTask || mapLoadTask?.Status == TaskStatus.RanToCompletion)
+                    try
                     {
-                        CDebugView.OutputDebugInfo("load map completed0:{0}", mapLoadTask?.Status);
-                        outputDevice?.Stop();
-                        //themeSongLoad?.Dispose();
-                        Finish();
+                        MediaPlayer.Stop();
                     }
+                    catch (Exception ex)
+                    {
+                        CDebugView.OutputDebugInfo("播放失败:" + ex.Message);
+                    }
+
+                    BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
+                    mapLoadTask = mapLoader.LoadMapsAsync();
+                    index++;
                 }
             }
-            else
-            {
-                if (null == mapLoadTask || mapLoadTask?.Status == TaskStatus.RanToCompletion)
+            
+                if (mapLoadTask?.Status == TaskStatus.RanToCompletion)
                 {
                     BackgroundTexture = AssetLoader.LoadTextureUncached("Dynamicbg/loadingscreen/loading.jpg");
                     CDebugView.OutputDebugInfo("load map completed1:{0}", mapLoadTask?.Status);
                     Finish();
                 }
-            }
+            
             base.Update(gameTime);
         }
     }

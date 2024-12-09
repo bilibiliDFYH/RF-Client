@@ -189,14 +189,14 @@ namespace Ra2Client.Domain.Multiplayer
             // 将线程安全的类型转换回普通列表
 
             GameModes = concurrentGameModes
-    .Where(g => g.Maps != null && g.Maps.Count > 0)
-    .Select(g =>
-    {
-        g.Maps = g.Maps.OrderBy(m => m?.Name ?? string.Empty).ToList();
-        return g;
-    })
-    //.DistinctBy(g => g.Name)
-    .ToList();
+            .Where(g => g.Maps != null && g.Maps.Count > 0)
+            .Select(g =>
+            {
+                g.Maps = g.Maps.OrderBy(m => m?.Name ?? string.Empty).ToList();
+                return g;
+            })
+            .DistinctBy(g => g.Name)
+            .ToList();
 
 
 
@@ -205,6 +205,7 @@ namespace Ra2Client.Domain.Multiplayer
             GameModeMaps.Reverse();
 
             Logger.Log("地图加载完成。");
+            WindowManager.progress.Report("地图加载完成");
 
             if (!exceptions.IsEmpty)
             {

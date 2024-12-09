@@ -63,6 +63,9 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         private string mapCodeININame;
 
+        /// <summary>
+        /// 介绍
+        /// </summary>
         public string modeText;
 
         private string forcedOptionsSection;

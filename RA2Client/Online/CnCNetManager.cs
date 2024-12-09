@@ -470,6 +470,7 @@ namespace Ra2Client.Online
         /// </summary>
         public void Connect()
         {
+            WindowManager.Report("正在连接联机大厅...");
             disconnect = false;
             MainChannel.AddMessage(new ChatMessage("Connecting to CnCNet...".L10N("UI:Main:ConnectingToCncNet")));
             connection.ConnectAsync();

@@ -47,6 +47,8 @@ namespace ClientGUI
                 XNAMessageBox.Show(windowManager, "错误", r);
                 return;
             }
+
+
             spawnerSettingsFile.Delete();
             iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
@@ -290,7 +292,7 @@ namespace ClientGUI
                 foreach (var fileType in FilePaths)
                 {
                     if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
-                    if (string.IsNullOrEmpty(fileType.Value)) continue;
+                    if (string.IsNullOrEmpty(fileType.Value) || !Directory.Exists(fileType.Value)) continue;
                     foreach (var file in Directory.GetFiles(fileType.Value))
                     {
                         if(Path.GetExtension(file) == ".ini") continue;
@@ -350,7 +352,7 @@ namespace ClientGUI
                     if (!FileHash.ContainsKey(keyValue.Key))
                         FileHash.Add(keyValue.Key, []);
 
-                        if (string.IsNullOrEmpty(keyValue.Value)) continue;
+                    if (string.IsNullOrEmpty(keyValue.Value) || !Directory.Exists(keyValue.Value)) continue;
 
                     foreach (var fileName in Directory.GetFiles(keyValue.Value))
                     {

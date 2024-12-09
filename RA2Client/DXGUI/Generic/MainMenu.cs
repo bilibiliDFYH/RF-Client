@@ -842,7 +842,7 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         public void PostInit()
         {
-
+            WindowManager.Report("加载菜单...");
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, skirmishLobby);
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, cnCNetGameLoadingLobby);
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, cnCNetGameLobby);
@@ -883,7 +883,7 @@ namespace Ra2Client.DXGUI.Generic
                     lblUpdateStatus.Text = "点击以检查更新.";
                 }
             }
-            Verification_File();
+            //Verification_File();
             CheckHostName();
             CheckForbiddenFiles();
             CheckPrivacyNotification();

@@ -329,6 +329,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
 
                 skirmishSettingsIni.WriteIniFile();
+                Logger.Log("保存遭遇战游戏设置!");
             }
             catch (Exception ex)
             {
@@ -343,9 +344,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             if (!SafePath.GetFile(ProgramConstants.GamePath, SETTINGS_PATH).Exists )
             {
+                Logger.Log("遭遇战配置文件不存在,载入默认配置!");
                 InitDefaultSettings();
                 return;
             }
+
+           // disableGameOptionUpdateBroadcast = true;
+            Logger.Log("载入遭遇战配置!");
 
             var skirmishSettingsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, SETTINGS_PATH));
 
@@ -425,6 +430,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (ClientConfiguration.Instance.SaveSkirmishGameOptions)
             {
+
+                Logger.Log("载入游戏选项设置!");
+
                 foreach (GameLobbyDropDown dd in DropDowns)
                 {
                     // Maybe we should build an union of the game mode and map

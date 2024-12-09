@@ -57,8 +57,8 @@ namespace Ra2Client.Online
             new("online.yra2.com","a-root.zj.yra2.com",[6667]),
             new("online.ru2023.top","b-root.hb.ru2023.top",[6667])
 
-            //new("a-root.aries.zj.cn.yra2.com","a-root.aries.cn.zj.yra2.com",[6667]),
-            //new("b-root.taurus.hb.cn.ru2023.top","b-root.taurus.hb.cn.ru2023.top",[6667]),
+            //new("a-root.aries.zhejiang.cn.yra2.com","a-root.aries.cn.zhejiang.yra2.com",[6667]),
+            //new("b-root.taurus.hubei.cn.ru2023.top","b-root.taurus.hubei.cn.ru2023.top",[6667]),
             //new("c-root.cancer.jiangsu.cn.ru2023.top","c-root.cancer.jiangsu.cn.ru2023.top",[6667]),
             //new("d-root.leo.sichuan.cn.ru2023.top","d-root.leo.sichuan.cn.ru2023.top",[6667]),
             //new("e-root.virgo.beijing.cn.yra2.com","e-root.virgo.beijing.cn.ru2023.top",[6667]),

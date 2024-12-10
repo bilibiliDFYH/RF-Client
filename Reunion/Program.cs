@@ -135,6 +135,7 @@ internal sealed class Program
                 Arguments = "\"" + absPath + "\" " + string.Join(" ", Args.Select(arg => "\"" + arg + "\"")),
                 CreateNoWindow = true,
                 UseShellExecute = false,
+                Verb = "runas",
             });
         }
         catch (Exception ex)

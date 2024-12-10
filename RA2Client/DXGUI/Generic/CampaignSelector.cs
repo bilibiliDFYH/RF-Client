@@ -26,9 +26,10 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Text;
 
+
 namespace Ra2Client.DXGUI.Generic
 {
-    public class CampaignSelector : INItializableXNAWindow
+    public class CampaignSelector(WindowManager windowManager, DiscordHandler discordHandler) : INItializableXNAWindow(windowManager)
     {
         private const int DefaultWidth = 650;
         private const int DefaultHeight = 600;
@@ -41,21 +42,11 @@ namespace Ra2Client.DXGUI.Generic
             "INI/MapCode/Difficulty Medium.ini", 
             "INI/MapCode/Difficulty Hard.ini"
         };
-
-        public event Action ReLoadMissionList;
-
-        public CampaignSelector(WindowManager windowManager, DiscordHandler discordHandler) : base(windowManager)
-        {
-            this._discordHandler = discordHandler;
-        }
-
-
-        private readonly DiscordHandler _discordHandler;
+        private readonly DiscordHandler _discordHandler = discordHandler;
 
         private readonly List<Mission> _missions = [];
         private readonly List<Mission> _screenMissions = [];
         private XNAListBox _lbxCampaignList;
-        private XNALabel _lblScreen;
         private XNADropDown _ddDifficulty;
         private XNADropDown _ddSide;
         private XNADropDown _ddMissionPack;
@@ -64,9 +55,8 @@ namespace Ra2Client.DXGUI.Generic
         private XNAListBox _tbMissionDescriptionList;
         private XNATrackbar _trbDifficultySelector;
 
-        Tuple<int, List<string>> _extension;
-        public List<GameLobbyCheckBox> CheckBoxes = [];
-        public List<GameLobbyDropDown> DropDowns = new();
+        public readonly List<GameLobbyCheckBox> CheckBoxes = [];
+        public readonly List<GameLobbyDropDown> DropDowns = [];
 
         private XNAButton _mapPreviewBox;
 
@@ -86,8 +76,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private CheaterWindow _cheaterWindow;
 
-        private List<string> _difficultyList = new();
-        private List<string> _sideList = new();
+        private List<string> _difficultyList = [];
+        private List<string> _sideList = [];
 
         private const string SETTINGS_PATH = "Client/CampaignSetting.ini";
 
@@ -113,7 +103,7 @@ namespace Ra2Client.DXGUI.Generic
 
         //打分参数
         private int _scoreLevel = -1;
-        private int _missionIndex = -1;
+
         private int count = 0;
 
         public event EventHandler Exited;
@@ -145,7 +135,7 @@ namespace Ra2Client.DXGUI.Generic
             _modManager.触发刷新 += ReadMissionList;
             //modManager.EnabledChanged += CampaignSelector_EnabledChanged;
 
-            _lblScreen = new XNALabel(WindowManager);
+            var _lblScreen = new XNALabel(WindowManager);
             _lblScreen.Name = "lblScreen";
             _lblScreen.Text = "筛选:";
             _lblScreen.ClientRectangle = new Rectangle(10, 35, 0, 0);
@@ -382,6 +372,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(lblHard);
             base.Initialize();
 
+            
 
             _ddSide.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
             _ddDifficulty.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
@@ -440,6 +431,8 @@ namespace Ra2Client.DXGUI.Generic
             _cheaterWindow.CenterOnParent();
             _cheaterWindow.YesClicked += CheaterWindow_YesClicked;
             _cheaterWindow.Disable();
+
+            DropDowns.Add(_cmbGame);
 
             LoadSettings();
 
@@ -1068,80 +1061,76 @@ namespace Ra2Client.DXGUI.Generic
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
 
+            _tbMissionDescriptionList.Clear();
+
+            if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
+            {
+
+                _btnLaunch.AllowClick = false;
+                _chkExtension.Visible = false;
+                return;
+            }
+
+            Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
+
+
+            // 如果不是任务
+            if (string.IsNullOrEmpty(mission.Scenario) || !mission.Enabled)
+            {
+                _btnLaunch.AllowClick = false;
+                return;
+            }
+
+            _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
+
+            var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
+
+            _cmbGame.Items.Clear();
+
+            if (null == mission.Mod)
+                return;
+
+
+            if (mission.Mod.Count != 0) //如果任务指定了Mod
+            {
+                foreach (var item in mission.Mod)
+                {
+
+                    Mod mod = Mod.Mods.Find(i => i.ID == item && i.CpVisible);
+                    if (mod != null)
+                        _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
+                }
+            }
+            else
+            {
+                foreach (var mod in Mod.Mods.Where(mod => mod.CpVisible))
+                {
+                    _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
+                }
+            }
+
+            if (上次选择的任务包ID == mission?.MPack?.ID)
+                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == oldModID);
+            else
+                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == mission.DefaultMod);
+
+            上次选择的任务包ID = mission?.MPack?.ID ?? string.Empty;
+
+            if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
+                _cmbGame.SelectedIndex = 0;
+
+            CmbGame_SelectedChanged(null, null);
+
+            _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
+
             _ = Task.Run(async () =>
             {
-                _tbMissionDescriptionList.Clear();
-
-                if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
-                {
-                
-                    _btnLaunch.AllowClick = false;
-                    _chkExtension.Visible = false;
-                    return;
-                }
-
-                Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
-                    //  _tbMissionDescriptionList.Text = GetFixedFormatText(mission.GUIDescription);
-
-                // 如果不是任务
-                if (string.IsNullOrEmpty(mission.Scenario) || !mission.Enabled)
-                {
-                    _btnLaunch.AllowClick = false;
-                    return;
-                }
-
-                _chkExtension.Visible = true;
-
-                _missionIndex = _lbxCampaignList.SelectedIndex;
-                //改变
-
                  // 如果地图文件存在
                 _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));
 
                 _mapPreviewBox.Visible = false;
 
                 //重新加载Mod选择器
-                _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
-
-                var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
-
-                _cmbGame.Items.Clear();
-
-                if (null == mission.Mod)
-                    return;
-
-
-                if (mission.Mod.Count != 0) //如果任务指定了Mod
-                {
-                    foreach (var item in mission.Mod)
-                    {
-
-                        Mod mod = Mod.Mods.Find(i => i.ID == item && i.CpVisible);
-                        if (mod != null)
-                            _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
-                    }
-                }
-                else
-                {
-                    foreach (var mod in Mod.Mods.Where(mod => mod.CpVisible))
-                    {
-                        _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
-                    }
-                }
-
-                if(上次选择的任务包ID == mission?.MPack?.ID)
-                    _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == oldModID);
-                else
-                    _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == mission.DefaultMod);
-
-                上次选择的任务包ID = mission?.MPack?.ID ?? string.Empty;
-
-                if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
-                    _cmbGame.SelectedIndex = 0;
-
-                CmbGame_SelectedChanged(null, null);
-
-                _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
 
                 _btnLaunch.AllowClick = true;
 

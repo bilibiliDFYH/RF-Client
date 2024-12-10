@@ -61,7 +61,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     break;
                 if (parent is CampaignSelector campaignSelector)
                 {
-                    if (campaignSelector.DropDowns.Find(chk => chk.Name == this.Name) == null)
+                    if (campaignSelector.DropDowns.Find(chk => chk?.Name == this.Name) == null)
                         campaignSelector.DropDowns.Add(this);
                     break;
                 }

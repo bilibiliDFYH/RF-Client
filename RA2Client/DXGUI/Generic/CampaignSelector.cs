@@ -1059,6 +1059,8 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
+        private string 上次选择的任务包ID = string.Empty;
+
         private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
         {
             _cts?.Cancel();
@@ -1127,7 +1129,12 @@ namespace Ra2Client.DXGUI.Generic
                     }
                 }
 
-                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == oldModID);
+                if(上次选择的任务包ID == mission?.MPack?.ID)
+                    _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item =>((Mod)(item.Tag)).ID == oldModID);
+                else
+                    _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == mission.DefaultMod);
+
+                上次选择的任务包ID = mission?.MPack?.ID ?? string.Empty;
 
                 if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
                     _cmbGame.SelectedIndex = 0;

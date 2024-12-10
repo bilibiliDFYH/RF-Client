@@ -52,11 +52,24 @@ namespace Ra2Client.Online
             //new Server("195.8.250.180", "GameSurge IP 195.8.250.180", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
             //new Server("91.217.189.76", "GameSurge IP 91.217.189.76", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
             //new Server("195.68.206.250", "GameSurge IP 195.68.206.250", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("irc.gamesurge.net", "GameSurge", new int[1] { 6667 }),
-            new("online.yra2.com","a-root.zj.yra2.com",[6667,6697,6900]),
-            new("online.ru2023.top","b-root.hb.ru2023.top",[6667,6697,6900])
+            //new Server("irc.gamesurge.net", "GameSurge", new int[1] { 6667 })
 
-            //new Server("www.yra2.com", "ergo.test", new int[1] { 6668 })
+            new("online.yra2.com","a-root.zj.yra2.com",[6667]),
+            new("online.ru2023.top","b-root.hb.ru2023.top",[6667])
+
+            //new("a-root.aries.zhejiang.cn.yra2.com","a-root.aries.cn.zhejiang.yra2.com",[6667]),
+            //new("b-root.taurus.hubei.cn.ru2023.top","b-root.taurus.hubei.cn.ru2023.top",[6667]),
+            //new("c-root.cancer.jiangsu.cn.ru2023.top","c-root.cancer.jiangsu.cn.ru2023.top",[6667]),
+            //new("d-root.leo.sichuan.cn.ru2023.top","d-root.leo.sichuan.cn.ru2023.top",[6667]),
+            //new("e-root.virgo.beijing.cn.yra2.com","e-root.virgo.beijing.cn.ru2023.top",[6667]),
+            //new("f-root.libra.beijing.cn.yra2.com","f-root.libra.beijing.cn.ru2023.top",[6667]),
+            //new("g-root.scorpio.guangdong.cn.yra2.com","g-root.scorpio.guangdong.cn.yra2.com",[6667]),
+            //new("h-root.sagittarius.hongkong.cn.ru2023.top","h-root.sagittarius.hongkong.cn.ru2023.top",[6667]),
+            //new("i-root.capricorn.los-angeles.us.ru2023.top","i-root.capricorn.los-angeles.us.ru2023.top",[6667]),
+            //new("j-root.aquarius.san-jose.us.ru2023.top","j-root.aquarius.san-jose.us.ru2023.top",[6667]),
+            //new("k-root.pisces.jiangsu.cn.ru2023.top","k-root.pisces.jiangsu.cn.ru2023.top",[6667]),
+            //new("l-root.gemini.london.uk.ru2023.top","l-root.gemini.london.uk.ru2023.top",[6667]),
+            //new("m-root.onlycn.liaoning.cn.ru2023.top","m-root.onlycn.liaoning.cn.ru2023.top",[6667])
         }.AsReadOnly();
 
         bool _isConnected = false;

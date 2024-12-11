@@ -28,6 +28,12 @@ namespace ClientCore
                     {
                         try
                         {
+                            if(File.Exists(pFilePath))
+                            {
+                                File.SetAttributes(pFilePath, FileAttributes.Normal);
+                                File.Delete(pFilePath);
+                            }
+                                
                             File.Copy(file, pFilePath, true);
                         }
                         catch

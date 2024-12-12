@@ -358,17 +358,17 @@ namespace Ra2Client.Domain.Multiplayer
 
             
 
-            foreach(var d in Directory.GetDirectories("maps"))
-            {
-                if (Path.GetFileName(d) == "CP" || Path.GetFileName(d) == "Multi") continue;
-                var maps = Directory.EnumerateFiles(d, "*.*", SearchOption.TopDirectoryOnly)
-                                     .Where(file => (file.ToLower().EndsWith(".map") ||
-                                    file.ToLower().EndsWith(".yrm") ||
-                                    file.ToLower().EndsWith(".mpr")
-                                    ) && 是否为多人图(file)
-                                    ).ToList();
-                customMaps.AddRange(maps);
-            }
+            //foreach(var d in Directory.GetDirectories("maps"))
+            //{
+            //    if (Path.GetFileName(d) == "CP" || Path.GetFileName(d) == "Multi") continue;
+            //    var maps = Directory.EnumerateFiles(d, "*.*", SearchOption.TopDirectoryOnly)
+            //                         .Where(file => (file.ToLower().EndsWith(".map") ||
+            //                        file.ToLower().EndsWith(".yrm") ||
+            //                        file.ToLower().EndsWith(".mpr")
+            //                        ) && 是否为多人图(file)
+            //                        ).ToList();
+            //    customMaps.AddRange(maps);
+            //}
 
             rootMaps = customMaps;
 

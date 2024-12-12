@@ -392,6 +392,7 @@ namespace DTAConfig.OptionPanels
             if (r != true)
             {
                 XNAMessageBox.Show(WindowManager, "错误", msg);
+                WindowManager.Report();
                 return;
             }
             try
@@ -405,7 +406,7 @@ namespace DTAConfig.OptionPanels
             XNAMessageBox.Show(WindowManager, "信息", "上传成功！");
             Uploaded = true;
             Disable(); 
-            WindowManager.progress.Report("");
+            WindowManager.Report();
 
         }
 

@@ -1195,26 +1195,26 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             CancellationToken token = _cts.Token;
-            _ = Task.Run(async () =>
+            //_ = Task.Run(async () =>
+            //{
+            if (lbGameModeMapList.SelectedIndex < 0 || lbGameModeMapList.SelectedIndex >= lbGameModeMapList.ItemCount)
             {
-                if (lbGameModeMapList.SelectedIndex < 0 || lbGameModeMapList.SelectedIndex >= lbGameModeMapList.ItemCount)
-                {
-                    ChangeMap(null);
-                    return;
-                }
+                ChangeMap(null);
+                return;
+            }
 
-                ReloadMod();
+            ReloadMod();
 
-                XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
+            XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
 
 
-                GameModeMap = (GameModeMap)item.Tag;
+            GameModeMap = (GameModeMap)item.Tag;
 
-                // if(GameModeMap != null)
-                ChangeMap(GameModeMap);
+            // if(GameModeMap != null)
+            ChangeMap(GameModeMap);
 
-                cmbGame.OnSelectedChanged();
-            },token);
+            cmbGame.OnSelectedChanged();
+            //},token);
         }
 
         public void ReloadMod()

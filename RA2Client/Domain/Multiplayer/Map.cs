@@ -331,20 +331,27 @@ namespace Ra2Client.Domain.Multiplayer
 
                 section = iniFile.GetSection(sectionName);
 
-                Author = section.GetValue("Author",string.Empty);
+                Author = section.GetValue("Author", string.Empty);
                 if (Author == string.Empty)
                 {
+                    // 尝试从其他地方获取作者信息
                     Author = GetMapIni(BaseFilePath).GetValue("Basic", "Author", "佚名");
+
                     if (Author == "佚名")
                     {
-                        var name = mapini.GetValue("Basic", "Name", string.Empty).Split("by ");
+                        // 获取地图名称
+                        var mapName = mapini.GetValue("Basic", "Name", string.Empty);
 
-                        if(name.Length > 1)
-                            Author = name[1];
+                        // 查找包含 "by" 或 "By" 的部分，忽略大小写
+                        int byIndex = mapName.IndexOf("by ", StringComparison.OrdinalIgnoreCase);
+
+                        if (byIndex != -1)
+                            Author = mapName[(byIndex + 3)..].Trim();
                     }
+                    // 保存作者信息
                     section.SetValue("Author", Author);
                 }
-               
+
 
 
                 GameModes = section.GetStringValue("GameModes", "常规作战").Split(',');

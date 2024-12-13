@@ -276,10 +276,10 @@ namespace DTAConfig.OptionPanels
             };
 
             mlbWorkshop
-                .AddColumn("名称", 125)
+                .AddColumn("名称", 225)
                 .AddColumn("标签", 100)
                 .AddColumn("最后更新时间", 200)
-                .AddColumn("下载次数", 200);
+                .AddColumn("下载次数", 100);
 
             var _menu = new XNAContextMenu(WindowManager);
             _menu.Name = nameof(_menu);

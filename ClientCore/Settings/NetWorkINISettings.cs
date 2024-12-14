@@ -23,7 +23,7 @@ public class NetWorkINISettings
 
 #if DEBUG
    private const string Address = "https://api.yra2.com/";
-   //private const string Address = "http://localhost:9088/";
+  // private const string Address = "http://localhost:9088/";
 #else
     private const string Address = "https://api.yra2.com/";
 #endif

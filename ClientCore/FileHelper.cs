@@ -38,7 +38,7 @@ namespace ClientCore
                         }
                         catch
                         {
-                            throw new FileLockedException($"文件操作失败，可能是这个文件{file}被占用了");
+                            throw new FileLockedException($"文件操作失败，可能是这个文件{file}被占用了，等待几秒重试，若反复出现此问题可联系作者");
                         }
                     }
                 }
@@ -57,7 +57,7 @@ namespace ClientCore
                     }
                     catch
                     {
-                        throw new FileLockedException($"文件操作失败，可能是这个文件{file}被占用了");
+                        throw new FileLockedException($"文件操作失败，可能是这个文件{file}被占用了，等待几秒重试，若反复出现此问题可联系作者");
                     }
                 }
             }

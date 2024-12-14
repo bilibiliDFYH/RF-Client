@@ -19,6 +19,8 @@ namespace DTAConfig
 
         public static async Task<bool> RenderOneImageAsync(string mapPath)
         {
+            if(!File.Exists(mapPath)) return false;
+
             try
             {
                 string mapName = Path.GetFileNameWithoutExtension(mapPath);

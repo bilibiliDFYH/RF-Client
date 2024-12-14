@@ -66,6 +66,9 @@ namespace Ra2Client
                 }
             }
 
+            if(!Directory.Exists("Resources/Dynamicbg"))
+                ProgramConstants.SkipLogo = true;
+
             var parameters = new StartupParams(noAudio, multipleInstanceMode, unknownStartupParams);
 
             if (multipleInstanceMode)

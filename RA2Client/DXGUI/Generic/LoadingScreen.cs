@@ -217,6 +217,7 @@ namespace Ra2Client.DXGUI.Generic
                     try
                     {
                         MediaPlayer.Stop();
+                        outputDevice.Stop();
                     }
                     catch (Exception ex)
                     {

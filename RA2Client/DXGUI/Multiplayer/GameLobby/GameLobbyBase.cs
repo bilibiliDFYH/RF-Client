@@ -429,6 +429,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             UserINISettings.Instance.继续渲染地图 += MapLoader.ResumeRendering;
             UserINISettings.Instance.暂停渲染地图 += MapLoader.PauseRendering;
+            UserINISettings.Instance.取消渲染地图 += MapLoader.CancelRendering;
 
             RemoveChild(MapPreviewBox);
 

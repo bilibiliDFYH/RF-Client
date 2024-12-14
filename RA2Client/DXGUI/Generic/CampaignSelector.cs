@@ -192,7 +192,7 @@ namespace Ra2Client.DXGUI.Generic
             };
             //var  ToolTip = new ToolTip(WindowManager, chkExtension) { Text = "启用合适的扩展平台（Ares,Phobos等）。"};
             AddChild(_chkExtension);
-            _chkExtension.Visible = false;
+         //   _chkExtension.Visible = false;
 
             var lblModify = new XNALabel(WindowManager);
             lblModify.Name = nameof(lblModify);
@@ -682,7 +682,9 @@ namespace Ra2Client.DXGUI.Generic
             Task.Run(() => { GetMissionInfo(true); });
 
 
-            if (((Mod)(_cmbGame.SelectedItem.Tag)).md == "md" && !_screenMissions[_lbxCampaignList.SelectedIndex].YR)
+            var mod = (Mod)(_cmbGame.SelectedItem.Tag);
+
+            if (mod.ExtensionOn || (mod.md == "md" && !_screenMissions[_lbxCampaignList.SelectedIndex].YR))
             {
                 _chkExtension.Checked = true;
                 _chkExtension.AllowChecking = false;

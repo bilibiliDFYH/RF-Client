@@ -176,6 +176,7 @@ namespace ClientCore
 
         public Action 暂停渲染地图;
         public Action 继续渲染地图;
+        public Action 取消渲染地图;
 
         public User User { get; set; }
 

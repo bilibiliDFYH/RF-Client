@@ -205,7 +205,7 @@ namespace Ra2Client.Domain.Multiplayer
             GameModeMaps.Reverse();
 
             Logger.Log("地图加载完成。");
-            WindowManager.progress.Report("地图加载完成");
+            WindowManager.Report();
 
             if (!exceptions.IsEmpty)
             {
@@ -295,7 +295,9 @@ namespace Ra2Client.Domain.Multiplayer
         private void 渲染地图()
         {
             Task.Run(async () =>
-            {   
+            {
+                cts?.Cancel();
+                cts = new CancellationTokenSource();
                 var semaphore = new SemaphoreSlim(5); // 最大并发数，例如10
                 var tasks = 需要渲染的地图列表.Select(async map =>
                 {

@@ -41,6 +41,8 @@ namespace ClientGUI
         /// 
         public static void StartGameProcess(WindowManager windowManager,IniFile iniFile = null)
         {
+
+            UserINISettings.Instance.暂停渲染地图?.Invoke();
             string r = 切换文件(iniFile.GetSection("Settings"));
             if (r != string.Empty)
             {
@@ -269,21 +271,33 @@ namespace ClientGUI
             string newMission = newSection.GetValue("Mission", string.Empty);
             string newAi = newSection.GetValue("AI", string.Empty);
 
-           
+            var oldSettings = new IniFile(spawnerSettingsFile.FullName);
+
+            
+
+            var oldSection = oldSettings.GetSection("Settings");
+
+            string oldExtension = string.Empty;
+            string oldGame = string.Empty;
+            string oldMission = string.Empty;
+            string oldAi = string.Empty;
+
+            if (oldSection != null)
+            {
+
+                oldExtension = oldSection.GetValue("Extension", string.Empty);
+                oldGame = oldSection.GetValue("Game", string.Empty);
+                oldMission = oldSection.GetValue("Mission", string.Empty);
+                oldAi = oldSection.GetValue("AI", string.Empty);
+            }
+            
 
             bool 是否修改()
             {
-                var oldSettings = new IniFile(spawnerSettingsFile.FullName);
 
                 if (!oldSettings.SectionExists("Settings")) return true;
+                //   string oldMain = oldSection.GetValue("Main", string.Empty);
 
-                var oldSection = oldSettings.GetSection("Settings");
-
-             //   string oldMain = oldSection.GetValue("Main", string.Empty);
-                string oldExtension = oldSection.GetValue("Extension", string.Empty);
-                string oldGame = oldSection.GetValue("Game", string.Empty);
-                string oldMission = oldSection.GetValue("Mission", string.Empty);
-                string oldAi = oldSection.GetValue("AI", string.Empty);
 
                 if (oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
 
@@ -306,15 +320,46 @@ namespace ClientGUI
                 return false;
             }
 
-            
+            List<string> 获取文件名(string path)
+            {
+                List<string> files = [];
+                if(path == string.Empty) return files;
+                foreach (var file in Directory.GetFiles(path))
+                {
+                    files.Add(Path.GetFileName(file));
+                }
+                return files;
+            }
+
             if(是否修改())
             {
                 try
             {
-                
-                ProgramConstants.clearCache();
 
-                WindowManager.progress.Report("正在加载游戏文件");
+                    // ProgramConstants.clearCache();
+                    // FileHelper.DelFiles(Directory.GetFiles(oldExtension).ToList());
+                    if (oldGame + oldMission + oldAi + oldExtension == string.Empty) ProgramConstants.clearCache();
+                    else
+                    {
+                        if(oldGame != string.Empty)
+                            FileHelper.DelFiles(获取文件名(oldGame));
+                        if(oldMission != string.Empty)
+                            FileHelper.DelFiles(获取文件名(oldMission));
+                        if (oldAi != string.Empty)
+                            FileHelper.DelFiles(获取文件名(oldAi));
+                        if (oldExtension != string.Empty)
+                        {
+                            foreach (var item in oldExtension.Split(','))
+                            {
+                                if (item.StartsWith("Ares"))
+                             
+                                    FileHelper.DelFiles(获取文件名($"Mod&AI/Extension/Ares/{item}"));
+                                else if (item.StartsWith("Phobos"))
+                                    FileHelper.DelFiles(获取文件名($"Mod&AI/Extension/Phobos/{item}"));
+                            }
+                        }
+                    }
+                    WindowManager.progress.Report("正在加载游戏文件");
                 FileHelper.CopyDirectory(newGame, "./");
 
                 foreach (var extension in newExtension.Split(","))

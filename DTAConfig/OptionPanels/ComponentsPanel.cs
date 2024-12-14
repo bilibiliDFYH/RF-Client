@@ -204,6 +204,7 @@ namespace DTAConfig.OptionPanels
           //  }
             InitialComponetsList(_components);
             CompList_SelectedChanged(null, null);
+            CompList.TopIndex = -1;
         }
 
 
@@ -525,35 +526,39 @@ namespace DTAConfig.OptionPanels
 
         private void UnInstall()
         {
+            UserINISettings.Instance.取消渲染地图?.Invoke();
             if (null == _curComponent)
                 return;
-            try
-            {
+            
                 var secData = _locIniData.Sections[_curComponent.hash];
                 string strUnload = secData["Unload"].ToString();
                 string[] lstDelfiles = strUnload.Split(',');
                 
                 foreach(string strfile in lstDelfiles)
                 {
+                try
+                {
                     var filePath = Path.Combine(ProgramConstants.GamePath, strfile);
-                    if (_curComponent.typeName == "地图")
+                    if (_curComponent.typeName == "地图" || _curComponent.typeName == "地图包")
                     {
                         filePath = Path.Combine(ProgramConstants.GamePath, "Maps/Multi/WorkShop", strfile);
                     }
                     if (File.Exists(filePath))
                         File.Delete(filePath);
                 }
+                catch (Exception ex)
+                {
+                    continue;
+                }
 
                 _locIniData.Sections.RemoveSection(_curComponent.hash);
                 iniParser.WriteFile(componentnamePath, _locIniData);
                 需要刷新 = true;
+                WindowManager.Report();
         }
-            catch(Exception ex) 
-            {
-                Console.WriteLine(ex.ToString());
-                return;
-            }
-    }
+            
+           // UserINISettings.Instance.继续渲染地图?.Invoke();
+        }
 
         public void InstallComponent(int reg_name)
         {

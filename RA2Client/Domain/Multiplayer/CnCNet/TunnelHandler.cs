@@ -85,7 +85,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国西南服务器-本区域待上线;0;0;200;0;0;0;2;0"),
                 CnCNetTunnel.Parse("117.72.98.111:50000;China;CN;中国华北服务器-NR01;0;0;200;0;0;0;2;0"),
                 CnCNetTunnel.Parse("39.106.254.31:50000;China;CN;中国华北服务器-NR02;0;0;200;0;0;0;2;0"),
-                CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国华南服务器-本区域待上线;0;0;200;0;0;0;2;0"),
+                CnCNetTunnel.Parse("8.134.110.28:50000;China;CN;中国华南服务器-SU01;0;0;200;0;0;0;2;0"),
                 CnCNetTunnel.Parse("0.0.0.0:50000;Hong Kong;HK;亚洲服务器-本区域待上线;0;0;250;0;0;0;2;0"),
                 CnCNetTunnel.Parse("154.12.187.10:50000;United States;US;北美服务器-US01;0;0;250;0;0;0;2;0"),
                 CnCNetTunnel.Parse("45.88.193.16:50000;United States;US;北美服务器-US02;0;0;250;0;0;0;2;0"),

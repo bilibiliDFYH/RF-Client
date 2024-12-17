@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,7 +13,6 @@ namespace Localization.Tools;
 
 public class SevenZip
 {
-
     /// <summary>
     /// 根据文件和输出目录解压文件
     /// </summary>
@@ -112,8 +110,6 @@ public class SevenZip
         return files;
     }
 
-
-
     public static void ExtractWith7Zip(string archivePath, string extractPath, ProgressCallback progressCallback = null)
     {
         try
@@ -121,10 +117,11 @@ public class SevenZip
             // 构造命令行参数
             string arguments = $"x -aoa \"{archivePath}\" -o\"{extractPath}\"";
             Logger.Log(arguments);
+
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = "Resources/Binaries/7z-x86.exe",
+                FileName = string.Format("Resources/Binaries/7z-{0}.exe", Environment.Is64BitProcess ? "x64" : "x86"),
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程
@@ -170,7 +167,7 @@ public class SevenZip
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = "Resources/Binaries/7z.exe",
+                FileName = string.Format("Resources/Binaries/7z-{0}.exe", Environment.Is64BitProcess ? "x64" : "x86"),
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程
@@ -215,7 +212,7 @@ public class SevenZip
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = "Resources/Binaries/7z.exe",
+                FileName = string.Format("Resources/Binaries/7z-{0}.exe", Environment.Is64BitProcess ? "x64" : "x86"),
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程
@@ -248,9 +245,6 @@ public class SevenZip
         }
     }
 
-
-
-
     public static List<string> GetFile(string path)
     {
 
@@ -258,5 +252,4 @@ public class SevenZip
 
         return archiveFile.Entries.Select(e => e.FileName).Where(e => e.Contains('.')).ToList();
     }
-
 }

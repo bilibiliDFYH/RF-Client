@@ -902,7 +902,10 @@ public static class Updater
                         //启动游戏目录下的更新器
                         Logger.Log("更新：Launching second-stage updater executable " + clientUpdaterFile.FullName + ".");
 
-                        string strDotnet = "C:\\Program Files (x86)\\dotnet\\dotnet.exe";
+                        string strDotnet = @"C:\Program Files (x86)\dotnet\dotnet.exe";
+                        if (Environment.Is64BitProcess)
+                            strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
+
                         if (!File.Exists(strDotnet))
                         {
                             Logger.Log("dotnet not exits.");

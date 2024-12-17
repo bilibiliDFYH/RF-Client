@@ -177,9 +177,16 @@ internal sealed class Program
                     Write("发现启动程序: " + launcherExeFile.FullName, ConsoleColor.Green);
 
 #pragma warning disable SA1312 // Variable names should begin with lower-case letter
+
+                    string strDotnet = @"C:\Program Files (x86)\dotnet\dotnet.exe";
+                    if (Environment.Is64BitProcess)
+                    {
+                        strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
+                    }
+
                     using var _ = Process.Start(new ProcessStartInfo
                     {
-                        FileName = "C:\\Program Files (x86)\\dotnet\\dotnet.exe",
+                        FileName = strDotnet,
                         Arguments = "\"" + launcherExeFile.FullName + "\"",
                         CreateNoWindow = true,
                         UseShellExecute = false,

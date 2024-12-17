@@ -298,7 +298,7 @@ namespace Ra2Client.Domain.Multiplayer
             {
                 cts?.Cancel();
                 cts = new CancellationTokenSource();
-                var semaphore = new SemaphoreSlim(5); // 最大并发数，例如10
+                var semaphore = new SemaphoreSlim(1); // 最大并发数，例如10
                 var tasks = 需要渲染的地图列表.Select(async map =>
                 {
                     await semaphore.WaitAsync(cts.Token); // 支持取消

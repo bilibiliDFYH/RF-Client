@@ -323,7 +323,7 @@ namespace ClientGUI
             List<string> 获取文件名(string path)
             {
                 List<string> files = [];
-                if(path == string.Empty) return files;
+                if(path == string.Empty || !Directory.Exists(path)) return files;
                 foreach (var file in Directory.GetFiles(path))
                 {
                     files.Add(Path.GetFileName(file));

@@ -381,9 +381,13 @@ public class ModManager : XNAWindow
 
     private static void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf)
     {
-
         if(!Directory.Exists(missionPack.FilePath))
             Directory.CreateDirectory(missionPack.FilePath);
+
+        if (Directory.Exists($"Mod&AI/Mod/{missionPack.ID}"))
+            Directory.GetFiles($"Mod&AI/Mod/{missionPack.ID}")
+                .ToList()
+                .ForEach(file => File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true));
 
         foreach (var file in Directory.GetFiles(MissionPackPath, "*.map"))
             File.Copy(file,Path.Combine(missionPack.FilePath,Path.GetFileName(file)),true);

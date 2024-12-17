@@ -251,7 +251,7 @@ namespace Localization.SevenZip
         {
             if (string.IsNullOrWhiteSpace(this.libraryFilePath))
             {
-                string currentArchitecture = IntPtr.Size == 4 ? "x86" : "x64"; // magic check
+                string currentArchitecture = Environment.Is64BitProcess ? "x64" : "x86"; // magic check
 
                 if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "7z-" + currentArchitecture + ".dll")))
                 {

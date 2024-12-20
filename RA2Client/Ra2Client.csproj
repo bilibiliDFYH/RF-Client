@@ -16,7 +16,7 @@
         <Nullable>disable</Nullable>
         <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
         <AssemblyName>Ra2Client</AssemblyName>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationManifest>app1.manifest</ApplicationManifest>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
         <UseAppHost>false</UseAppHost>
         <PlatformTarget>AnyCPU</PlatformTarget>

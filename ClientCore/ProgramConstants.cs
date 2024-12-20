@@ -46,15 +46,15 @@ namespace ClientCore
 
         public const string CNCNET_PROTOCOL_REVISION = "R10";
         public const string LAN_PROTOCOL_REVISION = "RL7";
-        public const int LAN_PORT = 1234;
-        public const int LAN_INGAME_PORT = 1234;
-        public const int LAN_LOBBY_PORT = 1232;
-        public const int LAN_GAME_LOBBY_PORT = 1233;
+        //public const int LAN_PORT = 1234;
+        //public const int LAN_INGAME_PORT = 1234;
+        //public const int LAN_LOBBY_PORT = 1232;
+        //public const int LAN_GAME_LOBBY_PORT = 1233;
 
-        //public const int LAN_PORT = 20386;
-        //public const int LAN_INGAME_PORT = 20386;
-        //public const int LAN_LOBBY_PORT = 20385;
-        //public const int LAN_GAME_LOBBY_PORT = 20384;
+        public const int LAN_PORT = 14393;
+        public const int LAN_INGAME_PORT = 14393;
+        public const int LAN_LOBBY_PORT = 17763;
+        public const int LAN_GAME_LOBBY_PORT = 20348;
 
         public const char LAN_DATA_SEPARATOR = (char)01;
         public const char LAN_MESSAGE_SEPARATOR = (char)02;

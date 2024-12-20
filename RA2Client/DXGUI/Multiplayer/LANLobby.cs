@@ -362,7 +362,7 @@ namespace Ra2Client.DXGUI.Multiplayer
                 lbChatMessages.AddMessage(new ChatMessage(Color.Red,
                     "Please check your firewall settings.".L10N("UI:Main:SocketFailure2")));
                 lbChatMessages.AddMessage(new ChatMessage(Color.Red,
-                    "Also make sure that no other application is listening to traffic on UDP ports 1232 - 1234.".L10N("UI:Main:SocketFailure3")));
+                    "Also make sure that no other application is listening to traffic on UDP ports 20384 - 20386.".L10N("UI:Main:SocketFailure3")));
                 initSuccess = false;
                 return;
             }

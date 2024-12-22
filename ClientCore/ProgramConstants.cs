@@ -18,7 +18,6 @@ namespace ClientCore
 
         public static readonly string StartupPath = SafePath.CombineDirectoryPath(new FileInfo(StartupExecutable).Directory.FullName);
 
-        public const string MAIN_SERVER_URL = "https://dln1.yra2.com";
 
         public static string CUR_SERVER_URL = "";
 

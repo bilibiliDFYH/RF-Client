@@ -658,15 +658,15 @@ public class ModManager : XNAWindow
                 if (!Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
                     Directory.CreateDirectory($"{extensionPath}\\Ares\\Ares{aresVerison}");
 
-                File.Copy(Path.Combine(path, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll");
+                File.Copy(Path.Combine(path, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll",true);
 
                 if (File.Exists(Path.Combine(path, "Ares.Mix")))
                 {
-                    File.Copy(Path.Combine(path, "Ares.Mix"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.Mix");
+                    File.Copy(Path.Combine(path, "Ares.Mix"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.Mix", true);
                 }
                 if (File.Exists(Path.Combine(path, "Syringe.exe")))
                 {
-                    File.Copy(Path.Combine(path, "Syringe.exe"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Syringe.exe");
+                    File.Copy(Path.Combine(path, "Syringe.exe"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Syringe.exe", true);
                 }
 
             }

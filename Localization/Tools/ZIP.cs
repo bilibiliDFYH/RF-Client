@@ -19,7 +19,7 @@ public class SevenZip
     /// <param name="strFile">待解压文件，支持多种格式</param>
     /// <param name="strOutDir">输出目录</param>
     /// <returns>解压成功true、解压失败为false</returns>
-    public static bool Unpack(string strFile, string strOutDir)
+    public static bool Unpack(string strFile, string strOutDir,bool isDelete = true)
     {
         try
         {
@@ -33,7 +33,8 @@ public class SevenZip
             Console.WriteLine(ex.Message);
             return false;
         }
-        File.Delete(strFile);
+        if(isDelete)
+            File.Delete(strFile);
         return true;
     }
 

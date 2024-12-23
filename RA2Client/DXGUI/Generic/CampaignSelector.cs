@@ -244,16 +244,32 @@ namespace Ra2Client.DXGUI.Generic
                 Text = "导入任务包",
                 SelectAction = () =>
                 {
-                   // ModManagerEnabled(2);
-                   // _modManager.BtnNew.OnLeftClick();
-
-                    var folderBrowser = new FolderBrowserDialog
+                    var openFileDialog = new OpenFileDialog
                     {
-                        Description = "请选择目录"
+                        Title = "请选择文件夹或压缩包",
+                        Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.mix)|*.zip;*.rar;*.7z;*.map;*.mix|所有文件 (*.*)|*.*", // 限制选择的文件类型
+                        CheckFileExists = true,   // 检查文件是否存在
+                        ValidateNames = true,     // 验证文件名
+                        Multiselect = false       // 不允许多选
                     };
-                    if (folderBrowser.ShowDialog() != DialogResult.OK)
+
+                    if (openFileDialog.ShowDialog() != DialogResult.OK)
                         return;
-                    var path = folderBrowser.SelectedPath;
+
+                    var 后缀 = Path.GetExtension(openFileDialog.FileName);
+                    if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
+                    {
+                        XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+                        return;
+                    }
+
+                    var path = Path.GetDirectoryName(openFileDialog.FileName);
+                    if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
+                    {
+                        var missionPath = $"./tmp/{Path.GetFileName(openFileDialog.FileName)}";
+                        SevenZip.Unpack(openFileDialog.FileName, missionPath,false);
+                        path = missionPath;
+                    }
 
                     var id = _modManager.导入任务包(path);
 

@@ -366,11 +366,12 @@ namespace Ra2Client.DXGUI.Generic
             lblUpdateStatus.Name = nameof(lblUpdateStatus);
             lblUpdateStatus.LeftClick += LblUpdateStatus_LeftClick;
             lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
+            lblUpdateStatus.Text = "获取更新状态失败,点击以重试";
 
             lblWebsite = new XNALinkLabel(WindowManager);
             lblWebsite.Name = nameof(lblWebsite);
             lblWebsite.LeftClick += lblWebsite_LeftClick;
-            lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
+          //  lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
 
             AddChild(picDynamicbg);
             AddChild(lblannouncement);

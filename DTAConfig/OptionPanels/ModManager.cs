@@ -434,34 +434,56 @@ public class ModManager : XNAWindow
     /// </summary>
     public string 导入任务包(string path)
     {
-        if (!判断是否为任务包(path))
+        var 为任务包 = false;
+        var missionPath = path;
+
+        if (判断是否为任务包(missionPath))
+        {
+            为任务包 = true;
+        }
+        else
+        {
+            // 如果路径本身不符合任务包，才检查其子目录
+            foreach (var item in Directory.GetDirectories(missionPath))
+            {
+                if (判断是否为任务包(item))
+                {
+                    为任务包 = true;
+                    missionPath = item;  // 找到任务包后更新路径
+                    break;
+                }
+            }
+        }
+
+
+        if (!为任务包)
         {
             XNAMessageBox.Show(WindowManager, "错误", "没有发现要导入的任务包");
             return string.Empty;
         }
 
-        bool isYR = 判断是否为尤复(path);
+        bool isYR = 判断是否为尤复(missionPath);
 
         var id = FunExtensions.GetTimeStamp();
         var missionPack = new MissionPack
         {
             ID = id,
             FilePath = $"Maps\\CP\\{id}",
-            Name = Path.GetFileName(path),
+            Name = Path.GetFileName(missionPath),
             YR = isYR,
             Other = true,
-            LongDescription = Path.GetFileName(path),
+            LongDescription = Path.GetFileName(missionPath),
             Mod = isYR ? "YR" : "RA2"
         };
         missionPack.DefaultMod = missionPack.Mod;
 
-        if (导入Mod(path, isYR,false) == string.Empty) //说明检测到Mod
+        if (导入Mod(missionPath, isYR,false) == string.Empty) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
             missionPack.DefaultMod = id;
         }
 
-        整合任务包文件(path, missionPack,UserINISettings.Instance.SimplifiedCSF.Value);
+        整合任务包文件(missionPath, missionPack,UserINISettings.Instance.SimplifiedCSF.Value);
 
         写入任务INI(missionPack);
 
@@ -862,13 +884,39 @@ public class ModManager : XNAWindow
     private void BtnNew_LeftClick(object sender, EventArgs e)
     {
 
-        var folderBrowser = new FolderBrowserDialog
+        //var folderBrowser = new FolderBrowserDialog
+        //{
+        //    Description = "请选择目录"
+        //};
+        //if (folderBrowser.ShowDialog() != DialogResult.OK)
+        //    return;
+        //var missionPath = folderBrowser.SelectedPath;
+
+        var openFileDialog = new OpenFileDialog
         {
-            Description = "请选择目录"
+            Title = "请选择文件夹或压缩包",
+            Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.mix)|*.zip;*.rar;*.7z;*.map;*.mix|所有文件 (*.*)|*.*", // 限制选择的文件类型
+            CheckFileExists = true,   // 检查文件是否存在
+            ValidateNames = true,     // 验证文件名
+            Multiselect = false       // 不允许多选
         };
-        if (folderBrowser.ShowDialog() != DialogResult.OK)
+
+        if (openFileDialog.ShowDialog() != DialogResult.OK)
             return;
-        var path = folderBrowser.SelectedPath;
+
+        var 后缀 = Path.GetExtension(openFileDialog.FileName);
+        if(后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+            return;
+        }
+
+        var path = openFileDialog.FileName;
+        if(后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
+        {
+            SevenZip.Unpack(openFileDialog.FileName, "./tmp");
+            path = "./tmp";
+        }
 
         if (DDModAI.SelectedIndex == 0)
             导入Mod(path);
@@ -1123,11 +1171,11 @@ public class ModManager : XNAWindow
     ///// <summary>
     ///// 导入任务包.
     ///// </summary>
-    ///// <param name="path">路径</param>
+    ///// <param name="missionPath">路径</param>
     ///// <param name="report">是否显示警告</param>
-    //public void ImportMissionPack(string path = "",bool report = true)
+    //public void ImportMissionPack(string missionPath = "",bool report = true)
     //{
-    //    if (string.IsNullOrEmpty(path))
+    //    if (string.IsNullOrEmpty(missionPath))
     //    {
     //        //让玩家选择任务包文件夹
     //        var folderBrowser = new FolderBrowserDialog
@@ -1136,10 +1184,10 @@ public class ModManager : XNAWindow
     //        };
     //        if (folderBrowser.ShowDialog() != DialogResult.OK)
     //            return;
-    //        path = folderBrowser.SelectedPath;
+    //        missionPath = folderBrowser.SelectedPath;
     //    }
     //    #region 任务包初步判断
-    //    var missionPackPath = path;
+    //    var missionPackPath = missionPath;
 
     //    var DirectoryName = Path.GetFileName(missionPackPath);
 

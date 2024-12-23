@@ -119,36 +119,37 @@ public class SevenZip
             string arguments = $"x -aoa \"{archivePath}\" -o\"{extractPath}\"";
             Logger.Log(arguments);
 
+            var x64 = "x86";
+            if (Environment.Is64BitProcess)
+                x64 = "x64";
             // 启动 7z.exe 进程
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new()
             {
-                FileName = string.Format("Resources/Binaries/7z-{0}.exe", Environment.Is64BitProcess ? "x64" : "x86"),
+                FileName = $"Resources/Binaries/7z-{x64}.exe",
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程
                 RedirectStandardOutput = true // 重定向标准输出流
             };
 
-            using (Process process = new())
+            using Process process = new();
+            process.StartInfo = startInfo;
+            process.OutputDataReceived += (sender, e) =>
             {
-                process.StartInfo = startInfo;
-                process.OutputDataReceived += (sender, e) =>
+                if (!string.IsNullOrEmpty(e.Data))
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    // 解析输出流中的进度信息
+                    if (int.TryParse(e.Data, out int progress))
                     {
-                        // 解析输出流中的进度信息
-                        if (int.TryParse(e.Data, out int progress))
-                        {
-                            progressCallback?.Invoke(progress);
-                        }
+                        progressCallback?.Invoke(progress);
                     }
-                };
+                }
+            };
 
-                process.Start();
-                process.BeginOutputReadLine(); // 开始异步读取标准输出流
+            process.Start();
+            process.BeginOutputReadLine(); // 开始异步读取标准输出流
 
-                process.WaitForExit(); // 等待解压完成
-            }
+            process.WaitForExit(); // 等待解压完成
         }
         catch (Exception ex)
         {

@@ -28,7 +28,7 @@ namespace DTAConfig
                 string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
                 string strCmdText = $"-i \"{ProgramConstants.GamePath}{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}\\\" -Y -z +(1280,768) --thumb-png --bkp ";
                //  Console.WriteLine(strCmdText);
-                Process process = new Process();
+                using Process process = new Process();
                 process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
                 process.StartInfo.Arguments = strCmdText;
                 process.StartInfo.UseShellExecute = false;

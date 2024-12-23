@@ -256,22 +256,7 @@ namespace Ra2Client.DXGUI.Generic
                     if (openFileDialog.ShowDialog() != DialogResult.OK)
                         return;
 
-                    var 后缀 = Path.GetExtension(openFileDialog.FileName);
-                    if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
-                    {
-                        XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-                        return;
-                    }
-
-                    var path = Path.GetDirectoryName(openFileDialog.FileName);
-                    if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
-                    {
-                        var missionPath = $"./tmp/{Path.GetFileName(openFileDialog.FileName)}";
-                        SevenZip.Unpack(openFileDialog.FileName, missionPath,false);
-                        path = missionPath;
-                    }
-
-                    var id = _modManager.导入任务包(path);
+                    var id = _modManager.导入任务包(openFileDialog.FileName);
 
                     _lbxCampaignList.SelectedIndex = _screenMissions.FindIndex(m => m?.MPack?.ID == id);
                     _lbxCampaignList.TopIndex = _lbxCampaignList.SelectedIndex;
@@ -538,7 +523,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if (_lbxCampaignList.SelectedIndex != -1 && _lbxCampaignList.SelectedItem != null)
             {
-                _chkExtension.Visible = true;
+                //_chkExtension.Visible = true;
                 ExtensionChange();
             }
         }
@@ -1085,7 +1070,6 @@ namespace Ra2Client.DXGUI.Generic
             {
 
                 _btnLaunch.AllowClick = false;
-                _chkExtension.Visible = false;
                 return;
             }
 

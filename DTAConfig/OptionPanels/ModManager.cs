@@ -432,36 +432,62 @@ public class ModManager : XNAWindow
     /// <summary>
     /// 导入任务包.
     /// </summary>
-    public string 导入任务包(string path)
+    public string 导入任务包(string filePath)
     {
-        var 为任务包 = false;
-        var missionPath = path;
-
-        if (判断是否为任务包(missionPath))
+        var 后缀 = Path.GetExtension(filePath);
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
         {
-            为任务包 = true;
+            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+            return "请选择任务包文件";
         }
-        else
+
+        var path = Path.GetDirectoryName(filePath);
+        if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
         {
-            // 如果路径本身不符合任务包，才检查其子目录
-            foreach (var item in Directory.GetDirectories(missionPath))
+            var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
+            SevenZip.Unpack(filePath, missionPath, false);
+            path = missionPath;
+        }
+
+        List<string> mapFiles = [];
+
+        if (判断是否为任务包(path))
+        {
+            导入具体任务包(path);
+            mapFiles.AddRange(Directory.GetFiles(path, "*.map"));
+        }
+        
+        var id = string.Empty;
+
+        // 如果路径本身不符合任务包，才检查其子目录
+        foreach (var item in Directory.GetDirectories(path))
+        {
+            if (判断是否为任务包(item))
             {
-                if (判断是否为任务包(item))
-                {
-                    为任务包 = true;
-                    missionPath = item;  // 找到任务包后更新路径
-                    break;
-                }
+               
+                id = 导入具体任务包(item);
+                mapFiles.AddRange(Directory.GetFiles(item, "*.map"));
             }
         }
+        
 
+        ReLoad();
 
-        if (!为任务包)
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "没有发现要导入的任务包");
-            return string.Empty;
-        }
+        //渲染预览图
+        if (UserINISettings.Instance.RenderPreviewImage.Value)
+            Task.Run(async () =>
+            {
+                
+                await RenderPreviewImageAsync(mapFiles.ToArray());
+            });
 
+        触发刷新?.Invoke();
+
+        return id;
+    }
+
+    public string 导入具体任务包(string missionPath)
+    {
         bool isYR = 判断是否为尤复(missionPath);
 
         var id = FunExtensions.GetTimeStamp();
@@ -475,28 +501,18 @@ public class ModManager : XNAWindow
             LongDescription = Path.GetFileName(missionPath),
             Mod = isYR ? "YR" : "RA2"
         };
+
         missionPack.DefaultMod = missionPack.Mod;
 
-        if (导入Mod(missionPath, isYR,false) == string.Empty) //说明检测到Mod
+        if (导入具体Mod(missionPath, isYR, false) == string.Empty) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
             missionPack.DefaultMod = id;
         }
 
-        整合任务包文件(missionPath, missionPack,UserINISettings.Instance.SimplifiedCSF.Value);
+        整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
 
         写入任务INI(missionPack);
-
-        ReLoad();
-
-        //渲染预览图
-        if (UserINISettings.Instance.RenderPreviewImage.Value)
-            Task.Run(async () =>
-            {
-                await RenderPreviewImageAsync(missionPack);
-            });
-
-        触发刷新?.Invoke();
 
         return id;
     }
@@ -627,7 +643,52 @@ public class ModManager : XNAWindow
         return YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*.md.map").Length != 0;
     }
 
-    private string 导入Mod(string path,bool? isYR = null,bool reload = true)
+    private string 导入Mod(string filePath,bool reload = true)
+    {
+        var 后缀 = Path.GetExtension(filePath);
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".mix")
+        {
+            if(reload)
+                XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
+            return "请选择任务包文件";
+        }
+
+        var path = Path.GetDirectoryName(filePath);
+        if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
+        {
+            var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
+            SevenZip.Unpack(filePath, missionPath, false);
+            path = missionPath;
+        }
+
+        if (判断是否为Mod(path, 判断是否为尤复(path)))
+        {
+            导入具体Mod(path, reload);
+        
+        }
+
+        var id = string.Empty;
+
+        // 如果路径本身不符合任务包，才检查其子目录
+        foreach (var item in Directory.GetDirectories(path))
+        {
+            if (判断是否为Mod(item, 判断是否为尤复(item)))
+            {
+                id = 导入具体Mod(path,reload);
+            }
+        }
+
+        if (reload)
+        {
+            ReLoad();
+            触发刷新?.Invoke();
+        }
+
+        return id;
+
+    }
+
+    private string 导入具体Mod(string path,bool? isYR = null,bool reload = true)
     {
         isYR ??= 判断是否为尤复(path);
         var md = isYR.GetValueOrDefault() ? "md" : string.Empty;
@@ -650,12 +711,6 @@ public class ModManager : XNAWindow
 
         整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
-        if (reload)
-        {
-            ReLoad();
-            触发刷新?.Invoke();
-        }
-
         return string.Empty;
     }
 
@@ -672,7 +727,7 @@ public class ModManager : XNAWindow
             extensionOn = true;
 
             //如果用的自带的3.0p1
-            if (aresVerison == "3.0p1")
+            if (aresVerison == "3.0p1" || aresVerison == "3.0")
                 extension += $"Ares3";
             else
             {
@@ -842,17 +897,19 @@ public class ModManager : XNAWindow
 
             missionPack.Create(); //写入配置
 
-            if(rander)
-               await RenderPreviewImageAsync(missionPack);
-
+            if (rander)
+            {
+                string[] mapFiles = Directory.GetFiles(missionPack.FilePath, "*.map");
+                await RenderPreviewImageAsync(mapFiles);
+            }
             ReLoad(); //重新载入
             触发刷新?.Invoke();
         };
     }
 
-    private async Task RenderPreviewImageAsync(MissionPack missionPack)
+    private async Task RenderPreviewImageAsync(string[] mapFiles)
     {
-        string[] mapFiles = Directory.GetFiles(missionPack.FilePath, "*.map");
+        
         if(mapFiles.Length == 0) return;
 
         var messageBox = new XNAMessage(WindowManager);
@@ -904,24 +961,10 @@ public class ModManager : XNAWindow
         if (openFileDialog.ShowDialog() != DialogResult.OK)
             return;
 
-        var 后缀 = Path.GetExtension(openFileDialog.FileName);
-        if(后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-            return;
-        }
-
-        var path = openFileDialog.FileName;
-        if(后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
-        {
-            SevenZip.Unpack(openFileDialog.FileName, "./tmp");
-            path = "./tmp";
-        }
-
         if (DDModAI.SelectedIndex == 0)
-            导入Mod(path);
+            导入Mod(openFileDialog.FileName);
         if (DDModAI.SelectedIndex == 2)
-          导入任务包(path);
+            导入任务包(openFileDialog.FileName);
     }
 
 

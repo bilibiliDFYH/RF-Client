@@ -113,7 +113,10 @@ namespace DTAConfig
             //// 等待所有任务完成
             //await Task.WhenAll(tasks);
 
-            RenderCount = 0;
+         cts = new CancellationTokenSource();
+         pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
+
+        RenderCount = 0;
 
             var parallelOptions = new ParallelOptions
             {

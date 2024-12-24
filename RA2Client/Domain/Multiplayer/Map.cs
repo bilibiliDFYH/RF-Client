@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Color = Microsoft.Xna.Framework.Color;
 using Point = Microsoft.Xna.Framework.Point;
 using Utilities = Rampastring.Tools.Utilities;
@@ -1191,26 +1192,34 @@ namespace Ra2Client.Domain.Multiplayer
 
         private static Point GetIsoTilePixelCoord(int isoTileX, int isoTileY, string[] actualSizeValues, string[] localSizeValues, Point previewSizePoint, int level)
         {
-            int rx = isoTileX - isoTileY + Convert.ToInt32(actualSizeValues[2], CultureInfo.InvariantCulture) - 1;
-            int ry = isoTileX + isoTileY - Convert.ToInt32(actualSizeValues[2], CultureInfo.InvariantCulture) - 1;
+            try
+            {
+                int rx = isoTileX - isoTileY + Convert.ToInt32(actualSizeValues[2], CultureInfo.InvariantCulture) - 1;
+                int ry = isoTileX + isoTileY - Convert.ToInt32(actualSizeValues[2], CultureInfo.InvariantCulture) - 1;
 
-            int pixelPosX = rx * MainClientConstants.MAP_CELL_SIZE_X / 2;
-            int pixelPosY = ry * MainClientConstants.MAP_CELL_SIZE_Y / 2 - level * MainClientConstants.MAP_CELL_SIZE_Y / 2;
+                int pixelPosX = rx * MainClientConstants.MAP_CELL_SIZE_X / 2;
+                int pixelPosY = ry * MainClientConstants.MAP_CELL_SIZE_Y / 2 - level * MainClientConstants.MAP_CELL_SIZE_Y / 2;
 
-            pixelPosX = pixelPosX - (Convert.ToInt32(localSizeValues[0], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_X);
-            pixelPosY = pixelPosY - (Convert.ToInt32(localSizeValues[1], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_Y);
+                pixelPosX = pixelPosX - (Convert.ToInt32(localSizeValues[0], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_X);
+                pixelPosY = pixelPosY - (Convert.ToInt32(localSizeValues[1], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_Y);
 
-            // Calculate map size
-            int mapSizeX = Convert.ToInt32(localSizeValues[2], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_X;
-            int mapSizeY = Convert.ToInt32(localSizeValues[3], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_Y;
+                // Calculate map size
+                int mapSizeX = Convert.ToInt32(localSizeValues[2], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_X;
+                int mapSizeY = Convert.ToInt32(localSizeValues[3], CultureInfo.InvariantCulture) * MainClientConstants.MAP_CELL_SIZE_Y;
 
-            double ratioX = Convert.ToDouble(pixelPosX) / mapSizeX;
-            double ratioY = Convert.ToDouble(pixelPosY) / mapSizeY;
+                double ratioX = Convert.ToDouble(pixelPosX) / mapSizeX;
+                double ratioY = Convert.ToDouble(pixelPosY) / mapSizeY;
 
-            int pixelX = Convert.ToInt32(ratioX * previewSizePoint.X);
-            int pixelY = Convert.ToInt32(ratioY * previewSizePoint.Y);
+                int pixelX = Convert.ToInt32(ratioX * previewSizePoint.X);
+                int pixelY = Convert.ToInt32(ratioY * previewSizePoint.Y);
 
-            return new Point(pixelX, pixelY);
+                return new Point(pixelX, pixelY);
+            }
+            catch
+            {
+                return new Point(0, 0);
+            }
+
         }
 
         protected bool Equals(Map other) => string.Equals(SHA1, other?.SHA1, StringComparison.InvariantCultureIgnoreCase);

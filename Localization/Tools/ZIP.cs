@@ -117,7 +117,8 @@ public class SevenZip
         {
             // 构造命令行参数
             string arguments = $"x -aoa \"{archivePath}\" -o\"{extractPath}\"";
-            Logger.Log(arguments);
+
+            Console.WriteLine(arguments);
 
             var x64 = "x86";
             if (Environment.Is64BitProcess)

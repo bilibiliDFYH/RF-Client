@@ -438,38 +438,50 @@ public class ModManager : XNAWindow
         if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-            return "请选择任务包文件";
+            return "没有找到任务包文件";
         }
 
         var path = Path.GetDirectoryName(filePath);
         if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
         {
             var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
-            SevenZip.Unpack(filePath, missionPath, false);
+            SevenZip.ExtractWith7Zip(filePath, missionPath);
             path = missionPath;
         }
 
         List<string> mapFiles = [];
 
+        var id = string.Empty;
+
         if (判断是否为任务包(path))
         {
-            导入具体任务包(path);
+            var r = 导入具体任务包(path);
+            if (r != string.Empty)
+                id = r;
             mapFiles.AddRange(Directory.GetFiles(path, "*.map"));
         }
         
-        var id = string.Empty;
-
+        
+        if(Directory.Exists(path))
         // 如果路径本身不符合任务包，才检查其子目录
         foreach (var item in Directory.GetDirectories(path))
         {
             if (判断是否为任务包(item))
             {
-               
-                id = 导入具体任务包(item);
-                mapFiles.AddRange(Directory.GetFiles(item, "*.map"));
+
+                    var r = 导入具体任务包(path);
+                    if (r != string.Empty)
+                        id = r;
+                    mapFiles.AddRange(Directory.GetFiles(item, "*.map"));
             }
         }
         
+        if(id == string.Empty)
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+            return "没有找到任务包文件";
+        }
+
 
         ReLoad();
 
@@ -633,14 +645,14 @@ public class ModManager : XNAWindow
 
     private bool 判断是否为任务包(string path)
     {
-        return Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0;
+        return Directory.Exists(path) && Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0;
     }
 
     private static bool 判断是否为尤复(string path)
     {
         string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.mix", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
         
-        return YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*.md.map").Length != 0;
+        return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*.md.map").Length != 0;
     }
 
     private string 导入Mod(string filePath,bool reload = true)
@@ -661,22 +673,36 @@ public class ModManager : XNAWindow
             path = missionPath;
         }
 
-        if (判断是否为Mod(path, 判断是否为尤复(path)))
-        {
-            导入具体Mod(path, reload);
-        
-        }
-
         var id = string.Empty;
 
-        // 如果路径本身不符合任务包，才检查其子目录
-        foreach (var item in Directory.GetDirectories(path))
+        if (判断是否为Mod(path, 判断是否为尤复(path)))
+        {
+         
+            var r = 导入具体Mod(path, reload);
+            if (r != string.Empty)
+                id = r;
+        }
+
+
+        if (Directory.Exists(path))
+            // 如果路径本身不符合任务包，才检查其子目录
+            foreach (var item in Directory.GetDirectories(path))
         {
             if (判断是否为Mod(item, 判断是否为尤复(item)))
             {
-                id = 导入具体Mod(path,reload);
-            }
+                    var r = 导入具体Mod(path, reload);
+                    if (r != string.Empty)
+                        id = r;
+                }
         }
+
+        if(id == string.Empty)
+        {
+            if (reload)
+                XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
+            return "请选择任务包文件";
+        }
+
 
         if (reload)
         {

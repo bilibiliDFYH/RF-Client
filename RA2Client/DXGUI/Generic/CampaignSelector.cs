@@ -1620,6 +1620,8 @@ namespace Ra2Client.DXGUI.Generic
             _ddMissionPack.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
 
             ScreenMission();
+
+            _lbxCampaignList.SelectedIndex = -1;
         }
 
         /// <summary>

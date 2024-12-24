@@ -20,10 +20,10 @@ namespace Ra2Client.Online
     /// </summary>
     public class Connection
     {
-        private const int MAX_RECONNECT_COUNT = 8;
-        private const int RECONNECT_WAIT_DELAY = 4000;
+        private const int MAX_RECONNECT_COUNT = 10;
+        private const int RECONNECT_WAIT_DELAY = 5000;
         private const int ID_LENGTH = 9;
-        private const int MAXIMUM_LATENCY = 400;
+        private const int MAXIMUM_LATENCY = 500;
 
         public Connection(IConnectionManager connectionManager)
         {

@@ -402,7 +402,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             }
 
-            if (GameModeMap.Map.PreviewTexture == null)
+            if (GameModeMap.Map.PreviewTexture == null || !File.Exists(GameModeMap.Map.PreviewPath))
             {
                 previewTexture = GameModeMap.Map.LoadPreviewTexture();
                 disposeTextures = true;

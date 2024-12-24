@@ -1,6 +1,7 @@
 ﻿using ClientCore;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
+using SharpDX.MediaFoundation;
 using SharpDX.MediaFoundation.DirectX;
 using System;
 using System.Collections.Concurrent;
@@ -16,6 +17,9 @@ namespace DTAConfig
     {
         public static int RenderCount = 0;
         public static event EventHandler RenderCompleted;
+
+        public static CancellationTokenSource cts = new CancellationTokenSource();
+        public static ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
         public static async Task<bool> RenderOneImageAsync(string mapPath)
         {
@@ -73,43 +77,101 @@ namespace DTAConfig
             }
         }
 
+
+
         // 渲染多张图片的方法
         public static async Task RenderImagesAsync(string[] mapPaths)
         {
+            //RenderCount = 0;
+            //int maxDegreeOfParallelism = 5; // 设置最大并发数量，可以根据系统性能和需求进行调整
+            //List<Task> tasks = [];
+
+            //// 使用 SemaphoreSlim 控制并发数量
+            //using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
+            //foreach (string mapPath in mapPaths)
+            //{
+            //    // 等待可用的执行“槽位”
+            //    await semaphore.WaitAsync();
+
+            //    // 使用 Task.Run 创建任务并控制并发量
+            //    var task = Task.Run(async () =>
+            //    {
+            //        try
+            //        {
+            //            await RenderOneImageAsync(mapPath);
+            //        }
+            //        finally
+            //        {
+            //            // 完成任务后释放“槽位”
+            //            semaphore.Release();
+            //        }
+            //    });
+
+            //    tasks.Add(task);
+            //}
+
+            //// 等待所有任务完成
+            //await Task.WhenAll(tasks);
+
             RenderCount = 0;
-            int maxDegreeOfParallelism = 5; // 设置最大并发数量，可以根据系统性能和需求进行调整
-            List<Task> tasks = [];
 
-            // 使用 SemaphoreSlim 控制并发数量
-            using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
-            foreach (string mapPath in mapPaths)
+            var parallelOptions = new ParallelOptions
             {
-                // 等待可用的执行“槽位”
-                await semaphore.WaitAsync();
+                MaxDegreeOfParallelism = 1, // 初始并发数，使用 CPU 核心数的两倍
+                CancellationToken = cts.Token // 支持任务取消
+            };
 
-                // 使用 Task.Run 创建任务并控制并发量
-                var task = Task.Run(async () =>
+            try
+            {
+                // 使用 Parallel.ForEach 执行并行渲染
+                Parallel.ForEach(mapPaths, parallelOptions, (map) =>
                 {
-                    try
+                    while (!cts.Token.IsCancellationRequested)
                     {
-                        await RenderOneImageAsync(mapPath);
-                    }
-                    finally
-                    {
-                        // 完成任务后释放“槽位”
-                        semaphore.Release();
+                        pauseEvent.Wait(); // 等待继续信号
+
+                        try
+                        {
+                            // 渲染任务
+                            if (RenderOneImageAsync(map).Result)
+                            {
+                               // map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
+                            }
+                            else
+                            {
+                               // Console.WriteLine($"渲染失败 {map.BaseFilePath}");
+                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            Console.WriteLine("渲染任务已取消");
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"渲染异常: {ex.Message}");
+                        }
+
+                        break; // 渲染成功后退出循环
                     }
                 });
 
-                tasks.Add(task);
+                WindowManager.progress.Report(""); // 更新进度
             }
-
-            // 等待所有任务完成
-            await Task.WhenAll(tasks);
-
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("所有渲染任务已取消");
+            }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine($"并行任务发生异常: {ex.Flatten().Message}");
+            }
         }
 
+        public static void PauseRendering() => pauseEvent.Reset(); // 暂停
 
+        public static void ResumeRendering() => pauseEvent.Set(); // 继续
 
+        public static void CancelRendering() => cts.Cancel(); // 取消任务
     }
 }

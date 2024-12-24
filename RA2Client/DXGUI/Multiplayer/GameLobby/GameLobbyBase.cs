@@ -427,9 +427,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             CheckBoxes.ForEach(chk => chk.CheckedChanged += ChkBox_CheckedChanged);
             DropDowns.ForEach(dd => dd.SelectedIndexChanged += Dropdown_SelectedIndexChanged);
 
-            UserINISettings.Instance.继续渲染地图 += MapLoader.ResumeRendering;
-            UserINISettings.Instance.暂停渲染地图 += MapLoader.PauseRendering;
-            UserINISettings.Instance.取消渲染地图 += MapLoader.CancelRendering;
+            UserINISettings.Instance.继续渲染地图 += RenderImage.ResumeRendering;
+            UserINISettings.Instance.暂停渲染地图 += RenderImage.PauseRendering;
+            UserINISettings.Instance.取消渲染地图 += RenderImage.CancelRendering;
 
             RemoveChild(MapPreviewBox);
 
@@ -446,6 +446,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             // 如果有重复文件，弹出提示框
             if (duplicateFiles.Count != 0)
             {
+                UserINISettings.Instance.取消渲染地图();
+
                 var box = new XNAMessageBox(WindowManager, "确认删除", $"检测到以下重复的地图，是否删除？\n{string.Join('\n', [.. duplicateFiles])}", XNAMessageBoxButtons.YesNo);
 
                 box.YesClickedAction += (_) =>

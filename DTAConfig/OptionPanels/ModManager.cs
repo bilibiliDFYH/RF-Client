@@ -912,29 +912,29 @@ public class ModManager : XNAWindow
         
         if(mapFiles.Length == 0) return;
 
-        var messageBox = new XNAMessage(WindowManager);
+        //var messageBox = new XNAMessage(WindowManager);
 
-        messageBox.caption = "渲染中...";
-        messageBox.description = $"已渲染图像 0 / {mapFiles.Length}";
-        messageBox.Show();
+        //messageBox.caption = "渲染中...";
+        //messageBox.description = $"已渲染图像 0 / {mapFiles.Length}";
+        //messageBox.Show();
 
  
-        void RenderCompletedHandler(object sender, EventArgs e)
-        {
+        //void RenderCompletedHandler(object sender, EventArgs e)
+        //{
             
-            messageBox.description = $"已渲染图像 {RenderImage.RenderCount} / {mapFiles.Length}";
+        //    messageBox.description = $"已渲染图像 {RenderImage.RenderCount} / {mapFiles.Length}";
 
-            if (RenderImage.RenderCount == mapFiles.Length)
-            {
-                messageBox.Disable();
-                // 渲染完成后，解除事件绑定
-                RenderImage.RenderCompleted -= RenderCompletedHandler;
-            }
-        }
+        //    if (RenderImage.RenderCount == mapFiles.Length)
+        //    {
+        //        messageBox.Disable();
+        //        // 渲染完成后，解除事件绑定
+        //        RenderImage.RenderCompleted -= RenderCompletedHandler;
+        //    }
+        //}
 
-        RenderImage.RenderCompleted += RenderCompletedHandler;
+        //RenderImage.RenderCompleted += RenderCompletedHandler;
  
-         RenderImage.RenderImagesAsync(mapFiles);
+        RenderImage.RenderImagesAsync(mapFiles);
 
     }
 

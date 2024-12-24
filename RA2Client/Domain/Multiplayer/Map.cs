@@ -317,13 +317,14 @@ namespace Ra2Client.Domain.Multiplayer
                 #region 处理预览图
                 if(File.Exists($"{sectionName}.jpg"))
                     PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.jpg"));
-                else
-                {
-                  
-                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
+                else 
+                    {
                     if (!File.Exists($"{sectionName}.png"))
-                        MapLoader.需要渲染的地图列表.Add(this);
-                }
+                        MapLoader.需要渲染的地图列表.Add(BaseFilePath);
+                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
+                    }
+                    
+                
                 #endregion
 
                 if (!iniFile.SectionExists(sectionName))
@@ -979,8 +980,10 @@ namespace Ra2Client.Domain.Multiplayer
         /// <summary>
         /// Loads and returns the map preview texture.
         /// </summary>
-        public Texture2D LoadPreviewTexture(IniFile mapIni = null)
+        public Texture2D LoadPreviewTexture()
         {
+            var mapIni = new IniFile(BaseFilePath);
+
             if (SafePath.GetFile(ProgramConstants.GamePath, PreviewPath).Exists)
                 return AssetLoader.LoadTextureUncached(PreviewPath);
 

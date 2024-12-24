@@ -62,11 +62,8 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         public Task LoadMapsAsync() => Task.Run(LoadMaps2);
 
-        public static List<Map> 需要渲染的地图列表 = [];
+        public static List<string> 需要渲染的地图列表 = [];
      
-        CancellationTokenSource cts = new CancellationTokenSource();
-        ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
-
         private void LoadMultiMaps2(IniFile mpMapsIni, string file)
         {
             var map = new Map(file);
@@ -198,8 +195,6 @@ namespace Ra2Client.Domain.Multiplayer
             .DistinctBy(g => g.Name)
             .ToList();
 
-
-
             GameModeMaps = new GameModeMapCollection(GameModes);
 
             GameModeMaps.Reverse();
@@ -216,7 +211,11 @@ namespace Ra2Client.Domain.Multiplayer
                 }
             }
 
-            渲染地图();
+            Task.Run(() =>
+            {
+                _ = RenderImage.RenderImagesAsync(需要渲染的地图列表.ToArray());
+            });
+
         }
 
         internal static List<string> 检测重复地图()
@@ -286,59 +285,64 @@ namespace Ra2Client.Domain.Multiplayer
             }
         }
 
-        public void PauseRendering() => pauseEvent.Reset(); // 暂停
 
-        public void ResumeRendering() => pauseEvent.Set(); // 继续
 
-        public void CancelRendering() => cts.Cancel(); // 取消任务
+        //private void 渲染地图()
+        //{
+        //    // 定义并行选项
+        //    var parallelOptions = new ParallelOptions
+        //    {
+        //        MaxDegreeOfParallelism = 1, // 初始并发数，使用 CPU 核心数的两倍
+        //        CancellationToken = cts.Token // 支持任务取消
+        //    };
 
-        private void 渲染地图()
-        {
-            Task.Run(async () =>
-            {
-                cts?.Cancel();
-                cts = new CancellationTokenSource();
-                var semaphore = new SemaphoreSlim(1); // 最大并发数，例如10
-                var tasks = 需要渲染的地图列表.Select(async map =>
-                {
-                    await semaphore.WaitAsync(cts.Token); // 支持取消
+        //    try
+        //    {
+        //        // 使用 Parallel.ForEach 执行并行渲染
+        //        Parallel.ForEach(需要渲染的地图列表, parallelOptions, (map) =>
+        //        {
+        //            while (!cts.Token.IsCancellationRequested)
+        //            {
+        //                pauseEvent.Wait(); // 等待继续信号
 
-                    try
-                    {
-                        while (!cts.Token.IsCancellationRequested)
-                        {
-                            pauseEvent.Wait(); // 如果暂停，等待继续信号
+        //                try
+        //                {
+        //                    // 渲染任务
+        //                    if (RenderImage.RenderOneImageAsync(map.BaseFilePath).Result)
+        //                    {
+        //                        map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
+        //                    }
+        //                    else
+        //                    {
+        //                        Console.WriteLine($"渲染失败 {map.BaseFilePath}");
+        //                    }
+        //                }
+        //                catch (OperationCanceledException)
+        //                {
+        //                    Console.WriteLine("渲染任务已取消");
+        //                    break;
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    Console.WriteLine($"渲染异常: {ex.Message}");
+        //                }
 
-                            if (await RenderImage.RenderOneImageAsync(map.BaseFilePath))
-                            {
-                                map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"渲染失败 {map.BaseFilePath}");
-                            }
-                            break; // 成功渲染后跳出循环
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Console.WriteLine("渲染任务已取消");
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"渲染异常: {ex.Message}");
-                    }
-                    finally
-                    {
-                        semaphore.Release(); // 确保释放信号量
-                    }
-                });
+        //                break; // 渲染成功后退出循环
+        //            }
+        //        });
 
-                await Task.WhenAll(tasks); // 等待所有任务完成
-                WindowManager.progress.Report("");
-            });
-        }
-        
+        //        WindowManager.progress.Report(""); // 更新进度
+        //    }
+        //    catch (OperationCanceledException)
+        //    {
+        //        Console.WriteLine("所有渲染任务已取消");
+        //    }
+        //    catch (AggregateException ex)
+        //    {
+        //        Console.WriteLine($"并行任务发生异常: {ex.Flatten().Message}");
+        //    }
+        //}
+
         public static List<string> rootMaps = [];
 
         private void LoadRootMaps()

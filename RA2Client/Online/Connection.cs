@@ -57,17 +57,17 @@ namespace Ra2Client.Online
 
             //---------------分割线上半部分为CnCNet官方的默认(GameSurge)IRC节点，下半部分为Reunion的自建IRC节点---------------//
 
-            new("a-root.ad.cn.ru2023.top","a-root.ad.cn.ru2023.top",[6667]), //RF自用节点1，仅可用于重聚未来客户端
-            new("b-root.wt.cn.ru2023.top","b-root.wt.cn.ru2023.top",[6667]), //RF自用节点2，仅可用于重聚未来客户端
-            new("c-root.vb.cn.ru2023.top","c-root.vb.cn.ru2023.top",[6667]), //RF自用节点3，仅可用于重聚未来客户端
-            new("d-root.bt.cn.ru2023.top","d-root.bt.cn.ru2023.top",[6667]), //RF自用节点4，仅可用于重聚未来客户端
-            new("g-root.yd.sino.ru2023.top","g-root.yd.sino.ru2023.top",[6667]) //RF自用节点5，仅可用于重聚未来客户端
+            new("a-root.ad.cn.ru2023.top","a-root.ad.cn.ru2023.top",[6697]), //RF自用节点1，仅可用于重聚未来客户端
+            new("b-root.wt.cn.ru2023.top","b-root.wt.cn.ru2023.top",[6697]), //RF自用节点2，仅可用于重聚未来客户端
+            new("c-root.vb.cn.ru2023.top","c-root.vb.cn.ru2023.top",[6697]), //RF自用节点3，仅可用于重聚未来客户端
+            new("d-root.bt.cn.ru2023.top","d-root.bt.cn.ru2023.top",[6697]), //RF自用节点4，仅可用于重聚未来客户端
+            new("g-root.yd.sino.ru2023.top","g-root.yd.sino.ru2023.top",[6697]) //RF自用节点5，仅可用于重聚未来客户端
 
             //---------------自建IRC公共节点，使用前需向重聚制作组报备，后续维护方便我们通知，报备QQ群733393645---------------//
 
-            //new("e-root.public.cn.ru2023.top","e-root.public.cn.ru2023.top",[6667]), //YR公共节点1，和重聚自用节点不互通
-            //new("f-root.public.cn2.ru2023.top","f-root.public.cn2.ru2023.top",[6667]), //YR公共节点2，和重聚自用节点不互通
-            //new("h-root.public.cn3.ru2023.top","h-root.public.cn3.ru2023.top",[6667]) //YR公共节点3，和重聚自用节点不互通
+            //new("e-root.public.cn.ru2023.top","e-root.public.cn.ru2023.top",[6697]), //YR公共节点1，和重聚自用节点不互通
+            //new("f-root.public.cn2.ru2023.top","f-root.public.cn2.ru2023.top",[6697]), //YR公共节点2，和重聚自用节点不互通
+            //new("h-root.public.cn3.ru2023.top","h-root.public.cn3.ru2023.top",[6697]) //YR公共节点3，和重聚自用节点不互通
         }.AsReadOnly();
 
         bool _isConnected = false;

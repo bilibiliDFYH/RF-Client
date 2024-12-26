@@ -545,6 +545,8 @@ namespace DTAConfig.OptionPanels
                     }
                     if (File.Exists(filePath))
                         File.Delete(filePath);
+                    string pngFilePath = Path.ChangeExtension(filePath, ".png");
+                    if (File.Exists(pngFilePath)) File.Delete(pngFilePath);
                 }
                 catch (Exception ex)
                 {

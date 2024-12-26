@@ -453,28 +453,27 @@ public class ModManager : XNAWindow
 
         var id = string.Empty;
 
-        if (判断是否为任务包(path))
+        if (Directory.Exists(path))
         {
-            var r = 导入具体任务包(path);
-            if (r != string.Empty)
-                id = r;
-            mapFiles.AddRange(Directory.GetFiles(path, "*.map"));
-        }
-        
-        
-        if(Directory.Exists(path))
-        // 如果路径本身不符合任务包，才检查其子目录
-        foreach (var item in Directory.GetDirectories(path))
-        {
-            if (判断是否为任务包(item))
+            List<string> list = [path, .. Directory.GetDirectories(path)];
+            foreach (var item in list)
             {
+                if (判断是否为任务包(item))
+                {
 
                     var r = 导入具体任务包(path);
                     if (r != string.Empty)
+                    {
                         id = r;
-                    mapFiles.AddRange(Directory.GetFiles(item, "*.map"));
+                        mapFiles.AddRange(Directory.GetFiles($"maps/cp/{id}", "*.map"));
+                    } 
+
+
+                }
             }
         }
+        // 如果路径本身不符合任务包，才检查其子目录
+        
         
         if(id == string.Empty)
         {
@@ -489,7 +488,6 @@ public class ModManager : XNAWindow
         if (UserINISettings.Instance.RenderPreviewImage.Value)
             Task.Run(async () =>
             {
-                
                 await RenderPreviewImageAsync(mapFiles.ToArray());
             });
 
@@ -944,10 +942,10 @@ public class ModManager : XNAWindow
         //messageBox.description = $"已渲染图像 0 / {mapFiles.Length}";
         //messageBox.Show();
 
- 
+
         //void RenderCompletedHandler(object sender, EventArgs e)
         //{
-            
+
         //    messageBox.description = $"已渲染图像 {RenderImage.RenderCount} / {mapFiles.Length}";
 
         //    if (RenderImage.RenderCount == mapFiles.Length)
@@ -959,9 +957,12 @@ public class ModManager : XNAWindow
         //}
 
         //RenderImage.RenderCompleted += RenderCompletedHandler;
- 
-        RenderImage.RenderImagesAsync(mapFiles);
 
+   //     RenderImage.RenderImagesAsync();
+
+        RenderImage.需要渲染的地图列表.InsertRange(0,mapFiles);
+        UserINISettings.Instance.取消渲染地图();
+        _ = RenderImage.RenderImagesAsync();
     }
 
     private void BtnNew_LeftClick(object sender, EventArgs e)

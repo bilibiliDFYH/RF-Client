@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -396,7 +397,7 @@ namespace Ra2Client.Online
 
             // Process each group:
             //   1. Get IPAddress.
-            //   2. Concatenate serverNames.
+            //   2. Concatenate serverNames. 
             //   3. Remove duplicate ports.
             //   4. Construct and return a tuple that contains the IPAddress, concatenated serverNames and unique ports.
             IEnumerable<Tuple<IPAddress, string, int[]>> serverInfos = serverInfosGroupedByIPAddress.Select(serverInfoGroup =>
@@ -434,7 +435,6 @@ namespace Ra2Client.Online
                     Logger.Log($"Skipped a failed server {serverNames} ({serverIPAddress}).");
                     continue;
                 }
-
                 Task<Tuple<Server, long>> pingTask = new Task<Tuple<Server, long>>(() =>
                 {
                     Logger.Log($"Attempting to ping {serverNames} ({serverIPAddress}).");
@@ -457,17 +457,47 @@ namespace Ra2Client.Online
                             {
                                 Logger.Log($"Failed to ping the server {serverNames} ({serverIPAddress}): " +
                                     $"{Enum.GetName(typeof(IPStatus), pingReply.Status)}.");
-
-                                return new Tuple<Server, long>(server, long.MaxValue);
                             }
                         }
                         catch (PingException ex)
                         {
                             Logger.Log($"Caught an exception when pinging {serverNames} ({serverIPAddress}) Lobby server: {ex.Message}");
-
-                            return new Tuple<Server, long>(server, long.MaxValue);
                         }
                     }
+
+                    // 如果Ping不通，尝试使用TcpPing
+                    try
+                    {
+                        Logger.Log($"Attempting TCP ping to {serverNames} ({serverIPAddress}).");
+                        foreach (int port in serverPorts)
+                        {
+                            using (TcpClient tcpClient = new TcpClient())
+                            {
+                                Stopwatch stopwatch = Stopwatch.StartNew();
+                                try
+                                {
+                                    tcpClient.Connect(serverIPAddress, port);
+                                    stopwatch.Stop();
+
+                                    long tcpPingInMs = stopwatch.ElapsedMilliseconds;
+                                    Logger.Log($"TCP latency in milliseconds to {serverNames} ({serverIPAddress}:{port}): {tcpPingInMs}.");
+
+                                    return new Tuple<Server, long>(server, tcpPingInMs);
+                                }
+                                catch (SocketException ex)
+                                {
+                                    Logger.Log($"Failed TCP ping to {serverNames} ({serverIPAddress}:{port}): {ex.Message}");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log($"An exception occurred during TCP ping to {serverNames} ({serverIPAddress}): {ex.Message}");
+                    }
+
+                    // 如果仍然失败，返回最大值
+                    return new Tuple<Server, long>(server, long.MaxValue);
                 });
 
                 pingTask.Start();

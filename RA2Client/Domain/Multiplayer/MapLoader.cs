@@ -61,8 +61,6 @@ namespace Ra2Client.Domain.Multiplayer
         /// Loads multiplayer map info asynchonously.
         /// </summary>
         public Task LoadMapsAsync() => Task.Run(LoadMaps2);
-
-        public static List<string> 需要渲染的地图列表 = [];
      
         private void LoadMultiMaps2(IniFile mpMapsIni, string file)
         {
@@ -77,8 +75,8 @@ namespace Ra2Client.Domain.Multiplayer
 
         public void LoadMaps2()
         {
-            
-            需要渲染的地图列表.Clear();
+            UserINISettings.Instance.取消渲染地图?.Invoke();
+            RenderImage.需要渲染的地图列表.Clear();
             Logger.Log("开始加载地图...");
 
             WindowManager.progress.Report("正在转移根目录地图");
@@ -213,7 +211,8 @@ namespace Ra2Client.Domain.Multiplayer
 
             Task.Run(() =>
             {
-                _ = RenderImage.RenderImagesAsync(需要渲染的地图列表.ToArray());
+                
+                _ = RenderImage.RenderImagesAsync();
             });
 
         }
@@ -491,7 +490,11 @@ namespace Ra2Client.Domain.Multiplayer
         public void DeleteCustomMap(GameModeMap gameModeMap)
         {
             Logger.Log("Deleting map " + gameModeMap.Map.Name);
-            File.Delete(gameModeMap.Map.CompleteFilePath);
+            if(File.Exists(gameModeMap.Map.CompleteFilePath))
+                File.Delete(gameModeMap.Map.CompleteFilePath);
+            string pngFilePath = Path.ChangeExtension(gameModeMap.Map.CompleteFilePath, ".png");
+            if (File.Exists(pngFilePath)) File.Delete(pngFilePath);
+
             foreach (GameMode gameMode in GameModeMaps.GameModes)
             {
                 gameMode.Maps.Remove(gameModeMap.Map);

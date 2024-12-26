@@ -318,7 +318,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             cmbAI = FindChild<GameLobbyDropDown>(nameof(cmbAI));
             cmbAI.SelectedIndexChanged += CmbAI_SelectedChanged;
           
-
             mapContextMenu = new XNAContextMenu(WindowManager);
             mapContextMenu.Name = nameof(mapContextMenu);
             mapContextMenu.Width = 100;
@@ -335,6 +334,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //    SelectAction = 添加至其他游戏模式
             //});
             //AddChild(mapContextMenu);
+
+            mapContextMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "打开地图位置",
+                SelectAction = 打开地图位置
+            });
 
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
@@ -437,6 +442,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             InitializeGameOptionPresetUI();
 
             CmbGame_SelectedChanged(cmbGame, null);
+        }
+
+        private void 打开地图位置()
+        {
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{Map.BaseFilePath}\"");
         }
 
         private void 删除重复地图()
@@ -1124,7 +1134,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private bool CanDeleteMap()
         {
-            return Map != null && !Map.Official && !isMultiplayer;
+            return Map != null && !isMultiplayer;
         }
 
         private void DeleteMapConfirmation()
@@ -1133,7 +1143,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
 
             var messageBox = XNAMessageBox.ShowYesNoDialog(WindowManager, "Delete Confirmation".L10N("UI:Main:DeleteMapConfirmTitle"),
-                string.Format("Are you sure you wish to delete the custom map {0}?".L10N("UI:Main:DeleteMapConfirmText"), Map.Name));
+                $"你确定要删除地图{Map.Name}吗,对应的文件为{Map.BaseFilePath}");
             messageBox.YesClickedAction = DeleteSelectedMap;
         }
 

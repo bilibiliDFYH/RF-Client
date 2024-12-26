@@ -21,6 +21,7 @@ namespace DTAConfig
         public static CancellationTokenSource cts = new CancellationTokenSource();
         public static ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
+        public static List<string> 需要渲染的地图列表 = [];
         public static async Task<bool> RenderOneImageAsync(string mapPath)
         {
             if(!File.Exists(mapPath)) return false;
@@ -80,7 +81,7 @@ namespace DTAConfig
 
 
         // 渲染多张图片的方法
-        public static async Task RenderImagesAsync(string[] mapPaths)
+        public static async Task RenderImagesAsync()
         {
             //RenderCount = 0;
             //int maxDegreeOfParallelism = 5; // 设置最大并发数量，可以根据系统性能和需求进行调整
@@ -127,7 +128,7 @@ namespace DTAConfig
             try
             {
                 // 使用 Parallel.ForEach 执行并行渲染
-                Parallel.ForEach(mapPaths, parallelOptions, (map) =>
+                Parallel.ForEach(需要渲染的地图列表, parallelOptions, (map) =>
                 {
                     while (!cts.Token.IsCancellationRequested)
                     {

@@ -125,6 +125,7 @@ namespace DTAConfig.OptionPanels
                         InitialComponets();
                     }
                 });
+                _menu.AddItem("查看介绍",查看介绍,null,判断是否有介绍);
 
                 AddChild(_menu);
 
@@ -182,6 +183,14 @@ namespace DTAConfig.OptionPanels
         {
             Logger.Log("组件初始化出错：" + ex);
         }
+        }
+
+        private bool 判断是否有介绍() => !string.IsNullOrEmpty(_curComponent.description);
+       
+
+        private void 查看介绍()
+        {
+            XNAMessageBox.Show(WindowManager, _curComponent.name, _curComponent.description);
         }
 
         private void ComboBoxtypes_SelectedIndexChanged(object sender, EventArgs e)

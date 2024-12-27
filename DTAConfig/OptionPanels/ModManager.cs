@@ -2378,24 +2378,24 @@ public class MissionPackInfoWindows : XNAWindow
         AddChild(_lblTitle);
 
         //第一行
-        var lblMissionPackID = new XNALabel(WindowManager)
-        {
-            Text = "任务包ID(唯一):",
-            ClientRectangle = new Rectangle(20, 60, 0, 0)
+        //var lblMissionPackID = new XNALabel(WindowManager)
+        //{
+        //    Text = "任务包ID(唯一):",
+        //    ClientRectangle = new Rectangle(20, 60, 0, 0)
 
-        };
-        AddChild(lblMissionPackID);
+        //};
+        //AddChild(lblMissionPackID);
 
-        _ctbMissionPackID = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblMissionPackID.Right + 100, lblMissionPackID.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbMissionPackID);
+        //_ctbMissionPackID = new XNATextBox(WindowManager)
+        //{
+        //    ClientRectangle = new Rectangle(lblMissionPackID.Right + 100, lblMissionPackID.Y, CtbW, CtbH)
+        //};
+        //AddChild(_ctbMissionPackID);
 
         var lblMissionPackName = new XNALabel(WindowManager)
         {
             Text = "任务包名称:",
-            ClientRectangle = new Rectangle(300, lblMissionPackID.Y, 0, 0)
+            ClientRectangle = new Rectangle(300, 60, 0, 0)
         };
         AddChild(lblMissionPackName);
 
@@ -2409,7 +2409,7 @@ public class MissionPackInfoWindows : XNAWindow
         var lblAuthor = new XNALabel(WindowManager)
         {
             Text = "任务包作者:",
-            ClientRectangle = new Rectangle(lblMissionPackID.X, 100, 0, 0)
+            ClientRectangle = new Rectangle(20, 100, 0, 0)
         };
         AddChild(lblAuthor);
 
@@ -2438,7 +2438,7 @@ public class MissionPackInfoWindows : XNAWindow
         var lblDescription = new XNALabel(WindowManager)
         {
             Text = "任务包介绍:",
-            ClientRectangle = new Rectangle(lblMissionPackID.X, 140, 0, 0)
+            ClientRectangle = new Rectangle(lblAuthor.X, 140, 0, 0)
         };
         AddChild(lblDescription);
 
@@ -2453,7 +2453,7 @@ public class MissionPackInfoWindows : XNAWindow
         var lblMissionPackPath = new XNALabel(WindowManager)
         {
             Text = "任务包路径:",
-            ClientRectangle = new Rectangle(lblMissionPackID.X, 180, 0, 0)
+            ClientRectangle = new Rectangle(lblAuthor.X, 180, 0, 0)
         };
         AddChild(lblMissionPackPath);
 
@@ -2475,7 +2475,7 @@ public class MissionPackInfoWindows : XNAWindow
         var lblCp = new XNALabel(WindowManager)
         {
             Text = "使用的Mod:",
-            ClientRectangle = new Rectangle(lblMissionPackID.X, 220, 0, 0)
+            ClientRectangle = new Rectangle(lblAuthor.X, 220, 0, 0)
         };
         AddChild(lblCp);
 
@@ -2494,35 +2494,12 @@ public class MissionPackInfoWindows : XNAWindow
         };
         AddChild(_chkCsf);
 
-        var lblExtension = new XNALabel(WindowManager)
-        {
-            Text = "支持的扩展:",
-            ClientRectangle = new Rectangle(lblCp.X, 260, 0, 0)
-        };
-        AddChild(lblExtension);
-
-        _ctbExtension = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblExtension.Right + 100, lblExtension.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbExtension);
-
-
-        _chkExtensionOn = new XNACheckBox(WindowManager)
-        {
-            Text = "必须启用扩展",
-            ClientRectangle = new Rectangle(lblMissionPackName.X, lblExtension.Y, 0, 0)
-        };
-        AddChild(_chkExtensionOn);
-
         var btnOk = new XNAClientButton(WindowManager)
         {
             Text = "确定",
             ClientRectangle = new Rectangle(150, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnOk);
-
-        
 
         btnOk.LeftClick += (_, _) =>
         {
@@ -2562,7 +2539,7 @@ public class MissionPackInfoWindows : XNAWindow
         };
 
         _lblTitle.Text = _title;
-        _ctbMissionPackID.Text = _pack.ID;
+        //_ctbMissionPackID.Text = _pack.ID;
         _ctbMissionPackName.Text = _pack.Name;
         _ctbMissionPackDescription.Text = _pack.Name;
         _ctbMissionPackPath.Text = _pack.FilePath;
@@ -2608,7 +2585,7 @@ public class MissionPackInfoWindows : XNAWindow
         if (_cancel)
             return null;
 
-        _pack.ID = _ctbMissionPackID.Text.Trim(); //id
+        _pack.ID = _pack.ID; //id
         _pack.Name = _ctbMissionPackName.Text.Trim(); //名称
         _pack.Description = _ctbMissionPackDescription.Text.Trim(); //介绍
         _pack.FilePath = _ctbMissionPackPath.Text.Trim();

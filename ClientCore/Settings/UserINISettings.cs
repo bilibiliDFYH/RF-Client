@@ -162,8 +162,8 @@ namespace ClientCore
             FavoriteMaps = new StringListSetting(iniFile, OPTIONS, "FavoriteMaps", new List<string>());
 
             Mod_cath = new BoolSetting(iniFile, OPTIONS, "Mod_cath", true);
-
-            Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", false);
+            Console.WriteLine(Environment.OSVersion.Version.Build);
+            Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", Environment.OSVersion.Version.Build == 26100);
             //StartCap = new BoolSetting(iniFile, OPTIONS, "StartCap", true);
 
             第一次下载扩展 = new BoolSetting(iniFile, OPTIONS, "FirstDownload", true);

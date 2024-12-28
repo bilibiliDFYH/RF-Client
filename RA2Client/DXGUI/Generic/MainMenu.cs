@@ -353,7 +353,7 @@ namespace Ra2Client.DXGUI.Generic
 
             lblannouncement = new XNATextBlock(WindowManager);
             lblannouncement.Name = nameof(lblannouncement);
-            lblannouncement.ClientRectangle = new Rectangle(950, 180, 150, 110);
+            lblannouncement.ClientRectangle = new Rectangle(950, 170, 140, 120);
             lblannouncement.TextColor = Color.Cyan;
             lblannouncement.Tag = "公告";
 
@@ -492,9 +492,9 @@ namespace Ra2Client.DXGUI.Generic
             foreach (string s in content.Split("\\n"))
             {
                 s1 = s + Environment.NewLine;
-                if (s1.Length > 15)
+                if (s1.Length > 13)
                 {
-                    s1 = InsertFormat(s1, 15, Environment.NewLine);
+                    s1 = InsertFormat(s1, 13, Environment.NewLine);
                 }
 
                 description += s1;

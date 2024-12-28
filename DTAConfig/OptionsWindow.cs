@@ -261,8 +261,8 @@ namespace DTAConfig
             {
                 foreach (var panel in optionsPanels)
                 {
-                    if (!panel.Enabled) //跳过禁用选项卡参数 By 彼得兔 2024/09/30
-                        continue;
+                    //if (!panel.Selectable) //跳过禁用选项卡参数 By 彼得兔 2024/09/30
+                    //    continue;
                     restartRequired = panel.Save() || restartRequired;
                 }
                 UserINISettings.Instance.SaveSettings();

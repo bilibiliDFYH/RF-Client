@@ -622,6 +622,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
+
             #region 处理扩展按钮兼容
             ExtensionChange();
             if (mod.ExtensionOn) //必须使用扩展
@@ -655,6 +656,51 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             #endregion
 
+
+            if (mod.FileName != "Mod&AI/Mod&AI.ini")
+            {
+                foreach (var chk in CheckBoxes)
+                {
+                    if (!chk.standard)
+                    {
+
+                        chk.Checked = chk.defaultValue;
+                        chk.AllowChecking = false;
+                    }
+
+                }
+                foreach (var dd in DropDowns)
+                {
+                    if (!dd.standard)
+                    {
+
+                        dd.SelectedIndex = dd.defaultIndex;
+                        dd.AllowDropDown = false;
+                    }
+                }
+
+            }
+            else
+            {
+                foreach (var chk in CheckBoxes)
+                {
+                    if (!chk.standard)
+                    {
+                        chk.AllowChecking = true;
+                    }
+                }
+
+                foreach (var dd in DropDowns)
+                {
+                    if (!dd.standard)
+                    {
+                        dd.AllowDropDown = true;
+                    }
+                }
+
+            }
+
+            //cmbGame.AllowDropDown = false;
         }
 
         private void MapPreviewBox_LeftClick(object sender, EventArgs e)
@@ -2860,11 +2906,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             disableGameOptionUpdateBroadcast = true;
 
             // Clear forced options
-            foreach (var ddGameOption in DropDowns)
-                ddGameOption.AllowDropDown = true;
+            //foreach (var ddGameOption in DropDowns)
+            //    ddGameOption.AllowDropDown = true;
 
-            foreach (var checkBox in CheckBoxes)
-                checkBox.AllowChecking = true;
+            //foreach (var checkBox in CheckBoxes)
+            //    checkBox.AllowChecking = true;
 
             // We could either pass the CheckBoxes and DropDowns of this class
             // to the Map and GameMode instances and let them apply their forced

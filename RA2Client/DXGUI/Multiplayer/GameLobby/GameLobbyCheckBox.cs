@@ -67,11 +67,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private string customIniPath;
 
+        public bool standard;
+
         private bool reversed;
 
         public bool Special { get; private set; } = false;
-        
-        private bool defaultValue;
+
+        public bool defaultValue;
 
         private string enabledSpawnIniValue = "True";
         private string disabledSpawnIniValue = "False";
@@ -156,6 +158,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     return;
                 case "Extension":
                     Extension = value;
+                    return;
+                case "Standard":
+                    standard = Conversions.BooleanFromString(value, false);
                     return;
                 case "DisallowedSideIndex":
                 case "DisallowedSideIndices":

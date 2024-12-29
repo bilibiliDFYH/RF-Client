@@ -1561,6 +1561,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public void ReadMissionList()
         {
+            MissionPack.reLoad();
 
             _missions.Clear();
          

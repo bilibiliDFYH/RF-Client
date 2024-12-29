@@ -10,6 +10,7 @@ using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using DTAConfig.Entity;
 using Ra2Client.Domain;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -49,6 +50,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public List<string> ControlName;
 
         public List<string> ControlIndex;
+        public bool standard;
 
         public override void Initialize()
         {
@@ -198,6 +200,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 case "SpawnIniOption":
                     spawnIniOption = value;
                     return;
+
+                case "Standard":
+                    standard = Conversions.BooleanFromString(value, false);
+                    return;
+
                 case "DefaultIndex":
                     SelectedIndex = int.Parse(value);
                     defaultIndex = SelectedIndex;

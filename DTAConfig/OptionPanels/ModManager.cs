@@ -75,11 +75,11 @@ public class ModManager : XNAWindow
             Text = "新增",
             SelectAction = () => BtnNew.OnLeftClick()
         });
-        _modMenu.AddItem(new XNAContextMenuItem
-        {
-            Text = "修改",
-            SelectAction = UpdateBase
-        });
+        //_modMenu.AddItem(new XNAContextMenuItem
+        //{
+        //    Text = "修改",
+        //    SelectAction = UpdateBase
+        //});
         _modMenu.AddItem(new XNAContextMenuItem
         {
             Text = "删除",
@@ -111,12 +111,12 @@ public class ModManager : XNAWindow
             // 没有csf
             if (Directory.Exists(filePath) && Directory.GetFiles(filePath, "*.csf").Length == 0)
             {
-                _modMenu.Items[3].Visible = false;
+                _modMenu.Items[2].Visible = false;
                 
             }
             else
             {
-                _modMenu.Items[3].Visible = true;
+                _modMenu.Items[2].Visible = true;
             }
 
             _modMenu.Open(GetCursorPoint());
@@ -667,7 +667,7 @@ public class ModManager : XNAWindow
         if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
         {
             var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
-            SevenZip.Unpack(filePath, missionPath, false);
+            SevenZip.ExtractWith7Zip(filePath, missionPath);
             path = missionPath;
         }
 
@@ -2423,14 +2423,16 @@ public class MissionPackInfoWindows : XNAWindow
         {
             Text = "任务关数",
             ClientRectangle = new Rectangle(lblMissionPackName.X, 100, 0, 0),
-            Visible = missionMix
+            //Visible = missionMix
+            Visible = false
         };
         AddChild(lblMissionCount);
 
         _ctbMissionCount = new XNATextBox(WindowManager)
         {
             ClientRectangle = new Rectangle(lblMissionCount.Right + 100, lblMissionCount.Y, CtbW, CtbH),
-            Visible = missionMix
+            //Visible = missionMix
+            Visible = false
         };
 
          AddChild(_ctbMissionCount);
@@ -2509,20 +2511,20 @@ public class MissionPackInfoWindows : XNAWindow
                 XNAMessageBox.Show(WindowManager, "错误", "该MissionPackID已存在。");
                 return;
             }
-            if (missionMix)
-            {
-                if (string.IsNullOrEmpty(_ctbMissionCount?.Text))
-                {
-                    XNAMessageBox.Show(WindowManager, "错误", "我们无法推测这个任务包有几关，你需要指定一下");
-                    return;
-                }
+            //if (missionMix)
+            //{
+            //    if (string.IsNullOrEmpty(_ctbMissionCount?.Text))
+            //    {
+            //        XNAMessageBox.Show(WindowManager, "错误", "我们无法推测这个任务包有几关，你需要指定一下");
+            //        return;
+            //    }
 
-                if (!int.TryParse(_ctbMissionCount.Text, out missionCount))
-                {
-                    XNAMessageBox.Show(WindowManager, "错误", "任务关数只能输入数字。");
-                    return;
-                }
-            }
+            //    if (!int.TryParse(_ctbMissionCount.Text, out missionCount))
+            //    {
+            //        XNAMessageBox.Show(WindowManager, "错误", "任务关数只能输入数字。");
+            //        return;
+            //    }
+            //}
             Disable();
         };
 

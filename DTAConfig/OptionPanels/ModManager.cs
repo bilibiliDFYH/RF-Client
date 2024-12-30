@@ -638,7 +638,7 @@ public class ModManager : XNAWindow
             .Where(file => Path.GetFileName(file) != $"battle{md}.ini" && Path.GetFileName(file) != $"mapsel{md}.ini" && Path.GetFileName(file) != $"missionPack{md}.ini")
             .ToArray();
 
-        return shps.Length + vxls.Length + pals.Length + mixs.Length + inis.Length == 0;
+        return shps.Length + vxls.Length + pals.Length + mixs.Length + inis.Length != 0;
     }
 
     private bool 判断是否为任务包(string path)
@@ -673,28 +673,43 @@ public class ModManager : XNAWindow
 
         var id = string.Empty;
 
-        if (判断是否为Mod(path, 判断是否为尤复(path)))
-        {
-         
-            var r = 导入具体Mod(path, reload);
-            if (r != string.Empty)
-                id = r;
-        }
-
-
         if (Directory.Exists(path))
-            // 如果路径本身不符合任务包，才检查其子目录
-            foreach (var item in Directory.GetDirectories(path))
         {
-            if (判断是否为Mod(item, 判断是否为尤复(item)))
+            List<string> list = [path, .. Directory.GetDirectories(path)];
+            foreach (var item in list)
             {
-                    var r = 导入具体Mod(path, reload);
+               
+                    var r = 导入具体Mod(item, reload);
                     if (r != string.Empty)
+                    {
                         id = r;
-                }
+                    }
+                
+            }
         }
 
-        if(id == string.Empty)
+        //if (判断是否为Mod(path, 判断是否为尤复(path)))
+        //{
+
+        //    var r = 导入具体Mod(path, reload);
+        //    if (r != string.Empty)
+        //        id = r;
+        //}
+
+
+        //if (Directory.Exists(path))
+        //    // 如果路径本身不符合任务包，才检查其子目录
+        //    foreach (var item in Directory.GetDirectories(path))
+        //{
+        //    if (判断是否为Mod(item, 判断是否为尤复(item)))
+        //    {
+        //            var r = 导入具体Mod(path, reload);
+        //            if (r != string.Empty)
+        //                id = r;
+        //        }
+        //}
+
+        if (id == string.Empty)
         {
             if (reload)
                 XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
@@ -717,7 +732,7 @@ public class ModManager : XNAWindow
         isYR ??= 判断是否为尤复(path);
         var md = isYR.GetValueOrDefault() ? "md" : string.Empty;
 
-        if(判断是否为Mod(path, isYR.GetValueOrDefault())) return "没有发现要导入的Mod文件";
+        if(!判断是否为Mod(path, isYR.GetValueOrDefault())) return "";
 
         var id = FunExtensions.GetTimeStamp();
 
@@ -735,7 +750,7 @@ public class ModManager : XNAWindow
 
         整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
-        return string.Empty;
+        return id;
     }
 
     private static (string,bool) 处理扩展情况(string path)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,6 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,17 +60,17 @@ namespace Ra2Client.Online
 
             //---------------分割线上半部分为CnCNet官方的默认(GameSurge)IRC节点，下半部分为Reunion的自建IRC节点---------------//
 
-            new("a-root.ad.cn.ru2023.top","a-root.ad.cn.ru2023.top",[+6697]), //RF自用节点1，仅可用于重聚未来客户端
-            new("b-root.wt.cn.ru2023.top","b-root.wt.cn.ru2023.top",[+6697]), //RF自用节点2，仅可用于重聚未来客户端
-            new("c-root.vb.cn.ru2023.top","c-root.vb.cn.ru2023.top",[+6697]), //RF自用节点3，仅可用于重聚未来客户端
-            new("d-root.bt.cn.ru2023.top","d-root.bt.cn.ru2023.top",[+6697]), //RF自用节点4，仅可用于重聚未来客户端
-            new("g-root.yd.sino.ru2023.top","g-root.yd.sino.ru2023.top",[+6697]) //RF自用节点5，仅可用于重聚未来客户端
+            new Server("a-root.ad.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点1，仅可用于重聚未来客户端 
+            new Server("b-root.wt.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点2，仅可用于重聚未来客户端
+            new Server("c-root.vb.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点3，仅可用于重聚未来客户端
+            new Server("d-root.bt.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点4，仅可用于重聚未来客户端
+            new Server("g-root.yd.sino.ru2023.top", "Reunion Global", new int[1] { 6697 }) //RF自用节点5，仅可用于重聚未来客户端
 
             //---------------自建IRC公共节点，使用前需向重聚制作组报备，后续维护方便我们通知，报备QQ群733393645---------------//
 
-            //new("e-root.public.cn.ru2023.top","e-root.public.cn.ru2023.top",[6667]), //YR公共节点1，和重聚自用节点不互通
-            //new("f-root.public.cn2.ru2023.top","f-root.public.cn2.ru2023.top",[6667]), //YR公共节点2，和重聚自用节点不互通
-            //new("h-root.public.cn3.ru2023.top","h-root.public.cn3.ru2023.top",[6667]) //YR公共节点3，和重聚自用节点不互通
+            //new("e-root.public.cn.ru2023.top","Reunion China",[6667]), //YR公共节点1，和重聚自用节点不互通
+            //new("f-root.public.cn2.ru2023.top","Reunion China",[6667]), //YR公共节点2，和重聚自用节点不互通
+            //new("h-root.public.cn3.ru2023.top","Reunion China",[6667]) //YR公共节点3，和重聚自用节点不互通
         }.AsReadOnly();
 
         bool _isConnected = false;
@@ -92,6 +95,7 @@ namespace Ra2Client.Online
         private TimeSpan MessageQueueDelay;
 
         private NetworkStream serverStream;
+        private SslStream sslStream;
         private TcpClient tcpClient;
 
         volatile int reconnectCount = 0;
@@ -192,21 +196,19 @@ namespace Ra2Client.Online
                 {
                     for (int i = 0; i < server.Ports.Length; i++)
                     {
-
-
                         TcpClient client = new TcpClient(AddressFamily.InterNetwork);
                         var result = client.BeginConnect(server.Host, server.Ports[i], null, null);
-                        result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3), false);
+                        bool success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(30), false);
 
                         Logger.Log("Attempting connection to " + server.Host + ":" + server.Ports[i]);
 
-                        if (!client.Connected)
+                        if (!success || !client.Connected)
                         {
                             Logger.Log("Connecting to " + server.Host + " port " + server.Ports[i] + " timed out!");
                             continue; // Start all over again, using the next port
                         }
 
-                        Logger.Log("Succesfully connected to " + server.Host + " on port " + server.Ports[i]);
+                        Logger.Log("Successfully connected to " + server.Host + " on port " + server.Ports[i]);
                         client.EndConnect(result);
 
                         _isConnected = true;
@@ -219,7 +221,17 @@ namespace Ra2Client.Online
 
                         tcpClient = client;
                         serverStream = tcpClient.GetStream();
-                        serverStream.ReadTimeout = 1000;
+                        sslStream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
+                        try
+                        {
+                            sslStream.AuthenticateAsClient(server.Host, null, SslProtocols.Tls12, false);
+                        }
+                        catch (AuthenticationException ex)
+                        {
+                            Logger.Log("TLS authentication failed: " + ex.Message);
+                            continue; // Try the next server
+                        }
+                        sslStream.ReadTimeout = 1000;
 
                         currentConnectedServerIP = server.Host;
                         HandleComm();
@@ -231,14 +243,42 @@ namespace Ra2Client.Online
                 {
                     Logger.Log("Unable to connect to the server. " + ex.Message);
                 }
-                
             }
-            
+
             Logger.Log("Connecting to CnCNet failed!");
             // Clear the failed server list in case connecting to all servers has failed
             failedServerIPs.Clear();
             _attemptingConnection = false;
             connectionManager.OnConnectAttemptFailed();
+        }
+
+        // 验证IRC服务端的SSL/TLS证书是否有效
+        public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            // 证书配置策略是否有误
+            if (sslPolicyErrors == SslPolicyErrors.None)
+            {
+                return true;
+            }
+
+            // 证书是否在有效期内
+            DateTime now = DateTime.UtcNow;
+            X509Certificate2 cert2 = certificate as X509Certificate2;
+            if (cert2 != null && (cert2.NotBefore > now || cert2.NotAfter < now))
+            {
+                Logger.Log($"Certificate is not valid. Valid from {cert2.NotBefore} to {cert2.NotAfter}");
+                return false;
+            }
+
+            // 证书颁发者在当前系统中是否可信
+            if (!chain.ChainElements.Cast<X509ChainElement>().Any(element => element.Certificate.Issuer == certificate.Issuer))
+            {
+                Logger.Log($"Certificate issuer is not trusted: {certificate.Issuer}");
+                return false;
+            }
+
+            Logger.Log($"Certificate is valid. Issuer: {certificate.Issuer}, Valid from {cert2.NotBefore} to {cert2.NotAfter}");
+            return true;
         }
 
         private void HandleComm()
@@ -271,11 +311,11 @@ namespace Ra2Client.Online
 
                 try
                 {
-                    bytesRead = serverStream.Read(message, 0, 1024);
+                    bytesRead = sslStream.Read(message, 0, 1024);
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log("Disconnected from CnCNet due to a socket error. message: " + ex.Message);
+                    Logger.Log("Disconnected from CnCNet due to an unexpected error. message: " + ex.Message);
                     errorTimes++;
 
                     if (errorTimes > MAX_RECONNECT_COUNT)
@@ -292,7 +332,7 @@ namespace Ra2Client.Online
 
                 errorTimes = 0;
 
-                // A message has been succesfully received
+                // A message has been successfully received
                 string msg = encoding.GetString(message, 0, bytesRead);
                 Logger.Log("message received: " + msg);
 
@@ -539,7 +579,7 @@ namespace Ra2Client.Online
             SendMessage("QUIT");
 
             tcpClient.Close();
-            serverStream.Close();
+            sslStream.Close();
         }
 
         #region Handling commands
@@ -1005,18 +1045,18 @@ namespace Ra2Client.Online
         /// <param name="message">The message to send.</param>
         private void SendMessage(string message)
         {
-            if (serverStream == null)
+            if (sslStream == null)
                 return;
 
             Logger.Log("SRM: " + message);
 
             byte[] buffer = encoding.GetBytes(message + "\r\n");
-            if (serverStream.CanWrite)
+            if (sslStream.CanWrite)
             {
                 try
                 {
-                    serverStream.Write(buffer, 0, buffer.Length);
-                    serverStream.Flush();
+                    sslStream.Write(buffer, 0, buffer.Length);
+                    sslStream.Flush();
                 }
                 catch (IOException ex)
                 {

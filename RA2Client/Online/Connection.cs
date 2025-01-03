@@ -37,7 +37,7 @@ namespace Ra2Client.Online
         IConnectionManager connectionManager;
 
         /// <summary>
-        /// The list of CnCNet / GameSurge IRC servers to connect to.
+        /// The list of CnCNet / GameSurge / Reunion IRC servers to connect to.
         /// </summary>
         private static readonly IList<Server> Servers = new List<Server>
         {

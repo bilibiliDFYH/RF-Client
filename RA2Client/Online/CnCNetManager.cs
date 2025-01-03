@@ -582,10 +582,10 @@ namespace Ra2Client.Online
             bool isAdmin = false;
             string name = userName;
 
-            if (userName.StartsWith("@"))
+            if (userName.StartsWith("@") || userName.StartsWith("~") || userName.StartsWith("&"))
             {
                 isAdmin = true;
-                name = userName.Remove(0, 1);
+                name = userName.Substring(1);
             }
 
             IRCUser ircUser = null;
@@ -741,7 +741,7 @@ namespace Ra2Client.Online
                 string name = userName;
                 bool isAdmin = false;
 
-                if (userName.StartsWith("@"))
+                if (userName.StartsWith("@") || userName.StartsWith("~") || userName.StartsWith("&"))
                 {
                     isAdmin = true;
                     name = userName.Substring(1);

@@ -198,7 +198,7 @@ namespace Ra2Client.Online
                     {
                         TcpClient client = new TcpClient(AddressFamily.InterNetwork);
                         var result = client.BeginConnect(server.Host, server.Ports[i], null, null);
-                        bool success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(30), false);
+                        bool success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3), false);
 
                         Logger.Log("Attempting connection to " + server.Host + ":" + server.Ports[i]);
 
@@ -489,7 +489,7 @@ namespace Ra2Client.Online
                             if (pingReply.Status == IPStatus.Success)
                             {
                                 long pingInMs = pingReply.RoundtripTime;
-                                Logger.Log($"The latency in milliseconds to the server {serverNames} ({serverIPAddress}): {pingInMs}.");
+                                Logger.Log($"The ping latency in milliseconds to the server {serverNames} ({serverIPAddress}): {pingInMs}.");
 
                                 return new Tuple<Server, long>(server, pingInMs);
                             }
@@ -508,7 +508,7 @@ namespace Ra2Client.Online
                     // 如果Ping不通，尝试使用TcpPing
                     try
                     {
-                        Logger.Log($"Attempting TCP ping to {serverNames} ({serverIPAddress}).");
+                        Logger.Log($"Attempting to tcping {serverNames} ({serverIPAddress}).");
                         foreach (int port in serverPorts)
                         {
                             using (TcpClient tcpClient = new TcpClient())
@@ -516,17 +516,20 @@ namespace Ra2Client.Online
                                 Stopwatch stopwatch = Stopwatch.StartNew();
                                 try
                                 {
-                                    tcpClient.Connect(serverIPAddress, port);
-                                    stopwatch.Stop();
+                                    var connectTask = tcpClient.ConnectAsync(serverIPAddress, port);
+                                    if (connectTask.Wait(TimeSpan.FromSeconds(3)))
+                                    {
+                                        stopwatch.Stop();
 
-                                    long tcpPingInMs = stopwatch.ElapsedMilliseconds;
-                                    Logger.Log($"TCP latency in milliseconds to {serverNames} ({serverIPAddress}:{port}): {tcpPingInMs}.");
+                                        long tcpPingInMs = stopwatch.ElapsedMilliseconds;
+                                        Logger.Log($"The tcping latency in milliseconds to the server {serverNames} ({serverIPAddress}:{port}): {tcpPingInMs}.");
 
-                                    return new Tuple<Server, long>(server, tcpPingInMs);
+                                        return new Tuple<Server, long>(server, tcpPingInMs);
+                                    }
                                 }
                                 catch (SocketException ex)
                                 {
-                                    Logger.Log($"Failed TCP ping to {serverNames} ({serverIPAddress}:{port}): {ex.Message}");
+                                    Logger.Log($"Failed to tcping the server {serverNames} ({serverIPAddress}:{port}): {ex.Message}");
                                 }
                             }
                         }

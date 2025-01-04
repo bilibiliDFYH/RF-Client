@@ -526,17 +526,21 @@ namespace Ra2Client.Online
 
                                         return new Tuple<Server, long>(server, tcpPingInMs);
                                     }
+                                    else
+                                    {
+                                        Logger.Log($"Failed to tcping the server {serverNames} ({serverIPAddress}:{port}) TimedOut.");
+                                    }
                                 }
                                 catch (SocketException ex)
                                 {
-                                    Logger.Log($"Failed to tcping the server {serverNames} ({serverIPAddress}:{port}): {ex.Message}");
+                                    Logger.Log($"Caught an exception when tcpinging {serverNames} ({serverIPAddress}:{port}) Lobby server: {ex.Message}");
                                 }
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Logger.Log($"An exception occurred during TCP ping to {serverNames} ({serverIPAddress}): {ex.Message}");
+                        Logger.Log($"An exception occurred during tcping to {serverNames} ({serverIPAddress}): {ex.Message}");
                     }
 
                     // 如果仍然失败，返回最大值

@@ -108,7 +108,7 @@ namespace DTAConfig.OptionPanels
             chkMultinuclear = new XNAClientCheckBox(WindowManager);
             chkMultinuclear.Name = "chkMultinuclear";
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
-            chkMultinuclear.Text = "尝试多核运行";
+            chkMultinuclear.Text = "尝试多核运行(24H2以上必须开启,其他Win版本建议关闭)";
 
             chkForceEnableGameOptions = new XNAClientCheckBox(WindowManager)
             {

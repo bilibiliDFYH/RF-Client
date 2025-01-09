@@ -2906,11 +2906,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             disableGameOptionUpdateBroadcast = true;
 
             // Clear forced options
-            //foreach (var ddGameOption in DropDowns)
-            //    ddGameOption.AllowDropDown = true;
+            foreach (var ddGameOption in DropDowns)
+                ddGameOption.AllowDropDown = true;
 
-            //foreach (var checkBox in CheckBoxes)
-            //    checkBox.AllowChecking = true;
+            foreach (var checkBox in CheckBoxes)
+                checkBox.AllowChecking = true;
 
             // We could either pass the CheckBoxes and DropDowns of this class
             // to the Map and GameMode instances and let them apply their forced

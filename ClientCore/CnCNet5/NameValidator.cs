@@ -16,10 +16,7 @@ namespace ClientCore.CnCNet5
             var profanityFilter = new ProfanityFilter();
 
             if (string.IsNullOrEmpty(name))
-                return "Please enter a name.".L10N("UI:ClientCore:EnterAName");
-
-            if (profanityFilter.IsOffensive(name))
-                return "Please enter a name that is less offensive.".L10N("UI:ClientCore:NameOffensive");
+                return "请输入昵称.";
 
             if (name.Contains(' '))
                 return "用户名不能包含空格。";
@@ -27,8 +24,14 @@ namespace ClientCore.CnCNet5
             if (name.EndsWith('_'))
                 return "用户名不能以下划线结尾。";
 
+            if (char.IsDigit(name[0]))
+                return "用户名不能以数字开头。";
+
             if (name.Length > ClientConfiguration.Instance.MaxNameLength)
-                return "Your nickname is too long.".L10N("UI:ClientCore:NameTooLong");
+                return $"你的用户名太长了,不能超过{ClientConfiguration.Instance.MaxNameLength}个字符.";
+
+            if (profanityFilter.IsOffensive(name))
+                return "名称违规,请换一个.";
 
             return null;
         }

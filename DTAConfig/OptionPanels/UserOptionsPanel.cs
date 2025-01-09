@@ -1099,10 +1099,10 @@ namespace DTAConfig.OptionPanels
 
             if (tbPlayerName.Text.Length == 0 && !是重置) return "用户名不能为空";
               
-            if (!是重置 && !用户名规则().IsMatch(tbPlayerName.Text)) return "用户名不能为数字开头且不能包含@";
+            var s = NameValidator.IsNameValid(tbPlayerName.Text);
+            if(!是重置 &&s != null) return s;
 
-            
-            return 是重置?null:NameValidator.IsNameValid(tbPlayerName.Text);
+            return null;
 
         }
 
@@ -1186,12 +1186,12 @@ namespace DTAConfig.OptionPanels
         /// </summary>
         private void Reversal() => dyControls.ForEach(x => x.Visible = !x.Visible);
 
-        private static readonly Regex 用户名规则实例 = new Regex(@"^[^\d@][^ @]*$", RegexOptions.Compiled);
+        //private static readonly Regex 用户名规则实例 = new Regex(@"^[^\d@][^ @]*$", RegexOptions.Compiled);
 
-        public static Regex 用户名规则()
-        {
-            return 用户名规则实例;
-        }
+        //public static Regex 用户名规则()
+        //{
+        //    return 用户名规则实例;
+        //}
     }
 
     public class 编辑窗口(WindowManager windowManager, List<string> sides) : 用户信息窗口(windowManager, sides)

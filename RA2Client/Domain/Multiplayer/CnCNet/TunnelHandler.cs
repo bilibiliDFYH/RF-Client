@@ -79,18 +79,8 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private void RefreshTunnelsAsync()
         {
             List<CnCNetTunnel> tunnels = [
-                CnCNetTunnel.Parse("110.42.111.242:50000;China;CN;中国华东服务器-EA01;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("111.173.106.89:50000;China;CN;中国华中服务器-CT01;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("43.248.118.243:50000;China;CN;中国华东服务器-EA02;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("43.248.128.47:50000;China;CN;中国华东服务器-EA03;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("0.0.0.0:50000;China;CN;中国西南服务器1-本区域待上线;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("117.72.98.111:50000;China;CN;中国华北服务器-NR01;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("39.106.254.31:50000;China;CN;中国华北服务器-NR02;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("8.134.110.28:50000;China;CN;中国华南服务器-SU01;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("116.205.231.144:50000;China;CN;中国华南服务器-SU02;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("0.0.0.0:50000;Hong Kong;HK;亚洲服务器1-本区域待上线;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("154.12.187.10:50000;United States;US;北美服务器-US01;0;0;250;0;0;0;2;0"),
-                CnCNetTunnel.Parse("45.88.193.16:50000;United States;US;北美服务器-US02;0;0;250;0;0;0;2;0"),
+                CnCNetTunnel.Parse("127.6.6.6:50000;China;CN;名称里带Reunion的都是重聚官服;0;0;1;0;0;0;2;0"),
+                CnCNetTunnel.Parse("127.8.8.8:50000;China;CN;不要选这里的这两个, 服务器无效;0;0;1;0;0;0;2;0"),
                 ];
 
 

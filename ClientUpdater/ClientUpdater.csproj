@@ -7,7 +7,7 @@
     <Description>Ra2Client Updater</Description>
     <Company></Company>
     <Product></Product>
-    <Copyright>Copyright © Snowy Studio 2023</Copyright>
+    <Copyright>Copyright © Snowy Studio 2022-2025</Copyright>
     <Trademark>Snowy</Trademark>
     <AssemblyName>ClientUpdater</AssemblyName>
     <RootNamespace>ClientUpdater</RootNamespace>

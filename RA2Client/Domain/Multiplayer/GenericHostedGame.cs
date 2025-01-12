@@ -36,6 +36,8 @@ namespace Ra2Client.Domain.Multiplayer
 
         public DateTime LastRefreshTime { get; set; }
 
+        public int SkillLevel { get; set; }
+
         public virtual bool Equals(GenericHostedGame other) =>
             string.Equals(RoomName, other?.RoomName, StringComparison.InvariantCultureIgnoreCase);
     }

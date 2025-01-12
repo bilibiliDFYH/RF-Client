@@ -17,7 +17,7 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
-
+using Ra2Client.DXGUI.Multiplayer.CnCNet;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -43,8 +43,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public const string PING = "PING";
 
         public LANGameLobby(WindowManager windowManager, string iniName,
-            TopBar topBar, LANColor[] chatColors, MapLoader mapLoader, DiscordHandler discordHandler) :
-            base(windowManager, iniName, topBar, mapLoader, discordHandler)
+            TopBar topBar, LANColor[] chatColors, MapLoader mapLoader, DiscordHandler discordHandler, PrivateMessagingWindow pmWindow) :
+            base(windowManager, iniName, topBar, mapLoader, discordHandler, pmWindow)
         {
             this.chatColors = chatColors;
             encoding = Encoding.UTF8;

@@ -30,10 +30,12 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
         private XNATextBox tbGameName;
         private XNAClientDropDown ddMaxPlayers;
+        private XNAClientDropDown ddSkillLevel;
         private XNATextBox tbPassword;
 
         private XNALabel lblRoomName;
         private XNALabel lblMaxPlayers;
+        private XNALabel lblSkillLevel;
         private XNALabel lblPassword;
 
         private XNALabel lblTunnelServer;
@@ -47,10 +49,14 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
         private TunnelHandler tunnelHandler;
 
+        private string[] SkillLevelOptions;
+
         public override void Initialize()
         {
             lbTunnelList = new TunnelListBox(WindowManager, tunnelHandler);
             lbTunnelList.Name = nameof(lbTunnelList);
+
+            SkillLevelOptions = ClientConfiguration.Instance.SkillLevelOptions.Split(',');
 
             Name = "GameCreationWindow";
             Width = lbTunnelList.Width + UIDesignConstants.EMPTY_SPACE_SIDES * 2 +
@@ -85,10 +91,31 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 UIDesignConstants.CONTROL_HORIZONTAL_MARGIN, ddMaxPlayers.Y + 1, 0, 0);
             lblMaxPlayers.Text = "Maximum number of players:".L10N("UI:Main:GameMaxPlayerCount");
 
+            // Skill Level selector
+            ddSkillLevel = new XNAClientDropDown(WindowManager);
+            ddSkillLevel.Name = nameof(ddSkillLevel);
+            ddSkillLevel.ClientRectangle = new Rectangle(tbGameName.X, ddMaxPlayers.Bottom + 20,
+                tbGameName.Width, 21);
+
+            for (int i = 0; i < SkillLevelOptions.Length; i++)
+            {
+                string skillLevel = SkillLevelOptions[i];
+                string localizedSkillLevel = skillLevel.L10N($"INI:ClientDefinitions:SkillLevel:{i}");
+                ddSkillLevel.AddItem(localizedSkillLevel);
+            }
+
+            ddSkillLevel.SelectedIndex = 0;
+
+            lblSkillLevel = new XNALabel(WindowManager);
+            lblSkillLevel.Name = nameof(lblSkillLevel);
+            lblSkillLevel.ClientRectangle = new Rectangle(UIDesignConstants.EMPTY_SPACE_SIDES +
+                UIDesignConstants.CONTROL_HORIZONTAL_MARGIN, ddSkillLevel.Y + 1, 0, 0);
+            lblSkillLevel.Text = "玩家水平要求(参考值):";
+
             tbPassword = new XNATextBox(WindowManager);
             tbPassword.Name = nameof(tbPassword);
             tbPassword.MaximumTextLength = 20;
-            tbPassword.ClientRectangle = new Rectangle(tbGameName.X, ddMaxPlayers.Bottom + 20,
+            tbPassword.ClientRectangle = new Rectangle(tbGameName.X, ddSkillLevel.Bottom + 20,
                 tbGameName.Width, 21);
 
             lblPassword = new XNALabel(WindowManager);
@@ -110,7 +137,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblTunnelServer.Name = nameof(lblTunnelServer);
             lblTunnelServer.ClientRectangle = new Rectangle(UIDesignConstants.EMPTY_SPACE_SIDES +
                 UIDesignConstants.CONTROL_HORIZONTAL_MARGIN, lblPassword.Bottom + UIDesignConstants.CONTROL_VERTICAL_MARGIN * 4, 0, 0);
-            lblTunnelServer.Text = "服务器:";
+            lblTunnelServer.Text = "服务器列表:";
             lblTunnelServer.Enabled = false;
             lblTunnelServer.Visible = false;
 
@@ -152,6 +179,8 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             AddChild(lblMaxPlayers);
             AddChild(tbPassword);
             AddChild(lblPassword);
+            AddChild(ddSkillLevel);
+            AddChild(lblSkillLevel);
             AddChild(btnDisplayAdvancedOptions);
             AddChild(lblTunnelServer);
             AddChild(lbTunnelList);
@@ -229,7 +258,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
             GameCreationEventArgs ea = new GameCreationEventArgs(gameName,
                 spawnSGIni.GetIntValue("Settings", "PlayerCount", 2), password,
-                tunnelHandler.Tunnels[lbTunnelList.SelectedIndex]);
+                tunnelHandler.Tunnels[lbTunnelList.SelectedIndex], ddSkillLevel.SelectedIndex);
 
             LoadedGameCreated?.Invoke(this, ea);
         }
@@ -255,9 +284,11 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 return;
             }
 
-            GameCreated?.Invoke(this, new GameCreationEventArgs(gameName,
-                int.Parse(ddMaxPlayers.SelectedItem.Text), tbPassword.Text,
-                tunnelHandler.Tunnels[lbTunnelList.SelectedIndex]));
+            GameCreated?.Invoke(this,
+            new GameCreationEventArgs(gameName, int.Parse(ddMaxPlayers.SelectedItem.Text),
+            tbPassword.Text, tunnelHandler.Tunnels[lbTunnelList.SelectedIndex],
+            ddSkillLevel.SelectedIndex)
+            );
         }
 
         private int GetMinms()

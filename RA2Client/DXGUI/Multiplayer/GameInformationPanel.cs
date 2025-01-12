@@ -1,6 +1,7 @@
 ﻿using Ra2Client.Domain.Multiplayer;
 using Localization;
 using Microsoft.Xna.Framework;
+using ClientCore;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 
@@ -25,11 +26,14 @@ namespace Ra2Client.DXGUI.Multiplayer
         private XNALabel lblHost;
         private XNALabel lblPing;
         private XNALabel lblPlayers;
+        private XNALabel lblSkillLevel;
         private XNALabel[] lblPlayerNames;
+
+        private string[] skillLevelOptions;
 
         public override void Initialize()
         {
-            ClientRectangle = new Rectangle(0, 0, 235, 264);
+            ClientRectangle = new Rectangle(0, 0, 235, 288);
             BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 255), 1, 1);
             PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
 
@@ -52,8 +56,11 @@ namespace Ra2Client.DXGUI.Multiplayer
             lblPing = new XNALabel(WindowManager);
             lblPing.ClientRectangle = new Rectangle(6, 126, 0, 0);
 
+            lblSkillLevel = new XNALabel(WindowManager);
+            lblSkillLevel.ClientRectangle = new Rectangle(6, 150, 0, 0);
+
             lblPlayers = new XNALabel(WindowManager);
-            lblPlayers.ClientRectangle = new Rectangle(6, 150, 0, 0);
+            lblPlayers.ClientRectangle = new Rectangle(6, 178, 0, 0);
 
             lblPlayerNames = new XNALabel[MAX_PLAYERS];
             for (int i = 0; i < lblPlayerNames.Length / 2; i++)
@@ -80,10 +87,13 @@ namespace Ra2Client.DXGUI.Multiplayer
             AddChild(lblPing);
             AddChild(lblPlayers);
             AddChild(lblGameInformation);
+            AddChild(lblSkillLevel);
 
             lblGameInformation.CenterOnParent();
             lblGameInformation.ClientRectangle = new Rectangle(lblGameInformation.X, 6,
                 lblGameInformation.Width, lblGameInformation.Height);
+
+            skillLevelOptions = ClientConfiguration.Instance.SkillLevelOptions.Split(',');
 
             base.Initialize();
         }
@@ -103,7 +113,8 @@ namespace Ra2Client.DXGUI.Multiplayer
             lblPing.Text = game.Ping > 0 ? "Ping:".L10N("UI:Main:GameInfoPing") + " " + game.Ping.ToString() + " ms" : "Ping: Unknown".L10N("UI:Main:GameInfoPingUnknown");
             lblPing.Visible = true;
             lblPlayers.Visible = true;
-            lblPlayers.Text = "Players".L10N("UI:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
+            //lblPlayers.Text = "Players".L10N("UI:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
+            lblPlayers.Text = "房间内玩家" + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
 
             for (int i = 0; i < game.Players.Length && i < MAX_PLAYERS; i++)
             {
@@ -115,6 +126,10 @@ namespace Ra2Client.DXGUI.Multiplayer
             {
                 lblPlayerNames[i].Visible = false;
             }
+
+            string skillLevel = skillLevelOptions[game.SkillLevel];
+            string localizedSkillLevel = skillLevel.L10N($"INI:ClientDefinitions:SkillLevel:{game.SkillLevel}");
+            lblSkillLevel.Text = "玩家水平要求:" + " " + localizedSkillLevel;
         }
 
         public void ClearInfo()

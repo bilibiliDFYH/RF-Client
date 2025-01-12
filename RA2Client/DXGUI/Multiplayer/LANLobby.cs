@@ -25,6 +25,7 @@ using Rampastring.XNAUI.XNAControls;
 using SixLabors.ImageSharp;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using Ra2Client.DXGUI.Multiplayer.CnCNet;
 
 namespace Ra2Client.DXGUI.Multiplayer
 {
@@ -94,6 +95,7 @@ namespace Ra2Client.DXGUI.Multiplayer
         MapLoader mapLoader;
 
         DiscordHandler discordHandler;
+        PrivateMessagingWindow pmWindow;
 
         bool initSuccess = false;
 
@@ -238,7 +240,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             gameCreationPanel.SetPositionAndSize();
 
             lanGameLobby = new LANGameLobby(WindowManager, "MultiplayerGameLobby",
-                null, chatColors, mapLoader, discordHandler);
+                null, chatColors, mapLoader, discordHandler, pmWindow);
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, lanGameLobby);
             lanGameLobby.Disable();
 
@@ -362,7 +364,7 @@ namespace Ra2Client.DXGUI.Multiplayer
                 lbChatMessages.AddMessage(new ChatMessage(Color.Red,
                     "Please check your firewall settings.".L10N("UI:Main:SocketFailure2")));
                 lbChatMessages.AddMessage(new ChatMessage(Color.Red,
-                    "Also make sure that no other application is listening to traffic on UDP ports 20384 - 20386.".L10N("UI:Main:SocketFailure3")));
+                    "Also make sure that no other application is listening to traffic on UDP ports 22231 - 22233.".L10N("UI:Main:SocketFailure3")));
                 initSuccess = false;
                 return;
             }

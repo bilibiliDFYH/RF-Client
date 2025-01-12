@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ClientCore;
 using ClientCore.Enums;
 using Ra2Client.Domain.Multiplayer;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 
@@ -20,6 +22,7 @@ namespace Ra2Client.DXGUI.Multiplayer
         private const int ICON_MARGIN = 2;
         private const int FONT_INDEX = 0;
         private const string LOADED_GAME_TEXT = " (Loaded Game)";
+        private string[] SkillLevelIcons;
 
         public GameListBox(WindowManager windowManager,
             string localGameIdentifier, Predicate<GenericHostedGame> gameMatchesFilter)
@@ -28,7 +31,11 @@ namespace Ra2Client.DXGUI.Multiplayer
             HostedGames = new List<GenericHostedGame>();
             this.localGameIdentifier = localGameIdentifier;
             GameMatchesFilter = gameMatchesFilter;
+
+            SkillLevelIcons = ClientConfiguration.Instance.SkillLevelOptions.Split(',');
         }
+
+        private List<Texture2D> txSkillLevelIcons = new List<Texture2D>();
 
         private int loadedGameTextWidth;
 
@@ -182,6 +189,18 @@ namespace Ra2Client.DXGUI.Multiplayer
                 ClientConfiguration.Instance.HoverOnGameColor);
 
             loadedGameTextWidth = (int)Renderer.GetTextDimensions(LOADED_GAME_TEXT, FontIndex).X;
+
+            InitSkillLevelIcons();
+        }
+
+        private void InitSkillLevelIcons()
+        {
+            for (int i = 0; i < SkillLevelIcons.Length; i++)
+            {
+                Texture2D gd = AssetLoader.LoadTexture($"skillLevel{i}.png");
+                if (gd != null)
+                    txSkillLevelIcons.Add(gd);
+            }
         }
 
         private bool IsValidGameIndex(int index)
@@ -328,6 +347,17 @@ namespace Ra2Client.DXGUI.Multiplayer
                         new Rectangle(Width - txPasswordedGame.Width - TextBorderDistance - (scrollBarDrawn ? ScrollBar.Width : 0),
                         height, txPasswordedGame.Width, txPasswordedGame.Height),
                         Color.White);
+                }
+                else
+                {
+                    Texture2D txSkillLevelIcon = txSkillLevelIcons[hostedGame.SkillLevel];
+                    if (txSkillLevelIcon != null && hostedGame.SkillLevel != 0)
+                    {
+                        DrawTexture(txSkillLevelIcon,
+                            new Rectangle(Width - txSkillLevelIcon.Width - TextBorderDistance - (scrollBarDrawn ? ScrollBar.Width : 0),
+                            height, txSkillLevelIcon.Width, txSkillLevelIcon.Height),
+                            Color.White);
+                    }
                 }
 
                 var text = lbItem.Text;

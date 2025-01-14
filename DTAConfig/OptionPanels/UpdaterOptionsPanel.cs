@@ -82,8 +82,8 @@ namespace DTAConfig.OptionPanels
             ddBeta = new XNADropDown(WindowManager);
             ddBeta.Name = "ddBeta";
             ddBeta.ClientRectangle = new Rectangle(lblBeta.X + 80, lblBeta.Y,100,30);
-            ddBeta.AddItem("稳定版");
-            ddBeta.AddItem("尝鲜版");
+            ddBeta.AddItem("稳定发行版");
+            ddBeta.AddItem("预览体验版");
             ddBeta.SelectedIndexChanged += DdBeta_SelectedIndexChanged;
 
             AddChild(lblDescription);

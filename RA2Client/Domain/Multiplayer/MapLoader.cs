@@ -394,6 +394,9 @@ namespace Ra2Client.Domain.Multiplayer
             GameModeAliases.Clear();
             LoadMaps2();
         }
+
+        
+
         private void LoadGameModes(IniFile mpMapsIni)
         {
             var gameModes = mpMapsIni.GetSectionKeys(GameModesSection);

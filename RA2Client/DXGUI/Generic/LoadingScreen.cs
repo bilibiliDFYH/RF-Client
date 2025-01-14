@@ -95,7 +95,8 @@ namespace Ra2Client.DXGUI.Generic
                 //themeSongLoad = new Song("Resources/themeSongLoad.wma");
                 PlayLoadMusic();
             }
-            
+
+            UserINISettings.Instance.ReLoadMissionList += mapLoader.AgainLoadMaps;
 
             base.Initialize();
 

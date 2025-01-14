@@ -78,46 +78,15 @@ namespace DTAConfig
             }
         }
 
-
-
+        static readonly List<Task> tasks = [];
         // 渲染多张图片的方法
         public static async Task RenderImagesAsync()
         {
-            //RenderCount = 0;
-            //int maxDegreeOfParallelism = 5; // 设置最大并发数量，可以根据系统性能和需求进行调整
-            //List<Task> tasks = [];
+            cts = new CancellationTokenSource();
+            pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
-            //// 使用 SemaphoreSlim 控制并发数量
-            //using var semaphore = new SemaphoreSlim(maxDegreeOfParallelism);
-            //foreach (string mapPath in mapPaths)
-            //{
-            //    // 等待可用的执行“槽位”
-            //    await semaphore.WaitAsync();
-
-            //    // 使用 Task.Run 创建任务并控制并发量
-            //    var task = Task.Run(async () =>
-            //    {
-            //        try
-            //        {
-            //            await RenderOneImageAsync(mapPath);
-            //        }
-            //        finally
-            //        {
-            //            // 完成任务后释放“槽位”
-            //            semaphore.Release();
-            //        }
-            //    });
-
-            //    tasks.Add(task);
-            //}
-
-            //// 等待所有任务完成
-            //await Task.WhenAll(tasks);
-
-         cts = new CancellationTokenSource();
-         pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
-
-        RenderCount = 0;
+            RenderCount = 0;
+            tasks.Clear();
 
             var parallelOptions = new ParallelOptions
             {
@@ -130,36 +99,40 @@ namespace DTAConfig
                 // 使用 Parallel.ForEach 执行并行渲染
                 Parallel.ForEach(需要渲染的地图列表, parallelOptions, (map) =>
                 {
-                    while (!cts.Token.IsCancellationRequested)
+                    tasks.Add(Task.Run(async () =>
                     {
-                        pauseEvent.Wait(); // 等待继续信号
+                        while (!cts.Token.IsCancellationRequested)
+                        {
+                            pauseEvent.Wait(); // 等待继续信号
 
-                        try
-                        {
-                            // 渲染任务
-                            if (RenderOneImageAsync(map).Result)
+                            try
                             {
-                               // map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
+                                // 渲染任务
+                                if (await RenderOneImageAsync(map))
+                                {
+                                    // map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
+                                }
+                                else
+                                {
+                                    // Console.WriteLine($"渲染失败 {map.BaseFilePath}");
+                                }
                             }
-                            else
+                            catch (OperationCanceledException)
                             {
-                               // Console.WriteLine($"渲染失败 {map.BaseFilePath}");
+                                Console.WriteLine("渲染任务已取消");
+                                break;
                             }
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            Console.WriteLine("渲染任务已取消");
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"渲染异常: {ex.Message}");
-                        }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"渲染异常: {ex.Message}");
+                            }
 
-                        break; // 渲染成功后退出循环
-                    }
+                            break; // 渲染成功后退出循环
+                        }
+                    }));
                 });
 
+                await Task.WhenAll(tasks); // 等待所有任务完成
                 WindowManager.progress.Report(""); // 更新进度
             }
             catch (OperationCanceledException)
@@ -172,10 +145,18 @@ namespace DTAConfig
             }
         }
 
-        public static void PauseRendering() => pauseEvent.Reset(); // 暂停
+        public static void PauseRendering()
+        {
+            pauseEvent.Reset(); // 暂停
+            Task.WhenAll(tasks).Wait(); // 等待所有任务完成
+        }
 
         public static void ResumeRendering() => pauseEvent.Set(); // 继续
 
-        public static void CancelRendering() => cts.Cancel(); // 取消任务
+        public static void CancelRendering() {
+            cts.Cancel();// 取消任务
+            Task.WhenAll(tasks).Wait(); // 等待所有任务完成
+        }
+        
     }
 }

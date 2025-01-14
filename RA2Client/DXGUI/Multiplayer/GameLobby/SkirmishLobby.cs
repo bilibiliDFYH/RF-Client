@@ -62,8 +62,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             ReloadMod();
 
-            UserINISettings.Instance.ReLoadMissionList += () => btnAginLoadMaps_LeftClick(null, null);
-
         }
 
         protected override void ToggleFavoriteMap()

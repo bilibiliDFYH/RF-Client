@@ -274,7 +274,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             lbGameModeMapList.LineHeight = 25; //行间距扩大
             lbGameModeMapList.FontIndex = 1;
 
-            UserINISettings.Instance.ReLoadMissionList += () => btnAginLoadMaps_LeftClick(null, null);
+            UserINISettings.Instance.ReLoadMissionList += 重新显示地图;
 
             ModMenu = new XNAContextMenu(WindowManager);
             ModMenu.Name = nameof(ModMenu);
@@ -868,7 +868,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         public void btnAginLoadMaps_LeftClick(object sender, EventArgs e)
         {
+
             MapLoader.AgainLoadMaps();
+            重新显示地图();
+
+        }
+
+        public void 重新显示地图()
+        {
+
 
             ddGameModeMapFilter.Items.Clear();
 
@@ -876,15 +884,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (GameMode gm in GameModeMaps.GameModes)
             {
                 ddGameModeMapFilter.AddItem(CreateGameFilterItem(gm.UIName.L10N("UI:GameMode:" + gm.Name), new GameModeMapFilter(GetGameModeMaps(gm))));
-
             }
 
             MapPreviewBox.UpdateMap();
             int i = ddGameModeMapFilter.SelectedIndex;
             ddGameModeMapFilter.SelectedIndex = 0;
             ddGameModeMapFilter.SelectedIndex = i;
-
         }
+
 
         private void randomMap_EnabledChanged(object sender, EventArgs e)
         {

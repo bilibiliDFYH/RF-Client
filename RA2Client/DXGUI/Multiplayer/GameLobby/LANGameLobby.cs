@@ -90,6 +90,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //    AddNotice(string.Format("{0} has modified game files! They could be cheating!".L10N("UI:Main:PlayerModifiedFiles"), sender));
 
             PlayerInfo pInfo = Players.Find(p => p.Name == sender);
+            if (pInfo == null)
+                return;
 
             pInfo.Verified = true;
             CopyPlayerDataToUI();
@@ -424,6 +426,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             Clear();
             GameLeft?.Invoke(this, EventArgs.Empty);
+            PlayerExtraOptionsPanel?.Disable();
             Disable();
         }
 

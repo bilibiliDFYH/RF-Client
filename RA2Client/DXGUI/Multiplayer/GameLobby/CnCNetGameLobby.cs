@@ -514,6 +514,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             Disable();
+            PlayerExtraOptionsPanel?.Disable();
+            
             connectionManager.ConnectionLost -= ConnectionManager_ConnectionLost;
             connectionManager.Disconnected -= ConnectionManager_Disconnected;
 

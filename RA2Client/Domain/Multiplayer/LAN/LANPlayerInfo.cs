@@ -17,15 +17,16 @@ namespace Ra2Client.Domain.Multiplayer.LAN
         public LANPlayerInfo(Encoding encoding)
         {
             this.encoding = encoding;
-            Port = ProgramConstants.LAN_PORT;
+            Port = PORT;
+            //Port = ProgramConstants.LAN_PORT;
         }
 
         public event EventHandler<NetworkMessageEventArgs> MessageReceived;
         public event EventHandler ConnectionLost;
         public event EventHandler PlayerPinged;
 
-        //private const int PORT = 1234;
-        //private const int LOBBY_PORT = 1233;
+        private const int PORT = 22233;
+        private const int LOBBY_PORT = 22232;
         private const double SEND_PING_TIMEOUT = 10.0;
         private const double DROP_TIMEOUT = 20.0;
         private const int LAN_PING_TIMEOUT = 1000;

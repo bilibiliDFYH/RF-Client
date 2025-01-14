@@ -212,10 +212,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected override void BtnLeaveGame_LeftClick(object sender, EventArgs e)
         {
-            this.Enabled = false;
-            this.Visible = false;
-
             Exited?.Invoke(this, EventArgs.Empty);
+            
+            PlayerExtraOptionsPanel?.Disable();
+            Disable();
 
             topBar.RemovePrimarySwitchable(this);
             ResetDiscordPresence();

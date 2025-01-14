@@ -36,6 +36,8 @@ namespace Ra2Client.Domain.LAN
             GameVersion = parameters[1];
             Incompatible = GameVersion != ProgramConstants.GAME_VERSION;
             Game = gc.GameList.Find(g => g.InternalName.ToUpper() == parameters[2]);
+            if (Game == null)
+                return false;
             Map = parameters[3];
             GameMode = parameters[4];
             LoadedGameID = parameters[5];

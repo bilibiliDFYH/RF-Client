@@ -463,7 +463,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             {
                 if (!game.Supported || string.IsNullOrEmpty(game.ChatChannel))
                 {
-                    i++;
+                    //i++;
                     continue;
                 }
 
@@ -1368,7 +1368,10 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 }
             }
 
-            currentChatChannel = (Channel)ddCurrentChannel.SelectedItem.Tag;
+            currentChatChannel = (Channel)ddCurrentChannel.SelectedItem?.Tag;
+            if (currentChatChannel == null)
+                throw new Exception("Current selected chat channel is null. This should not happen.");
+            
             currentChatChannel.UserAdded += RefreshPlayerList;
             currentChatChannel.UserLeft += RefreshPlayerList;
             currentChatChannel.UserQuitIRC += RefreshPlayerList;

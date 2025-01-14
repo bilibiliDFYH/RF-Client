@@ -132,7 +132,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             var sortedGames =
                 HostedGames
                     .OrderBy(hg => hg.Locked)
-                    .ThenBy(hg => string.Equals(hg.Game.InternalName, localGameIdentifier, StringComparison.CurrentCultureIgnoreCase))
+                    .ThenBy(hg => string.Equals(hg.Game.InternalName, localGameIdentifier, StringComparison.InvariantCultureIgnoreCase))
                     .ThenBy(hg => hg.GameVersion != ProgramConstants.GAME_VERSION)
                     .ThenBy(hg => hg.Passworded);
 

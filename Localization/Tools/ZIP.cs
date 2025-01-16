@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -118,15 +119,16 @@ public class SevenZip
             // 构造命令行参数
             string arguments = $"x -aoa \"{archivePath}\" -o\"{extractPath}\"";
 
-          
+            string architecture = Environment.Is64BitProcess ? "x64" : "x86";
+            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm || RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            {
+                architecture = "arm64";
+            }
 
-            var x64 = "x86";
-            if (Environment.Is64BitProcess)
-                x64 = "x64";
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new()
             {
-                FileName = $"Resources/Binaries/7z-{x64}.exe",
+                FileName = $"Resources/Binaries/7z-{architecture}.exe",
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程

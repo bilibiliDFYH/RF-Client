@@ -195,7 +195,7 @@ namespace DTAConfig.OptionPanels
 
         private void ComboBoxtypes_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxtypes.SelectedIndex < 0 || comboBoxtypes.SelectedIndex > comboBoxtypes.Items.Count)
+            if (comboBoxtypes.SelectedIndex < 0 || comboBoxtypes.SelectedIndex >= comboBoxtypes.Items.Count)
                 return;
 
             if (null == All_components || 0 == All_components.Count)
@@ -305,7 +305,7 @@ namespace DTAConfig.OptionPanels
 
         private void CompList_SelectedChanged(object sender, EventArgs e)
         {
-            if (CompList.SelectedIndex < 0 || CompList.SelectedIndex > CompList.ItemCount)
+            if (CompList.SelectedIndex < 0 || CompList.SelectedIndex >= CompList.ItemCount)
                 return;
 
             if (progressBar != null)
@@ -316,7 +316,7 @@ namespace DTAConfig.OptionPanels
 
         private void RefreshInstallButtonStatus(int nIndex)
         {
-            if (nIndex < 0 || nIndex > _components.Count || !this.Visible || _components.Count == 0)
+            if (nIndex < 0 || nIndex >= _components.Count || !this.Visible || _components.Count == 0)
                 return;
 
             _curComponent = _components[nIndex];
@@ -341,11 +341,6 @@ namespace DTAConfig.OptionPanels
             }
             else
                 mainButton.Visible = false;
-        }
-
-        public override void Load()
-        {
-            base.Load();
         }
 
         private async Task DownloadfilesAsync()

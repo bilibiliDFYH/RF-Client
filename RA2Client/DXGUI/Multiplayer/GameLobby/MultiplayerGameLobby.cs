@@ -192,6 +192,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 Logger.Log("MultiplayerGameLobby: Saved games are not available!");
 
             btnRandomMap.ClientRectangle = new Rectangle(btnLockGame.Right  + 200, btnLockGame.Y, btnLockGame.Width, btnLockGame.Height);
+
+            chkExtension.Checked = true;
+            chkExtension.AllowChecking = false;
+            
         }
 
         /// <summary>

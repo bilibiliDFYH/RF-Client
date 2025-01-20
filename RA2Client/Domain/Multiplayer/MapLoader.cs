@@ -39,6 +39,8 @@ namespace Ra2Client.Domain.Multiplayer
 
         public GameModeMapCollection GameModeMaps;
 
+        public WindowManager windowManager;
+
         /// <summary>
         /// An event that is fired when the maps have been loaded.
         /// </summary>
@@ -56,6 +58,8 @@ namespace Ra2Client.Domain.Multiplayer
         /// List of gamemodes allowed to be used on custom maps in order for them to display in map list.
         /// </summary>
         private string[] AllowedGameModes = ClientConfiguration.Instance.AllowedCustomGameModes.Split(',');
+
+        private TaskbarProgress tbp;
 
         /// <summary>
         /// Loads multiplayer map info asynchonously.
@@ -75,6 +79,7 @@ namespace Ra2Client.Domain.Multiplayer
 
         public void LoadMaps2()
         {
+            
             UserINISettings.Instance.取消渲染地图?.Invoke();
             RenderImage.需要渲染的地图列表.Clear();
             Logger.Log("开始加载地图...");
@@ -108,6 +113,8 @@ namespace Ra2Client.Domain.Multiplayer
             {
                 try
                 {
+                    TaskbarProgress.Instance.SetState( TaskbarProgress.TaskbarStates.Normal);
+
                     var files = 
                     Directory.GetFiles(map, "*.*", SearchOption.TopDirectoryOnly)
                         .Where(file => file.ToLower().EndsWith(".map") ||
@@ -132,8 +139,12 @@ namespace Ra2Client.Domain.Multiplayer
                         {
                             LoadMultiMaps2(mpMapsIni, file);
                             Interlocked.Increment(ref 加载地图数量);
-                         
+
+                            
                             WindowManager.progress.Report($"已加载地图{加载地图数量}/{总数},正在加载{file}");
+
+
+                            TaskbarProgress.Instance.SetValue((ulong)加载地图数量, (ulong)总数);
                         }
                         catch (Exception ex)
                         {
@@ -142,6 +153,7 @@ namespace Ra2Client.Domain.Multiplayer
                     });
                         
                     mpMapsIni.WriteIniFile();
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
                 }
                 catch (Exception ex)
                 {

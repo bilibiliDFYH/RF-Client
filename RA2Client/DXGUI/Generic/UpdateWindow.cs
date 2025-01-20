@@ -8,6 +8,7 @@ using ClientGUI;
 using Ra2Client.Domain;
 using Localization;
 using Rampastring.Tools;
+using ClientCore;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -44,7 +45,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private XNAProgressBar prgCurrentFile;
         private XNAProgressBar prgTotal;
-        private TaskbarProgress tbp;
+        
 
         private bool isStartingForceUpdate;
 
@@ -142,8 +143,6 @@ namespace Ra2Client.DXGUI.Generic
             Updater.LocalFileCheckProgressChanged += Updater_LocalFileCheckProgressChanged;
             Updater.OnFileDownloadCompleted += Updater_OnFileDownloadCompleted;
 
-            tbp = new TaskbarProgress();
-          
         }
 
       
@@ -220,8 +219,8 @@ namespace Ra2Client.DXGUI.Generic
            
             try
             {
-                tbp.SetState(WindowManager.GetWindowHandle(), TaskbarProgress.TaskbarStates.Normal);
-                tbp.SetValue(WindowManager.GetWindowHandle(), prgTotal.Value, prgTotal.Maximum);
+                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+                TaskbarProgress.Instance.SetValue(prgTotal.Value, prgTotal.Maximum);
             }
             catch
             {
@@ -245,7 +244,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void HandleUpdateCompleted()
         {
-            tbp.SetState(WindowManager.GetWindowHandle(), TaskbarProgress.TaskbarStates.NoProgress);
+            TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
             UpdateCompleted?.Invoke(this, EventArgs.Empty);
         }
 
@@ -256,7 +255,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void HandleUpdateFailed(string updateFailureErrorMessage)
         {
-            tbp.SetState(WindowManager.GetWindowHandle(), TaskbarProgress.TaskbarStates.NoProgress);
+            TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
             UpdateFailed?.Invoke(this, new UpdateFailureEventArgs(updateFailureErrorMessage));
         }
 
@@ -271,7 +270,7 @@ namespace Ra2Client.DXGUI.Generic
         private void CloseWindow()
         {
             isStartingForceUpdate = false;
-            tbp.SetState(WindowManager.GetWindowHandle(), TaskbarProgress.TaskbarStates.NoProgress);
+            TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
             UpdateCancelled?.Invoke(this, EventArgs.Empty);
         }
 
@@ -346,62 +345,5 @@ namespace Ra2Client.DXGUI.Generic
     /// For utilizing the taskbar progress bar introduced in Windows 7:
     /// http://stackoverflow.com/questions/1295890/windows-7-progress-bar-in-taskbar-in-c
     /// </summary>
-    public class TaskbarProgress
-    {
-        public enum TaskbarStates
-        {
-            NoProgress = 0,
-            Indeterminate = 0x1,
-            Normal = 0x2,
-            Error = 0x4,
-            Paused = 0x8
-        }
 
-        [ComImportAttribute()]
-        [GuidAttribute("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")]
-        [InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
-        private interface ITaskbarList3
-        {
-            // ITaskbarList
-            [PreserveSig]
-            void HrInit();
-            [PreserveSig]
-            void AddTab(IntPtr hwnd);
-            [PreserveSig]
-            void DeleteTab(IntPtr hwnd);
-            [PreserveSig]
-            void ActivateTab(IntPtr hwnd);
-            [PreserveSig]
-            void SetActiveAlt(IntPtr hwnd);
-
-            // ITaskbarList2
-            [PreserveSig]
-            void MarkFullscreenWindow(IntPtr hwnd, [MarshalAs(UnmanagedType.Bool)] bool fFullscreen);
-
-            // ITaskbarList3
-            [PreserveSig]
-            void SetProgressValue(IntPtr hwnd, UInt64 ullCompleted, UInt64 ullTotal);
-            [PreserveSig]
-            void SetProgressState(IntPtr hwnd, TaskbarStates state);
-        }
-
-        [GuidAttribute("56FDF344-FD6D-11d0-958A-006097C9A090")]
-        [ClassInterfaceAttribute(ClassInterfaceType.None)]
-        [ComImportAttribute()]
-        private class TaskbarInstance
-        {
-        }
-
-        private ITaskbarList3 taskbarInstance = (ITaskbarList3)new TaskbarInstance();
-
-        public void SetState(IntPtr windowHandle, TaskbarStates taskbarState)
-        {
-            taskbarInstance.SetProgressState(windowHandle, taskbarState);
-        }
-
-        public void SetValue(IntPtr windowHandle, double progressValue, double progressMax)
-        {
-            taskbarInstance.SetProgressValue(windowHandle, (ulong)progressValue, (ulong)progressMax);
-        }
-    }
 }

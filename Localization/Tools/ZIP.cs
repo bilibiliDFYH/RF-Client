@@ -135,6 +135,9 @@ public class SevenZip
                 RedirectStandardOutput = true // 重定向标准输出流
             };
 
+            //Console.WriteLine(startInfo.FileName);
+            //Console.WriteLine(arguments);
+
             using Process process = new();
             process.StartInfo = startInfo;
             process.OutputDataReceived += (sender, e) =>

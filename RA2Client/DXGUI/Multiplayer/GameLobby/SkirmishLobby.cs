@@ -203,6 +203,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (string.IsNullOrEmpty(error))
             {
                 SaveSettings();
+                FileHelper.ReNameCustomFile();
                 StartGame();
                 return;
             }
@@ -406,7 +407,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 //InitDefaultSettings();
                 //return;
             }
-
+            if ( Map == null || GameMode == null)
+                return;
             bool AIAllowed = !(Map.MultiplayerOnly || GameMode.MultiplayerOnly) || !(Map.HumanPlayersOnly || GameMode.HumanPlayersOnly);
             foreach (string key in keys)
             {

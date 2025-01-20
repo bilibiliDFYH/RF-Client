@@ -237,6 +237,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             for (int pId = 0; pId < Players.Count; pId++)
                 Players[pId].IsInGame = true;
 
+            FileHelper.ReNameCustomFile(true);
 
             base.StartGame();
         }

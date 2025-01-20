@@ -36,7 +36,6 @@ namespace Ra2Client.DXGUI.Generic
             this.cncnetManager = cncnetManager;
             this.serviceProvider = serviceProvider;
             this.mapLoader = mapLoader;
-          
         }
 
         private static readonly object locker = new object();
@@ -62,6 +61,8 @@ namespace Ra2Client.DXGUI.Generic
             
             ClientRectangle = new Rectangle(0, 0, 1280, 768);
             Name = "LoadingScreen";
+
+            var tbp = new TaskbarProgress(WindowManager.GetWindowHandle());
 
             if (!UserINISettings.Instance.video_wallpaper || ProgramConstants.SkipLogo)
             {

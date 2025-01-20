@@ -88,6 +88,7 @@ namespace DTAConfig
             RenderCount = 0;
             tasks.Clear();
 
+
             var parallelOptions = new ParallelOptions
             {
                 MaxDegreeOfParallelism = 1, // 初始并发数，使用 CPU 核心数的两倍
@@ -96,11 +97,15 @@ namespace DTAConfig
 
             try
             {
+                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
                 // 使用 Parallel.ForEach 执行并行渲染
                 Parallel.ForEach(需要渲染的地图列表, parallelOptions, (map) =>
                 {
                     tasks.Add(Task.Run(async () =>
                     {
+                        
+
                         while (!cts.Token.IsCancellationRequested)
                         {
                             pauseEvent.Wait(); // 等待继续信号
@@ -108,14 +113,9 @@ namespace DTAConfig
                             try
                             {
                                 // 渲染任务
-                                if (await RenderOneImageAsync(map))
-                                {
-                                    // map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
-                                }
-                                else
-                                {
-                                    // Console.WriteLine($"渲染失败 {map.BaseFilePath}");
-                                }
+                                await RenderOneImageAsync(map);
+                                Interlocked.Increment(ref RenderCount);
+                                TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
                             }
                             catch (OperationCanceledException)
                             {
@@ -129,10 +129,12 @@ namespace DTAConfig
 
                             break; // 渲染成功后退出循环
                         }
+
                     }));
                 });
 
                 await Task.WhenAll(tasks); // 等待所有任务完成
+                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
                 WindowManager.progress.Report(""); // 更新进度
             }
             catch (OperationCanceledException)

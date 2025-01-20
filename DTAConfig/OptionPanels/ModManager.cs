@@ -449,19 +449,35 @@ public class ModManager : XNAWindow
             path = missionPath;
         }
 
+        void 查找并解压压缩包(string zip)
+        {
+            var zips = Directory.GetFiles(zip, "*.*", SearchOption.AllDirectories)
+                             .Where(file => new[] { ".zip", ".rar", ".7z" }.Contains(Path.GetExtension(file).ToLower()))
+                             .ToArray();
+            if(zips.Length == 0) return;
+
+            foreach (var item in zips)
+            {
+                SevenZip.ExtractWith7Zip(item,Path.GetDirectoryName(item));
+                查找并解压压缩包(Path.GetDirectoryName(item));
+            }
+        }
+
+        查找并解压压缩包(path);
+
         List<string> mapFiles = [];
 
         var id = string.Empty;
 
         if (Directory.Exists(path))
         {
-            List<string> list = [path, .. Directory.GetDirectories(path)];
+            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
             foreach (var item in list)
             {
                 if (判断是否为任务包(item))
                 {
 
-                    var r = 导入具体任务包(path);
+                    var r = 导入具体任务包(item);
                     if (r != string.Empty)
                     {
                         id = r;
@@ -675,7 +691,7 @@ public class ModManager : XNAWindow
 
         if (Directory.Exists(path))
         {
-            List<string> list = [path, .. Directory.GetDirectories(path)];
+            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
             foreach (var item in list)
             {
                
@@ -1005,6 +1021,8 @@ public class ModManager : XNAWindow
 
         if (DDModAI.SelectedIndex == 0)
             导入Mod(openFileDialog.FileName);
+        //if (DDModAI.SelectedIndex == 1)
+        //    导入AI(openFileDialog.FileName);
         if (DDModAI.SelectedIndex == 2)
             导入任务包(openFileDialog.FileName);
     }
@@ -1036,6 +1054,8 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager,"错误","系统自带的无法被删除");
             return;
         }
+
+        UserINISettings.Instance.取消渲染地图?.Invoke();
 
         if (DDModAI.SelectedIndex == 2)
         {
@@ -1126,6 +1146,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
+        UserINISettings.Instance.开始渲染地图?.Invoke();
     }
 
     public void DelMod(Mod mod)
@@ -1156,6 +1177,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
+        UserINISettings.Instance.开始渲染地图?.Invoke();
     }
 
     private void BtnReturn_LeftClick(object sender, EventArgs e)

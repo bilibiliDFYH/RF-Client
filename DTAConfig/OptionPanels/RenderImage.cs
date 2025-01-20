@@ -150,7 +150,6 @@ namespace DTAConfig
         public static void PauseRendering()
         {
             pauseEvent.Reset(); // 暂停
-            Task.WhenAll(tasks).Wait(); // 等待所有任务完成
         }
 
         public static void ResumeRendering() => pauseEvent.Set(); // 继续

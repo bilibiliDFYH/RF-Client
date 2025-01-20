@@ -431,8 +431,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChild(btnRandomMap);
             CheckBoxes.ForEach(chk => chk.CheckedChanged += ChkBox_CheckedChanged);
             DropDowns.ForEach(dd => dd.SelectedIndexChanged += Dropdown_SelectedIndexChanged);
+            UserINISettings.Instance.开始渲染地图 += () => RenderImage.RenderImagesAsync();
 
-            UserINISettings.Instance.继续渲染地图 += RenderImage.ResumeRendering;
+            
             UserINISettings.Instance.暂停渲染地图 += RenderImage.PauseRendering;
             UserINISettings.Instance.取消渲染地图 += RenderImage.CancelRendering;
 

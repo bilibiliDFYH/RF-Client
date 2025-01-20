@@ -444,7 +444,7 @@ public class ModManager : XNAWindow
         var path = Path.GetDirectoryName(filePath);
         if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
         {
-            var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
+            var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
             SevenZip.ExtractWith7Zip(filePath, missionPath);
             path = missionPath;
         }
@@ -458,8 +458,9 @@ public class ModManager : XNAWindow
 
             foreach (var item in zips)
             {
-                SevenZip.ExtractWith7Zip(item,Path.GetDirectoryName(item));
-                查找并解压压缩包(Path.GetDirectoryName(item));
+                SevenZip.ExtractWith7Zip(item, $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}/{Path.GetFileNameWithoutExtension(item)}",needDel: true);
+                
+                //查找并解压压缩包(Path.GetDirectoryName(item));
             }
         }
 
@@ -516,7 +517,7 @@ public class ModManager : XNAWindow
     {
         bool isYR = 判断是否为尤复(missionPath);
 
-        var id = FunExtensions.GetTimeStamp();
+        var id = Path.GetFileName(missionPath);
         var missionPack = new MissionPack
         {
             ID = id,
@@ -750,7 +751,7 @@ public class ModManager : XNAWindow
 
         if(!判断是否为Mod(path, isYR.GetValueOrDefault())) return "";
 
-        var id = FunExtensions.GetTimeStamp();
+        var id = Path.GetFileName(path);
 
         var mod = new Mod
         {
@@ -1055,7 +1056,7 @@ public class ModManager : XNAWindow
             return;
         }
 
-        UserINISettings.Instance.取消渲染地图?.Invoke();
+        
 
         if (DDModAI.SelectedIndex == 2)
         {
@@ -1085,12 +1086,13 @@ public class ModManager : XNAWindow
      
     public void 删除任务包(MissionPack missionPack)
     {
+
         if (!missionPack.CanDel)
         {
             XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
             return;
         }
-
+        UserINISettings.Instance.取消渲染地图?.Invoke();
         var inifile = new IniFile(missionPack.FileName);
         var m = string.Empty;
 
@@ -1156,6 +1158,7 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
             return;
         }
+        UserINISettings.Instance.取消渲染地图?.Invoke();
 
         var iniFile = new IniFile(mod.FileName);
         if (iniFile.GetSection("Mod").Keys.Count == 1)

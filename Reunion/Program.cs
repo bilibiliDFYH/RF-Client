@@ -99,7 +99,7 @@ internal sealed class Program
     {
         return AdvancedMessageBoxHelper.ShowMessageBoxWithSelection(
             string.Format(
-                "客户端检测到您的图形卡与Reunion客户端的DirectX11版本不兼容\n" +
+                "检测到您的图形卡与Reunion客户端的DirectX11版本不兼容\n" +
                 "您可以尝试启动客户端的DirectX11版本。\n" +
                 "我们对给您带来的不便表示歉意。"),
             "不兼容信息",
@@ -192,11 +192,12 @@ internal sealed class Program
     {
         bool dialogResult = AdvancedMessageBoxHelper.ShowYesNoMessageBox(
             string.Format(
-            "组件 \"{0}\" 丢失.\n" +
-            "手动下载地址:https://alist.yra2.com\n" +
-            "您也可以通过以下链接进行安装:\n\n{1}",
-            missingComponent, downloadLink.ToString()), "组件丢失",
-            yesText: "打开链接", noText: "退出");
+            "运行时组件 \"{0}\" 缺失. \n" +
+            "手动下载地址(推荐): https://alist.ru2023.top/.NET6 \n" +
+            "手动下载地址(备用): https://alist.yra2.com/.NET6 \n\n" +
+            "您也可以通过以下链接进行安装: \n{1}",
+            missingComponent, downloadLink.ToString()), "运行时组件缺失",
+            yesText: "打开下载链接(aka.ms)", noText: "退出");
         if (dialogResult)
             OpenUri(downloadLink);
     }

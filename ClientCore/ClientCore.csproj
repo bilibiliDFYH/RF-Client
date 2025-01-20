@@ -3,7 +3,7 @@
     <TargetFramework>net6.0-windows7.0</TargetFramework>
 	  <LangVersion>13.0</LangVersion>
     <Title>Client Core</Title>
-    <Description>Snowy Client Core Library</Description>
+    <Description>Reunion Client Core Library</Description>
     <Company>Snowy</Company>
     <Product>Client Core</Product>
     <Copyright>Copyright © Snowy Studio 2022-2025</Copyright>

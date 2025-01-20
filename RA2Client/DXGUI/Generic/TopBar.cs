@@ -245,7 +245,7 @@ namespace Ra2Client.DXGUI.Generic
             lblConnectionStatus = new XNALabel(WindowManager);
             lblConnectionStatus.Name = "lblConnectionStatus";
             lblConnectionStatus.FontIndex = 1;
-            lblConnectionStatus.Text = "OFFLINE".L10N("UI:Main:StatusOffline");
+            lblConnectionStatus.Text = " CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline");
 
             AddChild(btnMainButton);
             AddChild(btnCnCNetLobby);
@@ -263,7 +263,7 @@ namespace Ra2Client.DXGUI.Generic
                 lblCnCNetStatus = new XNALabel(WindowManager);
                 lblCnCNetStatus.Name = "lblCnCNetStatus";
                 lblCnCNetStatus.FontIndex = 1;
-                lblCnCNetStatus.Text = ClientConfiguration.Instance.LocalGame.ToUpper() + " PLAYERS ONLINE:";
+                lblCnCNetStatus.Text = ClientConfiguration.Instance.LocalGame.ToUpper() + " 在线玩家数:";
                 lblCnCNetPlayerCount = new XNALabel(WindowManager);
                 lblCnCNetPlayerCount.Name = "lblCnCNetPlayerCount";
                 lblCnCNetPlayerCount.FontIndex = 1;

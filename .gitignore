@@ -28,6 +28,7 @@
 /ClientUpdater/obj
 /ClientUpdater/bin
 /e -i HEAD~3
-*.TMP
+*.tmp
+*.log
 /RandomMapGenerator/obj
 /RandomMapGenerator/bin

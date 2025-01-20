@@ -563,7 +563,7 @@ namespace DTAConfig.OptionPanels
                 WindowManager.Report();
         }
             
-           // UserINISettings.Instance.继续渲染地图?.Invoke();
+           // UserINISettings.Instance.开始渲染地图?.Invoke();
         }
 
         public void InstallComponent(int reg_name)

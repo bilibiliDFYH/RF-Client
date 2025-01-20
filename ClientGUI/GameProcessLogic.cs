@@ -42,7 +42,7 @@ namespace ClientGUI
         public static void StartGameProcess(WindowManager windowManager,IniFile iniFile = null)
         {
 
-            UserINISettings.Instance.暂停渲染地图?.Invoke();
+            UserINISettings.Instance.取消渲染地图?.Invoke();
             string r = 切换文件(iniFile.GetSection("Settings"));
             if (r != string.Empty)
             {
@@ -162,7 +162,7 @@ namespace ClientGUI
                     return;
                 }
 
-                UserINISettings.Instance.暂停渲染地图?.Invoke();
+                UserINISettings.Instance.取消渲染地图?.Invoke();
 
                 ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments)
                 {
@@ -435,7 +435,8 @@ namespace ClientGUI
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
-            UserINISettings.Instance.继续渲染地图?.Invoke();
+            UserINISettings.Instance.开始渲染地图?.Invoke();
+       
             proc.Exited -= Process_Exited;
             proc.Dispose();
             GameProcessExited?.Invoke();

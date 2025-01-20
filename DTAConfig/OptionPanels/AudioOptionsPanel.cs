@@ -157,10 +157,11 @@ namespace DTAConfig.OptionPanels
                 trbClientVolume.Bottom + 12, 0, 0);
             chkScoreShuffle.Text = "Shuffle Music".L10N("UI:DTAConfig:ShuffleMusic");
 
-            var lblVoice = new XNALabel(WindowManager);
+            var lblVoice = new XNALinkLabel(WindowManager);
             lblVoice.Name = "lblVoice";
             lblVoice.ClientRectangle = new Rectangle(chkScoreShuffle.X + 400, trbClientVolume.Bottom + 16, 0, 0);
             lblVoice.Text = "Voice:".L10N("UI:Main:Voice");
+            lblVoice.DoubleLeftClick += LblVoice_DoubleLeftClick;
             AddChild(lblVoice);
 
             ddVoice = new XNAClientDropDown(WindowManager);
@@ -226,6 +227,23 @@ namespace DTAConfig.OptionPanels
             AddChild(btnMusicWindow);
 
             WindowManager.SoundPlayer.SetVolume(trbClientVolume.Value / 10.0f);
+        }
+
+        private void LblVoice_DoubleLeftClick(object sender, EventArgs e)
+        {
+
+                string folderPath = $"{ProgramConstants.GamePath}/Resources/Voice";
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
+                {
+                    FileName = folderPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+
         }
 
         private EventHandler chkMusicWindow_LeftClick()

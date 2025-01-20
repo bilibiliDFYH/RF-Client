@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using ClientCore.Entity;
 using ClientCore.Enums;
 using ClientCore.Settings;
@@ -175,7 +176,7 @@ namespace ClientCore
         public event EventHandler SettingsSaved;
 
         public Action 暂停渲染地图;
-        public Action 继续渲染地图;
+        public Action 开始渲染地图;
         public Action 取消渲染地图;
 
         public User User { get; set; }

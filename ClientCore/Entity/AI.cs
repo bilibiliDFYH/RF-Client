@@ -136,7 +136,7 @@ public class AI : InfoBaseClass
     /// <summary>
     /// 使用的扩展列表
     /// </summary>
-    public string Extension { get; set; }// 使用的扩展列表
+    public string Extension { get; set; } = "Ares,Phobos";// 使用的扩展列表
     /// <summary>
     /// 重写ToString方法
     /// </summary>

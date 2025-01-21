@@ -127,8 +127,8 @@ namespace DTAConfig.OptionPanels
             chkRenderPreviewImage = new XNAClientCheckBox(WindowManager);
             chkRenderPreviewImage.Name = "chkRenderPreviewImage";
             chkRenderPreviewImage.ClientRectangle = new Rectangle(chkMultinuclear.X, chkShowHiddenObjects.Y, 150, 20);
-            chkRenderPreviewImage.Text = "导入任务包时默认渲染预览图";
-
+            chkRenderPreviewImage.Text = "导入新地图时在后台渲染全息预览图";
+             
             chkTooltips = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ToolTips");
             chkTooltips.Name = "chkTooltips";
             chkTooltips.Text = "Tooltips".L10N("UI:DTAConfig:Tooltips");

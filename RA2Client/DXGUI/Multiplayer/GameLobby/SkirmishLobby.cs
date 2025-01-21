@@ -60,8 +60,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             PlayerExtraOptionsPanel?.SetIsHost(true);
 
+            //ReloadAI();
             ReloadMod();
 
+            CmbGame_SelectedChanged(cmbGame, null);
         }
 
         protected override void ToggleFavoriteMap()
@@ -489,7 +491,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     cb.Checked = skirmishSettingsIni.GetBooleanValue("GameOptions", cb.Name, cb.Checked);
                 }
 
-                chkExtension.Checked = skirmishSettingsIni.GetBooleanValue("GameOptions", "chkExtension", chkExtension.Checked);
+               // chkExtension.Checked = skirmishSettingsIni.GetBooleanValue("GameOptions", "chkExtension", chkExtension.Checked);
             }
         }
 

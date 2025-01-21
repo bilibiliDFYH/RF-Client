@@ -252,8 +252,8 @@ public class ModManager : XNAWindow
         //提取mix文件
         HashSet<string> mixFileExclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Ares.mix", "ra2md.mix", "ra2.mix", "langmd.mix", "language.mix", "movmd03.mix", "multimd.mix",
-            "movmd01.mix", "movmd02.mix","NPatch.mix","movies01.mix","movies02.mix","MAPS02.mix","MAPS01.mix",
+            "Ares.file", "ra2md.file", "ra2.file", "langmd.file", "language.file", "movmd03.file", "multimd.file",
+            "movmd01.file", "movmd02.file","NPatch.file","movies01.file","movies02.file","MAPS02.file","MAPS01.file",
             ProgramConstants.CORE_MIX,ProgramConstants.SKIN_MIX,ProgramConstants.MISSION_MIX
         };
 
@@ -262,7 +262,7 @@ public class ModManager : XNAWindow
 
             // 复制除了指定列表之外的所有.mix文件，同时处理以"Ecache"或"EXPAND"开头的文件
             int expandCounter = 2; // 统一的扩展文件计数器
-            foreach (var mix in Directory.GetFiles(modPath, "*.mix"))
+            foreach (var mix in Directory.GetFiles(modPath, "*.file"))
             {
                 string fileName = Path.GetFileName(mix);
                 bool isEcacheOrExpand = fileName.StartsWith("Ecache", StringComparison.OrdinalIgnoreCase) ||
@@ -278,7 +278,7 @@ public class ModManager : XNAWindow
                     string newFileName;
                     do
                     {
-                        newFileName = $"expandmd{expandCounter++.ToString("D2")}.mix";
+                        newFileName = $"expandmd{expandCounter++.ToString("D2")}.file";
                     }
                     while (File.Exists(Path.Combine(mod.FilePath, newFileName)));
 
@@ -429,13 +429,28 @@ public class ModManager : XNAWindow
         missionPack.Create();
     }
 
+    void 查找并解压压缩包(string zip)
+    {
+        var zips = Directory.GetFiles(zip, "*.*", SearchOption.AllDirectories)
+                         .Where(file => new[] { ".zip", ".rar", ".7z" }.Contains(Path.GetExtension(file).ToLower()))
+                         .ToArray();
+        if (zips.Length == 0) return;
+
+        foreach (var item in zips)
+        {
+            SevenZip.ExtractWith7Zip(item, $"./tmp/{Path.GetFileNameWithoutExtension(zip)}/{Path.GetFileNameWithoutExtension(item)}", needDel: true);
+
+            查找并解压压缩包(Path.Combine(Path.GetDirectoryName(item), Path.GetFileNameWithoutExtension(item)));
+        }
+    }
+
     /// <summary>
     /// 导入任务包.
     /// </summary>
     public string 导入任务包(string filePath)
     {
         var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".file")
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
             return "没有找到任务包文件";
@@ -447,21 +462,6 @@ public class ModManager : XNAWindow
             var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
             SevenZip.ExtractWith7Zip(filePath, missionPath);
             path = missionPath;
-        }
-
-        void 查找并解压压缩包(string zip)
-        {
-            var zips = Directory.GetFiles(zip, "*.*", SearchOption.AllDirectories)
-                             .Where(file => new[] { ".zip", ".rar", ".7z" }.Contains(Path.GetExtension(file).ToLower()))
-                             .ToArray();
-            if(zips.Length == 0) return;
-
-            foreach (var item in zips)
-            {
-                SevenZip.ExtractWith7Zip(item, $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}/{Path.GetFileNameWithoutExtension(item)}",needDel: true);
-                
-                //查找并解压压缩包(Path.GetDirectoryName(item));
-            }
         }
 
         查找并解压压缩包(path);
@@ -634,8 +634,6 @@ public class ModManager : XNAWindow
 
     }
 
-
-
     private bool 判断是否为Mod(string path,bool isYR)
     {
         var md = isYR ? "md" : string.Empty;
@@ -648,11 +646,17 @@ public class ModManager : XNAWindow
             .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
             .ToArray();
 
-        var mixs = Directory.GetFiles(path, $"expand{md}*.mix")
+        var mixs = Directory.GetFiles(path, $"expand{md}*.file")
             .ToArray();
 
         var inis = Directory.GetFiles(path, $"*.ini")
-            .Where(file => Path.GetFileName(file) != $"battle{md}.ini" && Path.GetFileName(file) != $"mapsel{md}.ini" && Path.GetFileName(file) != $"missionPack{md}.ini")
+            .Where(file => 
+            Path.GetFileName(file) != $"battle{md}.ini" &&
+                    Path.GetFileName(file) != $"mapsel{md}.ini" &&
+                    Path.GetFileName(file) != $"missionPack{md}.ini" &&
+                    Path.GetFileName(file) != $"ai{md}.ini" &&
+                    Path.GetFileName(file) != $"mpbattle{md}.ini"
+                    )
             .ToArray();
 
         return shps.Length + vxls.Length + pals.Length + mixs.Length + inis.Length != 0;
@@ -660,24 +664,24 @@ public class ModManager : XNAWindow
 
     private bool 判断是否为任务包(string path)
     {
-        return Directory.Exists(path) && Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0;
+        return Directory.Exists(path) && Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.file").Length != 0;
     }
 
     private static bool 判断是否为尤复(string path)
     {
-        string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.mix", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
+        string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.file", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
         
-        return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*.md.map").Length != 0;
+        return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.file").Length != 0 || Directory.GetFiles(path, "*md.map").Length != 0;
     }
 
     private string 导入Mod(string filePath,bool reload = true)
     {
         var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".mix")
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".exe" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".file")
         {
             if(reload)
                 XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
-            return "请选择任务包文件";
+            return "请选择Mod文件";
         }
 
         var path = Path.GetDirectoryName(filePath);
@@ -695,42 +699,23 @@ public class ModManager : XNAWindow
             List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
             foreach (var item in list)
             {
-               
+                if (判断是否为Mod(item, 判断是否为尤复(item)))
+                {
                     var r = 导入具体Mod(item, reload);
                     if (r != string.Empty)
                     {
                         id = r;
                     }
+                }
                 
             }
         }
-
-        //if (判断是否为Mod(path, 判断是否为尤复(path)))
-        //{
-
-        //    var r = 导入具体Mod(path, reload);
-        //    if (r != string.Empty)
-        //        id = r;
-        //}
-
-
-        //if (Directory.Exists(path))
-        //    // 如果路径本身不符合任务包，才检查其子目录
-        //    foreach (var item in Directory.GetDirectories(path))
-        //{
-        //    if (判断是否为Mod(item, 判断是否为尤复(item)))
-        //    {
-        //            var r = 导入具体Mod(path, reload);
-        //            if (r != string.Empty)
-        //                id = r;
-        //        }
-        //}
 
         if (id == string.Empty)
         {
             if (reload)
                 XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
-            return "请选择任务包文件";
+            return "请选择Mod文件";
         }
 
 
@@ -768,6 +753,100 @@ public class ModManager : XNAWindow
         整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
         return id;
+    }
+
+    private string 导入AI(string filePath)
+    {
+        var 后缀 = Path.GetExtension(filePath);
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".file")
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+            return "没有找到任务包文件";
+        }
+
+        var path = Path.GetDirectoryName(filePath);
+        if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
+        {
+            var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
+            SevenZip.ExtractWith7Zip(filePath, missionPath);
+            path = missionPath;
+        }
+
+        var id = string.Empty;
+
+        查找并解压压缩包(path);
+        if (Directory.Exists(path))
+        {
+            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
+            foreach (var item in list)
+            {
+
+                
+                if (判断是否为Mod(item, 判断是否为尤复(item)))
+                {
+                    var r = 导入具体Mod(item, true);
+                    if (r != string.Empty)
+                    {
+                        id = r;
+                    }
+                }
+                else if (判断是否为AI(item))
+                {
+                    var r = 导入具体AI(item);
+                    if (r != string.Empty)
+                    {
+                        id = r;
+                    }
+                }
+            }
+
+            ReLoad();
+            触发刷新?.Invoke();
+        }
+
+        return id;
+    }
+
+    private string 导入具体AI(string path)
+    {
+        var isYR = 判断是否为尤复(path);
+        var md = isYR ? "md" : string.Empty;
+
+        if (!判断是否为AI(path)) return "";
+
+        var id = Path.GetFileName(path);
+
+        var ai = new AI
+        {
+            ID = id,
+            FilePath = $"Mod&AI\\AI\\{id}",
+            Name = Path.GetFileName(path),
+            YR = isYR,
+            Compatible = isYR ? "YRAI" : "RA2AI",
+        };
+
+        整合AI文件(path, ai);
+
+        return id;
+    }
+
+    private void 整合AI文件(string path, AI ai)
+    {
+        if (!Directory.Exists(ai.FilePath))
+            Directory.CreateDirectory(ai.FilePath);
+
+        foreach (var file in Directory.GetFiles(path))
+        {
+            File.Copy(file, Path.Combine(ai.FilePath, Path.GetFileName(file)), true);
+        }
+
+        ai.Create();
+
+    }
+
+    private bool 判断是否为AI(string path)
+    {
+        return File.Exists(Path.Combine(path, "aimd.ini")) || File.Exists(Path.Combine(path, "ai.ini"));
     }
 
     private static (string,bool) 处理扩展情况(string path)
@@ -842,7 +921,6 @@ public class ModManager : XNAWindow
         if (DDModAI.SelectedIndex == 2)
             UpdateMissionPack(ListBoxModAi.SelectedItem.Tag as MissionPack);
 
-       
     }
 
     /// <summary>
@@ -1011,7 +1089,7 @@ public class ModManager : XNAWindow
         var openFileDialog = new OpenFileDialog
         {
             Title = "请选择文件夹或压缩包",
-            Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.mix)|*.zip;*.rar;*.7z;*.map;*.mix|所有文件 (*.*)|*.*", // 限制选择的文件类型
+            Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.file)|*.zip;*.rar;*.7z;*.map;*.file|所有文件 (*.*)|*.*", // 限制选择的文件类型
             CheckFileExists = true,   // 检查文件是否存在
             ValidateNames = true,     // 验证文件名
             Multiselect = false       // 不允许多选
@@ -1022,12 +1100,11 @@ public class ModManager : XNAWindow
 
         if (DDModAI.SelectedIndex == 0)
             导入Mod(openFileDialog.FileName);
-        //if (DDModAI.SelectedIndex == 1)
-        //    导入AI(openFileDialog.FileName);
+        if (DDModAI.SelectedIndex == 1)
+            导入AI(openFileDialog.FileName);
         if (DDModAI.SelectedIndex == 2)
             导入任务包(openFileDialog.FileName);
     }
-
 
     private void ReLoad()
     {
@@ -1044,9 +1121,6 @@ public class ModManager : XNAWindow
 
         LoadModInfo();
     }
-
-    
-
 
     private void BtnDel_LeftClick(object sender, EventArgs e)
     {
@@ -1239,15 +1313,15 @@ public class ModManager : XNAWindow
             case 1:
                 var ai = AI.AIs.Find(m => m.ID == ((AI)ListBoxModAi.SelectedItem.Tag).ID);
                 properties = ai.GetProperties();
-                BtnNew.Disable();
-                BtnDel.Disable();
+                BtnNew.Text = "导入新AI";
+                BtnDel.Text = "删除AI";
+                BtnNew.Enable();
+                BtnDel.Enable();
                 break;
             //筛选任务包
             case 2:
                 var missionPack = MissionPack.MissionPacks.Find(m => m.ID == ((MissionPack)ListBoxModAi.SelectedItem.Tag).ID);
-
                 properties = missionPack.GetProperties();
-
                 BtnNew.Text = "导入任务包";
                 BtnDel.Text = "删除任务包";
                 BtnNew.Enable();
@@ -1277,633 +1351,6 @@ public class ModManager : XNAWindow
         return _instance;
     }
 
-    #region 旧代码
-    ///// <summary>
-    ///// 导入任务包.
-    ///// </summary>
-    ///// <param name="missionPath">路径</param>
-    ///// <param name="report">是否显示警告</param>
-    //public void ImportMissionPack(string missionPath = "",bool report = true)
-    //{
-    //    if (string.IsNullOrEmpty(missionPath))
-    //    {
-    //        //让玩家选择任务包文件夹
-    //        var folderBrowser = new FolderBrowserDialog
-    //        {
-    //            Description = "请选择任务包所在的目录"
-    //        };
-    //        if (folderBrowser.ShowDialog() != DialogResult.OK)
-    //            return;
-    //        missionPath = folderBrowser.SelectedPath;
-    //    }
-    //    #region 任务包初步判断
-    //    var missionPackPath = missionPath;
-
-    //    var DirectoryName = Path.GetFileName(missionPackPath);
-
-    //    var aresVerison = string.Empty;
-    //    var mixs = Directory.GetFiles(missionPackPath, "*.mix");
-    // //   var maps = Directory.GetFiles(missionPackPath, "*.map");
-
-
-
-    //    var csfs = Directory.GetFiles(missionPackPath, "*.csf");
-
-    //    var csfExist = false;
-    //    if (csfs.Length > 0)
-    //    {
-    //        csfExist = true;
-    //    }
-    //    //var resultBox = new XNAMessageBox(WindowManager, "提示", "此任务包中没有显著的地图文件，可能封装在mix里，是否尝试导入?", XNAMessageBoxButtons.YesNo);
-    //    //resultBox.YesClickedAction += (_) =>
-    //    //{
-    //        var shps = Directory.GetFiles(missionPackPath, "*.shp")
-    //        .Where(file => !Path.GetFileName(file).StartsWith("ls")&& !Path.GetFileName(file).StartsWith("gls"))
-    //        .ToArray();
-    //        var vxls = Directory.GetFiles(missionPackPath, "*.vxl");
-    //        var pals = Directory.GetFiles(missionPackPath, "*.pal")
-    //            .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
-    //            .ToArray();
-
-    //        var md = string.Empty;
-    //        var missionPack = new MissionPack();
-    //        missionPack.ID = missionPack.任务名称 = DirectoryName;
-    //        missionPack.BuildOffAlly = true;
-    //        missionPack.Other = true;
-    //        var modID = string.Empty;
-
-    //        //如果有md.mix结尾的文件肯定是尤复任务
-    //        if (Directory.GetFiles(missionPackPath, "*md.*").Length != 0)
-    //        {
-    //            md = "md";
-    //            missionPack.YR = true;
-    //        }
-    //        else
-    //        {
-    //            missionPack.YR = false;
-    //        }
-
-    //        var allMaps = Directory.GetFiles(missionPackPath, "all*md.map");
-    //        var sovMaps = Directory.GetFiles(missionPackPath, "sov*md.map");
-
-
-    //        if (allMaps.Length + sovMaps.Length != 0)
-    //        {
-    //            md = "md";
-    //        }
-    //        else
-    //        {
-    //            allMaps = Directory.GetFiles(missionPackPath, "all*.map");
-    //            sovMaps = Directory.GetFiles(missionPackPath, "sov*.map");
-    //        }
-
-    //        var isMod = (shps.Length + vxls.Length + pals.Length != 0 ||
-    //                   File.Exists(Path.Combine(missionPackPath, $"rules{md}.ini")) ||
-    //                   File.Exists(Path.Combine(missionPackPath, $"art{md}.ini")));
-
-    //        //  Console.WriteLine(Path.Combine(missionPackPath, $"rules{md}"));
-
-    //        missionPack.FilePath = $"Maps/Cp/{missionPack.ID}";
-    //        missionPack.FileName = $"Maps/Cp/battle{missionPack.ID}.ini";
-
-    //        //检测ARES
-    //        if (File.Exists(Path.Combine(missionPackPath, "Ares.dll")))
-    //        {
-    //            aresVerison = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(missionPackPath, "Ares.dll")).FileVersion;
-
-    //            //如果用的自带的3.0p1
-    //            if (aresVerison != "3.0p1")
-    //                missionPack.Extension += $"Ares{aresVerison}";
-    //        }
-
-    //        var phobosVersion = string.Empty;
-
-    //        //检测Phobos
-    //        if (File.Exists(Path.Combine(missionPackPath, "Phobos.dll")))
-    //        {
-    //            phobosVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(Path.Combine(missionPackPath, "Phobos.dll")).FileVersion;
-
-    //            //如果用的自带的36
-    //            if (phobosVersion != "0.0.0.36")
-    //                missionPack.Extension += $"Phobos{phobosVersion}";
-    //        }
-    //        //检测NP
-    //        //NP修改了Gamemd,所以对比哈希值，如果和原有的Gamemd对不上，那就当NP
-
-    //        if (missionPack.Extension + "" == "")
-    //        {
-    //            missionPack.Extension = "Ares,Phobos";
-    //        }
-
-    //        missionPack.Mod = isMod ? missionPack.ID : md == "md" ? "YR" : "RA2";
-
-    //    var maps = 从mapselmd导入关卡($"{missionPackPath}/mapsel{md}.ini").ToArray();
-    //    if (maps.Length == 0)
-    //        maps = Directory.GetFiles(missionPackPath, "*.map");
-
-    //    #endregion
-    //    var infoWindows = new MissionPackInfoWindows(WindowManager, missionPack, "导入任务包", maps.Length == 0, csfExist);
-    //        AddChild(infoWindows);
-
-    //        // infoWindows.Enable();
-
-    //        // 展示新增任务包界面
-    //        infoWindows.EnabledChanged += async (_, _) =>
-    //        {
-    //            missionPack = infoWindows.GetMissionPackInfo();
-    //            bool rander = infoWindows.GetRander();
-    //            bool covCsf = infoWindows.GetCsf();
-    //            int missionCount = infoWindows.missionCount;
-
-    //            infoWindows.Dispose();
-
-    //            if (missionPack == null)
-    //                return;
-
-    //            //说明改动较大，先进行mod导入
-
-    //            var mod = new Mod();
-
-    //            var maps = Directory.GetFiles(missionPackPath, "*.map");
-
-    //            if (isMod)
-    //            {
-
-    //                mod.ID = DirectoryName;
-    //                mod.任务名称 = missionPack.任务名称;
-    //                mod.md = md;
-    //                mod.UseAI = md == "md" ? "YRAI" : "RA2AI";
-
-    //                mod.FilePath = $"Mod&AI/Mod/{DirectoryName}";
-    //                mod.Extension = "Ares,Phobos";
-    //                mod.MuVisible = false;
-    //                mod.Author = missionPack.Author;
-
-    //                //导入Mod
-    //                整合Mod文件(missionPackPath, mod, covCsf);
-
-    //                if (File.Exists($"{mod.FilePath}/mapsel{md}.ini"))
-    //                {
-    //                    maps = 从mapselmd导入关卡($"{mod.FilePath}/mapsel{md}.ini").ToArray();
-    //                }
-
-    //            }
-
-    //            #region 处理任务包文件和写入ini
-
-    //            //提取任务包文件
-    //            Directory.CreateDirectory(missionPack.FilePath);
-
-
-    //            //提取map文件
-    //            foreach (var map in maps)
-    //            {
-    //            //    var mapName = Path.Combine(missionPack.FilePath, Path.GetFileName(map));
-    //                if(File.Exists(map))
-    //                    File.Copy(map, Path.Combine(missionPack.FilePath, Path.GetFileName(map)), true);
-    //            }
-    //            //Mix.PackFilesToMix(maps.ToList(), missionPack.FilePath, $"{ProgramConstants.MISSION_MIX}");
-
-    //            if (!isMod)
-    //            {
-    //                //提取CSF文件 如果是ra2.csf需要改为ra2md.csf
-    //                foreach (var csf in Directory.GetFiles(missionPackPath, "*.csf"))
-    //                {
-    //                    if (covCsf)
-    //                    {
-    //                        var d = new CSF(csf).GetCsfDictionary();
-    //                        if (d != null)
-    //                        {
-    //                            d.ConvertValuesToSimplified();
-    //                            CSF.WriteCSF(d, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "ra2md.csf" : Path.GetFileName(csf)));
-    //                            if (Path.GetFileName(csf).ToLower() == "ra2.csf" || Path.GetFileName(csf).ToLower() == "ra2md.csf")
-    //                                CSF.WriteCSF(d, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "stringtable00.csf" : Path.GetFileName(csf)));
-    //                        }
-    //                        else
-    //                        {
-    //                            File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "ra2md.csf" : Path.GetFileName(csf)), true);
-    //                            if (Path.GetFileName(csf).ToLower() == "ra2.csf" || Path.GetFileName(csf).ToLower() == "ra2md.csf")
-    //                                File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "stringtable00.csf" : Path.GetFileName(csf)), true);
-    //                        }
-    //                    }
-    //                    else
-    //                    {
-    //                        File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "ra2md.csf" : Path.GetFileName(csf)), true);
-    //                        if (Path.GetFileName(csf).ToLower() == "ra2.csf" || Path.GetFileName(csf).ToLower() == "ra2md.csf")
-    //                            File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "stringtable00.csf" : Path.GetFileName(csf)), true);
-    //                    }
-    //                }
-    //            }
-
-    //            //提取font
-    //            foreach (var fnt in Directory.GetFiles(missionPackPath, "*.fnt"))
-    //            {
-    //                File.Copy(fnt, Path.Combine(missionPack.FilePath, Path.GetFileName(fnt)), true);
-    //            }
-
-    //            missionPack.Other = true;
-
-    //            missionPack.Create(); //任务包写入INI文件
-
-    //            var csfPath = Path.Combine(missionPack.FilePath, "ra2md.csf");
-    //            if (isMod)
-    //                csfPath = Path.Combine(mod.FilePath, "ra2md.csf");
-
-    //            var csfJson = new CSF(csfPath).GetCsfDictionary();
-
-    //            var goodCsf = csfJson != null;
-
-    //            var iniFile = new IniFile(missionPack.FileName);
-
-    //            // Console.WriteLine(missionPack.FileName);
-
-    //            var mission = maps;
-    //            //var missionPack = allMaps.ToList();
-    //            //missionPack.AddRange(sovMaps);
-
-    //            var count = 0;
-    //            if (!iniFile.SectionExists("Battles"))
-    //                iniFile.AddSection("Battles");
-    //            iniFile.SetValue("Battles", missionPack.ID, missionPack.ID);
-    //            foreach (var file in mission)
-    //            {
-
-    //                var country = Path.GetFileName(file).ToUpper()[..3];
-    //                count++;
-
-    //                var key = $"{missionPack.ID + count}";
-
-    //                iniFile.SetValue("Battles", key, key);
-    //                if (!iniFile.SectionExists(key))
-    //                    iniFile.AddSection(key);
-
-    //                iniFile.SetValue(key, "Scenario", Path.GetFileName(file).ToUpper());
-
-    //                //Console.WriteLine($"任务地点:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}");
-    //                if (csfJson != null)
-    //                {
-    //                    // 构建我们要查找的键
-    //                    string keyToSearch = $"任务地点:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}";
-
-    //                    // 尝试从csfJson中获取值
-    //                    if (csfJson.TryGetValue(keyToSearch, out var value))
-    //                    {
-    //                        // 如果找到了键，就替换换行符并设置值
-    //                        iniFile.SetValue(key, "Description", value.Replace("\n", "@"));
-    //                    }
-    //                    else
-    //                    {
-    //                        // 如果在csfJson中找不到键，设置为“第{count}关”
-    //                        iniFile.SetValue(key, "Description", $"第{count}关");
-    //                    }
-    //                }
-    //                else
-    //                {
-    //                    // 如果csfJson为null，也设置为“第{count}关”
-    //                    iniFile.SetValue(key, "Description", $"第{count}关");
-    //                }
-
-    //                iniFile.SetValue(key, "MissionPack", missionPack.ID);
-
-    //                //判断国家
-    //                switch (country)
-    //                {
-    //                    case "ALL":
-    //                        iniFile.SetValue(key, "SideName", "Allied");
-    //                        break;
-    //                    case "SOV":
-    //                        iniFile.SetValue(key, "SideName", "Soviet");
-    //                        break;
-    //                }
-
-    //                if (goodCsf && (country == "ALL" || country == "SOV"))
-    //                {
-    //                    // 构建我们要查找的键
-    //                    string keyToSearch = $"BRIEF:{country}{Path.GetFileName(file).Substring(3, 2)}{(md != string.Empty ? "MD" : "")}";
-
-    //                    // 尝试从 csfJson 中获取值
-    //                    if (csfJson.TryGetValue(keyToSearch, out var value))
-    //                    {
-    //                        // 如果找到了键，就替换换行符并设置值
-    //                        iniFile.SetValue(key, "LongDescription", value.Replace("\n", "@"));
-    //                    }
-    //                }
-    //            }
-    //            iniFile.WriteIniFile();
-    //            #endregion
-
-    //            if (isMod)
-    //            {
-
-    //                FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
-
-    //                IniFile spawnReader = new IniFile(spawnerSettingsFile.FullName);
-
-    //                string oldGame = spawnReader.GetValue("Settings", "Game", string.Empty);
-    //                string newGame = mod.FilePath;
-
-    //                //如果和前一次使用的游戏不一样
-    //                if (oldGame != newGame)
-    //                {
-    //                    try
-    //                    {
-    //                        FileHelper.DelFiles(GetDeleteFile(oldGame));
-    //                    }
-    //                    catch
-    //                    {
-    //                        if (File.Exists($"{ProgramConstants.MOD_MIX}"))
-    //                            File.Delete($"{ProgramConstants.MOD_MIX}");
-    //                    }
-    //                    FileHelper.CopyDirectory(newGame, "./");
-    //                }
-
-    //                spawnReader.SetValue("Settings", "Game", newGame);
-    //                spawnReader.WriteIniFile();
-    //            }
-    //            if (rander)
-    //                await RenderPreviewImageAsync(missionPack);
-    //            ReLoad();
-    //        };        
-    //}
-
-    ///// <summary>
-    ///// 导入Mod
-    ///// </summary>
-    //private void ImportMod()
-    //{
-    //    //让玩家选择mod文件夹
-    //    var folderBrowser = new FolderBrowserDialog();
-    //    folderBrowser.Description = "请选择Mod所在的目录";
-    //    //folderBrowser.ShowNewFolderButton = true;
-    //    if (DialogResult.OK != folderBrowser.ShowDialog())
-    //        return;
-
-    //    var modPath = folderBrowser.SelectedPath;
-    //    var DirectoryName = Path.GetFileName(modPath);
-
-    //    if (DirectoryName.IndexOf("RA2MD") != -1)
-    //    {
-    //        var warnBox = new XNAMessageBox(WindowManager, "错误", "路径中不能包含 RA2MD ", XNAMessageBoxButtons.OK);
-    //        warnBox.Show();
-    //        return;
-    //    }
-
-    //    var submitbox = new XNAMessageBox(WindowManager, "错误",
-    //        $"Mod路径可能不正确(不存在gamemd.exe或game.exe)，" +
-    //        $"{Environment.NewLine}你确定要导入吗？",XNAMessageBoxButtons.YesNo);
-
-    //    var mod = new Mod();
-    //    submitbox.YesClickedAction += (_) => {
-    //        #region Mod初步判断
-    //        var aresVerison = string.Empty;
-    //        string extensionPath = "Mod&AI\\Extension";
-    //        //检测ARES
-    //        if (File.Exists(Path.Combine(modPath, "Ares.dll")))
-    //        {
-    //            aresVerison = FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Ares.dll")).ProductVersion;
-
-    //            mod.ExtensionOn = true;
-
-    //            //如果用的自带的3.0p1
-    //            if (aresVerison != "3.0p1")
-    //            {
-    //                mod.Extension += $"Ares{aresVerison},";
-    //                if(!Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
-    //                    Directory.CreateDirectory($"{extensionPath}\\Ares\\Ares{aresVerison}");
-    //                File.Copy(Path.Combine(modPath, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll");
-
-    //                if (File.Exists(Path.Combine(modPath, "Ares.Mix")))
-    //                {
-    //                    File.Copy(Path.Combine(modPath, "Ares.Mix"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.Mix");
-    //                }
-    //                if (File.Exists(Path.Combine(modPath, "Syringe.exe")))
-    //                {
-    //                    File.Copy(Path.Combine(modPath, "Syringe.exe"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Syringe.exe");
-    //                }
-
-    //            }
-    //            else
-    //            {
-    //                mod.Extension += $"Ares3,";
-    //            }
-    //        }
-
-    //        var phobosVersion = string.Empty;
-    //        //检测Phobos
-    //        if (File.Exists(Path.Combine(modPath, "Phobos.dll")))
-    //        {
-    //            phobosVersion = FileVersionInfo.GetVersionInfo(Path.Combine(modPath, "Phobos.dll")).FileVersion;
-
-    //            mod.ExtensionOn = true;
-    //            //如果用的自带的36
-    //            if (phobosVersion != "0.0.0.36")
-    //            {
-    //                mod.Extension += $"Phobos{phobosVersion}";
-    //                if (!Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
-    //                    Directory.CreateDirectory($"{extensionPath}\\Phobos\\Phobos{phobosVersion}");
-    //                File.Copy(Path.Combine(modPath, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll",true);
-
-    //            }
-    //            else
-    //            {
-    //                mod.Extension += "Phobos36";
-    //            }
-    //        }
-    //        //检测NP
-
-    //        //string newFilePath = Path.Combine(modPath, "NPatch.mix");
-
-    //        //string CalculateMD5(string filePath)
-    //        //{
-    //        //    using (var md5 = MD5.Create())
-    //        //    {
-    //        //        using (var stream = File.OpenRead(filePath))
-    //        //        {
-    //        //            return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
-    //        //        }
-    //        //    }
-    //        //}
-
-    //        //if (File.Exists(newFilePath))
-    //        //{
-
-    //        //    string extensionPath = "Mod&AI\\Extension";
-
-    //        //    string modExtension = "";
-
-    //        //    // 计算新文件的哈希值
-    //        //    string newFileHash = CalculateMD5(newFilePath);
-
-    //        //    // 检查Mod&AI\Extension目录下所有以NP开头的文件夹
-    //        //    bool hashMatchFound = false;
-    //        //    foreach (var dir in Directory.GetDirectories(extensionPath, "NP*"))
-    //        //    {
-    //        //        string nPathMixFile = Path.Combine(dir, "NPatch.mix");
-    //        //        if (File.Exists(nPathMixFile))
-    //        //        {
-    //        //            // 计算NPath.mix文件的哈希值
-    //        //            string nPathMixHash = CalculateMD5(nPathMixFile);
-
-    //        //            // 比较哈希值
-    //        //            if (nPathMixHash == newFileHash)
-    //        //            {
-    //        //                mod.Extension = new DirectoryInfo(dir).任务名称;
-    //        //                hashMatchFound = true;
-    //        //                break;
-    //        //            }
-    //        //        }
-    //        //    }
-    //        //    // 如果没有找到匹配的哈希值，创建新的NP文件夹
-    //        //    if (!hashMatchFound)
-    //        //    {
-    //        //        string newDirName = "NP" + DateTime.Now.ToString("yyyyMMddHHmmss");
-    //        //        string newDirPath = Path.Combine(extensionPath, newDirName);
-    //        //        Directory.CreateDirectory(newDirPath);
-
-    //        //        string newNPathMix = Path.Combine(newDirPath, "NPatch.mix");
-    //        //        File.Copy(newFilePath, newNPathMix);
-
-    //        //        mod.Extension = newDirName;
-    //        //    }
-
-    //        //}
-
-    //        if (mod.Extension + "" == "")
-    //        {
-    //            mod.Extension = "Ares,Phobos";
-    //        }
-
-
-
-    //        mod.ID = mod.任务名称 = DirectoryName;
-
-
-    //        mod.md = string.Empty;
-    //        foreach (var file in new string[] { "rulesmd.ini", "artmd.ini", "expandmd01.mix", "RA2MD.ini", "ra2md.csf" })
-    //        {
-    //            if (File.Exists($"{modPath}/{file}"))
-    //            {
-    //                mod.md = "md";
-    //            }
-    //        }
-    //        mod.ExtensionOn = true;
-    //        if (File.Exists(Path.Combine(modPath, $"rules{mod.md}.ini"))){
-    //            mod.ExtensionOn = false;
-    //            if (File.Exists(Path.Combine(modPath, $"ra2{mod.md}.csf")))
-    //            {
-    //                var csf = new CSF(Path.Combine(modPath, $"ra2{mod.md}.csf")).GetCsfDictionary();
-    //                csf.ConvertValuesToSimplified();
-    //                if (csf != null)
-    //                {
-    //                    var rules = new IniFile(Path.Combine(modPath, $"rules{mod.md}.ini"));
-    //                    var countries = rules.GetSectionKeys("Countries");
-    //                    mod.Countries = string.Empty;
-    //                    foreach (var c in countries)
-    //                    {
-
-    //                        var country = rules.GetValue("Countries", c, string.Empty);
-    //                        if (country == "GDI") break;
-    //                        if (csf.ContainsKey($"任务名称:{country}"))
-    //                            mod.Countries += csf[$"任务名称:{country}"] + ",";
-    //                        else
-    //                        {
-    //                            mod.Countries = mod.md == string.Empty ? "美国,韩国,法国,德国,英国,利比亚,伊拉克,古巴,苏联," : "美国,韩国,法国,德国,英国,利比亚,伊拉克,古巴,苏联,尤里,";
-    //                            break;
-    //                        }
-
-    //                    }
-
-    //                    if (!string.IsNullOrEmpty(mod.Countries))
-    //                    {
-    //                        mod.Countries = mod.Countries.Remove(mod.Countries.Length - 1);
-    //                    }
-    //                }
-    //            }
-    //        }
-
-    //        mod.UseAI = mod.md == "md" ? "YRAI" : "RA2AI";
-
-    //        #endregion
-
-    //        var infoWindows = new ModInfoWindows(WindowManager, mod, "导入Mod");
-    //        AddChild(infoWindows);
-
-    //        // infoWindows.Enable();
-
-    //        // 展示新增Mod界面
-    //        infoWindows.EnabledChanged += (_, _) =>
-    //        {
-    //            mod = infoWindows.GetModInfo();
-    //            bool csf = infoWindows.GetCsf();
-    //            infoWindows.Dispose();
-    //            if (mod == null)
-    //                return;
-    //            整合Mod文件(modPath, mod,csf);
-    //        };
-    //    };
-
-    //    //判断路径是否合法
-    //    if (File.Exists(Path.Combine(modPath, "gamemd.exe"))) 
-    //    {
-    //        //是尤复Mod
-    //        mod.md = "md";
-    //        mod.UseAI = "YRAI";
-    //        submitbox.YesClickedAction.Invoke(submitbox);
-    //    }
-    //    else if (File.Exists(Path.Combine(modPath, "game.exe")))
-    //    {
-    //        //是原版Mod
-    //        mod.md = string.Empty;
-    //        mod.UseAI = "RA2AI";
-    //        submitbox.YesClickedAction.Invoke(submitbox);
-    //    }
-    //    else
-    //    {
-    //        submitbox.Show();
-    //    }
-    //}
-    //private List<string> 从mapselmd导入关卡(string mapselmd)
-    //{
-    //    List<string> 关卡数 = [];
-    //    if(string.IsNullOrEmpty(mapselmd)||!File.Exists(mapselmd)) return 关卡数;
-    //    var iniFile = new IniFile(mapselmd);
-    //    if (!iniFile.SectionExists("GDI")) return 关卡数;
-    //    var sections = iniFile.GetSectionValues("GDI");
-    //    从Section导入(sections);
-    //    sections = iniFile.GetSectionValues("Nod");
-    //    从Section导入(sections);
-
-    //    void 从Section导入(List<string> sections)
-    //    {
-    //        foreach (var section in sections)
-    //        {
-    //            if (!iniFile.SectionExists(section)) continue;
-    //            var map = iniFile.GetValue(section, "Scenario", string.Empty);
-    //            if (map == string.Empty) continue;
-    //            关卡数.Add(map);
-    //        }
-    //    }
-
-    //    return 关卡数;
-    //}
-
-
-    //protected List<string> GetDeleteFile(string oldGame)
-    //{
-    //    if (oldGame == null || oldGame == "")
-    //        return null;
-
-    //    List<string> deleteFile = new List<string>();
-
-    //    foreach (string file in Directory.GetFiles(oldGame))
-    //    {
-    //        deleteFile.Add(Path.GetFileName(file));
-
-    //    }
-
-    //    return deleteFile;
-    //}
-    #endregion
 }
 
 public class ModInfoWindows : XNAWindow
@@ -2730,16 +2177,8 @@ public class EditCSFWindows : XNAWindow
             SelectAction=Add
         });
         //修改
-        _menu.AddItem(new XNAContextMenuItem
-        {
-            Text = "修改这个条目",
-            SelectAction = Edit
-        });
-        _menu.AddItem(new XNAContextMenuItem
-        {
-            Text = "删除这个条目",
-            SelectAction =Del
-        });
+        _menu.AddItem("修改这个条目", Edit, () => _mcListBoxCsfInfo.SelectedIndex > -1);
+        _menu.AddItem("删除这个条目",Del, () => _mcListBoxCsfInfo.SelectedIndex > -1);
 
         
         AddChild(_menu);

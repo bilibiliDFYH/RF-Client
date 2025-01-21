@@ -136,7 +136,7 @@ public class AI : InfoBaseClass
     /// <summary>
     /// 使用的扩展列表
     /// </summary>
-    public string Extension { get; set; }// 使用的扩展列表
+    public string Extension { get; set; } = "Ares,Phobos";// 使用的扩展列表
     /// <summary>
     /// 重写ToString方法
     /// </summary>
@@ -169,7 +169,7 @@ public class AI : InfoBaseClass
         "# ID = 注册名。\r\n" +
         "# Description = 介绍。\r\n" +
         "# FilePath = 在重聚中的路径。\r\n" +
-        "# Compatible = 哪些Mod可用。\r\n" +
+        "# Compatible = 兼容哪些AI。\r\n" +
         "# Version = 版本。\r\n" +
         "# FileName = 注册于哪个文件。\r\n" +
         "# Author = 作者。\r\n" +

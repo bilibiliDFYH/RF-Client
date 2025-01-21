@@ -238,7 +238,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             base.Initialize();
 
             _modManager = ModManager.GetInstance(WindowManager);
+            
+            //_modManager.触发刷新 += ReloadAI;
             _modManager.触发刷新 += ReloadMod;
+
             PlayerOptionsPanel = FindChild<XNAPanel>(nameof(PlayerOptionsPanel));
 
             btnLeaveGame = FindChild<XNAClientButton>(nameof(btnLeaveGame));
@@ -290,6 +293,17 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 SelectAction = () =>
                 {
                     ModManagerEnabled();
+                    _modManager.DDModAI.SelectedIndex = 0;
+                    _modManager.BtnNew.OnLeftClick();
+                }
+            });
+            ModMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "导入AI",
+                SelectAction = () =>
+                {
+                    ModManagerEnabled();
+                    _modManager.DDModAI.SelectedIndex = 1;
                     _modManager.BtnNew.OnLeftClick();
                 }
             });
@@ -317,7 +331,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             cmbAI = FindChild<GameLobbyDropDown>(nameof(cmbAI));
             cmbAI.SelectedIndexChanged += CmbAI_SelectedChanged;
-          
+            cmbAI.RightClick += (s, e) => ModMenu.Open(GetCursorPoint());
+
             mapContextMenu = new XNAContextMenu(WindowManager);
             mapContextMenu.Name = nameof(mapContextMenu);
             mapContextMenu.Width = 100;
@@ -443,6 +458,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             InitializeGameOptionPresetUI();
 
             CmbGame_SelectedChanged(cmbGame, null);
+
+            chkExtension.Checked = true;
+            chkExtension.AllowChecking = false;
         }
 
         private void 打开地图位置()
@@ -498,11 +516,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             }
 
-            if (((AI)cmbAI.SelectedItem.Tag).ExtensionOn)
-            {
-                chkExtension.Checked = true;
-                chkExtension.AllowChecking = false;
-            }
+            //if (((AI)cmbAI.SelectedItem.Tag).ExtensionOn)
+            //{
+            //    chkExtension.Checked = true;
+            //    chkExtension.AllowChecking = false;
+            //}
 
 
         }
@@ -620,27 +638,27 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             };
         }
 
-        private void CmbGame_SelectedChanged(object sender, EventArgs e)
+        public void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
 
             #region 处理扩展按钮兼容
             ExtensionChange();
-            if (mod.ExtensionOn) //必须使用扩展
-            {
-                chkExtension.Checked = true;
-                chkExtension.AllowChecking = false;
-            }
-            else
-            {
-                chkExtension.AllowChecking = true;
-            }
+            //if (mod.ExtensionOn) //必须使用扩展
+            //{
+            //    chkExtension.Checked = true;
+            //    chkExtension.AllowChecking = false;
+            //}
+            //else
+            //{
+            //    chkExtension.AllowChecking = true;
+            //}
 
-            if (mod.Extension == string.Empty) // 没有可用扩展
-            {
-                chkExtension.Checked = false;
-                chkExtension.AllowChecking = false;
-            }
+            //if (mod.Extension == string.Empty) // 没有可用扩展
+            //{
+            //    chkExtension.Checked = false;
+            //    chkExtension.AllowChecking = false;
+            //}
 
             #endregion
 
@@ -1270,8 +1288,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             }
 
+           // ReloadAI();
             ReloadMod();
-
+            
             XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
 
 
@@ -1280,7 +1299,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             // if(GameModeMap != null)
             ChangeMap(GameModeMap);
 
-            cmbGame.OnSelectedChanged();
+            CmbGame_SelectedChanged(cmbGame, null);
             //},token);
         }
 
@@ -1311,6 +1330,19 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
             }
         }
+
+        //public void ReloadAI()
+        //{
+
+        //        cmbAI.Items.Clear();
+        //        foreach (var ai in AI.AIs)
+        //        {
+        //            if (ai.MuVisible)
+        //            {
+        //                cmbAI.AddItem(new XNADropDownItem() { Text = ai.Name, Tag = ai });
+        //            }
+        //        }
+        //}
 
         private void PickRandomMap()
         {

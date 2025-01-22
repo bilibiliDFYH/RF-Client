@@ -1376,7 +1376,7 @@ namespace Ra2Client.DXGUI.Generic
                                 mapIni.RenameSection("Countries", "YBCountry");
                         }
 
-                        mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario));
+                        mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario), Encoding.GetEncoding("Big5"));
                     }
                 }
               

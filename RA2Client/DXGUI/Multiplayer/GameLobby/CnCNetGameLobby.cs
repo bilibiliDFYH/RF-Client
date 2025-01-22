@@ -324,8 +324,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private void BtnClosePass_LeftClick(object sender, EventArgs e)
         {
             isCustomPassword = false;
+            
+          
+            var hg = connectionManager.FindChannel(channel.ChannelName);
+
+            var password = Utilities.CalculateSHA1ForString
+            (hg.ChannelName + hg.UIName).Substring(0, 10);
             Console.WriteLine(password);
-            connectionManager.FindChannel(channel.ChannelName).Password = password;
+            hg.Password = password;
             btnClosePass.Visible = false;
             AddNotice("房主已解除房间密码");
         }
@@ -376,14 +382,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 btnChangeTunnel.Disable();
             }
 
-            if (!isCustomPassword)
-            {
-                btnClosePass.Visible = false;
-            }
-            else
-            {
-                btnClosePass.Visible = true;
-            }
+            //if (!isCustomPassword)
+            //{
+            //    btnClosePass.Visible = false;
+            //}
+            //else
+            //{
+            //    btnClosePass.Visible = true;
+            //}
             tunnelHandler.CurrentTunnel = tunnel;
             tunnelHandler.CurrentTunnelPinged += TunnelHandler_CurrentTunnelPinged;
 

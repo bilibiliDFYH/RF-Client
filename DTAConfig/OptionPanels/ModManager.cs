@@ -20,6 +20,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics.Eventing.Reader;
 
 namespace DTAConfig.OptionPanels;
 
@@ -440,7 +441,7 @@ public class ModManager : XNAWindow
         {
             SevenZip.ExtractWith7Zip(item, $"./tmp/{Path.GetFileNameWithoutExtension(zip)}/{Path.GetFileNameWithoutExtension(item)}", needDel: true);
 
-            查找并解压压缩包(Path.Combine(Path.GetDirectoryName(item), Path.GetFileNameWithoutExtension(item)));
+            查找并解压压缩包(Path.GetDirectoryName(item));
         }
     }
 
@@ -462,6 +463,13 @@ public class ModManager : XNAWindow
             var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
             SevenZip.ExtractWith7Zip(filePath, missionPath);
             path = missionPath;
+        }
+
+
+        if (!Directory.Exists(path))
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
+            return string.Empty;
         }
 
         查找并解压压缩包(path);
@@ -531,7 +539,7 @@ public class ModManager : XNAWindow
 
         missionPack.DefaultMod = missionPack.Mod;
 
-        if (导入具体Mod(missionPath, isYR, false) == string.Empty) //说明检测到Mod
+        if (导入具体Mod(missionPath, isYR, false) != string.Empty) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
             missionPack.DefaultMod = id;
@@ -653,7 +661,7 @@ public class ModManager : XNAWindow
             .Where(file => 
             Path.GetFileName(file) != $"battle{md}.ini" &&
                     Path.GetFileName(file) != $"mapsel{md}.ini" &&
-                    Path.GetFileName(file) != $"missionPack{md}.ini" &&
+                    Path.GetFileName(file) != $"ai{md}.ini" &&
                     Path.GetFileName(file) != $"ai{md}.ini" &&
                     Path.GetFileName(file) != $"mpbattle{md}.ini"
                     )
@@ -681,7 +689,7 @@ public class ModManager : XNAWindow
         {
             if(reload)
                 XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
-            return "请选择Mod文件";
+            return "";
         }
 
         var path = Path.GetDirectoryName(filePath);
@@ -694,28 +702,32 @@ public class ModManager : XNAWindow
 
         var id = string.Empty;
 
-        if (Directory.Exists(path))
+        if (!Directory.Exists(path))
         {
-            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
-            foreach (var item in list)
-            {
-                if (判断是否为Mod(item, 判断是否为尤复(item)))
-                {
-                    var r = 导入具体Mod(item, reload);
-                    if (r != string.Empty)
-                    {
-                        id = r;
-                    }
-                }
-                
-            }
+            XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
+            return string.Empty;
         }
+        
+        List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
+        foreach (var item in list)
+        {
+            if (判断是否为Mod(item, 判断是否为尤复(item)))
+            {
+                var r = 导入具体Mod(item, reload);
+                if (r != string.Empty)
+                {
+                    id = r;
+                }
+            }
+                
+        }
+        
 
         if (id == string.Empty)
         {
             if (reload)
                 XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
-            return "请选择Mod文件";
+            return "";
         }
 
 
@@ -761,7 +773,7 @@ public class ModManager : XNAWindow
         if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-            return "没有找到任务包文件";
+            return string.Empty;
         }
 
         var path = Path.GetDirectoryName(filePath);
@@ -774,6 +786,11 @@ public class ModManager : XNAWindow
 
         var id = string.Empty;
 
+        if (!Directory.Exists(path))
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
+            return string.Empty;
+        }
         查找并解压压缩包(path);
         if (Directory.Exists(path))
         {
@@ -802,6 +819,12 @@ public class ModManager : XNAWindow
 
             ReLoad();
             触发刷新?.Invoke();
+        }
+
+        if (id == string.Empty)
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "没有找到ai文件");
+            return string.Empty;
         }
 
         return id;
@@ -1071,7 +1094,7 @@ public class ModManager : XNAWindow
    //     RenderImage.RenderImagesAsync();
 
         RenderImage.需要渲染的地图列表.InsertRange(0,mapFiles);
-        UserINISettings.Instance.取消渲染地图();
+        RenderImage.CancelRendering();
         _ = RenderImage.RenderImagesAsync();
     }
 
@@ -1138,7 +1161,7 @@ public class ModManager : XNAWindow
 
             删除任务包(missionPack);
         }
-        else
+        else if(DDModAI.SelectedIndex == 1)
         {
             if (ListBoxModAi.SelectedItem.Tag is not Mod mod) return;
 
@@ -1156,8 +1179,48 @@ public class ModManager : XNAWindow
             xNAMessageBox.YesClickedAction += (_) => DelMod(mod) ;
             xNAMessageBox.Show();
         }
+        else if (DDModAI.SelectedIndex == 2)
+        {
+            if (ListBoxModAi.SelectedItem.Tag is not AI ai) return;
+
+            删除AI(ai);
+
+        }
+
     }
-     
+
+    private void 删除AI(AI ai)
+    {
+        if (!ai.CanDel)
+        {
+            XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
+            return;
+        }
+        RenderImage.CancelRendering();
+
+        var iniFile = new IniFile(ai.FileName);
+        if (iniFile.GetSection("AI").Keys.Count == 1)
+            File.Delete(ai.FileName);
+        else
+        {
+            iniFile.RemoveKey("AI", ai.ID);
+            iniFile.RemoveSection(ai.ID);
+            iniFile.WriteIniFile();
+        }
+        try
+        {
+            Directory.Delete(ai.FilePath, true);
+        }
+        catch
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
+        }
+
+        ReLoad();
+        触发刷新?.Invoke();
+        RenderImage.RenderImagesAsync();
+    }
+
     public void 删除任务包(MissionPack missionPack)
     {
 
@@ -1166,7 +1229,7 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
             return;
         }
-        UserINISettings.Instance.取消渲染地图?.Invoke();
+        RenderImage.CancelRendering();
         var inifile = new IniFile(missionPack.FileName);
         var m = string.Empty;
 
@@ -1222,7 +1285,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
-        UserINISettings.Instance.开始渲染地图?.Invoke();
+        RenderImage.RenderImagesAsync();
     }
 
     public void DelMod(Mod mod)
@@ -1232,7 +1295,7 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
             return;
         }
-        UserINISettings.Instance.取消渲染地图?.Invoke();
+        RenderImage.CancelRendering();
 
         var iniFile = new IniFile(mod.FileName);
         if (iniFile.GetSection("Mod").Keys.Count == 1)
@@ -1254,7 +1317,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
-        UserINISettings.Instance.开始渲染地图?.Invoke();
+        RenderImage.RenderImagesAsync();
     }
 
     private void BtnReturn_LeftClick(object sender, EventArgs e)

@@ -42,7 +42,7 @@ namespace ClientGUI
         public static void StartGameProcess(WindowManager windowManager,IniFile iniFile = null)
         {
 
-            UserINISettings.Instance.取消渲染地图?.Invoke();
+            RenderImage.CancelRendering();
             string r = 切换文件(iniFile.GetSection("Settings"));
             if (r != string.Empty)
             {
@@ -161,8 +161,6 @@ namespace ClientGUI
                     XNAMessageBox.Show(windowManager, "错误", $"{gameFileInfo.FullName}不存在，请前往设置清理游戏缓存后重试。");
                     return;
                 }
-
-                UserINISettings.Instance.取消渲染地图?.Invoke();
 
                 ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments)
                 {
@@ -435,7 +433,7 @@ namespace ClientGUI
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
-            UserINISettings.Instance.开始渲染地图?.Invoke();
+            RenderImage.RenderImagesAsync();
        
             proc.Exited -= Process_Exited;
             proc.Dispose();

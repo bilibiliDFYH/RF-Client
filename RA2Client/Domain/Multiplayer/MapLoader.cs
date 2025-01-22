@@ -80,7 +80,7 @@ namespace Ra2Client.Domain.Multiplayer
         public void LoadMaps2()
         {
             
-            UserINISettings.Instance.取消渲染地图?.Invoke();
+            RenderImage.CancelRendering();
             RenderImage.需要渲染的地图列表.Clear();
             Logger.Log("开始加载地图...");
 

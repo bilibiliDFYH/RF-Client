@@ -810,7 +810,8 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 return "The selected game is locked!".L10N("UI:Main:GameLocked");
 
             //判断游戏版本是否一致
-            if (!CheckGameCompatible(hg.GameVersion,Updater.GameVersion))
+           // if (!CheckGameCompatible(hg.GameVersion,Updater.GameVersion))
+           if(hg.GameVersion != Updater.GameVersion)
                 return $"您的版本({Updater.GameVersion})与房主的版本({hg.GameVersion})不兼容！";
 
             if (hg.IsLoadedGame && !hg.Players.Contains(ProgramConstants.PLAYERNAME))
@@ -884,7 +885,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             string error = GetJoinGameError(hg);
             if (!string.IsNullOrEmpty(error))
             {
-                messageView.AddMessage(new ChatMessage(Color.White, error));
+                messageView.AddMessage(new ChatMessage(Color.Red, error));
                 return false;
             }
 

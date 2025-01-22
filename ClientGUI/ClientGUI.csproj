@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ClientCore\ClientCore.csproj" />
     <ProjectReference Include="..\Localization\Localization.csproj" />
+    <ProjectReference Include="..\Rampastring.Tools-2.0.6\Rampastring.Tools.csproj" />
     <ProjectReference Include="..\Rampastring.XNAUI\Rampastring.XNAUI.csproj" />
   </ItemGroup>
 </Project>

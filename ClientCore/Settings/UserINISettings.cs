@@ -175,10 +175,6 @@ namespace ClientCore
 
         public event EventHandler SettingsSaved;
 
-        public Action 暂停渲染地图;
-        public Action 开始渲染地图;
-        public Action 取消渲染地图;
-
         public User User { get; set; }
 
         /*********/

@@ -1,8 +1,6 @@
-﻿using ClientCore;
+﻿
 using Rampastring.Tools;
 using Rampastring.XNAUI;
-using SharpDX.MediaFoundation;
-using SharpDX.MediaFoundation.DirectX;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +9,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DTAConfig
+namespace ClientCore
 {
     public static class RenderImage
     {
@@ -88,6 +86,7 @@ namespace DTAConfig
             RenderCount = 0;
             tasks.Clear();
 
+            var semaphore = new SemaphoreSlim(1, 1); // 限制并发任务数量为1
 
             var parallelOptions = new ParallelOptions
             {
@@ -104,32 +103,38 @@ namespace DTAConfig
                 {
                     tasks.Add(Task.Run(async () =>
                     {
-                        
+                        await semaphore.WaitAsync(); // 等待信号量
 
-                        while (!cts.Token.IsCancellationRequested)
+                        try
                         {
-                            pauseEvent.Wait(); // 等待继续信号
+                            while (!cts.Token.IsCancellationRequested)
+                            {
+                                pauseEvent.Wait(); // 等待继续信号
 
-                            try
-                            {
-                                // 渲染任务
-                                await RenderOneImageAsync(map);
-                                Interlocked.Increment(ref RenderCount);
-                                TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                Console.WriteLine("渲染任务已取消");
-                                break;
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine($"渲染异常: {ex.Message}");
-                            }
+                                try
+                                {
+                                    // 渲染任务
+                                    await RenderOneImageAsync(map);
+                                    Interlocked.Increment(ref RenderCount);
+                                    TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
+                                }
+                                catch (OperationCanceledException)
+                                {
+                                    Console.WriteLine("渲染任务已取消");
+                                    break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"渲染异常: {ex.Message}");
+                                }
 
-                            break; // 渲染成功后退出循环
+                                break; // 渲染成功后退出循环
+                            }
                         }
-
+                        finally
+                        {
+                            semaphore.Release(); // 释放信号量
+                        }
                     }));
                 });
 

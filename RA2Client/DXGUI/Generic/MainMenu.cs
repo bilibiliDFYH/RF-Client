@@ -33,6 +33,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Rampastring.XNAUI.Input;
 using System.Net.Sockets;
 using Ra2Client.Domain.Multiplayer;
+using ClientCore.CnCNet5;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -64,9 +65,11 @@ namespace Ra2Client.DXGUI.Generic
             };
             btnConfirm.LeftClick += (sender, e) =>
             {
-                if (string.IsNullOrWhiteSpace(tbxName.Text) || tbxName.Text.Length > 10)
+                string error = NameValidator.IsNameValid(tbxName.Text);
+
+                if (error != null)
                 {
-                    XNAMessageBox.Show(windowManager, "提示", "名称不合法（不能为空,长度不超过10位）");
+                    XNAMessageBox.Show(windowManager, "提示", error);
                     return;
                 }
 

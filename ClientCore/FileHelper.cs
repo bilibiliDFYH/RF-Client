@@ -80,9 +80,11 @@ namespace ClientCore
 
             foreach (var fileName in customFile)
             {
-                if (File.Exists($"Client/{fileName}"))
+                var ini = $"{ProgramConstants.GamePath}Client/{tag}{fileName}";
+
+                if (File.Exists(ini))
                 {
-                    File.Move($"Client/{tag}{fileName}", $"Client/{tag2}{fileName}",true);
+                    File.Move(ini, $"{ProgramConstants.GamePath}Client/{tag2}{fileName}",true);
                 }
             }
         }

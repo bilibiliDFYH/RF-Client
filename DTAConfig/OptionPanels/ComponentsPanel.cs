@@ -530,7 +530,7 @@ namespace DTAConfig.OptionPanels
 
         private void UnInstall()
         {
-            UserINISettings.Instance.取消渲染地图?.Invoke();
+            RenderImage.CancelRendering();
             if (null == _curComponent)
                 return;
             
@@ -563,7 +563,7 @@ namespace DTAConfig.OptionPanels
                 WindowManager.Report();
         }
             
-           // UserINISettings.Instance.开始渲染地图?.Invoke();
+           // RenderImage.RenderImagesAsync();
         }
 
         public void InstallComponent(int reg_name)

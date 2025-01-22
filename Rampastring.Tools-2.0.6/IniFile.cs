@@ -336,6 +336,18 @@ public class IniFile : IIniFile
        return WriteIniStream(stream);
     }
 
+    public IniFile WriteIniFile(string filePath, Encoding encoding)
+    {
+        FileInfo fileInfo = SafePath.GetFile(filePath);
+
+        if (fileInfo.Exists)
+            fileInfo.Delete();
+
+        using var stream = fileInfo.OpenWrite();
+
+        return WriteIniStream(stream, encoding);
+    }
+
     /// <summary>
     /// Creates and adds a section into the INI file.
     /// </summary>

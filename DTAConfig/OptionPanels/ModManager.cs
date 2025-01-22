@@ -252,8 +252,8 @@ public class ModManager : XNAWindow
         //提取mix文件
         HashSet<string> mixFileExclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Ares.file", "ra2md.file", "ra2.file", "langmd.file", "language.file", "movmd03.file", "multimd.file",
-            "movmd01.file", "movmd02.file","NPatch.file","movies01.file","movies02.file","MAPS02.file","MAPS01.file",
+            "Ares.mix", "ra2md.mix", "ra2.mix", "langmd.mix", "language.mix", "movmd03.mix", "multimd.mix",
+            "movmd01.mix", "movmd02.mix","NPatch.mix","movies01.mix","movies02.mix","MAPS02.mix","MAPS01.mix",
             ProgramConstants.CORE_MIX,ProgramConstants.SKIN_MIX,ProgramConstants.MISSION_MIX
         };
 
@@ -262,7 +262,7 @@ public class ModManager : XNAWindow
 
             // 复制除了指定列表之外的所有.mix文件，同时处理以"Ecache"或"EXPAND"开头的文件
             int expandCounter = 2; // 统一的扩展文件计数器
-            foreach (var mix in Directory.GetFiles(modPath, "*.file"))
+            foreach (var mix in Directory.GetFiles(modPath, "*.mix"))
             {
                 string fileName = Path.GetFileName(mix);
                 bool isEcacheOrExpand = fileName.StartsWith("Ecache", StringComparison.OrdinalIgnoreCase) ||
@@ -278,7 +278,7 @@ public class ModManager : XNAWindow
                     string newFileName;
                     do
                     {
-                        newFileName = $"expandmd{expandCounter++.ToString("D2")}.file";
+                        newFileName = $"expandmd{expandCounter++.ToString("D2")}.mix";
                     }
                     while (File.Exists(Path.Combine(mod.FilePath, newFileName)));
 
@@ -450,7 +450,7 @@ public class ModManager : XNAWindow
     public string 导入任务包(string filePath)
     {
         var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".file")
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
             return "没有找到任务包文件";
@@ -646,7 +646,7 @@ public class ModManager : XNAWindow
             .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
             .ToArray();
 
-        var mixs = Directory.GetFiles(path, $"expand{md}*.file")
+        var mixs = Directory.GetFiles(path, $"expand{md}*.mix")
             .ToArray();
 
         var inis = Directory.GetFiles(path, $"*.ini")
@@ -664,20 +664,20 @@ public class ModManager : XNAWindow
 
     private bool 判断是否为任务包(string path)
     {
-        return Directory.Exists(path) && Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.file").Length != 0;
+        return Directory.Exists(path) && Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0;
     }
 
     private static bool 判断是否为尤复(string path)
     {
-        string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.file", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
+        string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.mix", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
         
-        return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.file").Length != 0 || Directory.GetFiles(path, "*md.map").Length != 0;
+        return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*md.map").Length != 0;
     }
 
     private string 导入Mod(string filePath,bool reload = true)
     {
         var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".exe" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".file")
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".exe" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".mix")
         {
             if(reload)
                 XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
@@ -758,7 +758,7 @@ public class ModManager : XNAWindow
     private string 导入AI(string filePath)
     {
         var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".file")
+        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
             return "没有找到任务包文件";
@@ -822,7 +822,7 @@ public class ModManager : XNAWindow
             FilePath = $"Mod&AI\\AI\\{id}",
             Name = Path.GetFileName(path),
             YR = isYR,
-            Compatible = isYR ? "YRAI" : "RA2AI",
+            Compatible = isYR ? "YR" : "RA2",
         };
 
         整合AI文件(path, ai);

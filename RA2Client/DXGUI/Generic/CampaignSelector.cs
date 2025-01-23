@@ -947,7 +947,7 @@ namespace Ra2Client.DXGUI.Generic
             //显示远程总分数
             try
             {
-                //var uri = "https://dln1.yra2.com/Client/Scores/rating_index.php";
+                //var uri = "https://autopatch1-js.yra2.com/Client/Scores/rating_index.php";
                 //Dictionary<string, string> dic = new Dictionary<string, string>();
                 //dic.Add("id", name);
                 //dic.Add("op", "query");
@@ -1006,7 +1006,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private async Task UploadScore(string strName, int strScore)
         {
-            //var uri = "https://dln1.yra2.com/Client/Scores/rating_index.php";
+            //var uri = "https://autopatch1-js.yra2.com/Client/Scores/rating_index.php";
             //Dictionary<string, string> dic = new Dictionary<string, string>();
             //dic.Add("id", strName);
             //dic.Add("op", "upload");

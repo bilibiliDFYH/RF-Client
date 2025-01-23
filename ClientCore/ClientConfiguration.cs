@@ -240,14 +240,14 @@ namespace ClientCore
 
         public string[] GetThemeInfoFromIndex(int themeIndex) => clientDefinitionsIni.GetStringValue("Themes", themeIndex.ToString(), ",").Split(',');
 
-        public string ReunionApiHost =>
-            clientDefinitionsIni.GetStringValue(SETTINGS, "ReunionApiHost",
-#if DEBUG
-                "http://localhost:5000/"
-#else
-                "https://raa2022.top/api/"
-#endif
-                );
+//        public string ReunionApiHost =>
+//            clientDefinitionsIni.GetStringValue(SETTINGS, "ReunionApiHost",
+//#if DEBUG
+//                "http://localhost:5000/"
+//#else
+//                "https://api.yra2.com/"
+//#endif
+//                );
 
         /// <summary>
         /// Returns the directory path for a theme, or null if the specified

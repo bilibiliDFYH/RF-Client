@@ -138,6 +138,9 @@ public class SevenZip
             //Console.WriteLine(startInfo.FileName);
             //Console.WriteLine(arguments);
 
+            Logger.Log(startInfo.FileName);
+            Logger.Log(arguments);
+
             using Process process = new();
             process.StartInfo = startInfo;
             process.OutputDataReceived += (sender, e) =>

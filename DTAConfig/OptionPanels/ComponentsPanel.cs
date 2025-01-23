@@ -364,14 +364,16 @@ namespace DTAConfig.OptionPanels
             try
             {
                 using WebClient webClient = new WebClient();
-
+                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
                 webClient.DownloadProgressChanged += (s, evt) =>
                 {
                     progressBar.Value = evt.ProgressPercentage;
 
                     lbprogress.Text = progressBar.Value.ToString() + "%";
-                };
 
+                    TaskbarProgress.Instance.SetValue(evt.ProgressPercentage,100);
+                };
+                
                 var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
 
                 if (string.IsNullOrEmpty(strDownPath))
@@ -442,7 +444,8 @@ namespace DTAConfig.OptionPanels
                     {
                         lbprogress.Text = $"{progress:0.000}%";
                     });
-              
+
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
                     WriteConponentConfig(SevenZip.GetFile(strLocPath));
                     try
                     {

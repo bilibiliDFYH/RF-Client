@@ -128,7 +128,7 @@ public class SevenZip
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new()
             {
-                FileName = $"Resources/Binaries/7z-{architecture}.exe",
+                FileName = $"Resources/Binaries/{architecture}/7z.exe",
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程

@@ -861,9 +861,11 @@ public static class Updater
                             }
                         }
                         //解压更新包文件
-                        bool bRet = SevenZip.Unpack(pkgFile, tmpDirInfo.FullName);
-                        if (bRet)
-                            File.Delete(pkgFile);
+                        //bool bRet = SevenZip.CompressWith7Zip(pkgFile, tmpDirInfo.FullName);
+                        //if (bRet)
+                        //    File.Delete(pkgFile);
+
+                        SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName);
                     }
                     catch(Exception ex)
                     {

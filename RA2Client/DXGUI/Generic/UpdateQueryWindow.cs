@@ -51,7 +51,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var lblChangelogLink = new XNALinkLabel(WindowManager);
             lblChangelogLink.ClientRectangle = new Rectangle(12, 83, 0, 0);
-            lblChangelogLink.Text = "查看更新";
+            lblChangelogLink.Text = "查看完整更新日志";
             lblChangelogLink.IdleColor = Color.Goldenrod;
             lblChangelogLink.Name = nameof(lblChangelogLink);
             lblChangelogLink.LeftClick += LblChangelogLink_LeftClick;
@@ -136,7 +136,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public void SetInfo(string version, int updateSize,string updateTime)
         {
-            lblDescription.Text = string.Format("新版本\"{0}\"已经可供下载,您是否想要安装它？", version);
+            lblDescription.Text = string.Format("新版本\"{0}\"已推送,您是否想要安装此更新？", version);
             lblUpdateSize.Text = string.Format("更新包大小：{0}", GetSizeString(updateSize));
             lblUpdateTime.Text = string.Format("更新时间：{0}", updateTime);
         }

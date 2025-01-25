@@ -54,7 +54,7 @@ namespace DTAConfig
         {
             
             Name = "OptionsWindow";
-            ClientRectangle = new Rectangle(0, 0, 750, 475);
+            ClientRectangle = new Rectangle(0, 0, 760, 475);
             BackgroundTexture = AssetLoader.LoadTextureUncached("optionsbg.png");
 
             tabControl = new XNAClientTabControl(WindowManager);

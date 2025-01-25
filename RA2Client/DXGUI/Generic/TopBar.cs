@@ -245,7 +245,7 @@ namespace Ra2Client.DXGUI.Generic
             lblConnectionStatus = new XNALabel(WindowManager);
             lblConnectionStatus.Name = "lblConnectionStatus";
             lblConnectionStatus.FontIndex = 1;
-            lblConnectionStatus.Text = " CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline");
+            lblConnectionStatus.Text = "CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline");
 
             AddChild(btnMainButton);
             AddChild(btnCnCNetLobby);
@@ -263,7 +263,7 @@ namespace Ra2Client.DXGUI.Generic
                 lblCnCNetStatus = new XNALabel(WindowManager);
                 lblCnCNetStatus.Name = "lblCnCNetStatus";
                 lblCnCNetStatus.FontIndex = 1;
-                lblCnCNetStatus.Text = ClientConfiguration.Instance.LocalGame.ToUpper() + " 在线玩家数:";
+                lblCnCNetStatus.Text = ClientConfiguration.Instance.LocalGame.ToUpper() + "在线玩家数:";
                 lblCnCNetPlayerCount = new XNALabel(WindowManager);
                 lblCnCNetPlayerCount.Name = "lblCnCNetPlayerCount";
                 lblCnCNetPlayerCount.FontIndex = 1;
@@ -338,29 +338,29 @@ namespace Ra2Client.DXGUI.Generic
         private void ConnectionManager_ConnectionLost(object sender, Online.EventArguments.ConnectionLostEventArgs e)
         {
             if (!lanMode)
-                ConnectionEvent("OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         private void ConnectionManager_ConnectAttemptFailed(object sender, EventArgs e)
         {
             if (!lanMode)
-                ConnectionEvent("OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         private void ConnectionManager_AttemptedServerChanged(object sender, Online.EventArguments.AttemptedServerEventArgs e)
         {
-            ConnectionEvent("CONNECTING...".L10N("UI:Main:StatusConnecting"));
+            ConnectionEvent("CnCNet连接状态:" + "CONNECTING...".L10N("UI:Main:StatusConnecting"));
             BringDown();
         }
 
         private void ConnectionManager_WelcomeMessageReceived(object sender, Online.EventArguments.ServerMessageEventArgs e)
-            => ConnectionEvent("CONNECTED".L10N("UI:Main:StatusConnected"));
+            => ConnectionEvent("CnCNet连接状态:" + "CONNECTED".L10N("UI:Main:StatusConnected"));
 
         private void ConnectionManager_Disconnected(object sender, EventArgs e)
         {
             btnLogout.AllowClick = false;
             if (!lanMode)
-                ConnectionEvent("OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         private void ConnectionEvent(string text)

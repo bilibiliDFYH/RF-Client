@@ -64,7 +64,7 @@ namespace ClientCore.CnCNet5
             // CnCNet chat.
             CnCNetGame[] otherGames =
             {
-                
+
             };
 
             GameList.AddRange(defaultGames);

@@ -114,7 +114,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             lblPing.Visible = true;
             lblPlayers.Visible = true;
             //lblPlayers.Text = "Players".L10N("UI:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
-            lblPlayers.Text = "房间内玩家" + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
+            lblPlayers.Text = "Players".L10N("Client:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
 
             for (int i = 0; i < game.Players.Length && i < MAX_PLAYERS; i++)
             {
@@ -129,7 +129,7 @@ namespace Ra2Client.DXGUI.Multiplayer
 
             string skillLevel = skillLevelOptions[game.SkillLevel];
             string localizedSkillLevel = skillLevel.L10N($"INI:ClientDefinitions:SkillLevel:{game.SkillLevel}");
-            lblSkillLevel.Text = "玩家水平要求:" + " " + localizedSkillLevel;
+            lblSkillLevel.Text = "Preferred Skill Level:".L10N("Client:Main:GameInfoSkillLevel") + " " + localizedSkillLevel;
         }
 
         public void ClearInfo()

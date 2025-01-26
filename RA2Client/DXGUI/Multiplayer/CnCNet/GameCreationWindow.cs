@@ -110,7 +110,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblSkillLevel.Name = nameof(lblSkillLevel);
             lblSkillLevel.ClientRectangle = new Rectangle(UIDesignConstants.EMPTY_SPACE_SIDES +
                 UIDesignConstants.CONTROL_HORIZONTAL_MARGIN, ddSkillLevel.Y + 1, 0, 0);
-            lblSkillLevel.Text = "玩家水平要求(参考值):";
+            lblSkillLevel.Text = "Select preferred skill level of players:".L10N("Client:Main:SelectSkillLevel");
 
             tbPassword = new XNATextBox(WindowManager);
             tbPassword.Name = nameof(tbPassword);

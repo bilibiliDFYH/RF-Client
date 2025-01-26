@@ -113,8 +113,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             lblPing.Text = game.Ping > 0 ? "Ping:".L10N("UI:Main:GameInfoPing") + " " + game.Ping.ToString() + " ms" : "Ping: Unknown".L10N("UI:Main:GameInfoPingUnknown");
             lblPing.Visible = true;
             lblPlayers.Visible = true;
-            //lblPlayers.Text = "Players".L10N("UI:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
-            lblPlayers.Text = "Players".L10N("Client:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
+            lblPlayers.Text = "Players".L10N("UI:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
 
             for (int i = 0; i < game.Players.Length && i < MAX_PLAYERS; i++)
             {

@@ -58,7 +58,7 @@ namespace DTAConfig.OptionPanels
             chkPingUnofficialTunnels.Name = nameof(chkPingUnofficialTunnels);
             chkPingUnofficialTunnels.ClientRectangle = new Rectangle(12, 12, 0, 0);
             chkPingUnofficialTunnels.Text = "Ping unofficial CnCNet tunnels".L10N("UI:DTAConfig:PingUnofficial");
-            chkPingUnofficialTunnels.Visible = false;
+            // chkPingUnofficialTunnels.Visible = false;
             AddChild(chkPingUnofficialTunnels);
 
             chkWriteInstallPathToRegistry = new XNAClientCheckBox(WindowManager);
@@ -178,7 +178,7 @@ namespace DTAConfig.OptionPanels
             ddAllowPrivateMessagesFrom.Name = nameof(ddAllowPrivateMessagesFrom);
             ddAllowPrivateMessagesFrom.ClientRectangle = new Rectangle(
                 lblAllPrivateMessagesFrom.Right,
-                lblAllPrivateMessagesFrom.Y - 2, 65, 0);
+                lblAllPrivateMessagesFrom.Y - 2, 70, 0);
 
             ddAllowPrivateMessagesFrom.AddItem(new XNADropDownItem()
             {

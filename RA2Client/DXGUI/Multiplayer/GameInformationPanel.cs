@@ -101,17 +101,22 @@ namespace Ra2Client.DXGUI.Multiplayer
         public void SetInfo(GenericHostedGame game)
         {
             lblGameMode.Text = Renderer.GetStringWithLimitedWidth("Game mode:".L10N("UI:Main:GameInfoGameMode") + " " + Renderer.GetSafeString(game.GameMode, lblGameMode.FontIndex),
-                lblGameMode.FontIndex, Width - lblGameMode.X * 2);
+            lblGameMode.FontIndex, Width - lblGameMode.X * 2);
             lblGameMode.Visible = true;
+            
             lblMap.Text = Renderer.GetStringWithLimitedWidth("Map:".L10N("UI:Main:GameInfoMap") + " " + Renderer.GetSafeString(game.Map, lblMap.FontIndex),
-                lblMap.FontIndex, Width - lblMap.X * 2);
+            lblMap.FontIndex, Width - lblMap.X * 2);
             lblMap.Visible = true;
+            
             lblGameVersion.Text = "Game version:".L10N("UI:Main:GameInfoGameVersion") + " " + Renderer.GetSafeString(game.GameVersion, lblGameVersion.FontIndex);
             lblGameVersion.Visible = true;
+            
             lblHost.Text = "Host:".L10N("UI:Main:GameInfoHost") + " " + Renderer.GetSafeString(game.HostName, lblHost.FontIndex);
             lblHost.Visible = true;
+            
             lblPing.Text = game.Ping > 0 ? "Ping:".L10N("UI:Main:GameInfoPing") + " " + game.Ping.ToString() + " ms" : "Ping: Unknown".L10N("UI:Main:GameInfoPingUnknown");
             lblPing.Visible = true;
+            
             lblPlayers.Visible = true;
             lblPlayers.Text = "Players".L10N("UI:Main:GameInfoPlayers") + " (" + game.Players.Length + " / " + game.MaxPlayers + "):";
 

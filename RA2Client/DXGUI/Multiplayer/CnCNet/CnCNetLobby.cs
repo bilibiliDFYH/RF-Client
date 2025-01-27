@@ -1508,7 +1508,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 return;
 
             string msg = e.Message.Substring(5); // Cut out GAME part
-            string[] splitMessage = msg.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] splitMessage = msg.Split(new char[] { ';' });
 
             if (splitMessage.Length != 12)
             {

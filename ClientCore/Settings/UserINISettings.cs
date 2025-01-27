@@ -114,7 +114,7 @@ namespace ClientCore
 
             ChatColor = new IntSetting(iniFile, MULTIPLAYER, "ChatColor", -1);
             LANChatColor = new IntSetting(iniFile, MULTIPLAYER, "LANChatColor", -1);
-           // PingUnofficialCnCNetTunnels = new BoolSetting(iniFile, MULTIPLAYER, "PingCustomTunnels", true);
+            PingUnofficialCnCNetTunnels = new BoolSetting(iniFile, MULTIPLAYER, "PingCustomTunnels", true);
             WritePathToRegistry = new BoolSetting(iniFile, OPTIONS, "WriteInstallationPathToRegistry", true);
             PlaySoundOnGameHosted = new BoolSetting(iniFile, MULTIPLAYER, "PlaySoundOnGameHosted", true);
             SkipConnectDialog = new BoolSetting(iniFile, MULTIPLAYER, "SkipConnectDialog", false);
@@ -236,7 +236,7 @@ namespace ClientCore
         public StringSetting Token { get; set; }
         public IntSetting ChatColor { get; private set; }
         public IntSetting LANChatColor { get; private set; }
-      //  public BoolSetting PingUnofficialCnCNetTunnels { get; private set; }
+        public BoolSetting PingUnofficialCnCNetTunnels { get; private set; }
         public BoolSetting WritePathToRegistry { get; private set; }
         public BoolSetting PlaySoundOnGameHosted { get; private set; }
          

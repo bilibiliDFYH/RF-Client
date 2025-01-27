@@ -93,7 +93,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (pInfo == null)
                 return;
 
-            pInfo.Verified = true;
+            pInfo.HashReceived = true;
             CopyPlayerDataToUI();
         }
 
@@ -496,7 +496,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 sb.Append(pInfo.ColorId);
                 sb.Append(pInfo.StartingLocation);
                 sb.Append(pInfo.TeamId);
-                if (pInfo.AutoReady && !pInfo.IsInGame)
+                if (pInfo.AutoReady && !pInfo.IsInGame && !LastMapChangeWasInvalid)
                     sb.Append(2);
                 else
                     sb.Append(Convert.ToInt32(pInfo.IsAI || pInfo.Ready));
@@ -568,8 +568,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             sb.Append(RandomSeed);
-            sb.Append(Map.SHA1);
-            sb.Append(GameMode.Name);
+            sb.Append(Map?.SHA1 ?? string.Empty);
+            sb.Append(GameMode?.Name ?? string.Empty);
             sb.Append(FrameSendRate);
             sb.Append(Convert.ToInt32(RemoveStartingLocations));
 
@@ -743,8 +743,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             sb.Append(ProgramConstants.LAN_PROTOCOL_REVISION);
             sb.Append(ProgramConstants.GAME_VERSION);
             sb.Append(localGame);
-            sb.Append(Map.Name);
-            sb.Append(GameMode.UIName);
+            sb.Append(Map?.UntranslatedName ?? string.Empty);
+            sb.Append(GameMode?.UntranslatedUIName ?? string.Empty);
             sb.Append(0); // LoadedGameID
             var sbPlayers = new StringBuilder();
             Players.ForEach(p => sbPlayers.Append(p.Name + ","));
@@ -991,9 +991,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (gameModeMap == null)
             {
-                AddNotice("The game host has selected a map that doesn't exist on your installation.".L10N("UI:Main:MapNotExist") +
-                    "The host needs to change the map or you won't be able to play.".L10N("UI:Main:HostNeedChangeMapForYou"));
                 ChangeMap(null);
+                if (!string.IsNullOrEmpty(mapSHA1))
+                    AddNotice("The game host has selected a map that doesn't exist on your installation.".L10N("UI:Main:MapNotExist") + " " +
+                        "The host needs to change the map or you won't be able to play.".L10N("UI:Main:HostNeedChangeMapForYou"));
+                        
                 return;
             }
 

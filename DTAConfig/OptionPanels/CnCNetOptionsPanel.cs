@@ -307,7 +307,7 @@ namespace DTAConfig.OptionPanels
         {
             base.Load();
 
-        //    chkPingUnofficialTunnels.Checked = IniSettings.PingUnofficialCnCNetTunnels;
+            chkPingUnofficialTunnels.Checked = IniSettings.PingUnofficialCnCNetTunnels;
             chkWriteInstallPathToRegistry.Checked = IniSettings.WritePathToRegistry;
             chkPlaySoundOnGameHosted.Checked = IniSettings.PlaySoundOnGameHosted;
             chkNotifyOnUserListChange.Checked = IniSettings.NotifyOnUserListChange;
@@ -342,7 +342,7 @@ namespace DTAConfig.OptionPanels
         {
             bool restartRequired = base.Save();
 
-         //   IniSettings.PingUnofficialCnCNetTunnels.Value = chkPingUnofficialTunnels.Checked;
+            IniSettings.PingUnofficialCnCNetTunnels.Value = chkPingUnofficialTunnels.Checked;
             IniSettings.WritePathToRegistry.Value = chkWriteInstallPathToRegistry.Checked;
             IniSettings.PlaySoundOnGameHosted.Value = chkPlaySoundOnGameHosted.Checked;
             IniSettings.NotifyOnUserListChange.Value = chkNotifyOnUserListChange.Checked;

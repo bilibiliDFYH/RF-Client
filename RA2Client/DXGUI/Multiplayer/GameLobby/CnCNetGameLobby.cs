@@ -978,7 +978,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 sb.Append(";");
                 if (!pInfo.IsAI)
                 {
-                    if (pInfo.AutoReady && !pInfo.IsInGame)
+                    if (pInfo.AutoReady && !pInfo.IsInGame && !LastMapChangeWasInvalid)
                         sb.Append(2);
                     else
                         sb.Append(Convert.ToInt32(pInfo.Ready));
@@ -1141,9 +1141,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (GameLobbyDropDown dd in DropDowns)
                 sb.Append(dd.SelectedIndex);
 
-            sb.Append(Convert.ToInt32(Map.Official));
-            sb.Append(Map.SHA1);
-            sb.Append(GameMode.Name);
+            sb.Append(Convert.ToInt32(Map?.Official ?? false));
+            sb.Append(Map?.SHA1 ?? string.Empty);
+            sb.Append(GameMode?.Name ?? string.Empty);
             sb.Append(FrameSendRate);
             sb.Append(MaxAhead);
             sb.Append(ProtocolVersion);
@@ -1215,10 +1215,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 ChangeMap(null);
 
-               // if (!isMapOfficial)
-                    RequestMap(mapSHA1);
-              //  else
-              //      ShowOfficialMapMissingMessage(mapSHA1);
+                if (!string.IsNullOrEmpty(mapSHA1))
+                {
+                    if (!isMapOfficial)
+                        RequestMap(mapSHA1);
+                    else
+                        ShowOfficialMapMissingMessage(mapSHA1);
+                }
             }
             else if (GameModeMap != currentGameModeMap)
             {
@@ -1605,7 +1608,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             PlayerInfo pInfo = Players.Find(p => p.Name == sender);
 
             if (pInfo != null)
-                pInfo.Verified = true;
+                pInfo.HashReceived = true;
             CopyPlayerDataToUI();
 
             //暂时不对比文件
@@ -2038,9 +2041,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (ProgramConstants.IsInGame && broadcastChannel.Users.Count > 500)
                 return;
 
-            if (GameMode == null || Map == null)
-                return;
-
             StringBuilder sb = new StringBuilder("GAME ");
             sb.Append(ProgramConstants.CNCNET_PROTOCOL_REVISION);
             sb.Append(";");
@@ -2069,9 +2069,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             sb.Remove(sb.Length - 1, 1);
             sb.Append(";");
-            sb.Append(Map.Name);
+            sb.Append(Map?.UntranslatedName ?? string.Empty);
             sb.Append(";");
-            sb.Append(GameMode.UIName);
+            sb.Append(GameMode?.UntranslatedUIName ?? string.Empty);
             sb.Append(";");
             sb.Append(tunnelHandler.CurrentTunnel.Address + ":" + tunnelHandler.CurrentTunnel.Port);
             sb.Append(";");

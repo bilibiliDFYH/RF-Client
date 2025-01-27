@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.IO;
@@ -57,6 +58,11 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         [JsonInclude]
         public string Name { get; private set; }
+        
+        /// <summary>
+        /// 未翻译的地图原始名称.
+        /// </summary>
+        public string UntranslatedName { get; private set; }
 
         /// <summary>
         /// 地图支持的最大玩家数量.
@@ -491,6 +497,7 @@ namespace Ra2Client.Domain.Multiplayer
                     if (string.IsNullOrEmpty(waypoint))
                         break;
 
+                    Debug.Assert(int.TryParse(waypoint, out _), $"waypoint should be a number, got {waypoint}");
                     waypoints.Add(waypoint);
                 }
 

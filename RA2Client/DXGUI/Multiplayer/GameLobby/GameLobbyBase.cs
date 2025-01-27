@@ -1079,7 +1079,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 string.Format("The game host has disabled {0}".L10N("UI:Main:HostDisableSection"), type) :
                 string.Format("The game host has enabled {0}".L10N("UI:Main:HostEnableSection"), type));
 
-        public List<GameModeMap> GetSortedGameModeMaps()
+        protected List<GameModeMap> GetSortedGameModeMaps()
         {
             var gameModeMaps = gameModeMapFilter.GetGameModeMaps();
 
@@ -1224,8 +1224,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected virtual void ToggleFavoriteMap()
         {
             if (GameModeMap != null)
-            {
-                GameModeMap.IsFavorite = UserINISettings.Instance.ToggleFavoriteMap(Map.Name, GameMode.Name, GameModeMap.IsFavorite);
+            { 
+                GameModeMap.IsFavorite = UserINISettings.Instance.ToggleFavoriteMap(Map.UntranslatedName, GameMode.Name, GameModeMap.IsFavorite);
                 MapPreviewBox.RefreshFavoriteBtn();
             }
         }
@@ -2939,6 +2939,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 lblMapSize.Text = "Size: Not available".L10N("UI:Main:MapSizeUnknown");
 
                 MapPreviewBox.GameModeMap = null;
+                
+                OnGameOptionChanged();
 
                 return;
             }

@@ -418,17 +418,14 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             if (!IsHost)
                 return;
 
-            if (fileHash != gameFilesHash)
-            {
-                PlayerInfo pInfo = Players.Find(p => p.Name == sender);
+            PlayerInfo pInfo = Players.Find(p => p.Name == sender);
+            if (pInfo == null)
+                return;
 
-                if (pInfo == null)
-                    return;
+                pInfo.HashReceived = true;
 
-                pInfo.Verified = true;
-
+                if (fileHash != gameFilesHash)
                 HandleCheaterNotification(hostName, sender); // This is kinda hacky
-            }
         }
 
         private void HandleCheaterNotification(string sender, string cheaterName)

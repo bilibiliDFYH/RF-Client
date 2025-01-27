@@ -387,17 +387,74 @@ namespace ClientCore
 
 #endregion
 
+#region Game networking defaults
+
+        /// <summary>
+        /// Default value for FrameSendRate setting written in spawn.ini.
+        /// </summary>
+        public int DefaultFrameSendRate => clientDefinitionsIni.GetIntValue(SETTINGS, nameof(DefaultFrameSendRate), 1);
+
+        /// <summary>
+        /// Default value for Protocol setting written in spawn.ini.
+        /// </summary>
+        public int DefaultProtocolVersion => clientDefinitionsIni.GetIntValue(SETTINGS, nameof(DefaultProtocolVersion), 2);
+
+        /// <summary>
+        /// Default value for MaxAhead setting written in spawn.ini.
+        /// </summary>
+        public int DefaultMaxAhead => clientDefinitionsIni.GetIntValue(SETTINGS, nameof(DefaultMaxAhead), 0);
+
+        #endregion
+
         public OSVersion GetOperatingSystemVersion()
         {
+#if NETFRAMEWORK
+            // OperatingSystem.IsWindowsVersionAtLeast() is the preferred API but is not supported on earlier .NET versions
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                Version osVersion = Environment.OSVersion.Version;
+
+                if (osVersion.Major <= 4)
+                    return OSVersion.UNKNOWN;
+
+                if (osVersion.Major == 5)
+                    return OSVersion.WINXP;
+
+                if (osVersion.Major == 6 && osVersion.Minor == 0)
+                    return OSVersion.WINVISTA;
+
+                if (osVersion.Major == 6 && osVersion.Minor <= 1)
+                    return OSVersion.WIN7;
+
+                return OSVersion.WIN810;
+            }
+
+            if (ProgramConstants.ISMONO)
+                return OSVersion.UNIX;
+
+            // http://mono.wikia.com/wiki/Detecting_the_execution_platform
+            int p = (int)Environment.OSVersion.Platform;
+            if (p == 4 || p == 6 || p == 128)
+                return OSVersion.UNIX;
+
+            return OSVersion.UNKNOWN;
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (OperatingSystem.IsWindowsVersionAtLeast(6, 3))
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 2))
                     return OSVersion.WIN810;
-
-                return OSVersion.WIN7;
+                else if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                    return OSVersion.WIN7;
+                else if (OperatingSystem.IsWindowsVersionAtLeast(6, 0))
+                    return OSVersion.WINVISTA;
+                else if (OperatingSystem.IsWindowsVersionAtLeast(5, 0))
+                    return OSVersion.WINXP;
+                else
+                    return OSVersion.UNKNOWN;
             }
 
             return OSVersion.UNIX;
+#endif
         }
     }
 

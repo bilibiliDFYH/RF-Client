@@ -103,9 +103,9 @@ namespace DTAConfig.Settings
                     if (!File.Exists(DestinationPath))
                     {
                         if (File.Exists(CachedPath))
-                            File.Copy(CachedPath, DestinationPath, false);
+                            File.Move(CachedPath, DestinationPath);
                         else
-                            File.Copy(SourcePath, DestinationPath, false);
+                            File.Copy(SourcePath, DestinationPath, true);
                     }
 
                     Directory.CreateDirectory(Path.GetDirectoryName(CachedPath));
@@ -134,16 +134,22 @@ namespace DTAConfig.Settings
                 case FileOperationOptions.KeepChanges:
                     if (File.Exists(DestinationPath))
                     {
-                        SafePath.GetDirectory(CachedPath).Create();
-                        File.Copy(DestinationPath, CachedPath, true);
-                        File.Delete(DestinationPath);
+                        if (!File.Exists(Path.GetDirectoryName(CachedPath)))
+                            SafePath.GetDirectory(Path.GetDirectoryName(CachedPath)).Create();
+
+                        File.Move(DestinationPath, CachedPath);
                     }
                     break;
 
                 case FileOperationOptions.OverwriteOnMismatch:
                 case FileOperationOptions.DontOverwrite:
                 case FileOperationOptions.AlwaysOverwrite:
-                    File.Delete(DestinationPath);
+                    if (File.Exists(DestinationPath))
+                    {
+                        FileInfo destinationFile = new(DestinationPath);
+                        destinationFile.IsReadOnly = false;
+                        destinationFile.Delete();
+                    }
                     break;
 
                 default:

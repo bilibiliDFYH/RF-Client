@@ -1225,7 +1225,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             if (GameModeMap != null)
             { 
-                GameModeMap.IsFavorite = UserINISettings.Instance.ToggleFavoriteMap(Map.UntranslatedName, GameMode.Name, GameModeMap.IsFavorite);
+                GameModeMap.IsFavorite = UserINISettings.Instance.ToggleFavoriteMap(Map.Name, GameMode.Name, GameModeMap.IsFavorite);
                 MapPreviewBox.RefreshFavoriteBtn();
             }
         }

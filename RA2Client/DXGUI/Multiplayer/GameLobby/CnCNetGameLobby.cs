@@ -2069,9 +2069,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             sb.Remove(sb.Length - 1, 1);
             sb.Append(";");
-            sb.Append(Map?.UntranslatedName ?? string.Empty);
+            sb.Append(Map?.Name ?? string.Empty);
             sb.Append(";");
-            sb.Append(GameMode?.UntranslatedUIName ?? string.Empty);
+            sb.Append(GameMode?.UIName ?? string.Empty);
             sb.Append(";");
             sb.Append(tunnelHandler.CurrentTunnel.Address + ":" + tunnelHandler.CurrentTunnel.Port);
             sb.Append(";");

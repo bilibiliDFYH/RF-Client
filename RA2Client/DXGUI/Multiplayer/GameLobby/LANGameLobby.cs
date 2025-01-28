@@ -743,8 +743,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             sb.Append(ProgramConstants.LAN_PROTOCOL_REVISION);
             sb.Append(ProgramConstants.GAME_VERSION);
             sb.Append(localGame);
-            sb.Append(Map?.UntranslatedName ?? string.Empty);
-            sb.Append(GameMode?.UntranslatedUIName ?? string.Empty);
+            sb.Append(Map?.Name ?? string.Empty);
+            sb.Append(GameMode?.UIName ?? string.Empty);
             sb.Append(0); // LoadedGameID
             var sbPlayers = new StringBuilder();
             Players.ForEach(p => sbPlayers.Append(p.Name + ","));

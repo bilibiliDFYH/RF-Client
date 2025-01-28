@@ -30,9 +30,9 @@ namespace Ra2Client.Domain.Multiplayer
         public string UIName { get; private set; }
         
         /// <summary>
-        /// 未被翻译的用户界面原始游戏模式名称
+        /// 未翻译的用户界面原始游戏模式名称
         /// </summary>
-        public string UntranslatedUIName { get; private set; }
+        /// public string UntranslatedUIName { get; private set; }
 
         /// <summary>
         /// 是否只能联机玩

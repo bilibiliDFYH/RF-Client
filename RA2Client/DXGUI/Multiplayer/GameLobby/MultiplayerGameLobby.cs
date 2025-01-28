@@ -1114,7 +1114,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             base.ToggleFavoriteMap();
 
-            if ((GameModeMap != null && GameModeMap.IsFavorite) || !IsHost)
+            if (GameModeMap != null && GameModeMap.IsFavorite || !IsHost)
             {
                 RefreshForFavoriteMapRemoved();
                 return;

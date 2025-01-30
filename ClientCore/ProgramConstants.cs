@@ -35,7 +35,7 @@ namespace ClientCore
         public static readonly string CORE_MIX = "RFCORE.MIX";
 
         public static readonly string ARES = "Ares3";
-        public static readonly string PHOBOS = "Phobos40";
+        public static readonly string PHOBOS = "Phobos42";
 
         public static string ClientUserFilesPath => SafePath.CombineDirectoryPath(GamePath, "Client");
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using ClientCore;
 using ClientCore.CnCNet5;
 using ClientGUI;
@@ -569,9 +570,23 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             if (sender != hostName)
                 return;
 
-            string[] split = tunnelAddressAndPort.Split(':');
-            string tunnelAddress = split[0];
-            int tunnelPort = int.Parse(split[1]);
+             string tunnelAddress; 
+             int tunnelPort; 
+  
+             if (tunnelAddressAndPort.Count(c => c == ':') > 1) 
+             { 
+                 // IPv6 address 
+                 int lastColonIndex = tunnelAddressAndPort.LastIndexOf(':'); 
+                 tunnelAddress = tunnelAddressAndPort.Substring(0, lastColonIndex); 
+                 tunnelPort = int.Parse(tunnelAddressAndPort.Substring(lastColonIndex + 1)); 
+             } 
+             else 
+             { 
+                 // IPv4 address or hostname 
+                 string[] detailedAddress = tunnelAddressAndPort.Split(':'); 
+                 tunnelAddress = detailedAddress[0]; 
+                 tunnelPort = int.Parse(detailedAddress[1]); 
+             }
 
             CnCNetTunnel tunnel = tunnelHandler.Tunnels.Find(t => t.Address == tunnelAddress && t.Port == tunnelPort);
             if (tunnel == null)

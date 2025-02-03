@@ -24,6 +24,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net;
 using System.Windows.Forms;
+using System.Net.NetworkInformation;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -663,6 +664,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private void Channel_UserAdded(object sender, ChannelUserEventArgs e)
         {
             PlayerInfo pInfo = new PlayerInfo(e.User.IRCUser.Name);
+            
+            if (e.User.IRCUser.IsIgnored)
+            {
+                // If this ignored player constantly rejoins, he could cause the host to floodout using the normal RemovePlayer() functionality. 
+                // So lets Ghost kickban from gameroom instead. This should only be needed once per created room
+                GhostBanIgnoredUser(pInfo.Name);
+                return;
+            }
+            
             Players.Add(pInfo);
 
             if (Players.Count + AIPlayers.Count > MAX_PLAYER_COUNT && AIPlayers.Count > 0)
@@ -1611,8 +1621,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 pInfo.HashReceived = true;
             CopyPlayerDataToUI();
 
-            //暂时不对比文件
-
+            // 暂时不对比文件差异
+            
             //if (filesHash != gameFilesHash)
             //{
             //    channel.SendCTCPMessage("MM " + sender, QueuedMessageType.GAME_CHEATER_MESSAGE, 10);
@@ -1706,6 +1716,18 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 AddNotice(string.Format("Banning and kicking {0} from the game...".L10N("UI:Main:BanAndKickPlayer"), pInfo.Name));
                 channel.SendBanMessage(user.Hostname, 8);
                 channel.SendKickMessage(user.Name, 8);
+            }
+        }
+        
+        private void GhostBanIgnoredUser(string playerName)
+        {
+            var user = connectionManager.UserList.Find(u => u.Name == playerName);
+
+            if (user != null)
+            {
+                // Informing the host like we do when we kick might be annoying. So keep it on the downlow.
+                channel.SendBanMessage(user.Hostname, priority: 8);
+                channel.SendKickMessage(user.Name, priority: 8);
             }
         }
 

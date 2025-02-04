@@ -43,7 +43,9 @@ public class UISettings
     public Texture2D CheckBoxDisabledCheckedTexture { get; set; }
 
     public Texture2D CheckBoxDisabledClearTexture { get; set; }
+
     public Texture2D RatingBoxCheckedTexture { get; set; }
+
     public Texture2D RatingBoxClearTexture { get; set; }
 
     public float DefaultAlphaRate = 0.005f;

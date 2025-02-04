@@ -1355,7 +1355,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
 
             int random = new Random().Next(0, maps.Count);
-            GameModeMap = GameModeMaps.Find(gmm => gmm.GameMode == GameMode && gmm.Map == maps[random]);
+            bool isFavoriteMapsSelected = IsFavoriteMapsSelected();
+            GameModeMap = GameModeMaps.Find(gmm => (gmm.GameMode == GameMode || gmm.IsFavorite && isFavoriteMapsSelected) && gmm.Map == maps[random]);
 
             Logger.Log("PickRandomMap: Rolled " + random + " out of " + maps.Count + ". Picked map: " + Map.Name);
 
@@ -1367,17 +1368,18 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private List<Map> GetMapList(int playerCount)
         {
-            if (playerCount == 1)
-			{
-				List<Map> allMaps = GameMode?.Maps.ToList() ?? new List<Map>();
-				return allMaps;
-			}
-			
-            List<Map> mapList = (GameMode?.Maps.Where(x => x.MaxPlayers == playerCount) ?? Array.Empty<Map>()).ToList();
-            if (mapList.Count < 1 && playerCount <= MAX_PLAYER_COUNT)
-                return GetMapList(playerCount + 1);
-            else
-                return mapList;
+            List<Map> maps = IsFavoriteMapsSelected()
+                ? GetFavoriteGameModeMaps().Select(gmm => gmm.Map).ToList()
+                : GameMode?.Maps.ToList() ?? new List<Map>();
+
+            if (playerCount != 1)
+            {
+                maps = maps.Where(x => x.MaxPlayers == playerCount).ToList();
+                if (maps.Count < 1 && playerCount <= MAX_PLAYER_COUNT)
+                    return GetMapList(playerCount + 1);
+            }
+
+            return maps;
         }
 
         /// <summary>

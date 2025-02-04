@@ -1621,8 +1621,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 pInfo.HashReceived = true;
             CopyPlayerDataToUI();
 
-            // 暂时不对比文件差异
-            
+            /* 暂不对比文件差异 */
+
             //if (filesHash != gameFilesHash)
             //{
             //    channel.SendCTCPMessage("MM " + sender, QueuedMessageType.GAME_CHEATER_MESSAGE, 10);

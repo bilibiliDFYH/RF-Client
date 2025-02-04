@@ -138,11 +138,11 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         {
             string errorMessage = NameValidator.IsNameValid(tbPlayerName.Text);
 
-            //if (!string.IsNullOrEmpty(errorMessage))
-            //{
-            //    XNAMessageBox.Show(WindowManager, "Invalid Player Name".L10N("UI:Main:InvalidPlayerName"), errorMessage);
-            //    return;
-            //}
+            if (!string.IsNullOrEmpty(errorMessage))
+            {
+                XNAMessageBox.Show(WindowManager, "Invalid Player Name".L10N("UI:Main:InvalidPlayerName"), errorMessage);
+                return;
+            }
 
             ProgramConstants.PLAYERNAME = tbPlayerName.Text;
 

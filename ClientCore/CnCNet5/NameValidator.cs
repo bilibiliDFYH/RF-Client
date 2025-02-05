@@ -26,6 +26,12 @@ namespace ClientCore.CnCNet5
 
             if (name[0] == '-')
                 return "The first character in the player name cannot be a dash ( - ).".L10N("UI:ClientCore:NameFirstIsDash");
+                
+            if (name.Contains(' '))
+                return "The player name cannot contain spaces.".L10N("UI:ClientCore:NameHasSpace");
+
+            if (name.EndsWith('_'))
+                return "The player name cannot end with an underline ( _ ).".L10N("UI:ClientCore:NameEndOfUnderline");
 
             // Check that there are no invalid chars
             char[] allowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_[]|\\{}^`".ToCharArray();
@@ -36,12 +42,13 @@ namespace ClientCore.CnCNet5
                 if (!allowedCharacters.Contains(nickChar))
                 {
                     return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +
-                    "Allowed characters are anything from A to Z and numbers.".L10N("UI:ClientCore:NameInvalidChar2");
+                    "Since the Chinese nickname is currently an experimental feature, there may be some strange issues, so online use is temporarily disabled.".L10N("UI:ClientCore:NameInvalidChar2") + Environment.NewLine +
+                    "Allowed characters are anything from A to Z and numbers.".L10N("UI:ClientCore:NameInvalidChar3");
                 }
             }
 
             if (name.Length > ClientConfiguration.Instance.MaxNameLength)
-                return "Your nickname is too long.".L10N("UI:ClientCore:NameTooLong");
+                return $"Your nickname is too long, Must not exceed {ClientConfiguration.Instance.MaxNameLength} characters.".L10N("UI:ClientCore:NameTooLong");
 
             return null;
         }

@@ -326,12 +326,10 @@ namespace DTAConfig.OptionPanels
 
             IniSettings.ScrollRate.Value = ReverseScrollRate(trbScrollRate.Value);
 
-            string error = NameValidator.IsNameValid(tbPlayerName.Text);
+            string playerName = NameValidator.GetValidOfflineName(tbPlayerName.Text);
 
-            if (error == null)
-                IniSettings.PlayerName.Value = tbPlayerName.Text;
-            else
-                XNAMessageBox.Show(WindowManager, "错误", error);
+            if (playerName.Length > 0)
+                IniSettings.PlayerName.Value = playerName;
 
             //if (chkStartCap.SelectedIndex != IniSettings.GameModSelect) {
             //    restartRequired = true;

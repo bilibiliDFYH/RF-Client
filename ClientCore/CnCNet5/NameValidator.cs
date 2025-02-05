@@ -16,22 +16,32 @@ namespace ClientCore.CnCNet5
             var profanityFilter = new ProfanityFilter();
 
             if (string.IsNullOrEmpty(name))
-                return "请输入昵称.";
-
-            if (name.Contains(' '))
-                return "用户名不能包含空格。";
-
-            if (name.EndsWith('_'))
-                return "用户名不能以下划线结尾。";
-
-            if (char.IsDigit(name[0]))
-                return "用户名不能以数字开头。";
-
-            if (name.Length > ClientConfiguration.Instance.MaxNameLength)
-                return $"你的用户名太长了,不能超过{ClientConfiguration.Instance.MaxNameLength}个字符.";
+                return "Please enter a name.".L10N("UI:ClientCore:EnterAName");
 
             if (profanityFilter.IsOffensive(name))
-                return "名称违规,请换一个.";
+                return "Please enter a name that is less offensive.".L10N("UI:ClientCore:NameOffensive");
+
+            if (int.TryParse(name.Substring(0, 1), out _))
+                return "The first character in the player name cannot be a number.".L10N("UI:ClientCore:NameFirstIsNumber");
+
+            if (name[0] == '-')
+                return "The first character in the player name cannot be a dash ( - ).".L10N("UI:ClientCore:NameFirstIsDash");
+
+            // Check that there are no invalid chars
+            char[] allowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_[]|\\{}^`".ToCharArray();
+            char[] nicknameChars = name.ToCharArray();
+
+            foreach (char nickChar in nicknameChars)
+            {
+                if (!allowedCharacters.Contains(nickChar))
+                {
+                    return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +
+                    "Allowed characters are anything from A to Z and numbers.".L10N("UI:ClientCore:NameInvalidChar2");
+                }
+            }
+
+            if (name.Length > ClientConfiguration.Instance.MaxNameLength)
+                return "Your nickname is too long.".L10N("UI:ClientCore:NameTooLong");
 
             return null;
         }
@@ -50,7 +60,7 @@ namespace ClientCore.CnCNet5
 
             if (validName.Length > ClientConfiguration.Instance.MaxNameLength)
                 return validName.Substring(0, ClientConfiguration.Instance.MaxNameLength);
-
+            
             return validName;
         }
     }

@@ -142,10 +142,16 @@ internal sealed class Program
                                 FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName, relativeFileInfo.ToString());
                                 Write($"更新文件 -> {relativeFileInfo}");
 
-                                Directory.CreateDirectory(Path.GetDirectoryName(copiedFile.FullName));
+                                var p = Path.GetDirectoryName(copiedFile.FullName);
+                                if (!Directory.Exists(p))
+                                {
+                                    Directory.CreateDirectory(p);
+                                }
+
+                             
                                 fileInfo.CopyTo(copiedFile.FullName, true);
                             }
-                            catch (IOException ex)
+                            catch (Exception ex)
                             {
                                 Write($"更新文件失败: {ex}", ConsoleColor.Yellow);
                                 bUpdateSuc = false;
@@ -157,7 +163,13 @@ internal sealed class Program
 
                 if (updaterDirectory.Exists)
                 {
-                    Directory.Delete(updaterDirectory.FullName, true);
+                    try {
+                        Directory.Delete(updaterDirectory.FullName, true);
+                    }
+                    catch
+                    {
+                        Write("删除临时目录失败", ConsoleColor.Yellow);
+                    }
                 }
 
                 if (bUpdateSuc)
@@ -263,7 +275,7 @@ internal sealed class Program
 
             return false; // 文件未被占用
         }
-        catch (IOException)
+        catch (Exception)
         {
             return true; // 捕获IOException表示文件被占用
         }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ClientUpdater": {
+      "commandName": "Project",
+      "commandLineArgs": "Ra2Client.dll \"E:\\Documents\\file\\RF-Client\\Bin\\\""
+    }
+  }
+}

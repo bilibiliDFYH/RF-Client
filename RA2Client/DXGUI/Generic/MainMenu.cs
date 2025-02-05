@@ -705,11 +705,11 @@ namespace Ra2Client.DXGUI.Generic
 
         private void CheckPrivacyNotification()
         {
-            WindowManager.progress.Report("检查隐私通知.....");
+            WindowManager.progress.Report("检查隐私同意对话框.....");
             if (!UserINISettings.Instance.PrivacyPolicyAccepted)
             {
                 innerPanel.PrivacyWindow.BoilerEventLog += FirstRun;
-                WindowManager.progress.Report("等待隐私通知结果.....");
+                WindowManager.progress.Report("等待隐私同意结果.....");
                 innerPanel.Show(innerPanel.PrivacyWindow);
             }
         }

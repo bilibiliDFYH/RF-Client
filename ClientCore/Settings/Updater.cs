@@ -865,7 +865,7 @@ public static class Updater
                         //if (bRet)
                         //    File.Delete(pkgFile);
 
-                        SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName);
+                        SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName,needDel:true);
                     }
                     catch(Exception ex)
                     {
@@ -921,6 +921,8 @@ public static class Updater
                             Arguments = "\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"",
                             UseShellExecute = true
                         });
+
+                        Logger.Log("\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"");
 
                         Environment.Exit(0);
                         //Restart?.Invoke(null, EventArgs.Empty);

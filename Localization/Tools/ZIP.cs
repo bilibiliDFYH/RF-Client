@@ -160,8 +160,17 @@ public class SevenZip
 
             process.WaitForExit(); // 等待解压完成
 
-            if(needDel)
-                File.Delete(archivePath);
+            if (needDel)
+            {
+                try
+                {
+                    File.Delete(archivePath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deleting file {archivePath}: {ex.Message}");
+                }
+            }
         }
         catch (Exception ex)
         {

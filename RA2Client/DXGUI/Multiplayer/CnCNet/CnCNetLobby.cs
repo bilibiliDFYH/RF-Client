@@ -1002,13 +1002,6 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         private void GameChannel_UserAdded(object sender, Online.ChannelUserEventArgs e)
         {
             Channel gameChannel = (Channel)sender;
-            
-            if (e.User.IRCUser.IsIgnored)
-            {
-                // Howboutno
-                Logger.Log("This user is ignored, so we shouldn't let them in");
-                return;
-            }
 
             if (e.User.IRCUser.Name == ProgramConstants.PLAYERNAME)
             {

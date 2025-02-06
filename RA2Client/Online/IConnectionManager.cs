@@ -1,5 +1,4 @@
-﻿﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Ra2Client.Online
 {
@@ -21,8 +20,6 @@ namespace Ra2Client.Online
         void OnUserListReceived(string channelName, string[] userList);
 
         void OnWhoReplyReceived(string ident, string hostName, string userName, string extraInfo);
-        
-        void OnWhoQueryComplete(string channel, List<Tuple<string, string, string, string>> whoList);
 
         void OnChannelFull(string channelName);
 

@@ -40,7 +40,6 @@ namespace Ra2Client.Online
         public event EventHandler ReconnectAttempt;
         public event EventHandler Disconnected;
         public event EventHandler Connected;
-        public event EventHandler UserListInitialized;
 
         public event EventHandler<UserEventArgs> UserAdded;
         public event EventHandler<UserEventArgs> UserGameIndexUpdated;
@@ -624,9 +623,8 @@ namespace Ra2Client.Online
             channelUser.IsAdmin = isAdmin;
             channelUser.IsFriend = cncNetUserData.IsFriend(channelUser.IRCUser.Name);
 
-            bool ignoredUser = channelUser.IRCUser.IsIgnored;
             ircUser.Channels.Add(channelName);
-            channel.OnUserJoined(channelUser, ignoredUser);
+            channel.OnUserJoined(channelUser, isSilent: channelUser.IRCUser.IsIgnored);
 
             //UserJoinedChannel?.Invoke(this, new ChannelUserEventArgs(channelName, userName));
         }
@@ -652,7 +650,7 @@ namespace Ra2Client.Online
                 return;
 
             ChannelUser kickedUser = channel.Users.Find(userName);
-            channel.OnUserKicked(userName, kickedUser.IRCUser.IsIgnored);
+            channel.OnUserKicked(userName, isSilent: kickedUser.IRCUser.IsIgnored);
 
             if (userName == ProgramConstants.PLAYERNAME)
             {
@@ -960,46 +958,6 @@ namespace Ra2Client.Online
                 string.Format(
                     "Lobby servers: {0} available, {1} fast.".L10N("UI:Main:LobbyServerLatencyTestResult"),
                     candidateCount, closerCount)));
-        }
-        
-        public void OnWhoQueryComplete(string channelName, List<Tuple<string, string, string, string>> whoDataList)
-        {
-            wm.AddCallback(new Action<string, List<Tuple<string, string, string, string>>>(DoWhoQueryComplete), channelName, whoDataList);
-        }
-
-        private void DoWhoQueryComplete(string channelName, List<Tuple<string, string, string, string>> whoDataList)
-        {
-            Channel channel = FindChannel(channelName);
-
-            if (channel == null)
-                return;
-
-            if (!channel.IsChatChannel)
-                return;
-
-            var channelUserList = new List<ChannelUser>();
-
-            foreach (var whoData in whoDataList)
-            {
-                (string ident, string host, string userName, string extraInfo) = whoData;
-
-                IRCUser ircUser = new(userName);
-                ircUser.Ident = ident;
-                ircUser.Hostname = host;
-
-                UserList.Add(ircUser);
-
-                var channelUser = new ChannelUser(ircUser);
-                channelUser.IsFriend = cncNetUserData.IsFriend(channelUser.IRCUser.Name);
-
-                channelUserList.Add(channelUser);
-            }
-
-            UserList = UserList.OrderBy(u => u.Name).ToList();
-            MultipleUsersAdded?.Invoke(this, EventArgs.Empty);
-            UserListInitialized?.Invoke(this, EventArgs.Empty);
-
-            channel.OnUserListReceived(channelUserList);
         }
     }
 

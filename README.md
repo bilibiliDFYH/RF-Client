@@ -1,7 +1,7 @@
 # 红色警戒2 重聚未来 1.5 开发者文档
 <div align="center">
 
-[RF-Client](https://socialify.git.ci/Snowy-Studio/RF-Client/image?description=1&font=Inter&forks=1&issues=1&language=1&name=1&owner=1&pulls=1&stargazers=1&theme=Auto)
+![image](https://socialify.git.ci/Snowy-Studio/RF-Client/image?description=1&font=Inter&forks=1&issues=1&language=1&name=1&owner=1&pulls=1&stargazers=1&theme=Auto)
 
 **本项目基于: [xna-cncnet-client](https://github.com/CnCNet/xna-cncnet-client)**
 

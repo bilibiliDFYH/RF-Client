@@ -250,93 +250,9 @@ public class ModManager : XNAWindow
         if(!Directory.Exists(mod.FilePath))
             Directory.CreateDirectory(mod.FilePath);
 
-        //提取mix文件
-        HashSet<string> mixFileExclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "Ares.mix", "ra2md.mix", "ra2.mix", "langmd.mix", "language.mix", "movmd03.mix", "multimd.mix",
-            "movmd01.mix", "movmd02.mix","NPatch.mix","movies01.mix","movies02.mix","MAPS02.mix","MAPS01.mix",
-            ProgramConstants.CORE_MIX,ProgramConstants.SKIN_MIX,ProgramConstants.MISSION_MIX
-        };
-
         try
         {
-
-            // 复制除了指定列表之外的所有.mix文件，同时处理以"Ecache"或"EXPAND"开头的文件
-            int expandCounter = 2; // 统一的扩展文件计数器
-            foreach (var mix in Directory.GetFiles(modPath, "*.mix"))
-            {
-                string fileName = Path.GetFileName(mix);
-                bool isEcacheOrExpand = fileName.StartsWith("Ecache", StringComparison.OrdinalIgnoreCase) ||
-                                        fileName.StartsWith("EXPAND", StringComparison.OrdinalIgnoreCase);
-
-                // 判断是否在排除列表中，或者是否需要特殊处理
-                if (!mixFileExclude.Contains(fileName) && !isEcacheOrExpand)
-                {
-                    File.Copy(mix, Path.Combine(mod.FilePath, fileName), true);
-                }
-                else if (isEcacheOrExpand)
-                {
-                    string newFileName;
-                    do
-                    {
-                        newFileName = $"expandmd{expandCounter++.ToString("D2")}.mix";
-                    }
-                    while (File.Exists(Path.Combine(mod.FilePath, newFileName)));
-
-                    File.Copy(mix, Path.Combine(mod.FilePath, newFileName), true);
-                }
-            }
-
-            List<string> allFiles =
-            [
-                //提取shp文件
-                .. Directory.GetFiles(modPath, "*.shp"),
-            //提取pal文件
-            .. Directory.GetFiles(modPath, "*.pal"),
-            //提取vxl文件
-            .. Directory.GetFiles(modPath, "*.vxl"),
-        ];
-
-            //提取dll文件，排除Ares.dll,Phobos.dll,cncnet5.dll,BINKW32.DLL,Blowfish.dll,qres32.dll,rename.dll
-            string[] dllFiles = { "Ares.dll", "Phobos.dll", "cncnet5.dll", "BINKW32.DLL", "Blowfish.dll", "qres32.dll", "rename.dll", "wsock32.dll", "ddraw.dll" };
-            foreach (var dll in Directory.GetFiles(modPath, "*.dll"))
-            {
-                if (!Array.Exists(dllFiles, file => file.Equals(Path.GetFileName(dll), StringComparison.OrdinalIgnoreCase)))
-                    File.Copy(dll, Path.Combine(mod.FilePath, Path.GetFileName(dll)), true);
-            }
-            foreach (var bag in Directory.GetFiles(modPath, "*.bag"))
-            {
-                File.Copy(bag, Path.Combine(mod.FilePath, Path.GetFileName(bag)), true);
-            }
-
-            foreach (var idx in Directory.GetFiles(modPath, "*.idx"))
-            {
-                File.Copy(idx, Path.Combine(mod.FilePath, Path.GetFileName(idx)), true);
-            }
-
-
-            //提取ini文件，除了RA2(MD).ini
-            foreach (var ini in Directory.GetFiles(modPath, "*.ini"))
-            {
-                if (!string.Equals(Path.GetFileName(ini), $"RA2{mod.md}.ini", StringComparison.OrdinalIgnoreCase) && !string.Equals(Path.GetFileName(ini), "ddraw.ini", StringComparison.OrdinalIgnoreCase))
-                {
-                    File.Copy(ini, Path.Combine(mod.FilePath, Path.GetFileName(ini)), true);
-                    if (Path.GetFileName(ini) == "rules.ini")
-                    {
-                        var rules = new Rampastring.Tools.IniFile(Path.Combine(mod.FilePath, Path.GetFileName(ini)));
-                        var mvc = rules.GetStringValue("General", "BaseUnit", "AMCV,SMCV");
-                        if (mvc.Split(",").Length < 3)
-                            rules.SetStringValue("General", "BaseUnit", mvc + ",null;尤复引擎玩原版必须要有三个基地车");
-                        rules.WriteIniFile();
-                        allFiles.Add(Path.Combine(mod.FilePath, Path.GetFileName(ini)));
-                    }
-                    else
-                        allFiles.Add(ini);
-                }
-            }
-
-            //先复制一份原版或者尤复的过去
-
+            FileHelper.CopyDirectory(modPath, mod.FilePath);
 
             //提取CSF文件
             foreach (var csf in Directory.GetFiles(modPath, "*.csf"))
@@ -354,21 +270,12 @@ public class ModManager : XNAWindow
                         d.ConvertValuesToSimplified();
                         CSF.WriteCSF(d, Path.Combine(mod.FilePath, Path.GetFileName(csf).Equals("ra2.csf", StringComparison.OrdinalIgnoreCase) ? "ra2md.csf" : Path.GetFileName(csf)));
                     }
-
-                   
                 }
                 else
                     File.Copy(csf, Path.Combine(mod.FilePath, Path.GetFileName(csf).Equals("ra2.csf", StringComparison.OrdinalIgnoreCase) ? "ra2md.csf" : Path.GetFileName(csf)), true);
 
             }
 
-            //提取font
-            foreach (var fnt in Directory.GetFiles(modPath, "*.fnt"))
-            {
-                allFiles.Add(fnt);
-            }
-
-            Mix.PackFilesToMix(allFiles, mod.FilePath, ProgramConstants.MOD_MIX);
         }
         catch(Exception ex)
         {
@@ -672,7 +579,7 @@ public class ModManager : XNAWindow
 
     private bool 判断是否为任务包(string path)
     {
-        return Directory.Exists(path) && Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0;
+        return Directory.Exists(path) && (Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0);
     }
 
     private static bool 判断是否为尤复(string path)
@@ -750,6 +657,8 @@ public class ModManager : XNAWindow
 
         var id = Path.GetFileName(path);
 
+
+
         var mod = new Mod
         {
             ID = id,
@@ -759,180 +668,10 @@ public class ModManager : XNAWindow
             md = md,
             MuVisible = reload
         };
-   
-        (mod.Extension, mod.ExtensionOn) = 处理扩展情况(path);
 
         整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
 
         return id;
-    }
-
-    private string 导入AI(string filePath)
-    {
-        var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-            return string.Empty;
-        }
-
-        var path = Path.GetDirectoryName(filePath);
-        if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
-        {
-            var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
-            SevenZip.ExtractWith7Zip(filePath, missionPath);
-            path = missionPath;
-        }
-
-        var id = string.Empty;
-
-        if (!Directory.Exists(path))
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
-            return string.Empty;
-        }
-        查找并解压压缩包(path);
-        if (Directory.Exists(path))
-        {
-            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
-            foreach (var item in list)
-            {
-
-                
-                if (判断是否为Mod(item, 判断是否为尤复(item)))
-                {
-                    var r = 导入具体Mod(item, true);
-                    if (r != string.Empty)
-                    {
-                        id = r;
-                    }
-                }
-                else if (判断是否为AI(item))
-                {
-                    var r = 导入具体AI(item);
-                    if (r != string.Empty)
-                    {
-                        id = r;
-                    }
-                }
-            }
-
-            ReLoad();
-            触发刷新?.Invoke();
-        }
-
-        if (id == string.Empty)
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "没有找到ai文件");
-            return string.Empty;
-        }
-
-        return id;
-    }
-
-    private string 导入具体AI(string path)
-    {
-        var isYR = 判断是否为尤复(path);
-        var md = isYR ? "md" : string.Empty;
-
-        if (!判断是否为AI(path)) return "";
-
-        var id = Path.GetFileName(path);
-
-        var ai = new AI
-        {
-            ID = id,
-            FilePath = $"Mod&AI\\AI\\{id}",
-            Name = Path.GetFileName(path),
-            YR = isYR,
-            Compatible = isYR ? "YR" : "RA2",
-        };
-
-        整合AI文件(path, ai);
-
-        return id;
-    }
-
-    private void 整合AI文件(string path, AI ai)
-    {
-        if (!Directory.Exists(ai.FilePath))
-            Directory.CreateDirectory(ai.FilePath);
-
-        foreach (var file in Directory.GetFiles(path))
-        {
-            File.Copy(file, Path.Combine(ai.FilePath, Path.GetFileName(file)), true);
-        }
-
-        ai.Create();
-
-    }
-
-    private bool 判断是否为AI(string path)
-    {
-        return File.Exists(Path.Combine(path, "aimd.ini")) || File.Exists(Path.Combine(path, "ai.ini"));
-    }
-
-    private static (string,bool) 处理扩展情况(string path)
-    {
-        var (extension, extensionOn) = (string.Empty, false);
-        
-        string extensionPath = "Mod&AI\\Extension";
-        //检测ARES
-        if (File.Exists(Path.Combine(path, "Ares.dll")))
-        {
-            var aresVerison = FileVersionInfo.GetVersionInfo(Path.Combine(path, "Ares.dll")).ProductVersion;
-
-            extensionOn = true;
-
-            //如果用的自带的3.0p1
-            if (aresVerison == "3.0p1" || aresVerison == "3.0")
-                extension += $"Ares3";
-            else
-            {
-                extension += $"Ares{aresVerison},";
-                if (!Directory.Exists($"{extensionPath}\\Ares{aresVerison}"))
-                    Directory.CreateDirectory($"{extensionPath}\\Ares\\Ares{aresVerison}");
-
-                File.Copy(Path.Combine(path, "Ares.dll"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.dll",true);
-
-                if (File.Exists(Path.Combine(path, "Ares.Mix")))
-                {
-                    File.Copy(Path.Combine(path, "Ares.Mix"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Ares.Mix", true);
-                }
-                if (File.Exists(Path.Combine(path, "Syringe.exe")))
-                {
-                    File.Copy(Path.Combine(path, "Syringe.exe"), $"{extensionPath}\\Ares\\Ares{aresVerison}\\Syringe.exe", true);
-                }
-
-            }
-        }
-
-       
-        //检测Phobos
-        if (File.Exists(Path.Combine(path, "Phobos.dll")))
-        {
-            var phobosVersion = FileVersionInfo.GetVersionInfo(Path.Combine(path, "Phobos.dll")).FileVersion;
-
-            extensionOn = true;
-            //如果用的自带的36
-            if (phobosVersion != "0.0.0.36")
-            {
-                extension += $",Phobos{phobosVersion}";
-                if (!Directory.Exists($"{extensionPath}\\Phobos{phobosVersion}"))
-                    Directory.CreateDirectory($"{extensionPath}\\Phobos\\Phobos{phobosVersion}");
-                File.Copy(Path.Combine(path, "phobos.dll"), $"{extensionPath}\\Phobos\\phobos{phobosVersion}\\Phobos.dll", true);
-
-            }
-            else
-            {
-                extension += ",Phobos";
-            }
-        }
-
-        if (extension == string.Empty)
-            extension = $"{ProgramConstants.ARES},{ProgramConstants.PHOBOS}";
-
-        return (extension, extensionOn);
     }
 
     private void UpdateBase()
@@ -940,8 +679,6 @@ public class ModManager : XNAWindow
         if (DDModAI.SelectedIndex == 0)
             UpdateMod(ListBoxModAi.SelectedItem.Tag as Mod);
         if (DDModAI.SelectedIndex == 1)
-            UpdateAI(ListBoxModAi.SelectedItem.Tag as AI);
-        if (DDModAI.SelectedIndex == 2)
             UpdateMissionPack(ListBoxModAi.SelectedItem.Tag as MissionPack);
 
     }
@@ -984,29 +721,6 @@ public class ModManager : XNAWindow
                     }
                 }
             }
-
-            ReLoad(); //重新载入
-            触发刷新?.Invoke();
-        };
-    }
-
-    /// <summary>
-    /// 修改AI
-    /// </summary>
-    /// <param name="ai"></param>
-    private void UpdateAI(AI ai)
-    {
-        var infoWindows = new AIInfoWindows(WindowManager, ai, "修改AI");
-        var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
-
-        infoWindows.EnabledChanged += (_, _) =>
-        {
-            ai = infoWindows.GetAIInfo();
-            infoWindows.Dispose();
-            if (ai == null)
-                return;
-
-            ai.Create(); //写入INI文件
 
             ReLoad(); //重新载入
             触发刷新?.Invoke();
@@ -1123,8 +837,6 @@ public class ModManager : XNAWindow
 
         if (DDModAI.SelectedIndex == 0)
             导入Mod(openFileDialog.FileName);
-        if (DDModAI.SelectedIndex == 1)
-            导入AI(openFileDialog.FileName);
         if (DDModAI.SelectedIndex == 2)
             导入任务包(openFileDialog.FileName);
     }

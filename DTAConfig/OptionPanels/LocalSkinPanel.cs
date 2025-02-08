@@ -319,7 +319,7 @@ namespace DTAConfig.OptionPanels
                 settingsIni.WriteIniFile();
             }
 
-            //PackToMix(ProgramConstants.GamePath + "Skin\\", "aaa.mix");
+            //PackToMix(ProgramConstants.游戏目录 + "Skin\\", "aaa.mix");
 
             for (int i = 0; i < Rules.Count; i++)
             {

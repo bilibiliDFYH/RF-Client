@@ -281,13 +281,13 @@ namespace Ra2Client.Domain.Multiplayer
         /// <summary>
         /// 这两其实有区别,因为还存在一种加密的地图,你压根不知道他是单人还是多人图 
         /// </summary>
-        private static bool 是否为多人图(string mapFilePath)
+        public static bool 是否为多人图(string mapFilePath)
         {
             try
             {
                 var ini = new IniFile(mapFilePath);
 
-                return ini.GetIntValue("Basic", "MultiplayerOnly", 0) == 1;
+                return !ini.SectionExists("Basic") || ini.GetIntValue("Basic", "MultiplayerOnly", 0) == 1;
 
             }
             catch

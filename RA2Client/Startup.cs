@@ -190,7 +190,7 @@ namespace Ra2Client
 
             // 删除完成后，删除 "del" 文件本身
             File.Delete("del");
-            ProgramConstants.clearCache();
+            ProgramConstants.清理缓存();
         }
 
         /// <summary>

@@ -246,7 +246,7 @@ namespace Ra2Client.DXGUI.Generic
                 ParseSaveGame(file.FullName);
             }
 
-            //DirectoryInfo gamepath = SafePath.GetDirectory(ProgramConstants.GamePath);
+            //DirectoryInfo gamepath = SafePath.GetDirectory(ProgramConstants.сно╥д©б╪);
 
 
 

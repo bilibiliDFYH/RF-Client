@@ -145,7 +145,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected XNADropDown ddPeople;
 
         protected GameLobbyDropDown cmbGame;
-        protected GameLobbyDropDown cmbAI;
 
         protected XNAClientCheckBox chkExtension;
 
@@ -329,9 +328,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             cmbGame.RightClick += (s, e) => ModMenu.Open(GetCursorPoint());
 
-            cmbAI = FindChild<GameLobbyDropDown>(nameof(cmbAI));
-            cmbAI.SelectedIndexChanged += CmbAI_SelectedChanged;
-            cmbAI.RightClick += (s, e) => ModMenu.Open(GetCursorPoint());
+          
 
             mapContextMenu = new XNAContextMenu(WindowManager);
             mapContextMenu.Name = nameof(mapContextMenu);
@@ -507,22 +504,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, new 添加至游戏模式(WindowManager, Map, GameModeMaps));
         }
 
-        private void CmbAI_SelectedChanged(object sender, EventArgs e)
-        {
-            if (cmbAI.SelectedItem == null)
-            {
-                cmbAI.SelectedIndex = 0;
-                return;
-            }
-
-            //if (((AI)cmbAI.SelectedItem.Tag).ExtensionOn)
-            //{
-            //    chkExtension.Checked = true;
-            //    chkExtension.AllowChecking = false;
-            //}
-
-
-        }
 
         private void ChkExtension_SelectedChanged(object sender, EventArgs e)
         {
@@ -661,18 +642,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             #endregion
 
-            #region 处理AI
-            if (cmbAI != null && cmbAI.SelectedItem != null)
-            {
-                cmbAI.Items.Clear();
-                foreach (var ai in AI.AIs)
-                {
-                    if (!mod.UseAI.Contains(ai.ID, StringComparison.CurrentCulture))
-                        continue;
-                    cmbAI.AddItem(new XNADropDownItem() { Text = ai.Name, Tag = ai });
-                }
-            }
-            #endregion
+           
 
 
             if (mod.FileName != "Mod&AI/Mod&AI.ini")
@@ -2058,66 +2028,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
 
             string newGame = ((Mod)cmbGame.SelectedItem.Tag).FilePath;
-            string newMain = ((Mod)cmbGame.SelectedItem.Tag).md == "md" ?
-               "Mod&AI/Main/YR_YR"
-               :
-               ((AI)cmbAI.SelectedItem.Tag).YR ?
-               "Mod&AI/Main/RA2_YR"
-               :
-               "Mod&AI/Main/RA2_RA2";
+            
 
             string newExtension = string.Empty;
 
-            if (chkExtension.Checked)
-            {
-                var extensionGame = ((Mod)cmbGame.SelectedItem.Tag).Extension.Split(",").ToList();
-                var extensionAI = ((AI)cmbAI.SelectedItem.Tag).Extension.Split(",").ToList();
-               
-                var (Ares, Phobos) = GameProcessLogic.支持的扩展();
-                if(extensionGame.Remove("Ares"))
-                    extensionGame.AddRange(Ares);
-
-                if (extensionGame.Remove("Phobos"))
-                    extensionGame.AddRange(Phobos);
-
-                if (extensionAI.Remove("Ares"))
-                    extensionAI.AddRange(Ares);
-
-                if (extensionAI.Remove("Phobos"))
-                    extensionAI.AddRange(Phobos);
-
-
-                var ExtensionList = extensionGame.Intersect(extensionAI).ToList();
-                if(ExtensionList.Count(e => e.Contains("Ares")) > 1)
-                {
-                    if (ExtensionList.Contains(ProgramConstants.ARES)){
-                        ExtensionList.RemoveAll(e => e.Contains("Ares"));
-                        ExtensionList.Add(ProgramConstants.ARES);
-                    }
-                    else
-                    {
-                        ExtensionList.Remove(ExtensionList.Find(e => e.Contains("Ares")));
-                    }
-
-                }
-
-                if (ExtensionList.Count(e => e.Contains("Phobos")) > 1)
-                {
-                    if (ExtensionList.Contains(ProgramConstants.PHOBOS))
-                    {
-                        ExtensionList.RemoveAll(e => e.Contains("Phobos"));
-                        ExtensionList.Add(ProgramConstants.PHOBOS);
-                    }
-                    else
-                    {
-                        ExtensionList.Remove(ExtensionList.Find(e => e.Contains("Phobos")));
-                    }
-
-                }
-
-                newExtension = string.Join(",", ExtensionList.Distinct());
-                
-            }
+        
 
             /**
             [] = []
@@ -2128,9 +2043,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             string newMission = Map.Mission;
 
-            string newAi = ((AI)cmbAI.SelectedItem.Tag).FilePath;
-
-            
             if (Map.IsCoop)
             {
                 foreach (PlayerInfo pInfo in Players)
@@ -2150,17 +2062,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             var settings = new IniSection("Settings");
             
-            settings.SetValue("Main", newMain);
             //写入新游戏
             settings.SetValue("Game", newGame);
-            //写入新扩展
-            settings.SetValue("Extension", newExtension);
-            //写入新AI
-            settings.SetValue("AI", newAi);
-
+          
             settings.SetValue("Mission", newMission);
-
-            settings.SetValue("Ra2Mode", newMain == "RA2_RA2");
 
             settings.SetValue("Name", ProgramConstants.PLAYERNAME);
             settings.SetValue("Scenario", ProgramConstants.SPAWNMAP_INI);
@@ -2447,7 +2352,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             //if (chkExtension.Checked)
             //{
-            //    var inifile = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "spawnmap.ini"));
+            //    var inifile = new IniFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, "spawnmap.ini"));
             //    inifile.RenameSection("Countries", "YBCountry");
             //    inifile.Save();
             //}

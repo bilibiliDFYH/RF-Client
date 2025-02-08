@@ -58,7 +58,7 @@ namespace Ra2Client.Domain
 
                 //if (savedGameFileInfo.Exists == false)
                 //{
-                //    savedGameFileInfo = SafePath.GetFile(ProgramConstants.GamePath, FileName);
+                //    savedGameFileInfo = SafePath.GetFile(ProgramConstants.游戏目录, FileName);
                 //}
 
                 using (Stream file = savedGameFileInfo.Open(FileMode.Open, FileAccess.Read))

@@ -18,6 +18,7 @@ namespace ClientCore
 
         public static readonly string StartupPath = SafePath.CombineDirectoryPath(new FileInfo(StartupExecutable).Directory.FullName);
 
+        public static readonly string 游戏目录 = Path.Combine(Path.GetTempPath(),"RA2_RF");
 
         public static string CUR_SERVER_URL = "";
 
@@ -65,6 +66,48 @@ namespace ClientCore
         public static string GAME_VERSION = "Undefined";
 
         private static string PlayerName = "No name";
+
+        public static readonly Dictionary<string, string> PureHashes = new()
+    {
+        { "expandmd01.mix", "a596d0acbf25aeeed5115cd2818e2fbd8d90f248" },
+        { "gamemd.exe", "189a5a868b3cef8d3d1a58ac3cf0a5241675e4ea" },
+        { "langmd.mix", "6c87bbc21a33e5cd6db5834798562189ed827963" },
+        { "language.mix", "ea35ef0a88b9334b60c9ab4cff619752fcf06f68" },
+        { "MAPSMD03.MIX", "c5106432628a576e30348289cf7beb663b1931cd" },
+        { "movmd03.mix", "bb95f17d9243e483e268617dbce738cf49527ccf" },
+        { "MULTIMD.MIX", "9ad3b25bc95daef55dd63e8d6c6b4a815a775c4d" },
+        { "ra2.mix", "3bd92246320f4bf1ff1ed76207ee793c33ff6a05" },
+        { "ra2md.mix", "091bd7f219836a330b2339e3f8606954b4a9b01f" },
+        { "thememd.mix", "bb95f17d9243e483e268617dbce738cf49527ccf" },
+        { "Blowfish.dll","214000ba48040818b4f0d7ff06c4debbb1ae2274" },
+        { "BINKW32.DLL","613f81f82e12131e86ae60dd318941f40db2200f" }
+    };
+
+        public static bool 判断目录是否为纯净尤复(string path)
+        {
+            if (!Directory.Exists(path))
+                return false;
+
+            foreach (var fileName in PureHashes.Keys)
+            {
+                if (!File.Exists(Path.Combine(path, fileName)))
+                    return false;
+            }
+
+            foreach (var fileName in Directory.GetFiles(path))
+            {
+                var name = Path.GetFileName(fileName);
+
+                if (PureHashes.ContainsKey(name))
+                {
+                    var fileHash = Utilities.CalculateSHA1ForFile(fileName);
+                    if (fileHash != PureHashes[name])
+                        return false;
+                }
+            }
+
+            return true;
+        }
 
         public static string PLAYERNAME
         {
@@ -127,53 +170,55 @@ namespace ClientCore
                 Environment.Exit(1);
         };
 
-        public static bool clearCache()
+        public static bool 清理缓存()
         {
             try
             {
-                string[] mixFile = ["ra2.mix", "ra2md.mix", "thememd.mix", "language.mix", "langmd.mix", "RF.mix"];
+                //string[] mixFile = ["ra2.mix", "ra2md.mix", "thememd.mix", "language.mix", "langmd.mix", "RF.mix"];
 
-                string[] iniFile = ["RA2RF.ini", "ddraw.ini", "KeyboardMD.ini","spawnmap.ini"];
+                //string[] iniFile = ["RA2MD.ini", "ddraw.ini", "KeyboardMD.ini","spawnmap.ini"];
 
-                WindowManager.progress.Report("正在清理MIX文件...");
-                foreach (var mix in Directory.GetFiles(GamePath, "*.mix"))
-                {
-                    if (!Array.Exists(mixFile, file => file.Equals(Path.GetFileName(mix), StringComparison.OrdinalIgnoreCase)))
-                        File.Delete(mix);
-                }
+                //WindowManager.progress.Report("正在清理MIX文件...");
+                //foreach (var mix in Directory.GetFiles(GamePath, "*.mix"))
+                //{
+                //    if (!Array.Exists(mixFile, file => file.Equals(Path.GetFileName(mix), StringComparison.OrdinalIgnoreCase)))
+                //        File.Delete(mix);
+                //}
 
-                WindowManager.progress.Report("正在清理INI文件...");
-                foreach (var ini in Directory.GetFiles(GamePath, "*.ini"))
-                {
-                    if (!Array.Exists(iniFile, file => file.Equals(Path.GetFileName(ini), StringComparison.OrdinalIgnoreCase)))
-                        File.Delete(ini);
-                }
+                //WindowManager.progress.Report("正在清理INI文件...");
+                //foreach (var ini in Directory.GetFiles(GamePath, "*.ini"))
+                //{
+                //    if (!Array.Exists(iniFile, file => file.Equals(Path.GetFileName(ini), StringComparison.OrdinalIgnoreCase)))
+                //        File.Delete(ini);
+                //}
 
-                WindowManager.progress.Report("正在清理SHP文件...");
-                foreach (var shp in Directory.GetFiles(GamePath, "*.shp"))
-                {
-                    File.Delete(shp);
-                }
+                //WindowManager.progress.Report("正在清理SHP文件...");
+                //foreach (var shp in Directory.GetFiles(GamePath, "*.shp"))
+                //{
+                //    File.Delete(shp);
+                //}
 
-                WindowManager.progress.Report("正在清理PAL文件...");
-                foreach (var pal in Directory.GetFiles(GamePath, "*.pal"))
-                {
-                    File.Delete(pal);
-                }
+                //WindowManager.progress.Report("正在清理PAL文件...");
+                //foreach (var pal in Directory.GetFiles(GamePath, "*.pal"))
+                //{
+                //    File.Delete(pal);
+                //}
 
-                WindowManager.progress.Report("正在清理CSF文件...");
-                foreach (var pal in Directory.GetFiles(GamePath, "*.csf"))
-                {
-                    File.Delete(pal);
-                }
+                //WindowManager.progress.Report("正在清理CSF文件...");
+                //foreach (var pal in Directory.GetFiles(GamePath, "*.csf"))
+                //{
+                //    File.Delete(pal);
+                //}
 
-                WindowManager.progress.Report("正在清理其他文件...");
-                File.Delete("phobos.dll");
-                File.Delete("Ares.dll");
-                File.Delete("Mars.dll");
-                File.Delete("game.fnt");
-                File.Delete("Syringe.exe");
-                File.Delete("gamemd.exe");
+                //WindowManager.progress.Report("正在清理其他文件...");
+                //File.Delete("phobos.dll");
+                //File.Delete("Ares.dll");
+                //File.Delete("Mars.dll");
+                //File.Delete("game.fnt");
+                //File.Delete("Syringe.exe");
+                //File.Delete("gamemd.exe");
+
+                Directory.Delete(ProgramConstants.游戏目录, true);
 
                 return true;
             }

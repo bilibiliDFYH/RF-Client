@@ -239,7 +239,7 @@ namespace DTAConfig.OptionPanels
         {
             XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "清理确认", "您确定要清理文件缓存吗？", XNAMessageBoxButtons.YesNo);
             xNAMessageBox.Show();
-            xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"提示", ProgramConstants.clearCache()?"清理成功！":"清理失败，可能是某个文件被占用了。") ;
+            xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"提示", ProgramConstants.清理缓存()?"清理成功！":"清理失败，可能是某个文件被占用了。") ;
         }
 
         

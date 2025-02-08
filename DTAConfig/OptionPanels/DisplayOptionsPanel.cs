@@ -498,7 +498,7 @@ namespace DTAConfig.OptionPanels
             IniSettings.IngameScreenHeight.Value = ingameRes[1];
 
             //同步RU和MD配置文件配置分辨率不一致问题 By 彼得兔 2024/01/06
-            //var mdIniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "RA2RF.ini"));
+            //var mdIniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, "RA2RF.ini"));
             //var videoSec = mdIniFile.GetSection("Video");
             //videoSec.SetIntValue("ScreenWidth", IniSettings.IngameScreenWidth.Value);
             //videoSec.SetIntValue("ScreenHeight", IniSettings.IngameScreenHeight.Value);
@@ -589,7 +589,7 @@ namespace DTAConfig.OptionPanels
 
             if (selectedRenderer.UsesCustomWindowedOption())
             {
-                IniFile rendererSettingsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, selectedRenderer.ConfigFileName));
+                IniFile rendererSettingsIni = new IniFile(SafePath.CombineFilePath(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", selectedRenderer.InternalName), selectedRenderer.ConfigFileName));
 
                 rendererSettingsIni.SetBooleanValue(selectedRenderer.WindowedModeSection,
                     selectedRenderer.WindowedModeKey, chkWindowedMode.Checked);

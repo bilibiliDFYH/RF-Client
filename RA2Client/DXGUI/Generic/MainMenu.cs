@@ -112,6 +112,91 @@ namespace Ra2Client.DXGUI.Generic
         }
     }
 
+    class YRPathWindow(WindowManager windowManager) : XNAWindow(windowManager), ISwitchable
+    {
+        public override void Initialize()
+        {
+
+            var firstLabel = new XNALabel(WindowManager)
+            {
+                ClientRectangle = new Rectangle(20, 10, 0, 0),
+                Text = "选择纯净尤里的复仇目录"
+            };
+
+
+            BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
+            var tbxName = new XNASuggestionTextBox(WindowManager)
+            {
+                ClientRectangle = new Rectangle(20, 50, 350, 25),
+                Name = "nameTextBox",
+                Suggestion = "点击以选择纯净尤里的复仇目录",
+                
+            };
+
+            tbxName.LeftClick += (_, _) =>
+            {
+                using var folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                folderDialog.Description = "请选择纯净尤里的复仇目录";
+                folderDialog.ShowNewFolderButton = false;
+
+                if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    tbxName.Text = folderDialog.SelectedPath;
+                }
+            };
+
+            var btnConfirm = new XNAClientButton(WindowManager)
+            {
+                ClientRectangle = new Rectangle(20, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
+                Text = "确认"
+            };
+            btnConfirm.LeftClick += (sender, e) =>
+            {
+                if (!ProgramConstants.判断目录是否为纯净尤复(tbxName.Text))
+                {
+                    XNAMessageBox.Show(windowManager, "提示", "您选择的目录不是纯净尤复目录，请重新选择");
+                    return;
+                }
+
+               
+                UserINISettings.Instance.YRPath.Value = tbxName.Text;
+                UserINISettings.Instance.SaveSettings();
+                Disable();
+
+            };
+
+            ClientRectangle = new Rectangle(0, 0, tbxName.Right + 24, btnConfirm.Y + 40);
+
+
+            base.Initialize();
+
+            AddChild(firstLabel);
+            AddChild(tbxName);
+            AddChild(btnConfirm);
+
+            WindowManager.CenterControlOnScreen(this);
+
+        }
+        public void Show()
+        {
+            DarkeningPanel.AddAndInitializeWithControl(WindowManager, this);
+        }
+        public string GetSwitchName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SwitchOff()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SwitchOn()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     partial
 
         /// <summary>
@@ -465,8 +550,12 @@ namespace Ra2Client.DXGUI.Generic
 
             UseDownloadedData();
 
+            
+            
+
         }
 
+        
         private void SetToolTip()
         {
             var lblUpdateStatus2 = new XNALabel(WindowManager)
@@ -682,8 +771,8 @@ namespace Ra2Client.DXGUI.Generic
         private void CheckCampaign_YesClicked(XNAMessageBox messageBox)
         {
             var modManager = ModManager.GetInstance(WindowManager);
-            //modManager.ImportMissionPack(ProgramConstants.GamePath, false);
-          //  modManager.导入Mod(ProgramConstants.GamePath);
+            //modManager.ImportMissionPack(ProgramConstants.游戏目录, false);
+          //  modManager.导入Mod(ProgramConstants.游戏目录);
         }
 
         private void CheckForbiddenFiles()
@@ -723,18 +812,18 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         private void FirstRun()
         {
-            ProgramConstants.clearCache();
+            ProgramConstants.清理缓存();
             var guideWindow = new GuideWindow(WindowManager);
             guideWindow.Show();
 
             string[] filesToCreate =
             [
                     "Client/custom_rules_all.ini",
-                    "Client/custom_rules_ra2.ini",
-                    "Client/custom_rules_yr.ini",
+                    //"Client/custom_rules_ra2.ini",
+                    //"Client/custom_rules_yr.ini",
                     "Client/custom_art_all.ini",
-                    "Client/custom_art_ra2.ini",
-                    "Client/custom_art_yr.ini",
+                    //"Client/custom_art_ra2.ini",
+                    //"Client/custom_art_yr.ini",
                     "Client/CampaignSetting.ini",
                     "Resources/missioninfo.ini",
                     "Resources/rules.json",
@@ -892,6 +981,7 @@ namespace Ra2Client.DXGUI.Generic
             CheckForbiddenFiles();
             CheckPrivacyNotification();
             CheckDDRAW();
+            CheckYRPath();
 
             try
             {
@@ -907,6 +997,15 @@ namespace Ra2Client.DXGUI.Generic
             }
 
             WindowManager.progress.Report(string.Empty);
+        }
+
+        private void CheckYRPath()
+        {
+            if (!ProgramConstants.判断目录是否为纯净尤复(UserINISettings.Instance.YRPath))
+            {
+                var guideWindow = new YRPathWindow(WindowManager);
+                guideWindow.Show();
+            }
         }
 
         private void CheckHostName()

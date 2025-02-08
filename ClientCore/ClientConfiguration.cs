@@ -296,7 +296,7 @@ namespace ClientCore
 
         public string SkinIniName => clientDefinitionsIni.GetStringValue(SETTINGS, "SkinFile", "Resources/Skin.ini");
 
-        public string SettingsIniName => clientDefinitionsIni.GetStringValue(SETTINGS, "SettingsFile", "RA2RF.ini");
+        public string SettingsIniName => clientDefinitionsIni.GetStringValue(SETTINGS, "SettingsFile", "RA2MD.ini");
 
         public string TranslationIniName => SafePath.CombineFilePath(clientDefinitionsIni.GetStringValue(SETTINGS, "TranslationFile", SafePath.CombineFilePath("Resources", "Translation.ini")));
 

@@ -139,23 +139,23 @@ namespace ClientGUI
                 else
                     arguments = additionalExecutableName + "-SPAWN";
 
-                if (File.Exists(Path.Combine(ProgramConstants.GamePath,"syringe.exe")))
+                if (File.Exists(Path.Combine(ProgramConstants.游戏目录, "syringe.exe")))
                 {
                     gameExecutableName = "Syringe.exe";
                     arguments = "\"gamemd.exe\" -SPAWN " + extraCommandLine;
                 }
-                else if (File.Exists("NPatch.mix"))
-                {
-                    gameExecutableName = "gamemd-np.exe";
-                    arguments = "-SPAWN " + extraCommandLine;
-                }
+                //else if (File.Exists("NPatch.mix"))
+                //{
+                //    gameExecutableName = "gamemd-np.exe";
+                //    arguments = "-SPAWN " + extraCommandLine;
+                //}
                 else
                 {
                     gameExecutableName = "gamemd-spawn.exe";
                     arguments = "-SPAWN " + extraCommandLine;
                 }
 
-                FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.GamePath, gameExecutableName);
+                FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.游戏目录, gameExecutableName);
                 if (!File.Exists(gameFileInfo.FullName))
                 {
                     XNAMessageBox.Show(windowManager, "错误", $"{gameFileInfo.FullName}不存在，请前往设置清理游戏缓存后重试。");
@@ -207,7 +207,7 @@ namespace ClientGUI
         static readonly FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
         private static void 加载音乐()
         {
-            Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", "./thememd.mix");
+            Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/",Path.Combine(ProgramConstants.游戏目录,"thememd.mix"));
             if (File.Exists("ra2md.csf"))
             {
                 var d = new CSF("ra2md.csf").GetCsfDictionary();
@@ -238,11 +238,11 @@ namespace ClientGUI
             {
 
                 var iniFile = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
-                var spawn = new IniFile($"{ProgramConstants.GamePath}spawn.ini");
+                var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath,"spawn.ini"));
                 var game = spawn.GetValue("Settings", "Game", string.Empty);
-                var main = spawn.GetValue("Settings", "Main", string.Empty);
+              
                 var mission = spawn.GetValue("Settings", "Mission", string.Empty);
-                var extension = spawn.GetValue("Settings", "Extension", string.Empty);
+
                 var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
                 var YR_to_RA2 = spawn.GetValue("Settings", "YR_to_RA2", false);
                 // 找到在 newSaves 中但不在 oldSaves 中的文件
@@ -253,8 +253,6 @@ namespace ClientGUI
                     string fileName = Path.GetFileName(fileFullPath);
 
                     iniFile.SetValue(fileName, "Game", game);
-                    iniFile.SetValue(fileName, "Extension", extension);
-                    iniFile.SetValue(fileName, "Main", main);
                     iniFile.SetValue(fileName, "Mission", mission);
                     iniFile.SetValue(fileName, "RA2Mode", YR_to_RA2);
                 }
@@ -263,41 +261,37 @@ namespace ClientGUI
         }
         public static string 切换文件(IniSection newSection)
         {
-            string newMain = newSection.GetValue("Main", string.Empty);
-            string newExtension = newSection.GetValue("Extension", string.Empty);
+          
+         
             string newGame = newSection.GetValue("Game", string.Empty);
             string newMission = newSection.GetValue("Mission", string.Empty);
-            string newAi = newSection.GetValue("AI", string.Empty);
+       
 
             var oldSettings = new IniFile(spawnerSettingsFile.FullName);
 
-            
-
             var oldSection = oldSettings.GetSection("Settings");
 
-            string oldExtension = string.Empty;
+          
             string oldGame = string.Empty;
             string oldMission = string.Empty;
-            string oldAi = string.Empty;
+          
 
             if (oldSection != null)
             {
-
-                oldExtension = oldSection.GetValue("Extension", string.Empty);
                 oldGame = oldSection.GetValue("Game", string.Empty);
                 oldMission = oldSection.GetValue("Mission", string.Empty);
-                oldAi = oldSection.GetValue("AI", string.Empty);
             }
             
 
             bool 是否修改()
             {
+                if (!Directory.Exists(ProgramConstants.游戏目录)) return true;
 
                 if (!oldSettings.SectionExists("Settings")) return true;
                 //   string oldMain = oldSection.GetValue("Main", string.Empty);
 
 
-                if (oldGame != newGame || oldAi != newAi || oldMission != newMission || oldExtension != newExtension) return true;
+                if (oldGame != newGame || oldMission != newMission) return true;
 
                 if (FilePaths.Count == 0) return true;
 
@@ -318,77 +312,33 @@ namespace ClientGUI
                 return false;
             }
 
-            List<string> 获取文件名(string path)
-            {
-                List<string> files = [];
-                if(path == string.Empty || !Directory.Exists(path)) return files;
-                foreach (var file in Directory.GetFiles(path))
-                {
-                    files.Add(Path.GetFileName(file));
-                }
-                return files;
-            }
-
-            if(是否修改())
+            if (是否修改())
             {
                 try
             {
+                    if(Directory.Exists(ProgramConstants.游戏目录))
+                        Directory.Delete(ProgramConstants.游戏目录, true);
+                Directory.CreateDirectory(ProgramConstants.游戏目录);
 
-                    // ProgramConstants.clearCache();
-                    // FileHelper.DelFiles(Directory.GetFiles(oldExtension).ToList());
-                    if (oldGame + oldMission + oldAi + oldExtension == string.Empty) ProgramConstants.clearCache();
-                    else
-                    {
-                        if(oldGame != string.Empty)
-                            FileHelper.DelFiles(获取文件名(oldGame));
-                        if(oldMission != string.Empty)
-                            FileHelper.DelFiles(获取文件名(oldMission));
-                        if (oldAi != string.Empty)
-                            FileHelper.DelFiles(获取文件名(oldAi));
-                        if (oldExtension != string.Empty)
-                        {
-                            foreach (var item in oldExtension.Split(','))
-                            {
-                                if (item.StartsWith("Ares"))
-                             
-                                    FileHelper.DelFiles(获取文件名($"Mod&AI/Extension/Ares/{item}"));
-                                else if (item.StartsWith("Phobos"))
-                                    FileHelper.DelFiles(获取文件名($"Mod&AI/Extension/Phobos/{item}"));
-                            }
-                        }
-                    }
-                    WindowManager.progress.Report("正在加载游戏文件");
-                FileHelper.CopyDirectory(newGame, "./");
+                WindowManager.progress.Report("正在加载游戏文件");
 
-                foreach (var extension in newExtension.Split(","))
-                {
-                    string directoryPath = $"Mod&AI/Extension/{extension}"; // 默认路径
-                    if (extension.Contains("Ares"))
-                    {
-                        // 当extension为"Ares"，Child设置为"Ares3"，否则为extension本身
-                       // string extensionChild = extension == "Ares" ? "Ares3" : extension;
-                        directoryPath = $"Mod&AI/Extension/Ares/{extension}";
-                    }
-                    else if (extension.Contains("Phobos"))
-                    {
-                        // 当extension为"Phobos"，Child设置为"Phobos36"，否则为extension本身
-                     //   string extensionChild = extension == "Phobos" ? "Phobos36" : extension;
-                        directoryPath = $"Mod&AI/Extension/Phobos/{extension}";
-                    }
-                    FileHelper.CopyDirectory(directoryPath, "./");
-                }
+                // 加载尤复
+                FileHelper.CopyDirectory(UserINISettings.Instance.YRPath, ProgramConstants.游戏目录);
 
-                FileHelper.CopyDirectory(newAi, "./");
+                File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
+                // 加载渲染插件
+                FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
 
-                FileHelper.CopyDirectory(newMission, "./");
+                // 加载模组
+                FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
-                FileHelper.CopyDirectory(newMain, "./");
+                // 加载任务
+                FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录);
+
+                File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
 
                 FilePaths["Game"] = newGame;
-                FilePaths["Main"] = newMain;
                 FilePaths["Mission"] = newMission;
-                FilePaths["AI"] = newAi;
-
 
                 foreach (var keyValue in FilePaths)
                 {
@@ -411,8 +361,15 @@ namespace ClientGUI
                     加载音乐();
                 }
 
-                WindowManager.progress.Report("正在加载语音");
-                FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", "./");
+                    File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+
+                    if (File.Exists("spawnmap.ini"))
+                        File.Copy("spawnmap.ini",Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"),true);
+                
+                
+
+                    WindowManager.progress.Report("正在加载语音");
+                FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", ProgramConstants.游戏目录);
 
                     return string.Empty;
             }

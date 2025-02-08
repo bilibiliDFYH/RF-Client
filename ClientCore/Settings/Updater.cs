@@ -370,7 +370,7 @@ public static class Updater
 
                 UpdateUserAgent(SharedHttpClient);
 
-                //FileInfo dirInfo = SafePath.GetFile(GamePath, "Tmp");
+                //FileInfo dirInfo = SafePath.GetFile(游戏目录, "Tmp");
                 //if(!Directory.Exists(dirInfo.FullName))
                 //    Directory.CreateDirectory(dirInfo.FullName);
                 //else
@@ -528,7 +528,7 @@ public static class Updater
     //    Logger.Log("更新：Downloading preupdateexec.");
     //    try
     //    {
-    //        var fileStream = new FileStream(SafePath.CombineFilePath(GamePath, "preupdateexec"), new FileStreamOptions
+    //        var fileStream = new FileStream(SafePath.CombineFilePath(游戏目录, "preupdateexec"), new FileStreamOptions
     //        {
     //            Access = FileAccess.Write,
     //            BufferSize = 0,

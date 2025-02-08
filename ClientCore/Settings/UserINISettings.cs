@@ -30,6 +30,7 @@ namespace ClientCore
         private const bool DEFAULT_HIDE_INCOMPATIBLE_GAMES = false;
         private const int DEFAULT_MAX_PLAYER_COUNT = 8;
 
+
         public static readonly string ANNOTATION = "" +
             "# 客户端和游戏配置。\r\n" +
             "# [MultiPlayer] 联机相关配置\r\n" +
@@ -82,6 +83,7 @@ namespace ClientCore
 
             DetailLevel = new IntSetting(iniFile, OPTIONS, "DetailLevel", 2);
             Game = new StringSetting(iniFile, OPTIONS, "Game", "SkirmishLobby");
+            YRPath = new StringSetting(iniFile, OPTIONS, "YRPath", "YR");
 
             Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer", string.Empty);
             WindowedMode = new BoolSetting(iniFile, VIDEO, WINDOWED_MODE_KEY, false);
@@ -222,7 +224,7 @@ namespace ClientCore
         /* GAME */
         /********/
         public StringSetting Game { get; private set; }
-
+        public StringSetting YRPath { get; private set; }
         public IntSetting ScrollRate { get; private set; }
         public IntSetting DragDistance { get; private set; }
         public IntSetting DoubleTapInterval { get; private set; }

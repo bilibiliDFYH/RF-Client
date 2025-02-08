@@ -18,29 +18,20 @@ namespace ClientCore
                     Directory.CreateDirectory(saveDirPath);
                 }
 
+                // 复制文件
                 string[] files = Directory.GetFiles(sourceDirPath);
                 foreach (string file in files)
                 {
                     string pFilePath = Path.Combine(saveDirPath, Path.GetFileName(file));
-                    // 不会把map文件和ini复制到根目录，不然会影响任务包或MOD判定。
-                    string extension = Path.GetExtension(file);
-                    if (extension != ".map" && extension != ".png" && extension != ".ini" || Path.GetFileName(file).StartsWith("uimd") )
-                    {
-                        try
-                        {
-                            if(File.Exists(pFilePath))
-                            {
-                                File.SetAttributes(pFilePath, FileAttributes.Normal);
-                                File.Delete(pFilePath);
-                            }
-                                
-                            File.Copy(file, pFilePath, true);
-                        }
-                        catch
-                        {
-                            throw new FileLockedException($"文件操作失败，可能是这个文件{file}被占用了，等待几秒重试，若反复出现此问题可联系作者");
-                        }
-                    }
+                    File.Copy(file, pFilePath, true);
+                }
+
+                // 递归复制子文件夹
+                string[] directories = Directory.GetDirectories(sourceDirPath);
+                foreach (string directory in directories)
+                {
+                    string pDirPath = Path.Combine(saveDirPath, Path.GetFileName(directory));
+                    CopyDirectory(directory, pDirPath);
                 }
             }
         }

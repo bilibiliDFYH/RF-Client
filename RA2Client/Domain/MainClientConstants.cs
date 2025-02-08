@@ -11,7 +11,7 @@ namespace Ra2Client.Domain
         public static string GAME_NAME_LONG = "Red Alert 2 Reunion the Future Client";
         public static string GAME_NAME_SHORT = "Reunion";
 
-        //public static string CREDITS_URL = Path.Combine(ProgramConstants.GamePath, "Resources\\ThanksList");
+        //public static string CREDITS_URL = Path.Combine(ProgramConstants.游戏目录, "Resources\\ThanksList");
 
         public static string SUPPORT_URL_SHORT = "www.yra2.com";
 

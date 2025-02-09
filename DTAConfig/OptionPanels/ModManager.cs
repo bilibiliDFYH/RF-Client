@@ -63,7 +63,7 @@ public class ModManager : XNAWindow
             ClientRectangle = new Rectangle(25, 30, 200, 40)
         };
 
-        DDModAI.AddItem(["Mod","AI","任务包"]);
+        DDModAI.AddItem(["Mod","任务包"]);
         
         AddChild(DDModAI);
 
@@ -211,18 +211,7 @@ public class ModManager : XNAWindow
 
                     break;
                 }
-            //AI
             case 1:
-                {
-                    foreach (var mod in AI.AIs)
-                    {
-                        ListBoxModAi.AddItem(new XNAListBoxItem { Text = mod.Name, Tag = mod });
-                    }
-
-                    break;
-                }
-            //任务包
-            case 2:
                 {
                     foreach (var missionPack in MissionPack.MissionPacks)
                     {
@@ -664,7 +653,6 @@ public class ModManager : XNAWindow
             ID = id,
             FilePath = $"Mod&AI\\Mod\\{id}",
             Name = Path.GetFileName(path),
-            UseAI = isYR.GetValueOrDefault() ? "YRAI" : "RA2AI",
             md = md,
             MuVisible = reload
         };
@@ -847,8 +835,6 @@ public class ModManager : XNAWindow
        
         MissionPack.reLoad();
 
-        AI.reLoad();
-
        // listBoxModAI.Clear();
 
         DDModAI_SelectedIndexChanged(DDModAI,null);
@@ -891,46 +877,8 @@ public class ModManager : XNAWindow
             xNAMessageBox.YesClickedAction += (_) => DelMod(mod) ;
             xNAMessageBox.Show();
         }
-        else if (DDModAI.SelectedIndex == 2)
-        {
-            if (ListBoxModAi.SelectedItem.Tag is not AI ai) return;
 
-            删除AI(ai);
 
-        }
-
-    }
-
-    private void 删除AI(AI ai)
-    {
-        if (!ai.CanDel)
-        {
-            XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
-            return;
-        }
-        RenderImage.CancelRendering();
-
-        var iniFile = new IniFile(ai.FileName);
-        if (iniFile.GetSection("AI").Keys.Count == 1)
-            File.Delete(ai.FileName);
-        else
-        {
-            iniFile.RemoveKey("AI", ai.ID);
-            iniFile.RemoveSection(ai.ID);
-            iniFile.WriteIniFile();
-        }
-        try
-        {
-            Directory.Delete(ai.FilePath, true);
-        }
-        catch
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
-        }
-
-        ReLoad();
-        触发刷新?.Invoke();
-        RenderImage.RenderImagesAsync();
     }
 
     public void 删除任务包(MissionPack missionPack)
@@ -1084,17 +1032,8 @@ public class ModManager : XNAWindow
                 BtnNew.Enable();
                 BtnDel.Enable();
                 break;
-            //筛选AI
-            case 1:
-                var ai = AI.AIs.Find(m => m.ID == ((AI)ListBoxModAi.SelectedItem.Tag).ID);
-                properties = ai.GetProperties();
-                BtnNew.Text = "导入新AI";
-                BtnDel.Text = "删除AI";
-                BtnNew.Enable();
-                BtnDel.Enable();
-                break;
             //筛选任务包
-            case 2:
+            case 1:
                 var missionPack = MissionPack.MissionPacks.Find(m => m.ID == ((MissionPack)ListBoxModAi.SelectedItem.Tag).ID);
                 properties = missionPack.GetProperties();
                 BtnNew.Text = "导入任务包";
@@ -1394,202 +1333,6 @@ public class ModInfoWindows : XNAWindow
     }
 }
 
-public class AIInfoWindows : XNAWindow
-{
-
-    private const int CtbW = 130;
-    private const int CtbH = 25;
-
-    private readonly string _title;
-
-    private XNATextBox _ctbAIID;
-    private XNATextBox _ctbAIName;
-    private XNATextBox _ctbAuthor;
-    private XNATextBox _ctbAIDescription;
-    private XNATextBox _ctbCompatible;
-    private XNATextBox _ctbVersion;
-    private XNATextBox _ctbAIPath;
-    private XNACheckBox _chkMutil;
-    private bool _cancel = false;
-
-    private AI _ai;
-
-    public AIInfoWindows(WindowManager windowManager, AI ai, string Title) : base(windowManager)
-    {
-        _ai = ai;
-        _title = Title;
-    }
-
-    public override void Initialize()
-    {
-        base.Initialize();
-        // Disable();
-        //Console.WriteLine(_ai.ToString());
-        ClientRectangle = new Rectangle(0, 0, 550, 400);
-        CenterOnParent();
-
-        var _lblTitle = new XNALabel(WindowManager)
-        {
-            ClientRectangle = new Rectangle(230, 20, 0, 0)
-
-        };
-        AddChild(_lblTitle);
-
-        //第一行
-        var lblAIID = new XNALabel(WindowManager)
-        {
-            Text = "AIID(唯一):",
-            ClientRectangle = new Rectangle(20, 60, 0, 0)
-
-        };
-        AddChild(lblAIID);
-
-        _ctbAIID = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblAIID.Right + 100, lblAIID.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbAIID);
-
-        var lblAIName = new XNALabel(WindowManager)
-        {
-            Text = "AI名称:",
-            ClientRectangle = new Rectangle(300, lblAIID.Y, 0, 0)
-        };
-        AddChild(lblAIName);
-
-
-        _ctbAIName = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblAIName.Right + 100, lblAIName.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbAIName);
-
-        var lblAuthor = new XNALabel(WindowManager)
-        {
-            Text = "AI作者:",
-            ClientRectangle = new Rectangle(lblAIID.X, 100, 0, 0)
-        };
-        AddChild(lblAuthor);
-
-        _ctbAuthor = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblAuthor.Right + 100, lblAuthor.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbAuthor);
-
-        //第二行
-        var lblDescription = new XNALabel(WindowManager)
-        {
-            Text = "AI介绍:",
-            ClientRectangle = new Rectangle(lblAIID.X, 140, 0, 0)
-        };
-        AddChild(lblDescription);
-
-        _ctbAIDescription = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblDescription.Right + 100, lblDescription.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbAIDescription);
-
-
-        var lblVersion = new XNALabel(WindowManager)
-        {
-            Text = "AI版本:",
-            ClientRectangle = new Rectangle(lblAIName.X, lblDescription.Y, 0, 0)
-        };
-        AddChild(lblVersion);
-
-        _ctbVersion = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblVersion.Right + 100, lblVersion.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbVersion);
-
-
-        //第三行
-        var lblAIPath = new XNALabel(WindowManager)
-        {
-            Text = "AI路径:",
-            ClientRectangle = new Rectangle(lblAIID.X, 180, 0, 0)
-        };
-        AddChild(lblAIPath);
-
-        _ctbAIPath = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblAIPath.Right + 100, lblAIPath.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbAIPath);
-
-        var lblModUse = new XNALabel(WindowManager)
-        {
-            Text = "可使用的Mod:",
-            ClientRectangle = new Rectangle(lblVersion.X, lblAIPath.Y, 0, 0)
-        };
-        AddChild(lblModUse);
-
-        _ctbCompatible = new XNATextBox(WindowManager)
-        {
-            ClientRectangle = new Rectangle(lblModUse.Right + 100, lblModUse.Y, CtbW, CtbH)
-        };
-        AddChild(_ctbCompatible);
-
-        var btnOk = new XNAClientButton(WindowManager)
-        {
-            Text = "确定",
-            ClientRectangle = new Rectangle(150, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
-        };
-        AddChild(btnOk);
-        btnOk.LeftClick += (_, _) =>
-        {
-                Disable();
-        };
-
-        var btnCancel = new XNAClientButton(WindowManager)
-        {
-            Text = "取消",
-            ClientRectangle = new Rectangle(310, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
-        };
-        AddChild(btnCancel);
-        btnCancel.LeftClick += (_, _) =>
-        {
-            _cancel = true;
-            Disable();
-        };
-
-        _lblTitle.Text = _title;
-        _ctbAIID.Text = _ai.ID;
-        _ctbAIName.Text = _ai.Name;
-        _ctbAIDescription.Text = _ai.Description;
-        //_chkMutil.Checked = _ai.MuVisible;
-        _ctbVersion.Text = _ai.Version;
-        _ctbAIPath.Text = _ai.FilePath;
-        _ctbCompatible.Text = _ai.Compatible;
-        // Console.WriteLine(_ai.Author);
-        _ctbAuthor.Text = _ai.Author;
-    }
-
-
-    /// <summary>
-    /// 获取AI更新后的信息。
-    /// </summary>
-    /// <returns></returns>
-    public AI GetAIInfo()
-    {
-        if (_cancel)
-            return null;
-
-        _ai.ID = _ctbAIID.Text.Trim(); //id
-        _ai.Name = _ctbAIName.Text.Trim(); //名称
-        _ai.Description = _ctbAIDescription.Text.Trim(); //介绍
-        _ai.Version = _ctbVersion.Text.Trim(); //版本号
-        _ai.FilePath = _ctbAIPath.Text.Trim(); //路径
-        _ai.Compatible = _ctbCompatible.Text.Trim();
-        //_ai.MuVisible = _chkMutil.Checked; //遭遇战可用
-        _ai.Author = _ctbAuthor.Text.Trim();
-        return _ai;
-
-    }
-}
 
 public class MissionPackInfoWindows : XNAWindow
 {

@@ -66,7 +66,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private GameLobbyDropDown _cmbGame;
         private GameLobbyDropDown _cmbGameSpeed;
-        private XNAClientCheckBox _chkExtension;
         private XNAListBox _lbxInforBox;
         private XNAPanel _gameOptionsPanel;
         private XNAClientRatingBox _ratingBox;
@@ -174,30 +173,30 @@ namespace Ra2Client.DXGUI.Generic
             _tbMissionDescriptionList.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
                 _tbMissionDescriptionList.Width, _tbMissionDescriptionList.Height);
 
-            _chkExtension = new XNAClientCheckBox(WindowManager);
-            _chkExtension.Name = nameof(_chkExtension);
-            _chkExtension.ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0, 0);
-            _chkExtension.Text = "启用扩展平台";
-            _chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
-            _chkExtension.LeftClick += (_, _) => {
-                if (UserINISettings.Instance.ChkExtensionIsFirst.Value)
-                {
-                    XNAMessageBox.Show(WindowManager, "扩展平台", "打开后会启用扩展平台(如Ares,Phobos).\n" +
-                        "部分功能只有在开启扩展平台后才能使用。如shift连点器，部分皮肤（建造预览，飞机尾迹等等），同时也会修复一些原版的bug（特性）。" +
-                        "\n然而有些地图或任务使用了原版的特性，(如林德拉克计划)必须关闭扩展才能正常游玩。");
+            //_chkExtension = new XNAClientCheckBox(WindowManager);
+            //_chkExtension.Name = nameof(_chkExtension);
+            //_chkExtension.ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0, 0);
+            //_chkExtension.Text = "启用扩展平台";
+            //_chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
+            //_chkExtension.LeftClick += (_, _) => {
+            //    if (UserINISettings.Instance.ChkExtensionIsFirst.Value)
+            //    {
+            //        XNAMessageBox.Show(WindowManager, "扩展平台", "打开后会启用扩展平台(如Ares,Phobos).\n" +
+            //            "部分功能只有在开启扩展平台后才能使用。如shift连点器，部分皮肤（建造预览，飞机尾迹等等），同时也会修复一些原版的bug（特性）。" +
+            //            "\n然而有些地图或任务使用了原版的特性，(如林德拉克计划)必须关闭扩展才能正常游玩。");
 
-                    UserINISettings.Instance.ChkExtensionIsFirst.Value = false;
-                    UserINISettings.Instance.SaveSettings();
-                }
-            };
-            //var  ToolTip = new ToolTip(WindowManager, chkExtension) { Text = "启用合适的扩展平台（Ares,Phobos等）。"};
-            AddChild(_chkExtension);
+            //        UserINISettings.Instance.ChkExtensionIsFirst.Value = false;
+            //        UserINISettings.Instance.SaveSettings();
+            //    }
+            //};
+            ////var  ToolTip = new ToolTip(WindowManager, chkExtension) { Text = "启用合适的扩展平台（Ares,Phobos等）。"};
+            //AddChild(_chkExtension);
          //   _chkExtension.Visible = false;
 
             var lblModify = new XNALabel(WindowManager);
             lblModify.Name = nameof(lblModify);
             lblModify.Text = "注：某些修改可能会破坏战役流程。";
-            lblModify.ClientRectangle = new Rectangle(_chkExtension.X, _chkExtension.Y + 40, 0, 0);
+            lblModify.ClientRectangle = new Rectangle(_tbMissionDescriptionList.X, _tbMissionDescriptionList.Y + 40, 0, 0);
 
             var lblDifficultyLevel = new XNALabel(WindowManager);
             lblDifficultyLevel.Name = "lblDifficultyLevel";
@@ -388,11 +387,11 @@ namespace Ra2Client.DXGUI.Generic
 
             var _lblGame = new XNALabel(WindowManager)
             {
-                Text = "使用游戏：",
-                ClientRectangle = new Rectangle(_chkExtension.Right + 25,_chkExtension.Y,0,0)
+                Text = "使用模组：",
+                ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0,0)
             };
             _cmbGame = new GameLobbyDropDown(WindowManager) {
-                ClientRectangle = new Rectangle(_lblGame.Right + 75, _chkExtension.Y, 122, 23)
+                ClientRectangle = new Rectangle(_lblGame.Right + 75, _tbMissionDescriptionList.Y, 122, 23)
             };
             // lbCampaignList.SelectedIndex = 1;
             //    LbxCampaignListSelectedIndexChanged(lbCampaignList, new EventArgs());
@@ -519,15 +518,6 @@ namespace Ra2Client.DXGUI.Generic
 
         }
 
-        private void ChkExtension_SelectedChanged(object sender, EventArgs e)
-        {
-            if (_lbxCampaignList.SelectedIndex != -1 && _lbxCampaignList.SelectedItem != null)
-            {
-                //_chkExtension.Visible = true;
-                ExtensionChange();
-            }
-        }
-
         /// <summary>
         /// 返回当前可使用扩展平台情况
         /// </summary>
@@ -572,107 +562,6 @@ namespace Ra2Client.DXGUI.Generic
         //    _extension = new Tuple<int, List<string>>(1, null);
         //}
 
-        public void ExtensionChange()
-        {
-
-            // 获取扩展使用情况
-            //GetUseExtension();
-
-            if (_cmbGame.SelectedItem?.Tag is not Mod mod)
-                return;
-
-            if (mod.ExtensionOn)
-            {
-                _chkExtension.AllowChecking = false;
-                _chkExtension.Checked = true;
-
-            }
-            
-            if(mod.Extension == string.Empty)
-            {
-                _chkExtension.AllowChecking = false;
-                _chkExtension.Checked = false;
-            }
-
-
-            //根据扩展按钮刷新其他控件
-            foreach (var chk in CheckBoxes)
-            {
-                if (_chkExtension.Checked) // 扩展被选中，说明当前有可使用的扩展
-                {
-                    if (string.IsNullOrEmpty(chk.Extension))
-                    {
-                        chk.AllowChecking = true;
-                        continue;
-                    }
-
-                    foreach (var e in chk.Extension.Split(','))
-                    {
-
-                        if (!mod.Extension.Contains(e))  // 当该单选框所需要的扩展不在当前可用扩展中时
-                        {
-
-                            chk.Checked = false;
-                            chk.AllowChecking = false;
-                            break;
-                        }
-                        chk.AllowChecking = true;
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(chk.Extension))
-                    {
-                        chk.Checked = false;
-                        chk.AllowChecking = false;
-                    }
-                    else
-                    {
-                        chk.AllowChecking = true;
-                    }
-                }
-            }
-
-            foreach (var dd in DropDowns)
-            {
-                if (_chkExtension.Checked)
-                {
-                    if (string.IsNullOrEmpty(dd.Extension))
-                    {
-                        dd.AllowDropDown = true;
-                        continue;
-                    }
-                    foreach (var e in dd.Extension.Split(','))
-                    {
-
-                        if (!mod.Extension.Contains(e))
-                        {
-
-                            dd.SelectedIndex = dd.defaultIndex;
-                            dd.AllowDropDown = false;
-                            break;
-                        }
-
-                        dd.AllowDropDown = true;
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(dd.Extension))
-                    {
-                        dd.SelectedIndex = dd.defaultIndex;
-                        dd.AllowDropDown = false;
-                    }
-                    else
-                    {
-                        dd.AllowDropDown = true;
-                    }
-                }
-            }
-
-
-        }
-
         private void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
             if (_cmbGame.SelectedItem == null || _cmbGame.SelectedItem == null)
@@ -681,19 +570,6 @@ namespace Ra2Client.DXGUI.Generic
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             Task.Run(() => { GetMissionInfo(true); });
-
-
-            var mod = (Mod)(_cmbGame.SelectedItem.Tag);
-
-            if (mod.ExtensionOn || (mod.md == "md" && !_screenMissions[_lbxCampaignList.SelectedIndex].YR))
-            {
-                _chkExtension.Checked = true;
-                _chkExtension.AllowChecking = false;
-            }
-            else
-            {
-                _chkExtension.AllowChecking = true;
-            }
 
             base.OnSelectedChanged();
 
@@ -816,8 +692,6 @@ namespace Ra2Client.DXGUI.Generic
                 {
                     campaignSettingsIni.SetValue("GameOptions", cb.Name ?? nameof(cb), cb.Checked.ToString());
                 }
-
-                campaignSettingsIni.SetValue("GameOptions", "chkExtension", _chkExtension.Checked);
              
                 campaignSettingsIni.WriteIniFile();
         }
@@ -874,8 +748,6 @@ namespace Ra2Client.DXGUI.Generic
                 {
                     _trbDifficultySelector.Value = DifficultySelector;
                 }
-
-                _chkExtension.Checked = campaignSettingsIni.GetValue("GameOptions", "chkExtension", true);
             
             }
             //if (ClientConfiguration.Instance.SaveSkirmishGameOptions)
@@ -895,9 +767,6 @@ namespace Ra2Client.DXGUI.Generic
                     cb.Checked = campaignSettingsIni.GetValue("GameOptions", cb.Name ?? nameof(cb), cb.Checked);
                 }
             }
-
-            ChkExtension_SelectedChanged(null, null);
-            //}
         }
 
         protected virtual void DelConf()
@@ -934,8 +803,6 @@ namespace Ra2Client.DXGUI.Generic
             modManager.EnabledChanged += (_, _) =>
             {
                 DarkeningPanel.RemoveControl(dp, WindowManager, modManager);
-                if (_chkExtension.AllowChecking != false)
-                    _chkExtension.Checked = false;
             };
 
             _modManager.DDModAI.SelectedIndex = index;
@@ -1327,19 +1194,19 @@ namespace Ra2Client.DXGUI.Generic
                     }
                     else
                     {
-                        if (!_chkExtension.Checked)
-                        {
-                            if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
-                            {
-                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
-                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
-                            }
-                            else
-                            {
-                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
-                                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
-                            }
-                        }
+                        //if (!_chkExtension.Checked)
+                        //{
+                        //    if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
+                        //    {
+                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
+                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+                        //    }
+                        //    else
+                        //    {
+                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
+                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
+                        //    }
+                        //}
 
                         if (!mapIni.SectionExists("General"))
                             mapIni.AddSection("General");
@@ -1417,18 +1284,6 @@ namespace Ra2Client.DXGUI.Generic
                 newGame = mod.FilePath;
             }
 
-            if (_chkExtension.Checked)
-            {
-                var (Ares, Phobos) = GameProcessLogic.支持的扩展();
-                var extension = mod.Extension.Split(",").ToList();
-                if (extension.Remove("Ares"))
-                    extension.Add(ProgramConstants.ARES);
-                if (extension.Remove("Phobos"))
-                    extension.Add(ProgramConstants.PHOBOS);
-
-                newExtension = string.Join(",", extension.Distinct());
-            }
-
             #endregion
 
             #region 写入新设置
@@ -1446,9 +1301,9 @@ namespace Ra2Client.DXGUI.Generic
 
             settings.SetValue("Mission", newMission);
 
-            if(_chkExtension.Checked)
-                settings.SetValue("Ra2Mode", mod.md != "md");
-            else//这里不知为何一定得写False，即使是用原版玩，用True会弹窗
+            //if(_chkExtension.Checked)
+            //    settings.SetValue("Ra2Mode", mod.md != "md");
+            //else//这里不知为何一定得写False，即使是用原版玩，用True会弹窗
                 settings.SetValue("Ra2Mode", false);
 
             settings.SetValue("Scenario", mission.Scenario);

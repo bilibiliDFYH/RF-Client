@@ -54,6 +54,11 @@ namespace ClientGUI
             spawnerSettingsFile.Delete();
             iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
+            File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
+            File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+            // 加载渲染插件
+            FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
+
             oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
 
             WindowManager.progress.Report("正在唤起游戏");
@@ -165,13 +170,15 @@ namespace ClientGUI
                 ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments)
                 {
                     UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    WorkingDirectory = ProgramConstants.游戏目录
                 };
 
                 var gameProcess = new Process
                 {
                     StartInfo = info,
-                    EnableRaisingEvents = true
+                    EnableRaisingEvents = true,
+                    
                 };
 
                 // 注册退出事件
@@ -326,16 +333,12 @@ namespace ClientGUI
                 FileHelper.CopyDirectory(UserINISettings.Instance.YRPath, ProgramConstants.游戏目录);
 
                 File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
-                // 加载渲染插件
-                FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
 
                 // 加载模组
                 FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
                 // 加载任务
                 FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录);
-
-                File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
 
                 FilePaths["Game"] = newGame;
                 FilePaths["Mission"] = newMission;
@@ -361,7 +364,9 @@ namespace ClientGUI
                     加载音乐();
                 }
 
-                    File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+                   
+
+                    File.Copy("LiteExt.dll", Path.Combine(ProgramConstants.游戏目录, "LiteExt.dll"), true);
 
                     if (File.Exists("spawnmap.ini"))
                         File.Copy("spawnmap.ini",Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"),true);

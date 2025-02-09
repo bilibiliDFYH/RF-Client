@@ -118,7 +118,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 case "Mod":
 
-                    
                     if (Name == "cmbGame")
                     {
 
@@ -141,32 +140,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                                 {
 
                                     item.Tag = mods[i];
-
-                                }
-                                else
-                                    item.Tag = items[i];
-                            }
-                            else
-                                item.Text = items[i];
-                            AddItem(item);
-                        }
-                    }
-                    else
-                    {
-                    
-                        List<AI> ais = AI.AIs.ToList();
-                        items = ais.Select(mod => mod.INI).ToArray();
-                        itemlabels = ais.Select(mod => mod.Name).ToArray();
-                        for (int i = 0; i < items.Length; i++)
-                        {
-                            XNADropDownItem item = new XNADropDownItem();
-                            if (itemlabels.Length > i && !String.IsNullOrEmpty(itemlabels[i]))
-                            {
-                                item.Text = itemlabels[i].L10N("UI:GameOption:" + itemlabels[i]);
-
-                                if (items.Length == ais.Count())
-                                {
-                                    item.Tag = ais[i];
 
                                 }
                                 else
@@ -279,10 +252,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     //Console.WriteLine("string111");
                     customIniPath = ((Mod)Items[SelectedIndex].Tag).INI;
-                }
-                else if (Items[SelectedIndex].Tag is AI)
-                {
-                    customIniPath = ((AI)Items[SelectedIndex].Tag).INI;
                 }
                 else
                 {

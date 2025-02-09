@@ -321,7 +321,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                         skirmishSettingsIni.SetStringValue("GameOptions", cb.Name, cb.Checked.ToString());
                     }
 
-                    skirmishSettingsIni.SetStringValue("GameOptions", "chkExtension", chkExtension.Checked.ToString());
+                    //skirmishSettingsIni.SetStringValue("GameOptions", "chkExtension", chkExtension.Checked.ToString());
                 }
 
                 skirmishSettingsIni.WriteIniFile();

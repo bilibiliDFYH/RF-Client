@@ -440,7 +440,7 @@ namespace DTAConfig.OptionPanels
                 // enabled through their own config INI file
                 // (for example DxWnd and CnC-DDRAW)
 
-                IniFile rendererSettingsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, renderer.ConfigFileName));
+                IniFile rendererSettingsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\Render", renderer.InternalName, renderer.ConfigFileName));
 
                 chkWindowedMode.Checked = rendererSettingsIni.GetBooleanValue(renderer.WindowedModeSection,
                     renderer.WindowedModeKey, false);

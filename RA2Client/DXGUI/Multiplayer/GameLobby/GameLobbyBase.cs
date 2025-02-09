@@ -146,8 +146,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected GameLobbyDropDown cmbGame;
 
-        protected XNAClientCheckBox chkExtension;
-
         protected MapPreviewBox MapPreviewBox;
 
         protected int count = 0;
@@ -308,20 +306,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             });
             AddChild(ModMenu);
 
-            chkExtension = FindChild<XNAClientCheckBox>(nameof(chkExtension));
-            chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
-            chkExtension.LeftClick += (_, _) =>
-            {
-                if (UserINISettings.Instance.ChkExtensionIsFirst.Value)
-                {
-                    XNAMessageBox.Show(WindowManager, "扩展平台", "打开后会启用扩展平台(如Ares,Phobos).\n" +
-                        "部分功能只有在开启扩展平台后才能使用。如shift连点器，部分皮肤（建造预览，飞机尾迹等等），同时也会修复一些原版的bug（特性）。" +
-                        "\n然而有些地图或任务使用了原版的特性，(如林德拉克计划)必须不开启扩展才能正常游玩。");
-
-                    UserINISettings.Instance.ChkExtensionIsFirst.Value = false;
-                    UserINISettings.Instance.SaveSettings();
-                }
-            };
             cmbGame = FindChild<GameLobbyDropDown>(nameof(cmbGame));
 
             cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
@@ -454,9 +438,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             InitializeGameOptionPresetUI();
 
             CmbGame_SelectedChanged(cmbGame, null);
-
-            chkExtension.Checked = true;
-            chkExtension.AllowChecking = false;
         }
 
         private void 打开地图位置()
@@ -505,103 +486,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         }
 
 
-        private void ChkExtension_SelectedChanged(object sender, EventArgs e)
-        {
-           
-
-            ExtensionChange();
-
-            //if (ddPlayerColors != null)
-            //{
-            //    string randomColor = GameOptionsIni.GetStringValue("General", "RandomColor", "255,255,255");
-            //    int colorRange = chkExtension.Checked ? 16 : 8;
-
-            //    foreach (var dd in ddPlayerColors)
-            //    {
-            //        dd.Items.Clear();
-            //        dd.AddItem("Random".L10N("UI:Main:Random"), AssetLoader.GetColorFromString(randomColor));
-
-            //        foreach (var mpColor in MPColors.Take(colorRange))
-            //        {
-            //            dd.AddItem(mpColor.Name, mpColor.TextColor);
-            //        }
-
-            //        if (dd.SelectedItem == null) dd.SelectedIndex = 0;
-            //    }
-            //}
-        }
-
-        public void ExtensionChange()
-        {
-
-            if (cmbGame.SelectedItem == null) return;
-
-            Mod mod = cmbGame.SelectedItem.Tag as Mod;
-
-            foreach (var chk in CheckBoxes)
-            {
-                if (chkExtension.Checked)
-                {
-                    foreach (var Extension in chk.Extension.Split(','))
-                    {
-
-                        if (mod.Extension.LastIndexOf(Extension) == -1)
-                        {
-                            chk.Checked = false;
-                            chk.AllowChecking = false;
-                            break;
-                        }
-                        chk.AllowChecking = true;
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(chk.Extension))
-                    {
-                        chk.Checked = false;
-                        chk.AllowChecking = false;
-                    }
-                    else
-                    {
-                        chk.AllowChecking = true;
-                    }
-                }
-            }
-
-            foreach (var dd in DropDowns)
-            {
-                if (chkExtension.Checked)
-                {
-                    foreach (var Extension in dd.Extension.Split(','))
-                    {
-
-                        if (mod.Extension.LastIndexOf(Extension) == -1)
-                        {
-
-                            dd.SelectedIndex = dd.defaultIndex;
-                            dd.AllowDropDown = false;
-                            break;
-                        }
-                        
-                        dd.AllowDropDown = true;
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(dd.Extension))
-                    {
-                        dd.SelectedIndex = dd.defaultIndex;
-                        dd.AllowDropDown = false;
-                    }
-                    else
-                    {
-                        dd.AllowDropDown = true;
-                    }
-                }
-            }
-
-
-        }
 
         protected virtual void ModManagerEnabled()
         {
@@ -621,29 +505,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
-
-            #region 处理扩展按钮兼容
-            ExtensionChange();
-            //if (mod.ExtensionOn) //必须使用扩展
-            //{
-            //    chkExtension.Checked = true;
-            //    chkExtension.AllowChecking = false;
-            //}
-            //else
-            //{
-            //    chkExtension.AllowChecking = true;
-            //}
-
-            //if (mod.Extension == string.Empty) // 没有可用扩展
-            //{
-            //    chkExtension.Checked = false;
-            //    chkExtension.AllowChecking = false;
-            //}
-
-            #endregion
-
-           
-
 
             if (mod.FileName != "Mod&AI/Mod&AI.ini")
             {
@@ -2307,11 +2168,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             IniFile mapIni = Map.GetMapIni();
 
-            if (!chkExtension.Checked && ((Mod)cmbGame.SelectedItem.Tag).md == string.Empty)
-            {
-                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
-                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
-            }
+            //if (!chkExtension.Checked && ((Mod)cmbGame.SelectedItem.Tag).md == string.Empty)
+            //{
+            //    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
+            //    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
+            //}
 
             IniFile globalCodeIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "INI", "MapCode", "GlobalCode.ini"));
 

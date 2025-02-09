@@ -26,7 +26,6 @@ public class Mod : InfoBaseClass
             SetValue(ID, "Compatible", Compatible).
             SetValue(ID, "ExtensionOn", ExtensionOn).
             SetValue(ID, "YR", md.Equals("md")).
-            SetValue(ID, "UseAI", UseAI).
             SetValue(ID, "ColorsNum", ColorsNum).
             SetValue(ID, "Sides", Countries).
             SetValue(ID, "Author", Author);
@@ -51,7 +50,6 @@ public class Mod : InfoBaseClass
             { "版本号", Version },
             { "作者", Author },
             { "遭遇战可用", MuVisible.ToString() },
-            { "能使用的AI", UseAI },
             { "是否必须使用扩展", ExtensionOn.ToString() },
             { "可使用的扩展", Extension },
             { "是否为尤复Mod", md == "md" ? "是" : "否" },
@@ -149,20 +147,6 @@ public class Mod : InfoBaseClass
 
                 HashSet<string> modSet = [];
 
-                mod.UseAI = iniFile.GetValue(modID, "UseAI", string.Empty);
-
-                foreach (var ai in (mod.UseAI != string.Empty ? mod.UseAI : mod.md == "md" ? "YRAI" : "RA2AI").Split(','))
-                {
-                    // 调用GetCompatibleMods可能会返回多个用逗号分隔的Mod，需要再次分割
-                    var compatibleAIs = AI.GetCompatibleMods(ai).Split(',');
-                    //Console.WriteLine(AI.GetCompatibleMods(ai));
-                    foreach (var compatibleAI in compatibleAIs)
-                    {
-                        modSet.Add(compatibleAI.Trim()); // 使用Trim确保添加前没有多余的空格
-                    }
-                }
-                mod.UseAI = string.Join(",", modSet);
-
                 //if (mod.md == string.Empty)
                 //    mod.ExtensionOn = true;
                 mod.INI = iniFile.GetValue(modID, "INI", string.Empty);
@@ -241,7 +225,6 @@ public class Mod : InfoBaseClass
     /// <summary>
     /// 随机国家索引
     /// </summary>
-    public string UseAI { get; set; }
     public List<string> RandomSidesIndexs { get; set; } = new List<string> { "0,1,2,3,4", "5,6,7,8" };
     /// <summary>
     /// 哪些mod能玩的任务该Mod也能玩
@@ -279,7 +262,6 @@ public class Mod : InfoBaseClass
                $"随机国家：{RandomSides}\n" +
                $"随机国家索引：{string.Join(",", RandomSidesIndexs)}\n" +
                $"兼容的任务mod：{Compatible}\n" +
-               $"使用的AI列表：{UseAI}\n" +
                $"注册于哪个文件：{FileName}\n" +
                $"可以额外选择的颜色数：{ColorsNum}";
     }

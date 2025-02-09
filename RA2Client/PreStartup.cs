@@ -97,7 +97,7 @@ namespace Ra2Client
             UserINISettings.Initialize(ClientConfiguration.Instance.SettingsIniName);
 
             Mod.reLoad();
-            AI.reLoad();
+           
 
             //   Try to load translations
             try

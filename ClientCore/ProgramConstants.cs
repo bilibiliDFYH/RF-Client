@@ -78,7 +78,6 @@ namespace ClientCore
         { "MULTIMD.MIX", "9ad3b25bc95daef55dd63e8d6c6b4a815a775c4d" },
         { "ra2.mix", "3bd92246320f4bf1ff1ed76207ee793c33ff6a05" },
         { "ra2md.mix", "091bd7f219836a330b2339e3f8606954b4a9b01f" },
-        { "thememd.mix", "bb95f17d9243e483e268617dbce738cf49527ccf" },
         { "Blowfish.dll","214000ba48040818b4f0d7ff06c4debbb1ae2274" },
         { "BINKW32.DLL","613f81f82e12131e86ae60dd318941f40db2200f" }
     };
@@ -218,7 +217,9 @@ namespace ClientCore
                 //File.Delete("Syringe.exe");
                 //File.Delete("gamemd.exe");
 
-                Directory.Delete(ProgramConstants.游戏目录, true);
+                FileHelper.ForceDeleteDirectory(游戏目录);
+
+       
 
                 return true;
             }

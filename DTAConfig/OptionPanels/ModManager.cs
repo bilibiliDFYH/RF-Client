@@ -346,6 +346,8 @@ public class ModManager : XNAWindow
     /// </summary>
     public string 导入任务包(string filePath)
     {
+        return "敬请期待";
+
         var 后缀 = Path.GetExtension(filePath);
         if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
         {
@@ -419,6 +421,8 @@ public class ModManager : XNAWindow
 
     public string 导入具体任务包(string missionPath)
     {
+        return "敬请期待";
+
         bool isYR = 判断是否为尤复(missionPath);
 
         var id = Path.GetFileName(missionPath);
@@ -580,6 +584,8 @@ public class ModManager : XNAWindow
 
     private string 导入Mod(string filePath,bool reload = true)
     {
+        return "敬请期待";
+
         var 后缀 = Path.GetExtension(filePath);
         if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".exe" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".mix")
         {
@@ -639,6 +645,8 @@ public class ModManager : XNAWindow
 
     private string 导入具体Mod(string path,bool? isYR = null,bool reload = true)
     {
+        return "敬请期待";
+
         isYR ??= 判断是否为尤复(path);
         var md = isYR.GetValueOrDefault() ? "md" : string.Empty;
 

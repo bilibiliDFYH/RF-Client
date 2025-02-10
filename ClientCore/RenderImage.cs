@@ -29,14 +29,18 @@ namespace ClientCore
                 string mapName = Path.GetFileNameWithoutExtension(mapPath);
                 string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
                 string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
-                string strCmdText = $"-i \"{ProgramConstants.GamePath}{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}\\\" -Y -z +(1280,768) --thumb-png --bkp ";
-               //  Console.WriteLine(strCmdText);
+                string strCmdText = $"-i \"{ProgramConstants.GamePath}{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
+                 Console.WriteLine(strCmdText);
                 using Process process = new Process();
                 process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
                 process.StartInfo.Arguments = strCmdText;
                 process.StartInfo.UseShellExecute = false;
                 process.StartInfo.CreateNoWindow = true;
                 WindowManager.progress.Report($"正在渲染预览图{mapName}...");
+
+                Console.WriteLine(strCmdText);
+                Console.WriteLine(strCmdText);
+
                 // 异步执行渲染单张图片的逻辑
                 await Task.Run(() =>
                 {

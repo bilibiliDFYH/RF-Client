@@ -2201,7 +2201,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
 
             IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
-            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
+         //   IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
 
             string mapIniFileName = Path.GetFileName(mapIni.FileName);
             mapIni.SetStringValue("Basic", "OriginalFilename", mapIniFileName);

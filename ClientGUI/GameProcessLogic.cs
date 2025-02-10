@@ -46,7 +46,12 @@ namespace ClientGUI
             string r = 切换文件(iniFile.GetSection("Settings"));
             if (r != string.Empty)
             {
-                XNAMessageBox.Show(windowManager, "错误", r);
+                if( r == "尤复目录必须为纯净尤复目录")
+                {
+                    var guideWindow = new YRPathWindow(windowManager);
+                    guideWindow.Show();
+                }else
+                    XNAMessageBox.Show(windowManager, "错误", r);
                 return;
             }
 
@@ -63,6 +68,8 @@ namespace ClientGUI
 
             File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+            if (File.Exists("spawnmap.ini"))
+                File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
             // 加载渲染插件
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
 
@@ -332,6 +339,12 @@ namespace ClientGUI
                 {
                     if (Directory.Exists(ProgramConstants.游戏目录))
                         FileHelper.ForceDeleteDirectory(ProgramConstants.游戏目录);
+
+                    if (!ProgramConstants.判断目录是否为纯净尤复(UserINISettings.Instance.YRPath))
+                    {
+                        return "尤复目录必须为纯净尤复目录";
+                    }
+
                     Directory.CreateDirectory(ProgramConstants.游戏目录);
 
                     WindowManager.progress.Report("正在加载游戏文件");
@@ -344,11 +357,14 @@ namespace ClientGUI
                             Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file))
                             , true);
                     }
-                    // 加载尤复
-                    FileHelper.CopyDirectory(UserINISettings.Instance.YRPath, ProgramConstants.游戏目录);
+
+                    if(Directory.Exists("TX"))
+                        FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
+                    if(Directory.Exists("zh"))
+                        FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
 
                     File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
-
+                    File.Copy("cncnet5.dll", Path.Combine(ProgramConstants.游戏目录, "cncnet5.dll"), true);
                     // 加载模组
                     FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
@@ -373,16 +389,7 @@ namespace ClientGUI
                         }
                     }
 
-
-
-
-
                     File.Copy("LiteExt.dll", Path.Combine(ProgramConstants.游戏目录, "LiteExt.dll"), true);
-
-                    if (File.Exists("spawnmap.ini"))
-                        File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
-
-
 
                     WindowManager.progress.Report("正在加载语音");
                     FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", ProgramConstants.游戏目录);

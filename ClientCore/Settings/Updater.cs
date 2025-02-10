@@ -232,7 +232,7 @@ public static class Updater
     {
         serverFileInfos.Clear();
         localFileInfos.Clear();
-        GameVersion = "1.5.0.0";
+        GameVersion = "1.5.0.00";
         //versionState = VersionState.UNKNOWN;
     }
 
@@ -463,24 +463,34 @@ public static class Updater
     private static bool CheckHasNewVersion(string strSer, string strLoc)
     {
         Version v1 = new Version(strSer);
-
         Version v2 = new Version(strLoc);
 
-        if(v1.Major <= v2.Major)
+        if (v1.Major > v2.Major)
         {
-            if(v1.Minor <= v2.Minor)
+            return true;
+        }
+        if (v1.Major == v2.Major)
+        {
+            if (v1.Minor > v2.Minor)
             {
-                if(v1.Build <= v2.Build)
+                return true;
+            }
+            if (v1.Minor == v2.Minor)
+            {
+                if (v1.Build > v2.Build)
                 {
-                    if (-1 != v1.Revision && -1 != v2.Revision)
+                    return true;
+                }
+                if (v1.Build == v2.Build)
+                {
+                    if (v1.Revision > v2.Revision)
                     {
-                        if (v1.Revision <= v2.Revision)
-                            return false;
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 
     /// <summary>

@@ -315,7 +315,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     {
                         lblStatus.Text = "error".L10N("UI:Main:error");
                         btnGenerate.Enabled = true;
-                        Stop = false;
+                        btnCancel.Enabled = true;
+                       Stop = false;
                         return;
                     }
                     WindowManager.progress.Report(string.Empty);

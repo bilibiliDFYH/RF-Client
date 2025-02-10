@@ -34,12 +34,12 @@ namespace ClientGUI
         public static Dictionary<string, string> FilePaths = [];
         private static string[] oldSaves;
 
-        
+
         /// <summary>
         /// Starts the main game process.
         /// </summary>
         /// 
-        public static void StartGameProcess(WindowManager windowManager,IniFile iniFile = null)
+        public static void StartGameProcess(WindowManager windowManager, IniFile iniFile = null)
         {
 
             RenderImage.CancelRendering();
@@ -54,6 +54,13 @@ namespace ClientGUI
             spawnerSettingsFile.Delete();
             iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
+            if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")))
+            {
+                WindowManager.progress.Report("正在加载音乐");
+                加载音乐();
+            }
+
+
             File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
             // 加载渲染插件
@@ -63,7 +70,7 @@ namespace ClientGUI
 
             WindowManager.progress.Report("正在唤起游戏");
 
-            
+
 
             Logger.Log("About to launch main game executable.");
 
@@ -83,7 +90,7 @@ namespace ClientGUI
 
             OSVersion osVersion = ClientConfiguration.Instance.GetOperatingSystemVersion();
 
-            
+
             string additionalExecutableName = string.Empty;
 
             string launcherExecutableName = ClientConfiguration.Instance.GameLauncherExecutableName;
@@ -114,7 +121,7 @@ namespace ClientGUI
                 else
                     QResProcess.StartInfo.Arguments = "c=16 /R " + "\"" + SafePath.CombineFilePath(ProgramConstants.GamePath, gameExecutableName) + "\" " + additionalExecutableName + "-SPAWN";
                 QResProcess.EnableRaisingEvents = true;
-               // QResProcess.Exited += new EventHandler(Process_Exited); 
+                // QResProcess.Exited += new EventHandler(Process_Exited); 
 
                 Logger.Log("启动命令: " + QResProcess.StartInfo.FileName);
                 Logger.Log("启动参数: " + QResProcess.StartInfo.Arguments);
@@ -138,7 +145,7 @@ namespace ClientGUI
             else
             {
                 string arguments;
-               
+
                 if (!string.IsNullOrWhiteSpace(extraCommandLine))
                     arguments = " " + additionalExecutableName + "-SPAWN " + extraCommandLine;
                 else
@@ -178,7 +185,7 @@ namespace ClientGUI
                 {
                     StartInfo = info,
                     EnableRaisingEvents = true,
-                    
+
                 };
 
                 // 注册退出事件
@@ -214,7 +221,7 @@ namespace ClientGUI
         static readonly FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
         private static void 加载音乐()
         {
-            Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/",Path.Combine(ProgramConstants.游戏目录,"thememd.mix"));
+            Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", Path.Combine(ProgramConstants.游戏目录, "thememd.mix"));
             if (File.Exists("ra2md.csf"))
             {
                 var d = new CSF("ra2md.csf").GetCsfDictionary();
@@ -245,9 +252,9 @@ namespace ClientGUI
             {
 
                 var iniFile = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
-                var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath,"spawn.ini"));
+                var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath, "spawn.ini"));
                 var game = spawn.GetValue("Settings", "Game", string.Empty);
-              
+
                 var mission = spawn.GetValue("Settings", "Mission", string.Empty);
 
                 var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
@@ -268,27 +275,27 @@ namespace ClientGUI
         }
         public static string 切换文件(IniSection newSection)
         {
-          
-         
+
+
             string newGame = newSection.GetValue("Game", string.Empty);
             string newMission = newSection.GetValue("Mission", string.Empty);
-       
+
 
             var oldSettings = new IniFile(spawnerSettingsFile.FullName);
 
             var oldSection = oldSettings.GetSection("Settings");
 
-          
+
             string oldGame = string.Empty;
             string oldMission = string.Empty;
-          
+
 
             if (oldSection != null)
             {
                 oldGame = oldSection.GetValue("Game", string.Empty);
                 oldMission = oldSection.GetValue("Mission", string.Empty);
             }
-            
+
 
             bool 是否修改()
             {
@@ -308,7 +315,7 @@ namespace ClientGUI
                     if (string.IsNullOrEmpty(fileType.Value) || !Directory.Exists(fileType.Value)) continue;
                     foreach (var file in Directory.GetFiles(fileType.Value))
                     {
-                        if(Path.GetExtension(file) == ".ini") continue;
+                        if (Path.GetExtension(file) == ".ini") continue;
                         if (!value.TryGetValue(file, out var hash)) return true;
 
                         var newHash = file.ComputeHash();
@@ -322,70 +329,74 @@ namespace ClientGUI
             if (是否修改())
             {
                 try
-            {
-                    if(Directory.Exists(ProgramConstants.游戏目录))
-                        Directory.Delete(ProgramConstants.游戏目录, true);
-                Directory.CreateDirectory(ProgramConstants.游戏目录);
-
-                WindowManager.progress.Report("正在加载游戏文件");
-
-                // 加载尤复
-                FileHelper.CopyDirectory(UserINISettings.Instance.YRPath, ProgramConstants.游戏目录);
-
-                File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
-
-                // 加载模组
-                FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
-
-                // 加载任务
-                FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录);
-
-                FilePaths["Game"] = newGame;
-                FilePaths["Mission"] = newMission;
-
-                foreach (var keyValue in FilePaths)
                 {
-                    if (!FileHash.ContainsKey(keyValue.Key))
-                        FileHash.Add(keyValue.Key, []);
+                    if (Directory.Exists(ProgramConstants.游戏目录))
+                        FileHelper.ForceDeleteDirectory(ProgramConstants.游戏目录);
+                    Directory.CreateDirectory(ProgramConstants.游戏目录);
 
-                    if (string.IsNullOrEmpty(keyValue.Value) || !Directory.Exists(keyValue.Value)) continue;
+                    WindowManager.progress.Report("正在加载游戏文件");
 
-                    foreach (var fileName in Directory.GetFiles(keyValue.Value))
+
+                    foreach (var file in ProgramConstants.PureHashes.Keys)
                     {
+                        File.Copy(
+                            Path.Combine(UserINISettings.Instance.YRPath, Path.GetFileName(file)),
+                            Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file))
+                            , true);
+                    }
+                    // 加载尤复
+                    FileHelper.CopyDirectory(UserINISettings.Instance.YRPath, ProgramConstants.游戏目录);
+
+                    File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
+
+                    // 加载模组
+                    FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
+
+                    // 加载任务
+                    FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录);
+
+                    FilePaths["Game"] = newGame;
+                    FilePaths["Mission"] = newMission;
+
+                    foreach (var keyValue in FilePaths)
+                    {
+                        if (!FileHash.ContainsKey(keyValue.Key))
+                            FileHash.Add(keyValue.Key, []);
+
+                        if (string.IsNullOrEmpty(keyValue.Value) || !Directory.Exists(keyValue.Value)) continue;
+
+                        foreach (var fileName in Directory.GetFiles(keyValue.Value))
+                        {
                             if (Path.GetExtension(fileName) == ".ini") continue;
-              
-                        FileHash[keyValue.Key][fileName] = fileName.ComputeHash();
+
+                            FileHash[keyValue.Key][fileName] = fileName.ComputeHash();
                         }
-                }
+                    }
 
-                if (!File.Exists($"{newGame}\\thememd.mix"))
-                {
-                    WindowManager.progress.Report("正在加载音乐");
-                    加载音乐();
-                }
 
-                   
+
+
 
                     File.Copy("LiteExt.dll", Path.Combine(ProgramConstants.游戏目录, "LiteExt.dll"), true);
 
                     if (File.Exists("spawnmap.ini"))
-                        File.Copy("spawnmap.ini",Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"),true);
-                
-                
+                        File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
+
+
 
                     WindowManager.progress.Report("正在加载语音");
-                FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", ProgramConstants.游戏目录);
+                    FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", ProgramConstants.游戏目录);
 
                     return string.Empty;
-            }
+                }
 
-            catch (FileLockedException ex)
-            {
-            //  XNAMessageBox.Show(windowManager, "错误", ex.Message);
-              Logger.Log(ex.Message);
-                return ex.Message;
-            }
-                
+                catch (FileLockedException ex)
+                {
+                    //  XNAMessageBox.Show(windowManager, "错误", ex.Message);
+                    Logger.Log(ex.Message);
+                    return ex.Message;
+                }
+
             }
             return string.Empty;
         }
@@ -396,7 +407,7 @@ namespace ClientGUI
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
             RenderImage.RenderImagesAsync();
-       
+
             proc.Exited -= Process_Exited;
             proc.Dispose();
             GameProcessExited?.Invoke();

@@ -146,9 +146,9 @@ internal sealed class Program
                                 if (!Directory.Exists(p))
                                 {
                                     Directory.CreateDirectory(p);
-                                }
+                                } 
 
-                             
+                                File.SetAttributes(copiedFile.FullName, FileAttributes.Normal);
                                 fileInfo.CopyTo(copiedFile.FullName, true);
                             }
                             catch (Exception ex)

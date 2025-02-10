@@ -179,40 +179,35 @@ namespace DTAConfig
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string targetDirectory = "Resources/thememd"; // 设置目标目录
-
-                // 创建目标目录（如果不存在）
-                Directory.CreateDirectory(targetDirectory);
+                Directory.CreateDirectory(targetDirectory); // 确保目录存在
 
                 var inifile = new IniFile(MusicINI);
 
                 foreach (string sourceFilePath in openFileDialog.FileNames)
                 {
                     string fileName = Path.GetFileName(sourceFilePath);
-                    int name = new Random().Next(0, 100000);
-                    string targetFilePath = Path.Combine(targetDirectory, $"_music{name}.wav");
+                    string uniqueId = Guid.NewGuid().ToString("N"); // 生成唯一文件名
+                    string targetFilePath = Path.Combine(targetDirectory, $"_music{uniqueId}.wav");
 
-                    while (File.Exists(targetFilePath))
-                    {
-                        name = new Random().Next(0, 100000);
-                        targetFilePath = Path.Combine(targetDirectory, $"_music{name}.wav");
-                    }
-
-                    // 转换采样率并保存文件
                     try
                     {
                         using var reader = CreateAudioFileReader(sourceFilePath);
                         var targetFormat = new WaveFormat(22050, 16, reader.WaveFormat.Channels);
-                        using var resampler = new MediaFoundationResampler(reader, targetFormat);
-                        resampler.ResamplerQuality = 60; // 设置重采样质量
+
+                        using var resampler = new MediaFoundationResampler(reader, targetFormat)
+                        {
+                            ResamplerQuality = 60 // 设置重采样质量
+                        };
+
                         WaveFileWriter.CreateWaveFile(targetFilePath, resampler);
                     }
                     catch (Exception ex)
                     {
-                        XNAMessageBox.Show(WindowManager, "转换音频出错", ex.ToString());
+                        XNAMessageBox.Show(WindowManager, "转换音频出错", $"文件: {fileName}\n错误信息: {ex.Message}");
                         continue; // 继续处理下一个文件
                     }
-                    
-                    var section = $"_music{name}";
+
+                    var section = $"_music{uniqueId}";
 
                     inifile.
                         SetValue("Themes", section, section).

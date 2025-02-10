@@ -241,11 +241,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 People = GetPeople(ddPeople.SelectedItem.Text);
 
-                //if (cbDamage.Checked)
-                //{
-                //    Damage = "-d";
-                //}
-
                 var option = new Options(){
                     Width = sizex,
                     Height = sizey,
@@ -263,30 +258,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     输出目录 = ProgramConstants.GamePath + "Maps\\Multi\\Custom\\",
                 };
 
-                
+                try
+                {
+                    随机地图生成.RunOptions(option);
 
-                随机地图生成. RunOptions(option);
-
-
-                //            strCmdText = $"/c cd /d \"{ProgramConstants.游戏目录}Resources\\RandomMapGenerator_RA2\" && " +
-                //    $"RandomMapGenerator.exe -w {sizex} -h {sizey} --nwp {People[0]} --sep {People[1]} --nep {People[2]} --swp {People[3]} --sp {People[4]} --wp {People[5]} --ep {People[6]} --np {People[7]} {Damage} --type {Generate} -g standard && " +
-                //$"cd Map Renderer && CNCMaps.Renderer.exe -i \"{ProgramConstants.游戏目录}Maps/Multi/RandomMap/随机地图.map\" -o 随机地图 -m \"{ProgramConstants.游戏目录.TrimEnd('\\')}\" -Y -z +(1280,0) --thumb-png --bkp";
-
-                //strCmdText = $"-i \"{ProgramConstants.游戏目录}Maps/Multi/Custom/随机地图.map\" -o 随机地图 -m \"{ProgramConstants.游戏目录.TrimEnd('\\')}\" -Y -z +(1280,0) --thumb-png --bkp";
-
-
-                //Console.WriteLine(strCmdText);
-                //var process = new Process();
-                //process.StartInfo.FileName = "Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
-                //process.StartInfo.Arguments = strCmdText;
-                //process.StartInfo.UseShellExecute = false;   //是否使用操作系统shell启动 
-                //process.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值 (不显示程序窗口)
-                //process.Start();
-                //process.WaitForExit();  //等待程序执行完退出进程
-                //process.Close();
-
-                RenderImage.RenderOneImageAsync($"Maps/Multi/Custom/随机地图.map").GetAwaiter().GetResult();
-
+                    RenderImage.RenderOneImageAsync($"Maps/Multi/Custom/随机地图.map").GetAwaiter().GetResult();
+                }
+                catch (Exception ex)
+                {
+                    lblStatus.Text = "error".L10N("UI:Main:error");
+                }
                 Stop = true;
 
             });

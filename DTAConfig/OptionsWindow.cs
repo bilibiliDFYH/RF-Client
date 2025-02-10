@@ -66,7 +66,7 @@ namespace DTAConfig
             tabControl.AddTab("Audio".L10N("UI:DTAConfig:TabAudio"), UIDesignConstants.BUTTON_WIDTH_92);
             tabControl.AddTab("Game".L10N("UI:DTAConfig:TabGame"), UIDesignConstants.BUTTON_WIDTH_92);
             tabControl.AddTab("CnCNet".L10N("UI:DTAConfig:TabCnCNet"), UIDesignConstants.BUTTON_WIDTH_92);
-            tabControl.AddTab("Skin".L10N("UI:DTAConfig:Skin"), UIDesignConstants.BUTTON_WIDTH_92);
+            //tabControl.AddTab("Skin".L10N("UI:DTAConfig:Skin"), UIDesignConstants.BUTTON_WIDTH_92);
             tabControl.AddTab("Updater".L10N("UI:DTAConfig:TabUpdater"), UIDesignConstants.BUTTON_WIDTH_92);
             tabControl.AddTab("创意工坊", UIDesignConstants.BUTTON_WIDTH_92);
             tabControl.AddTab("创作者", UIDesignConstants.BUTTON_WIDTH_92);
@@ -108,7 +108,7 @@ namespace DTAConfig
                 new AudioOptionsPanel(WindowManager, UserINISettings.Instance),                     //1 "音频"页面
                 new GameOptionsPanel(WindowManager, UserINISettings.Instance, topBar),              //2 "游戏"页面
                 new CnCNetOptionsPanel(WindowManager, UserINISettings.Instance, gameCollection),    //3 "CnCNet"页面
-                new LocalSkinPanel(WindowManager, UserINISettings.Instance),                        //4 "皮肤"页面
+//                new LocalSkinPanel(WindowManager, UserINISettings.Instance),                        //4 "皮肤"页面
                 updaterOptionsPanel,                                                                //5 "更新器"页面
                 componentsPanel,                                                                    //6 "工坊"页面
                 new UserOptionsPanel(WindowManager, UserINISettings.Instance)                       //7 "创作"页面
@@ -118,7 +118,7 @@ namespace DTAConfig
             //  Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
 
             if (ClientConfiguration.Instance.ModMode || null == NetWorkINISettings.Instance || NetWorkINISettings.Instance.UpdaterServers.Count < 1)
-                tabControl.MakeUnselectable(5);
+                tabControl.MakeUnselectable(4);
             RefreshUI_TabItemState();
 
             foreach (var panel in optionsPanels)
@@ -142,12 +142,12 @@ namespace DTAConfig
 
         public void RefreshUI_TabItemState()
         {
-            if(!tabControl.IsSelectable(5))
+            if(!tabControl.IsSelectable(4))
             {
                 if (!ClientConfiguration.Instance.ModMode && null != NetWorkINISettings.Instance && NetWorkINISettings.Instance.UpdaterServers.Count > 0)
                 {
-                    tabControl.MakeSelectable(5);
-                    optionsPanels[5].Load();
+                    tabControl.MakeSelectable(4);
+                    optionsPanels[4].Load();
                 }
             }
 

@@ -54,6 +54,51 @@ namespace ClientCore
             }
         }
 
+        public static void ForceDeleteDirectory(string targetDir)
+        {
+            if (!Directory.Exists(targetDir))
+                return;
+
+            // 移除文件的只读属性并删除文件
+            foreach (string file in Directory.GetFiles(targetDir))
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            // 递归处理子目录
+            foreach (string dir in Directory.GetDirectories(targetDir))
+            {
+                ForceDeleteDirectory(dir);
+            }
+
+            // 移除目录的只读属性并删除空目录
+            try
+            {
+                Directory.Delete(targetDir, false);
+            }
+            catch (IOException)
+            {
+                // 处理可能的异常，如目录非空（理论上不应发生）
+                File.SetAttributes(targetDir, FileAttributes.Normal);
+                Directory.Delete(targetDir, false);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                File.SetAttributes(targetDir, FileAttributes.Normal);
+                Directory.Delete(targetDir, false);
+            }
+        }
+
+        public static void ForceMoveFile(string sourceFile, string destFile)
+        {
+            if (File.Exists(destFile))
+            {
+                File.SetAttributes(destFile, FileAttributes.Normal);
+                File.Delete(destFile);
+            }
+            File.Move(sourceFile, destFile,true);
+        }
 
         public static void ReNameCustomFile(bool Online = false)
         {

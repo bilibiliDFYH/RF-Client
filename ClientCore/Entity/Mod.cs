@@ -24,7 +24,6 @@ public class Mod : InfoBaseClass
             SetValue(ID, "CpVisible", CpVisible).
             SetValue(ID, "Compatible", Compatible).
             SetValue(ID, "YR", md.Equals("md")).
-            SetValue(ID, "Colors", Colors).
             SetValue(ID, "Sides", Countries).
             SetValue(ID, "Author", Author).
             SetValue(ID, "RandomSides", RandomSides);
@@ -33,10 +32,12 @@ public class Mod : InfoBaseClass
         {
             iniFile.SetValue(ID, $"RandomSidesIndex{i+1}", RandomSidesIndexs[i]);
         }
+        if (Colors != null)
+            iniFile.SetValue(ID, "Colors", Colors);
 
-        //if (Countries.Length < 9) iniFile.SetValue(ID, "RandomSides", string.Empty);
+//if (Countries.Length < 9) iniFile.SetValue(ID, "RandomSides", string.Empty);
 
-        iniFile.WriteIniFile();
+iniFile.WriteIniFile();
     }
 
     /// <summary>
@@ -58,7 +59,6 @@ public class Mod : InfoBaseClass
             { "国家列表", Countries },
             { "随机国家列表", RandomSides },
             { "注册于", FileName },
-            { "可以额外选择的颜色数" , Colors.ToString() }
         };
 
         return properties;
@@ -139,7 +139,7 @@ public class Mod : InfoBaseClass
                 mod.CpVisible = iniFile.GetValue(modID, "CpVisible", true);
 
 
-                mod.Colors = iniFile.GetValue(modID, "Colors", string.Empty);
+                mod.Colors = iniFile.GetValue<string>(modID, "Colors", null);
 
                 HashSet<string> modSet = [];
 

@@ -43,8 +43,8 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         public static List<MultiplayerColor> LoadColors(List<string> newColors = null)
         {
-            if (colorList != null && newColors == null)
-                return new List<MultiplayerColor>(colorList);
+            //if (colorList != null && newColors == null)
+            //    return new List<MultiplayerColor>(colorList);
 
             IniFile gameOptionsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), "GameOptions.ini"));
 

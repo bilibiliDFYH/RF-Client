@@ -309,6 +309,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             cmbGame = FindChild<GameLobbyDropDown>(nameof(cmbGame));
 
+            foreach(var mod in Mod.Mods)
+            {
+                cmbGame.AddItem(new XNADropDownItem()
+                {
+                    Text = mod.Name,
+                    Tag = mod
+                });
+            }
+
             cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
 
             cmbGame.RightClick += (s, e) => ModMenu.Open(GetCursorPoint());
@@ -551,7 +560,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
 
-            MPColors = MultiplayerColor.LoadColors(mod.Colors.Split('|').ToList());
+            MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());
             string randomColor = GameOptionsIni.GetStringValue("General", "RandomColor", "255,255,255");
             if(ddPlayerColors != null)
             foreach (var ddPlayerColor in ddPlayerColors)
@@ -570,6 +579,42 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 ddPlayerColor.Tag = false;
             }
 
+            string[] sides = mod.Countries.Split(',');
+            var RandomSides = mod.RandomSides.Split(',');
+
+            SideCount = sides.Length;
+            RandomSelectorCount = RandomSides.Length + 1;
+            MapPreviewBox.RandomSelectorCount = RandomSelectorCount;
+            if (ddPlayerSides!=null)
+            foreach (var ddSide in ddPlayerSides)
+            {
+                ddSide.Items.Clear();
+                ddSide.AddItem("Random".L10N("UI:Main:Random"), LoadTextureOrNull("Randomicon.png"));
+                RandomSelectors.Clear();
+                for (int i = 0; i < RandomSides.Length; i++)
+                {
+                    RandomSelectors.Add(Array.ConvertAll(mod.RandomSidesIndexs[i].Split(','), int.Parse));
+
+                        var iconPath = Path.Combine(mod.FilePath, "Resources", RandomSides[i] + "icon.png");
+                        if (!File.Exists(iconPath))
+                            iconPath = RandomSides[i] + "icon.png";
+
+                        ddSide.AddItem(RandomSides[i].L10N($"UI:Side:{RandomSides[i]}"), LoadTextureOrNull(iconPath));
+                }
+
+                for (int i = count; i < sides.Length + count; i++)
+                {
+                        var iconPath = Path.Combine(mod.FilePath, "Resources", sides[i - count] + "icon.png");
+                        if (!File.Exists(iconPath))
+                            iconPath = sides[i - count] + "icon.png";
+
+                        ddSide.AddItem(sides[i - count].L10N($"UI:Side:{sides[i - count]}"), LoadTextureOrNull(iconPath));
+
+                }
+                ddSide.AddItem("spectator".L10N("UI:Main:spectator"), LoadTextureOrNull("spectatoricon.png"));
+            }
+
+            MapPreviewBox.SetFields(Players, AIPlayers, MPColors, GameOptionsIni.GetStringValue("General", "Sides", string.Empty).Split(','), GameOptionsIni);
             //cmbGame.AllowDropDown = false;
         }
 
@@ -1700,94 +1745,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <returns>A list of disallowed side indexes.</returns>
         protected bool[] GetDisallowedSides()
         {
-            string[] sides = null;
-            List<string> selectorNames = new List<string>();
-            RandomSelectors.Clear();
-            string[,] Randomside = null;
-            int count = 0;
-            foreach (var dropDown in DropDowns)
-            {
-
-                if (dropDown.SetSides() != null)
-                {
-                    sides = dropDown.SetSides();
-
-                }
-
-            }
-
-            if (sides != null)
-            {
-
-                foreach (var dropDown in DropDowns)
-                {
-                    if (dropDown.Name == "cmbGame")
-                        Randomside = dropDown.SetRandomSelectors();
-
-                }
-                if (Randomside != null)
-                {
-
-                    count = Randomside.GetLength(0);
-
-                    MapPreviewBox.RandomSelectorCount = count;
-
-                }
-                RandomSelectorCount = count + 1;
-                SideCount = sides.Length;
-            }
-            else
-            {
-
-                sides = GameOptionsIni.GetStringValue("General", "Sides", String.Empty).Split(',');
-                GetRandomSelectors(selectorNames, RandomSelectors);
-                RandomSelectorCount = RandomSelectors.Count + 1;
-                count = RandomSelectors.Count;
-                Randomside = new string[selectorNames.Count, 2];
-                for (int i = 0; i < selectorNames.Count; i++)
-                {
-                    Randomside[i, 0] = selectorNames[i];
-
-                    Randomside[i, 1] = string.Join(",", RandomSelectors[i]);
-
-                }
-                SideCount = sides.Length;
-            }
-
-
-
-            foreach (var ddSide in ddPlayerSides)
-            {
-                ddSide.Items.Clear();
-                ddSide.AddItem("Random".L10N("UI:Main:Random"), LoadTextureOrNull("Randomicon.png"));
-                RandomSelectors.Clear();
-                for (int i = 0; i < count; i++)
-                {
-                    RandomSelectors.Add(Array.ConvertAll(Randomside[i, 1].Split(','), int.Parse));
-                    ddSide.AddItem(Randomside[i, 0].L10N($"UI:Side:{Randomside[i, 0]}"), LoadTextureOrNull(Randomside[i, 0] + "icon.png"));
-                }
-
-                for (int i = count; i < sides.Length + count; i++)
-                {
-                    ddSide.AddItem(sides[i - count].L10N($"UI:Side:{sides[i - count]}"), LoadTextureOrNull(sides[i - count] + "icon.png"));
-
-                }
-                ddSide.AddItem("spectator".L10N("UI:Main:spectator"), LoadTextureOrNull("spectatoricon.png"));
-                //if (ddSide.SelectedItem == null)
-                //    ddSide.SelectedIndex = 0;
-            }
-
-            //foreach(var ddcolor in ddPlayerColors)
-            //{
-            //    if (ddcolor.SelectedItem == null)
-            //        ddcolor.SelectedIndex = 0;
-            //}
-
-            //foreach(var ddSide in ddPlayerSides)
-            //{
-            //    if (ddSide.SelectedItem == null)
-            //        ddSide.SelectedIndex = 0;
-            //}
 
             var returnValue = new bool[SideCount];
 
@@ -1919,15 +1876,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             
 
             string newExtension = string.Empty;
-
-        
-
-            /**
-            [] = []
-            [Ares] = Ares
-            [Ares,Ares2] = [Ares3,Ares2] [Ares2]
-            [Ares2,Ares3] = []
-             **/
 
             string newMission = Map.Mission;
 

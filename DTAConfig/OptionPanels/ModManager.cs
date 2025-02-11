@@ -676,12 +676,15 @@ public class ModManager : XNAWindow
 
         var Countries = string.Empty;
         var RandomSides = string.Empty;
+        var Colors = string.Empty;
+
         List<string> RandomSidesIndexs = [];
 
         if (File.Exists(GameOptionsPath)){
             var ini = new IniFile(GameOptionsPath);
             if (ini.SectionExists("General"))
                 Countries = ini.GetValue("General", "Sides", string.Empty);
+
             if (ini.SectionExists("RandomSelectors"))
             {
                 foreach (var key in ini.GetSectionKeys("RandomSelectors"))
@@ -692,6 +695,11 @@ public class ModManager : XNAWindow
                     RandomSidesIndexs.Add(value);
                 }
                 RandomSides = RandomSides.TrimEnd(',');
+            }
+
+            if (ini.SectionExists("MPColors"))
+            {
+                Colors = string.Join("|", ini.GetSectionValues("MPColors"));
             }
         }
 
@@ -711,13 +719,17 @@ public class ModManager : XNAWindow
 
         if (Countries != string.Empty)
             mod.Countries = Countries;
+
         if (RandomSides != string.Empty && RandomSidesIndexs.Count != 0)
         {
             mod.RandomSides = RandomSides;
             mod.RandomSidesIndexs = RandomSidesIndexs;
         }
 
-        if(copyFile)
+        if (Colors != string.Empty)
+            mod.Colors = Colors;
+
+        if (copyFile)
             整合Mod文件(path, mod, deepImport);
 
         mod.Create(); //写入INI文件
@@ -936,7 +948,7 @@ public class ModManager : XNAWindow
 
             删除任务包(missionPack);
         }
-        else if (DDModAI.SelectedIndex == 1)
+        else if (DDModAI.SelectedIndex == 0)
         {
             if (ListBoxModAi.SelectedItem.Tag is not Mod mod) return;
 
@@ -954,8 +966,6 @@ public class ModManager : XNAWindow
             xNAMessageBox.YesClickedAction += (_) => DelMod(mod);
             xNAMessageBox.Show();
         }
-
-
     }
 
     public void 删除任务包(MissionPack missionPack)
@@ -1045,7 +1055,8 @@ public class ModManager : XNAWindow
         }
         try
         {
-            Directory.Delete(mod.FilePath, true);
+            if(mod.FilePath.Contains("Mod&AI/Mod"))
+                Directory.Delete(mod.FilePath, true);
         }
         catch
         {

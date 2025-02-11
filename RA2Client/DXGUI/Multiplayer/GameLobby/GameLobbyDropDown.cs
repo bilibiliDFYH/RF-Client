@@ -116,43 +116,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     }
                     return;
 
-                case "Mod":
-
-                    if (Name == "cmbGame")
-                    {
-
-                        List<Mod> mods = Mod.Mods.Where(mod => mod.MuVisible == true).ToList();
-                        Sides = mods
-                        .Select(mod => mod.Countries)
-                        .ToList();
-                        RandomSelectors = mods.Select(mod => mod.RandomSides).ToList();
-                        RandomSidesIndex = mods.Select(mod => mod.RandomSidesIndexs).ToList();
-                        items = mods.Select(mod => mod.INI).ToArray();
-                        itemlabels = mods.Select(mod => mod.Name).ToArray();
-                        for (int i = 0; i < items.Length; i++)
-                        {
-                            XNADropDownItem item = new XNADropDownItem();
-                            if (itemlabels.Length > i && !String.IsNullOrEmpty(itemlabels[i]))
-                            {
-                                item.Text = itemlabels[i].L10N("UI:GameOption:" + itemlabels[i]);
-
-                                if (items.Length == mods.Count())
-                                {
-
-                                    item.Tag = mods[i];
-
-                                }
-                                else
-                                    item.Tag = items[i];
-                            }
-                            else
-                                item.Text = items[i];
-                            AddItem(item);
-                        }
-                    }
- 
-                    return;
-
                 case "Special":
                     Special = bool.Parse(value);
                     break;
@@ -291,55 +254,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     disallowedArray[sideNotAllowed[j]] = true;
             }
         }
-        public string[] SetSides()
-        {
-
-            if (Sides != null && Sides.Count > SelectedIndex && !string.IsNullOrEmpty(Sides[SelectedIndex]))
-            {
-              
-                return Sides[SelectedIndex].Split(',');
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public string[,] SetRandomSelectors()
-        {
-
-            if (RandomSelectors.Count != 0 && RandomSelectors.Count > SelectedIndex)
-            {
-                RandomSides = RandomSelectors[SelectedIndex].Split(',');
-                
-
-            }
-            
-            if (RandomSides != null && RandomSelectors.Count > SelectedIndex)
-            {
-               
-                string[,] list = new string[RandomSides.Length, 2];
-                for (int i = 0; i < RandomSides.Length; i++)
-                {
-                    list[i, 0] = RandomSides[i];
-                    
-                    if (RandomSidesIndex != null && RandomSidesIndex.Count > SelectedIndex)
-                    {
-                        //Console.WriteLine(SelectedIndex);
-                        //Console.WriteLine(i);
-                       
-                        list[i, 1] = RandomSidesIndex[SelectedIndex][i];
-                    }
-                    else
-                        list[i, 1] = string.Empty;
-
-                }
-                
-                return list;
-            }
-            else return null;
-        }
-
 
     }
 

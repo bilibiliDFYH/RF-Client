@@ -21,6 +21,7 @@ using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics.Eventing.Reader;
+using ClientCore.Settings;
 
 namespace DTAConfig.OptionPanels;
 
@@ -44,7 +45,7 @@ public class ModManager : XNAWindow
     public override void Initialize()
     {
         base.Initialize();
-        
+
         ClientRectangle = new Rectangle(0, 0, 750, 384);
         CenterOnParent();
 
@@ -63,8 +64,8 @@ public class ModManager : XNAWindow
             ClientRectangle = new Rectangle(25, 30, 200, 40)
         };
 
-        DDModAI.AddItem(["Mod","任务包"]);
-        
+        DDModAI.AddItem(["Mod", "任务包"]);
+
         AddChild(DDModAI);
 
         _modMenu = new XNAContextMenu(WindowManager);
@@ -86,8 +87,9 @@ public class ModManager : XNAWindow
             Text = "删除",
             SelectAction = () => BtnDel.OnLeftClick()
         });
-        _modMenu.AddItem(new XNAContextMenuItem 
-        { Text = "编辑CSF", 
+        _modMenu.AddItem(new XNAContextMenuItem
+        {
+            Text = "编辑CSF",
             SelectAction = EditCsf
         });
 
@@ -106,14 +108,14 @@ public class ModManager : XNAWindow
 
             if (ListBoxModAi.SelectedIndex == -1 || DDModAI.SelectedIndex == 1)
                 return;
-           
+
             var filePath = ((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).FilePath;
 
             // 没有csf
             if (Directory.Exists(filePath) && Directory.GetFiles(filePath, "*.csf").Length == 0)
             {
                 _modMenu.Items[2].Visible = false;
-                
+
             }
             else
             {
@@ -129,10 +131,10 @@ public class ModManager : XNAWindow
             ClientRectangle = new Rectangle(ListBoxModAi.X + ListBoxModAi.Width + 20, ListBoxModAi.Y, 420, ListBoxModAi.Height),
             LineHeight = 25,
             FontIndex = 2
-        }.AddColumn("属性", 160).AddColumn("信息", 260) ;
+        }.AddColumn("属性", 160).AddColumn("信息", 260);
 
         _mcListBoxInfo.SelectedIndexChanged += McListBoxInfoSelectedIndexChanged;
-           
+
         AddChild(_mcListBoxInfo);
 
         DDModAI.SelectedIndexChanged += DDModAI_SelectedIndexChanged;
@@ -141,7 +143,7 @@ public class ModManager : XNAWindow
         {
             Text = "选择可查看详细信息"
         };
-        
+
         _btnReturn = new XNAClientButton(WindowManager)
         {
             Text = "确定",
@@ -171,12 +173,12 @@ public class ModManager : XNAWindow
             Text = "刷新",
             ClientRectangle = new Rectangle(BtnDel.X + 120, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
-        btnReload.LeftClick += (_,_) => ReLoad();
+        btnReload.LeftClick += (_, _) => ReLoad();
         AddChild(btnReload);
 
         Enabled = false;
 
-     //   EnabledChanged += ModManager_EnabledChanged;
+        //   EnabledChanged += ModManager_EnabledChanged;
 
         ReLoad();
     }
@@ -187,7 +189,7 @@ public class ModManager : XNAWindow
         if (!File.Exists(csfPath))
             csfPath = Path.Combine(ProgramConstants.GamePath, "ra2md.csf");
         var csf = new CSF(csfPath);
-        var editCSFWindows = new EditCSFWindows(WindowManager, _tooltip,csf);
+        var editCSFWindows = new EditCSFWindows(WindowManager, _tooltip, csf);
         editCSFWindows.Show();
 
     }
@@ -226,59 +228,79 @@ public class ModManager : XNAWindow
         ListBoxModAi.SelectedIndex = 0;
     }
 
+    
+
     /// <summary>
     /// 复制Mod文件
     /// </summary>
     /// <param name="modPath">mod原路径</param>
     /// <param name="mod">mod信息</param>
-    private void 整合Mod文件(string modPath,Mod mod,bool covCsf)
+    private void 整合Mod文件(string modPath, Mod mod,bool deepImport = false)
     {
         #region 导入Mod文件
 
         //提取Mod文件
-        if(!Directory.Exists(mod.FilePath))
+        if (!Directory.Exists(mod.FilePath))
             Directory.CreateDirectory(mod.FilePath);
+
+        void CopyFiles(string sourceDir, string targetDir,bool needRecursion = false)
+    {
+        // 复制当前目录下的文件
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var fileName = Path.GetFileName(file);
+            var extension = Path.GetExtension(file);
+
+            // 排除特定文件
+            if (!needRecursion && (extension == ".map" || extension == ".png" || extension == ".jpg" || extension == ".pdb"))
+                continue;
+
+            // 检查文件哈希值并决定是否复制
+            if (ProgramConstants.PureHashes.ContainsKey(fileName) &&
+                ProgramConstants.PureHashes[fileName] == Utilities.CalculateSHA1ForFile(file))
+                continue;
+
+            // 目标路径
+            var targetFilePath = Path.Combine(targetDir, fileName);
+            File.Copy(file, targetFilePath, overwrite: true);
+        }
+
+        if(needRecursion)
+        // 递归处理子目录
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            var dirName = Path.GetFileName(dir);
+            var targetSubDir = Path.Combine(targetDir, dirName);
+
+            // 如果目标子目录不存在，创建它
+            if (!Directory.Exists(targetSubDir))
+            {
+                Directory.CreateDirectory(targetSubDir);
+            }
+
+            // 递归复制子目录中的文件
+            CopyFiles(dir, targetSubDir);
+        }
+    }
 
         try
         {
-            FileHelper.CopyDirectory(modPath, mod.FilePath);
+            CopyFiles(modPath, mod.FilePath, deepImport);
 
-            //提取CSF文件
-            foreach (var csf in Directory.GetFiles(modPath, "*.csf"))
-            {
-                if (covCsf)
-                {
-                    var d = new CSF(csf).GetCsfDictionary();
-
-                    if (d == null)
-                    {
-                        File.Copy(csf, Path.Combine(mod.FilePath, Path.GetFileName(csf)), true);
-                    }
-                    else
-                    {
-                        d.ConvertValuesToSimplified();
-                        CSF.WriteCSF(d, Path.Combine(mod.FilePath, Path.GetFileName(csf).Equals("ra2.csf", StringComparison.OrdinalIgnoreCase) ? "ra2md.csf" : Path.GetFileName(csf)));
-                    }
-                }
-                else
-                    File.Copy(csf, Path.Combine(mod.FilePath, Path.GetFileName(csf).Equals("ra2.csf", StringComparison.OrdinalIgnoreCase) ? "ra2md.csf" : Path.GetFileName(csf)), true);
-
-            }
+            // FileHelper.CopyDirectory(modPath, mod.FilePath);
 
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
         }
-       
-        mod.Create(); //写入INI文件
 
         #endregion
     }
 
     private static void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf)
     {
-        if(!Directory.Exists(missionPack.FilePath))
+        if (!Directory.Exists(missionPack.FilePath))
             Directory.CreateDirectory(missionPack.FilePath);
 
         if (Directory.Exists($"Mod&AI/Mod/{missionPack.ID}"))
@@ -287,7 +309,7 @@ public class ModManager : XNAWindow
                 .ForEach(file => File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true));
 
         foreach (var file in Directory.GetFiles(MissionPackPath, "*.map"))
-            File.Copy(file,Path.Combine(missionPack.FilePath,Path.GetFileName(file)),true);
+            File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true);
 
         foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
         {
@@ -317,7 +339,7 @@ public class ModManager : XNAWindow
         }
 
         if (File.Exists(Path.Combine(MissionPackPath, "missionmd.ini")))
-            File.Copy(Path.Combine(MissionPackPath, "missionmd.ini"), Path.Combine(missionPack.FilePath, "missionmd.ini"),true);
+            File.Copy(Path.Combine(MissionPackPath, "missionmd.ini"), Path.Combine(missionPack.FilePath, "missionmd.ini"), true);
         if (File.Exists(Path.Combine(MissionPackPath, "mapselmd.ini")))
             File.Copy(Path.Combine(MissionPackPath, "mapselmd.ini"), Path.Combine(missionPack.FilePath, "mapselmd.ini"), true);
         if (File.Exists(Path.Combine(MissionPackPath, "game.fnt")))
@@ -389,16 +411,16 @@ public class ModManager : XNAWindow
                     {
                         id = r;
                         mapFiles.AddRange(Directory.GetFiles($"maps/cp/{id}", "*.map"));
-                    } 
+                    }
 
 
                 }
             }
         }
         // 如果路径本身不符合任务包，才检查其子目录
-        
-        
-        if(id == string.Empty)
+
+
+        if (id == string.Empty)
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
             return "没有找到任务包文件";
@@ -439,11 +461,11 @@ public class ModManager : XNAWindow
 
         missionPack.DefaultMod = missionPack.Mod;
 
-        if (导入具体Mod(missionPath, isYR, false) != string.Empty) //说明检测到Mod
-        {
-            missionPack.Mod += "," + id;
-            missionPack.DefaultMod = id;
-        }
+        //if (导入具体Mod(missionPath, isYR, false) != string.Empty) //说明检测到Mod
+        //{
+        //    missionPack.Mod += "," + id;
+        //    missionPack.DefaultMod = id;
+        //}
 
         整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
 
@@ -482,25 +504,26 @@ public class ModManager : XNAWindow
             添加默认地图("Nod");
         }
 
-        void 添加默认地图(string typeName){
+        void 添加默认地图(string typeName)
+        {
             var GDI = mapSelINI.GetSection(typeName);
             if (GDI == null) return;
-            
+
             var keys = mapSelINI.GetSectionKeys(typeName);
-            foreach(var key in keys)
+            foreach (var key in keys)
             {
                 var sectionName = mapSelINI.GetValue(typeName, key, string.Empty);
-                if(sectionName == string.Empty) continue;
+                if (sectionName == string.Empty) continue;
 
                 var map = mapSelINI.GetValue(sectionName, "Scenario", string.Empty);
                 if (map == string.Empty) continue;
 
-                if(mapSelINIPath == "Resources//mapselmd.ini" && missionINIPath == "Resources//missionmd.ini")
-                if ((map.ToLower().EndsWith("md.map") && !missionPack.YR) || !map.ToLower().EndsWith("md.map") && missionPack.YR) continue;
+                if (mapSelINIPath == "Resources//mapselmd.ini" && missionINIPath == "Resources//missionmd.ini")
+                    if ((map.ToLower().EndsWith("md.map") && !missionPack.YR) || !map.ToLower().EndsWith("md.map") && missionPack.YR) continue;
 
                 maps.Add(map);
             }
-            
+
         }
 
         var count = 1;
@@ -511,7 +534,7 @@ public class ModManager : XNAWindow
             var mapName = Path.GetFileName(map);
 
             var sectionName = missionPack.ID + count;
-            
+
             if (!battleINI.SectionExists(sectionName))
                 battleINI.AddSection(sectionName);
 
@@ -542,7 +565,7 @@ public class ModManager : XNAWindow
 
     }
 
-    private bool 判断是否为Mod(string path,bool isYR)
+    private bool 判断是否为Mod(string path, bool isYR)
     {
         var md = isYR ? "md" : string.Empty;
 
@@ -558,7 +581,7 @@ public class ModManager : XNAWindow
             .ToArray();
 
         var inis = Directory.GetFiles(path, $"*.ini")
-            .Where(file => 
+            .Where(file =>
             Path.GetFileName(file) != $"battle{md}.ini" &&
                     Path.GetFileName(file) != $"mapsel{md}.ini" &&
                     Path.GetFileName(file) != $"ai{md}.ini" &&
@@ -578,23 +601,16 @@ public class ModManager : XNAWindow
     private static bool 判断是否为尤复(string path)
     {
         string[] YRFiles = ["gamemd.exe", "RA2MD.CSF", "expandmd01.mix", "rulesmd.ini", "artmd.ini", "glsmd.shp"];
-        
+
         return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*md.map").Length != 0;
     }
 
-    private string 导入Mod(string filePath,bool reload = true)
+    private string 导入Mod(bool copyFile,bool deepImport,string filePath)
     {
-        return "敬请期待";
 
         var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".exe" && 后缀 != ".7z" && 后缀 != ".ini" && 后缀 != ".mix")
-        {
-            if(reload)
-                XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
-            return "";
-        }
 
-        var path = Path.GetDirectoryName(filePath);
+        var path = filePath;
         if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
         {
             var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
@@ -609,64 +625,102 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
             return string.Empty;
         }
-        
-        List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
-        foreach (var item in list)
+
+        //List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
+        //foreach (var item in list)
+        //{
+        //    if (判断是否为Mod(item, 判断是否为尤复(item)))
+        //    {
+        //        var r = 导入具体Mod(item, reload);
+        //        if (r != string.Empty)
+        //        {
+        //            id = r;
+        //        }
+        //    }
+
+        //}
+
+        if (!判断是否为尤复(path))
         {
-            if (判断是否为Mod(item, 判断是否为尤复(item)))
+            XNAMessageBox.Show(WindowManager, "错误", "抱歉,暂时不支持导入原版模组,请等待后续更新支持.");
+            return "抱歉,暂时不支持导入原版模组,请等待后续更新支持.";
+        }
+
+        if (判断是否为Mod(path, true))
+        {
+            var r = 导入具体Mod(path, copyFile,deepImport,true);
+            if (r != string.Empty)
             {
-                var r = 导入具体Mod(item, reload);
-                if (r != string.Empty)
-                {
-                    id = r;
-                }
+                id = r;
             }
-                
-        }
-        
-
-        if (id == string.Empty)
-        {
-            if (reload)
-                XNAMessageBox.Show(WindowManager, "错误", "请选择Mod文件");
-            return "";
         }
 
-
-        if (reload)
-        {
-            ReLoad();
-            触发刷新?.Invoke();
-        }
+        ReLoad();
+        触发刷新?.Invoke();
+   
 
         return id;
 
     }
 
-    private string 导入具体Mod(string path,bool? isYR = null,bool reload = true)
+    private string 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR)
     {
-        return "敬请期待";
+        
+        var md = isYR ? "md" : string.Empty;
 
-        isYR ??= 判断是否为尤复(path);
-        var md = isYR.GetValueOrDefault() ? "md" : string.Empty;
-
-        if(!判断是否为Mod(path, isYR.GetValueOrDefault())) return "";
+        if (!判断是否为Mod(path, isYR)) return "";
 
         var id = Path.GetFileName(path);
 
+        var GameOptionsPath = Path.Combine(path, "Resources/GameOptions.ini");
+
+        var Countries = string.Empty;
+        var RandomSides = string.Empty;
+        List<string> RandomSidesIndexs = [];
+
+        if (File.Exists(GameOptionsPath)){
+            var ini = new IniFile(GameOptionsPath);
+            if (ini.SectionExists("General"))
+                Countries = ini.GetValue("General", "Sides", string.Empty);
+            if (ini.SectionExists("RandomSelectors"))
+            {
+                foreach (var key in ini.GetSectionKeys("RandomSelectors"))
+                {
+                    var value = ini.GetValue("RandomSelectors", key, string.Empty);
+                    if (value == string.Empty) continue;
+                    RandomSides += key + ',';
+                    RandomSidesIndexs.Add(value);
+                }
+                RandomSides = RandomSides.TrimEnd(',');
+            }
+        }
 
 
         var mod = new Mod
         {
             ID = id,
-            FilePath = $"Mod&AI\\Mod\\{id}",
             Name = Path.GetFileName(path),
             md = md,
-            MuVisible = reload
+            MuVisible = true,
         };
 
-        整合Mod文件(path, mod,UserINISettings.Instance.SimplifiedCSF.Value);
+        if (copyFile)
+            mod.FilePath = $"Mod&AI\\Mod\\{id}";
+        else
+            mod.FilePath = path;
 
+        if (Countries != string.Empty)
+            mod.Countries = Countries;
+        if (RandomSides != string.Empty && RandomSidesIndexs.Count != 0)
+        {
+            mod.RandomSides = RandomSides;
+            mod.RandomSidesIndexs = RandomSidesIndexs;
+        }
+
+        if(copyFile)
+            整合Mod文件(path, mod, deepImport);
+
+        mod.Create(); //写入INI文件
         return id;
     }
 
@@ -732,7 +786,7 @@ public class ModManager : XNAWindow
         var missionMix = false;
         var csfExist = false;
 
-        if(!Directory.Exists(pack.FilePath))
+        if (!Directory.Exists(pack.FilePath))
         {
             XNAMessageBox.Show(WindowManager, "信息", $"任务包路径{pack.FilePath}不存在！");
             return;
@@ -776,8 +830,8 @@ public class ModManager : XNAWindow
 
     private async Task RenderPreviewImageAsync(string[] mapFiles)
     {
-        
-        if(mapFiles.Length == 0) return;
+
+        if (mapFiles.Length == 0) return;
 
         //var messageBox = new XNAMessage(WindowManager);
 
@@ -801,9 +855,9 @@ public class ModManager : XNAWindow
 
         //RenderImage.RenderCompleted += RenderCompletedHandler;
 
-   //     RenderImage.RenderImagesAsync();
+        //     RenderImage.RenderImagesAsync();
 
-        RenderImage.需要渲染的地图列表.InsertRange(0,mapFiles);
+        RenderImage.需要渲染的地图列表.InsertRange(0, mapFiles);
         RenderImage.CancelRendering();
         _ = RenderImage.RenderImagesAsync();
     }
@@ -819,33 +873,48 @@ public class ModManager : XNAWindow
         //    return;
         //var missionPath = folderBrowser.SelectedPath;
 
-        var openFileDialog = new OpenFileDialog
+        //var openFileDialog = new OpenFileDialog
+        //{
+        //    Title = "请选择文件夹或压缩包",
+        //    Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.file)|*.zip;*.rar;*.7z;*.map;*.file|所有文件 (*.*)|*.*", // 限制选择的文件类型
+        //    CheckFileExists = true,   // 检查文件是否存在
+        //    ValidateNames = true,     // 验证文件名
+        //    Multiselect = false       // 不允许多选
+        //};
+
+        //if (openFileDialog.ShowDialog() != DialogResult.OK)
+        //    return;
+        
+
+
+        
+
+        var infoWindows = new 导入选择窗口(WindowManager);
+
+        infoWindows.selected += (b1, b2, path) =>
         {
-            Title = "请选择文件夹或压缩包",
-            Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.file)|*.zip;*.rar;*.7z;*.map;*.file|所有文件 (*.*)|*.*", // 限制选择的文件类型
-            CheckFileExists = true,   // 检查文件是否存在
-            ValidateNames = true,     // 验证文件名
-            Multiselect = false       // 不允许多选
+            if (DDModAI.SelectedIndex == 0)
+                导入Mod(b1, b2, path);
+            // if (DDModAI.SelectedIndex == 2)
+            //  导入任务包(b1, b2, path);
         };
 
-        if (openFileDialog.ShowDialog() != DialogResult.OK)
-            return;
+        var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
 
-        if (DDModAI.SelectedIndex == 0)
-            导入Mod(openFileDialog.FileName);
-        if (DDModAI.SelectedIndex == 2)
-            导入任务包(openFileDialog.FileName);
+        
+
+        
     }
 
     private void ReLoad()
     {
         Mod.reLoad();
-       
+
         MissionPack.reLoad();
 
-       // listBoxModAI.Clear();
+        // listBoxModAI.Clear();
 
-        DDModAI_SelectedIndexChanged(DDModAI,null);
+        DDModAI_SelectedIndexChanged(DDModAI, null);
 
 
         LoadModInfo();
@@ -855,11 +924,11 @@ public class ModManager : XNAWindow
     {
         if (!((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).CanDel)
         {
-            XNAMessageBox.Show(WindowManager,"错误","系统自带的无法被删除");
+            XNAMessageBox.Show(WindowManager, "错误", "系统自带的无法被删除");
             return;
         }
 
-        
+
 
         if (DDModAI.SelectedIndex == 2)
         {
@@ -867,7 +936,7 @@ public class ModManager : XNAWindow
 
             删除任务包(missionPack);
         }
-        else if(DDModAI.SelectedIndex == 1)
+        else if (DDModAI.SelectedIndex == 1)
         {
             if (ListBoxModAi.SelectedItem.Tag is not Mod mod) return;
 
@@ -882,7 +951,7 @@ public class ModManager : XNAWindow
 
             XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
                 "您真的要删除Mod" + ListBoxModAi.SelectedItem.Text + "吗？", XNAMessageBoxButtons.YesNo);
-            xNAMessageBox.YesClickedAction += (_) => DelMod(mod) ;
+            xNAMessageBox.YesClickedAction += (_) => DelMod(mod);
             xNAMessageBox.Show();
         }
 
@@ -932,7 +1001,7 @@ public class ModManager : XNAWindow
             iniFile.WriteIniFile();
         }
 
-        
+
         if (!string.IsNullOrEmpty(missionPack.DefaultMod))
         {
             var mod = Mod.Mods.Find(m => m.ID == missionPack.DefaultMod);
@@ -1027,7 +1096,7 @@ public class ModManager : XNAWindow
     {
         _mcListBoxInfo.ClearItems();
         Dictionary<string, string> properties = null;
-        if (ListBoxModAi.SelectedItem==null)
+        if (ListBoxModAi.SelectedItem == null)
             return;
         switch (DDModAI.SelectedIndex)
         {
@@ -1075,6 +1144,113 @@ public class ModManager : XNAWindow
 
 }
 
+public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowManager)
+{
+    private XNAClientCheckBox chkCopyFile;
+    private XNAClientCheckBox chkDeepImport;
+    private XNALabel lblPath;
+    private XNAClientButton btnOk;
+
+    public Action<bool, bool, string> selected;
+
+    public override void Initialize()
+    {
+
+        ClientRectangle = new Rectangle(0, 0, 300, 200);
+        CenterOnParent();
+
+        var btnFold = new XNAClientButton(windowManager)
+        {
+            Text = "文件夹导入",
+            ClientRectangle = new Rectangle(20, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+        };
+        btnFold.LeftClick += BtnFold_LeftClick;
+
+        var btnZip = new XNAClientButton(windowManager)
+        {
+            Text = "压缩包导入",
+            ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+        };
+        btnZip.LeftClick += BtnZip_LeftClick;
+        //btnZip.SetToolTipText
+
+        chkCopyFile = new XNAClientCheckBox(windowManager)
+        {
+            Text = "复制Mod文件",
+            ClientRectangle = new Rectangle(20, 60, 0, 0)
+        };
+        chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地保留此Mod文件");
+
+        chkDeepImport = new XNAClientCheckBox(windowManager)
+        {
+            Text = "深度导入",
+            ClientRectangle = new Rectangle(20, 90, 0,0)
+        };
+        chkDeepImport.SetToolTipText("若导入失败可勾选此项再次导入,会导致占用空间增大.");
+
+        lblPath = new XNALabel(windowManager)
+        {
+            Text = string.Empty,
+            ClientRectangle = new Rectangle(20, 125, 0, 0)
+        };
+
+        btnOk = new XNAClientButton(windowManager)
+        {
+            Text = "确定",
+            ClientRectangle = new Rectangle(20, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+        };
+
+        btnOk.LeftClick += BtnOk_LeftClick;
+
+        base.Initialize();
+
+        AddChild(btnFold);
+        AddChild(btnZip);
+        AddChild(chkCopyFile);
+        AddChild(chkDeepImport);
+        AddChild(lblPath);
+        AddChild(btnOk);
+    }
+
+    private void BtnOk_LeftClick(object sender, EventArgs e)
+    {
+        if (lblPath.Text == string.Empty)
+        {
+            XNAMessageBox.Show(WindowManager, "提示", "请先点击上方按钮选择目标");
+            return;
+        }
+
+        selected?.Invoke(chkCopyFile.Checked,chkDeepImport.Checked,lblPath.Text);
+        Disable();
+        Dispose();
+    }
+
+    private void BtnZip_LeftClick(object sender, EventArgs e)
+    {
+        using OpenFileDialog fileDialog = new OpenFileDialog();
+        fileDialog.Filter = "压缩包 (*.zip;*.7z;*.rar)|*.zip;*.7z;*.rar";
+        fileDialog.Title = "选择压缩包";
+        fileDialog.Multiselect = false; // 只能选一个文件
+
+        if (fileDialog.ShowDialog() == DialogResult.OK)
+        {
+            lblPath.Text = fileDialog.FileName;
+            chkCopyFile.Checked = true;
+            chkCopyFile.AllowChecking = false;
+        }
+    }
+
+    private void BtnFold_LeftClick(object sender, EventArgs e)
+    {
+        using FolderBrowserDialog folderDialog = new FolderBrowserDialog();
+        if (folderDialog.ShowDialog() == DialogResult.OK)
+        {
+            lblPath.Text = folderDialog.SelectedPath;
+            chkCopyFile.AllowChecking = true;
+        }
+    }
+}
+
 public class ModInfoWindows : XNAWindow
 {
 
@@ -1101,7 +1277,7 @@ public class ModInfoWindows : XNAWindow
 
     private Mod _mod;
 
-    public ModInfoWindows(WindowManager windowManager,Mod mod,string Title) : base(windowManager)
+    public ModInfoWindows(WindowManager windowManager, Mod mod, string Title) : base(windowManager)
     {
         _mod = mod;
         _title = Title;
@@ -1117,8 +1293,8 @@ public class ModInfoWindows : XNAWindow
 
         var _lblTitle = new XNALabel(WindowManager)
         {
-            ClientRectangle = new Rectangle(230,20,0,0)
-            
+            ClientRectangle = new Rectangle(230, 20, 0, 0)
+
         };
         AddChild(_lblTitle);
 
@@ -1127,7 +1303,7 @@ public class ModInfoWindows : XNAWindow
         //{
         //    Text = "ModID(唯一):",
         //    ClientRectangle = new Rectangle(20, 60, 0, 0)
-            
+
         //};
         //AddChild(lblModID);
 
@@ -1239,7 +1415,7 @@ public class ModInfoWindows : XNAWindow
 
         _ctbCp = new XNATextBox(WindowManager)
         {
-            ClientRectangle = new Rectangle(lblCp.X+100, lblCp.Y, CtbW, CtbH)
+            ClientRectangle = new Rectangle(lblCp.X + 100, lblCp.Y, CtbW, CtbH)
         };
 
 
@@ -1276,12 +1452,12 @@ public class ModInfoWindows : XNAWindow
         var btnOk = new XNAClientButton(WindowManager)
         {
             Text = "确定",
-            ClientRectangle = new Rectangle(150,330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(150, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnOk);
         btnOk.LeftClick += (_, _) =>
         {
-                Disable();
+            Disable();
         };
 
         var btnCancel = new XNAClientButton(WindowManager)
@@ -1302,9 +1478,8 @@ public class ModInfoWindows : XNAWindow
         _ctbModName.Text = _mod.Name;
         _ctbModDescription.Text = _mod.Description;
         _ctbVersion.Text = _mod.Version;
-        _ctbModPath.Text = _mod.FilePath??$"Mod&AI/Mod/{_mod.ID}";
+        _ctbModPath.Text = _mod.FilePath ?? $"Mod&AI/Mod/{_mod.ID}";
         _ctbCountries.Text = _mod.Countries;
-        _ctbExtension.Text = _mod.Extension;
         _ctbAuthor.Text = _mod.Author;
         _chkCsf.Checked = UserINISettings.Instance.SimplifiedCSF;
     }
@@ -1323,19 +1498,18 @@ public class ModInfoWindows : XNAWindow
         if (_cancel)
             return null;
 
-    //    _mod.ID = _ctbModID.Text.Trim(); //id
-      //  _mod.ID = _mod.ID;
-       _mod.Name = _ctbModName.Text.Trim(); //名称
-       _mod.Description = _ctbModDescription.Text.Trim(); //介绍
-       _mod.Version = _ctbVersion.Text.Trim(); //版本号
-      // _mod.FilePath = _mod.FilePath; //路径
-       _mod.Compatible = _ctbCp.Text.Trim(); //兼容的战役
+        //    _mod.ID = _ctbModID.Text.Trim(); //id
+        //  _mod.ID = _mod.ID;
+        _mod.Name = _ctbModName.Text.Trim(); //名称
+        _mod.Description = _ctbModDescription.Text.Trim(); //介绍
+        _mod.Version = _ctbVersion.Text.Trim(); //版本号
+                                                // _mod.FilePath = _mod.FilePath; //路径
+        _mod.Compatible = _ctbCp.Text.Trim(); //兼容的战役
         _mod.Countries = _ctbCountries.Text.Trim(); //国家
-       _mod.MuVisible = _chkMutil.Checked; //遭遇战可用
-       //_mod.CpVisible = CpVisible.SelectedIndex != 0; //兼容的战役
-   //    _mod.ExtensionOn = _mod.ExtensionOn; //必须启用扩展
-       _mod.Extension = _ctbExtension.Text.Trim(); // 可使用的扩展
-       _mod.Author = _ctbAuthor.Text.Trim();
+        _mod.MuVisible = _chkMutil.Checked; //遭遇战可用
+                                            //_mod.CpVisible = CpVisible.SelectedIndex != 0; //兼容的战役
+                                            //    _mod.ExtensionOn = _mod.ExtensionOn; //必须启用扩展
+        _mod.Author = _ctbAuthor.Text.Trim();
         return _mod;
 
     }
@@ -1448,7 +1622,7 @@ public class MissionPackInfoWindows : XNAWindow
             Visible = false
         };
 
-         AddChild(_ctbMissionCount);
+        AddChild(_ctbMissionCount);
 
         var lblDescription = new XNALabel(WindowManager)
         {
@@ -1565,7 +1739,7 @@ public class MissionPackInfoWindows : XNAWindow
         _chkCsf.Checked = UserINISettings.Instance.SimplifiedCSF;
 
 
-        if(missionMix)
+        if (missionMix)
             _chkRender.Visible = false;
 
         if (!csfExist)
@@ -1614,7 +1788,7 @@ public class MissionPackInfoWindows : XNAWindow
 
 public class EditCSFWindows : XNAWindow
 {
-    public EditCSFWindows(WindowManager windowManager, ToolTip _tooltip,CSF _csf) : base(windowManager)
+    public EditCSFWindows(WindowManager windowManager, ToolTip _tooltip, CSF _csf) : base(windowManager)
     {
         this.windowManager = windowManager;
         this._tooltip = _tooltip;
@@ -1626,7 +1800,7 @@ public class EditCSFWindows : XNAWindow
     private XNAMultiColumnListBox _mcListBoxCsfInfo;
     private ToolTip _tooltip;
     private CSF _csf;
-    private Dictionary<string,string> _csfDictionary;
+    private Dictionary<string, string> _csfDictionary;
     private XNAContextMenu _menu;
 
     private void DelCsf(string key)
@@ -1636,7 +1810,8 @@ public class EditCSFWindows : XNAWindow
     }
 
     private void Reload()
-    {   if (_csfDictionary == null)
+    {
+        if (_csfDictionary == null)
             return;
         _mcListBoxCsfInfo.ClearItems();
         if (!string.IsNullOrEmpty(_tbSearch.Text) && _tbSearch.Text != "搜索键或值")
@@ -1660,7 +1835,7 @@ public class EditCSFWindows : XNAWindow
         _tbSearch.ClientRectangle = new Rectangle(12, 12, 210, 25);
         _tbSearch.Suggestion = "搜索键或值";
 
-        _tbSearch.TextChanged += (_,_) => { Reload(); };
+        _tbSearch.TextChanged += (_, _) => { Reload(); };
 
         _mcListBoxCsfInfo = new XNAMultiColumnListBox(windowManager);
         _mcListBoxCsfInfo.ClientRectangle = new Rectangle(12, _tbSearch.Bottom + 12, 320, 250);
@@ -1674,7 +1849,7 @@ public class EditCSFWindows : XNAWindow
         AddChild(_tbSearch);
         AddChild(_mcListBoxCsfInfo);
 
-        ClientRectangle = new Rectangle(0, 0, _mcListBoxCsfInfo.Right + 48,_mcListBoxCsfInfo.Bottom + 50);
+        ClientRectangle = new Rectangle(0, 0, _mcListBoxCsfInfo.Right + 48, _mcListBoxCsfInfo.Bottom + 50);
         WindowManager.CenterControlOnScreen(this);
 
         var btnSave = new XNAClientButton(windowManager)
@@ -1690,7 +1865,7 @@ public class EditCSFWindows : XNAWindow
             Text = "取消",
             ClientRectangle = new Rectangle(btnSave.Right + 12, _mcListBoxCsfInfo.Bottom + 12, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
-        btnCancel.LeftClick += (_,_)=> Disable();
+        btnCancel.LeftClick += (_, _) => Disable();
         AddChild(btnCancel);
 
         _menu = new XNAContextMenu(windowManager);
@@ -1700,13 +1875,13 @@ public class EditCSFWindows : XNAWindow
         _menu.AddItem(new XNAContextMenuItem
         {
             Text = "添加条目",
-            SelectAction=Add
+            SelectAction = Add
         });
         //修改
         _menu.AddItem("修改这个条目", Edit, () => _mcListBoxCsfInfo.SelectedIndex > -1);
-        _menu.AddItem("删除这个条目",Del, () => _mcListBoxCsfInfo.SelectedIndex > -1);
+        _menu.AddItem("删除这个条目", Del, () => _mcListBoxCsfInfo.SelectedIndex > -1);
 
-        
+
         AddChild(_menu);
 
         base.Initialize();
@@ -1716,14 +1891,14 @@ public class EditCSFWindows : XNAWindow
     {
         var key = _mcListBoxCsfInfo.GetItem(0, _mcListBoxCsfInfo.SelectedIndex).Text;
         var value = _mcListBoxCsfInfo.GetItem(1, _mcListBoxCsfInfo.SelectedIndex).Text;
-        AddCsfWindows addCsfWindows = new AddCsfWindows(windowManager, _csfDictionary, key,value);
+        AddCsfWindows addCsfWindows = new AddCsfWindows(windowManager, _csfDictionary, key, value);
         addCsfWindows._reload += Reload;
         addCsfWindows.Show();
     }
 
     private void Add()
     {
-        AddCsfWindows addCsfWindows = new AddCsfWindows(windowManager, _csfDictionary,"","");
+        AddCsfWindows addCsfWindows = new AddCsfWindows(windowManager, _csfDictionary, "", "");
         addCsfWindows._reload += Reload;
         addCsfWindows.Show();
     }
@@ -1747,7 +1922,7 @@ public class EditCSFWindows : XNAWindow
 
     private void McListBoxCsfInfoSelectedIndexChanged(object sender, EventArgs e)
     {
-        if(_mcListBoxCsfInfo.SelectedIndex == -1)
+        if (_mcListBoxCsfInfo.SelectedIndex == -1)
         {
             return;
         }
@@ -1767,7 +1942,7 @@ public class EditCSFWindows : XNAWindow
 
     private void Save(object sender, EventArgs e)
     {
-        CSF.WriteCSF(_csfDictionary,_csf.csfPath);
+        CSF.WriteCSF(_csfDictionary, _csf.csfPath);
         Disable();
     }
 
@@ -1780,7 +1955,8 @@ public class EditCSFWindows : XNAWindow
 
 public class AddCsfWindows : XNAWindow
 {
-    public AddCsfWindows(WindowManager windowManager,Dictionary<string,string> csfDictionary,string key,string value) : base(windowManager) {
+    public AddCsfWindows(WindowManager windowManager, Dictionary<string, string> csfDictionary, string key, string value) : base(windowManager)
+    {
         _csfDictionary = csfDictionary;
         _key = key;
         _value = value;
@@ -1814,7 +1990,7 @@ public class AddCsfWindows : XNAWindow
 
         var btnAdd = new XNAClientButton(WindowManager);
         btnAdd.Text = "添加";
-        if(!string.IsNullOrEmpty(_key)|| !string.IsNullOrEmpty(_value))
+        if (!string.IsNullOrEmpty(_key) || !string.IsNullOrEmpty(_value))
             btnAdd.Text = "修改";
         btnAdd.ClientRectangle = new Rectangle(20, _tbValue.Bottom + 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT);
         btnAdd.LeftClick += Add;
@@ -1843,7 +2019,7 @@ public class AddCsfWindows : XNAWindow
             return;
         }
 
-        _csfDictionary[_tbKey.Text] = _tbValue.Text ;
+        _csfDictionary[_tbKey.Text] = _tbValue.Text;
         _reload?.Invoke();
         Disable();
     }

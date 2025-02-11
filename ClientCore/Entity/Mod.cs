@@ -19,18 +19,22 @@ public class Mod : InfoBaseClass
             SetValue(ID, "Name", Name).
             SetValue(ID, "Description", Description).
             SetValue(ID, "FilePath", FilePath).
-            SetValue(ID, "Extension", Extension).
-            SetValue(ID, "Version", Version).
+            SetValue(ID, "Version", Version). 
             SetValue(ID, "MuVisible", MuVisible).
             SetValue(ID, "CpVisible", CpVisible).
             SetValue(ID, "Compatible", Compatible).
-            SetValue(ID, "ExtensionOn", ExtensionOn).
             SetValue(ID, "YR", md.Equals("md")).
-            SetValue(ID, "ColorsNum", ColorsNum).
+            SetValue(ID, "Colors", Colors).
             SetValue(ID, "Sides", Countries).
-            SetValue(ID, "Author", Author);
+            SetValue(ID, "Author", Author).
+            SetValue(ID, "RandomSides", RandomSides);
 
-        if (Countries.Length < 9) iniFile.SetValue(ID, "RandomSides", string.Empty);
+        for (int i = 0; i < RandomSidesIndexs.Count;i++)
+        {
+            iniFile.SetValue(ID, $"RandomSidesIndex{i+1}", RandomSidesIndexs[i]);
+        }
+
+        //if (Countries.Length < 9) iniFile.SetValue(ID, "RandomSides", string.Empty);
 
         iniFile.WriteIniFile();
     }
@@ -50,13 +54,11 @@ public class Mod : InfoBaseClass
             { "版本号", Version },
             { "作者", Author },
             { "遭遇战可用", MuVisible.ToString() },
-            { "是否必须使用扩展", ExtensionOn.ToString() },
-            { "可使用的扩展", Extension },
             { "是否为尤复Mod", md == "md" ? "是" : "否" },
             { "国家列表", Countries },
             { "随机国家列表", RandomSides },
             { "注册于", FileName },
-            { "可以额外选择的颜色数" , ColorsNum.ToString() }
+            { "可以额外选择的颜色数" , Colors.ToString() }
         };
 
         return properties;
@@ -115,9 +117,7 @@ public class Mod : InfoBaseClass
                     }
                 }
 
-                //if(KeyExists(modID, "Extension"))
-                mod.Extension = iniFile.GetValue(modID, "Extension", string.Empty);
-
+              
                 if (iniFile.KeyExists(modID, "Compatible"))
                 {
                     mod.Compatible = iniFile.GetValue(modID, "Compatible", string.Empty);
@@ -137,13 +137,9 @@ public class Mod : InfoBaseClass
 
                 mod.MuVisible = iniFile.GetValue(modID, "MuVisible", true);
                 mod.CpVisible = iniFile.GetValue(modID, "CpVisible", true);
-                mod.ExtensionOn = iniFile.GetValue(modID, "ExtensionOn", false);
 
 
-                mod.ColorsNum = iniFile.GetValue(modID, "ColorsNum", 0);
-
-
-                mod.ColorsNum = iniFile.GetValue(modID, "ColorsNum", 0);
+                mod.Colors = iniFile.GetValue(modID, "Colors", string.Empty);
 
                 HashSet<string> modSet = [];
 
@@ -176,22 +172,13 @@ public class Mod : InfoBaseClass
     /// 可以额外选择的颜色数
     /// </summary>
     /// 
-    public int ColorsNum { get; set; } = 0;
+    public string Colors { get; set; }
 
     /// <summary>
     /// 战役是否显示
     /// </summary>
     /// 
     public bool CpVisible { get; set; } = true;
-
-    /// <summary>
-    /// 是否必须使用扩展
-    /// </summary>
-    public bool ExtensionOn { get; set; } = false;
-    /// <summary>
-    /// 使用的扩展列表
-    /// </summary>
-    public string Extension { get; set; }// 使用的扩展列表
     /// <summary>
     /// 是尤复mod吗 md为是，空为不是
     /// </summary>
@@ -252,8 +239,6 @@ public class Mod : InfoBaseClass
                $"文件路径：{FilePath}\n" +
                $"遭遇战是否显示：{(MuVisible ? "是" : "否")}\n" +
                $"战役是否显示：{(CpVisible ? "是" : "否")}\n" +
-               $"是否必须使用扩展：{(ExtensionOn ? "是" : "否")}\n" +
-               $"使用的扩展列表：{Extension}\n" +
                $"是否为尤里复仇者mod：{(md.Equals("md") ? "是" : "否")}\n" +
                $"rules文件所在路径：{rules}\n" +
                $"art文件所在路径：{art}\n" +
@@ -263,7 +248,7 @@ public class Mod : InfoBaseClass
                $"随机国家索引：{string.Join(",", RandomSidesIndexs)}\n" +
                $"兼容的任务mod：{Compatible}\n" +
                $"注册于哪个文件：{FileName}\n" +
-               $"可以额外选择的颜色数：{ColorsNum}";
+               $"可以额外选择的颜色数：{Colors}";
     }
 
     /// <summary>

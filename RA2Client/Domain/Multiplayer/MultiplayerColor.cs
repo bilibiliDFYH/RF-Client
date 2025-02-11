@@ -41,9 +41,9 @@ namespace Ra2Client.Domain.Multiplayer
         /// <summary>
         /// Returns the available multiplayer colors.
         /// </summary>
-        public static List<MultiplayerColor> LoadColors()
+        public static List<MultiplayerColor> LoadColors(List<string> newColors = null)
         {
-            if (colorList != null)
+            if (colorList != null && newColors == null)
                 return new List<MultiplayerColor>(colorList);
 
             IniFile gameOptionsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), "GameOptions.ini"));
@@ -56,21 +56,40 @@ namespace Ra2Client.Domain.Multiplayer
                 throw new ClientConfigurationException("[MPColors] not found in GameOptions.ini!");
 
             int nIndex = 0;
-            foreach (string key in colorKeys)
+            if (newColors != null)
             {
-                string[] values = gameOptionsIni.GetStringValue("MPColors", key, "255,255,255").Split(',');
+                foreach (var color in newColors)
+                {
+                    string[] values = color.Split(',');
 
-                try
-                {
-                    MultiplayerColor mpColor = MultiplayerColor.CreateFromStringArray(nIndex, key/*key.L10N("UI:Color:" + key)*/, values);
-                    mpColors.Add(mpColor);
-                    nIndex++;
-                }
-                catch
-                {
-                    throw new ClientConfigurationException("Invalid MPColor specified in GameOptions.ini: " + key);
+                    try
+                    {
+                        MultiplayerColor mpColor = MultiplayerColor.CreateFromStringArray(nIndex, ""/*key.L10N("UI:Color:" + key)*/, values);
+                        mpColors.Add(mpColor);
+                        nIndex++;
+                    }
+                    catch
+                    {
+                        throw new ClientConfigurationException("Invalid MPColor specified in GameOptions.ini: " + color);
+                    }
                 }
             }
+            else
+                foreach (string key in colorKeys)
+                {
+                    string[] values = gameOptionsIni.GetStringValue("MPColors", key, "255,255,255").Split(',');
+
+                    try
+                    {
+                        MultiplayerColor mpColor = MultiplayerColor.CreateFromStringArray(nIndex, key/*key.L10N("UI:Color:" + key)*/, values);
+                        mpColors.Add(mpColor);
+                        nIndex++;
+                    }
+                    catch
+                    {
+                        throw new ClientConfigurationException("Invalid MPColor specified in GameOptions.ini: " + key);
+                    }
+                }
 
             colorList = mpColors;
             return new List<MultiplayerColor>(colorList);

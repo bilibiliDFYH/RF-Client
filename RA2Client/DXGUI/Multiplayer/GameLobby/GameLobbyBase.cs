@@ -28,6 +28,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Collections;
 using System.Threading;
+using SharpDX.Direct3D9;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -547,6 +548,26 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     }
                 }
 
+            }
+
+
+            MPColors = MultiplayerColor.LoadColors(mod.Colors.Split('|').ToList());
+            string randomColor = GameOptionsIni.GetStringValue("General", "RandomColor", "255,255,255");
+            if(ddPlayerColors != null)
+            foreach (var ddPlayerColor in ddPlayerColors)
+            {
+                ddPlayerColor.Items.Clear();
+                ddPlayerColor.AddItem("Random".L10N("UI:Main:Random"), AssetLoader.GetColorFromString(randomColor));
+                ddPlayerColor.ItemHeight = 25;
+                foreach (MultiplayerColor mpColor in MPColors)
+                    // ddPlayerColor.AddItem(mpColor.Name, mpColor.TextColor);
+                    ddPlayerColor.AddItem(new XNADropDownItem()
+                    {
+                        Texture = AssetLoader.CreateTexture(mpColor.TextColor, 60, 18)
+                    });
+
+              //  ddPlayerColor.AllowDropDown = false;
+                ddPlayerColor.Tag = false;
             }
 
             //cmbGame.AllowDropDown = false;
@@ -1301,8 +1322,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     ddPlayerSide.Right + playerOptionHorizontalMargin,
                     ddPlayerName.Y, colorWidth, DROP_DOWN_HEIGHT);
                 ddPlayerColor.AddItem("Random".L10N("UI:Main:Random"), AssetLoader.GetColorFromString(randomColor));
+                ddPlayerColor.ItemHeight = 25;
                 foreach (MultiplayerColor mpColor in MPColors)
-                    ddPlayerColor.AddItem(mpColor.Name, mpColor.TextColor);
+                    // ddPlayerColor.AddItem(mpColor.Name, mpColor.TextColor);
+                    ddPlayerColor.AddItem(new XNADropDownItem()
+                    {
+                        Texture = AssetLoader.CreateTexture(mpColor.TextColor,60,18)
+                    });
+
                 ddPlayerColor.AllowDropDown = false;
                 ddPlayerColor.SelectedIndexChanged += CopyPlayerDataFromUI;
                 ddPlayerColor.Tag = false;

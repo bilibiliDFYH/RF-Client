@@ -26,6 +26,7 @@ public class Mod : InfoBaseClass
             SetValue(ID, "YR", md.Equals("md")).
             SetValue(ID, "Sides", Countries).
             SetValue(ID, "Author", Author).
+            SetValue(ID, "SettingsFile", SettingsFile).
             SetValue(ID, "RandomSides", RandomSides);
 
         for (int i = 0; i < RandomSidesIndexs.Count;i++)
@@ -35,9 +36,9 @@ public class Mod : InfoBaseClass
         if (Colors != null)
             iniFile.SetValue(ID, "Colors", Colors);
 
-//if (Countries.Length < 9) iniFile.SetValue(ID, "RandomSides", string.Empty);
+            //if (Countries.Length < 9) iniFile.SetValue(ID, "RandomSides", string.Empty);
 
-iniFile.WriteIniFile();
+            iniFile.WriteIniFile();
     }
 
     /// <summary>
@@ -138,6 +139,7 @@ iniFile.WriteIniFile();
                 mod.MuVisible = iniFile.GetValue(modID, "MuVisible", true);
                 mod.CpVisible = iniFile.GetValue(modID, "CpVisible", true);
 
+                mod.SettingsFile = iniFile.GetValue(modID, "SettingsFile", "RA2MD.ini");
 
                 mod.Colors = iniFile.GetValue<string>(modID, "Colors", null);
 
@@ -217,6 +219,8 @@ iniFile.WriteIniFile();
     /// 哪些mod能玩的任务该Mod也能玩
     /// </summary>
     public string Compatible { get; set; } = string.Empty;
+
+    public string SettingsFile { get; set; } = "RA2MD.ini";
 
     /// <summary>
     /// 键,值：值Mod能玩的键Mod都能玩

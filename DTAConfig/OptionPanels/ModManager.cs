@@ -228,14 +228,14 @@ public class ModManager : XNAWindow
         ListBoxModAi.SelectedIndex = 0;
     }
 
-    
+
 
     /// <summary>
     /// 复制Mod文件
     /// </summary>
     /// <param name="modPath">mod原路径</param>
     /// <param name="mod">mod信息</param>
-    private void 整合Mod文件(string modPath, Mod mod,bool deepImport = false)
+    private void 整合Mod文件(string modPath, Mod mod, bool deepImport = false)
     {
         #region 导入Mod文件
 
@@ -243,45 +243,45 @@ public class ModManager : XNAWindow
         if (!Directory.Exists(mod.FilePath))
             Directory.CreateDirectory(mod.FilePath);
 
-        void CopyFiles(string sourceDir, string targetDir,bool needRecursion = false)
-    {
-        // 复制当前目录下的文件
-        foreach (var file in Directory.GetFiles(sourceDir))
+        void CopyFiles(string sourceDir, string targetDir, bool needRecursion = false)
         {
-            var fileName = Path.GetFileName(file);
-            var extension = Path.GetExtension(file);
-
-            // 排除特定文件
-            if (!needRecursion && (extension == ".map" || extension == ".png" || extension == ".jpg" || extension == ".pdb"))
-                continue;
-
-            // 检查文件哈希值并决定是否复制
-            if (ProgramConstants.PureHashes.ContainsKey(fileName) &&
-                ProgramConstants.PureHashes[fileName] == Utilities.CalculateSHA1ForFile(file))
-                continue;
-
-            // 目标路径
-            var targetFilePath = Path.Combine(targetDir, fileName);
-            File.Copy(file, targetFilePath, overwrite: true);
-        }
-
-        if(needRecursion)
-        // 递归处理子目录
-        foreach (var dir in Directory.GetDirectories(sourceDir))
-        {
-            var dirName = Path.GetFileName(dir);
-            var targetSubDir = Path.Combine(targetDir, dirName);
-
-            // 如果目标子目录不存在，创建它
-            if (!Directory.Exists(targetSubDir))
+            // 复制当前目录下的文件
+            foreach (var file in Directory.GetFiles(sourceDir))
             {
-                Directory.CreateDirectory(targetSubDir);
+                var fileName = Path.GetFileName(file);
+                var extension = Path.GetExtension(file);
+
+                // 排除特定文件
+                if (!needRecursion && (extension == ".map" || extension == ".png" || extension == ".jpg" || extension == ".pdb"))
+                    continue;
+
+                // 检查文件哈希值并决定是否复制
+                if (ProgramConstants.PureHashes.ContainsKey(fileName) &&
+                    ProgramConstants.PureHashes[fileName] == Utilities.CalculateSHA1ForFile(file))
+                    continue;
+
+                // 目标路径
+                var targetFilePath = Path.Combine(targetDir, fileName);
+                File.Copy(file, targetFilePath, overwrite: true);
             }
 
-            // 递归复制子目录中的文件
-            CopyFiles(dir, targetSubDir);
+            if (needRecursion)
+                // 递归处理子目录
+                foreach (var dir in Directory.GetDirectories(sourceDir))
+                {
+                    var dirName = Path.GetFileName(dir);
+                    var targetSubDir = Path.Combine(targetDir, dirName);
+
+                    // 如果目标子目录不存在，创建它
+                    if (!Directory.Exists(targetSubDir))
+                    {
+                        Directory.CreateDirectory(targetSubDir);
+                    }
+
+                    // 递归复制子目录中的文件
+                    CopyFiles(dir, targetSubDir);
+                }
         }
-    }
 
         try
         {
@@ -605,7 +605,7 @@ public class ModManager : XNAWindow
         return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*md.map").Length != 0;
     }
 
-    private string 导入Mod(bool copyFile,bool deepImport,string filePath)
+    private string 导入Mod(bool copyFile, bool deepImport, string filePath)
     {
 
         var 后缀 = Path.GetExtension(filePath);
@@ -648,7 +648,7 @@ public class ModManager : XNAWindow
 
         if (判断是否为Mod(path, true))
         {
-            var r = 导入具体Mod(path, copyFile,deepImport,true);
+            var r = 导入具体Mod(path, copyFile, deepImport, true);
             if (r != string.Empty)
             {
                 id = r;
@@ -657,7 +657,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
-   
+
 
         return id;
 
@@ -665,51 +665,88 @@ public class ModManager : XNAWindow
 
     private string 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR)
     {
-        
+
         var md = isYR ? "md" : string.Empty;
 
         if (!判断是否为Mod(path, isYR)) return "";
 
         var id = Path.GetFileName(path);
 
-        var GameOptionsPath = Path.Combine(path, "Resources/GameOptions.ini");
-
+        var Name = id;
         var Countries = string.Empty;
         var RandomSides = string.Empty;
-        var Colors = string.Empty;
-
         List<string> RandomSidesIndexs = [];
+        var Colors = string.Empty;
+        var SettingsFile = "RA2MD.ini";
 
-        if (File.Exists(GameOptionsPath)){
-            var ini = new IniFile(GameOptionsPath);
-            if (ini.SectionExists("General"))
-                Countries = ini.GetValue("General", "Sides", string.Empty);
+        if (Directory.Exists("Resources"))
+        {
+            #region 从 GameOptions.ini 提取 国家 和 颜色信息
 
-            if (ini.SectionExists("RandomSelectors"))
+            var GameOptionsPath = Path.Combine(path, "Resources/GameOptions.ini");
+
+            if (File.Exists(GameOptionsPath))
             {
-                foreach (var key in ini.GetSectionKeys("RandomSelectors"))
+                var ini = new IniFile(GameOptionsPath);
+                if (ini.SectionExists("General"))
+                    Countries = ini.GetValue("General", "Sides", string.Empty);
+
+                if (ini.SectionExists("RandomSelectors"))
                 {
-                    var value = ini.GetValue("RandomSelectors", key, string.Empty);
-                    if (value == string.Empty) continue;
-                    RandomSides += key + ',';
-                    RandomSidesIndexs.Add(value);
+                    foreach (var key in ini.GetSectionKeys("RandomSelectors"))
+                    {
+                        var value = ini.GetValue("RandomSelectors", key, string.Empty);
+                        if (value == string.Empty) continue;
+                        RandomSides += key + ',';
+                        RandomSidesIndexs.Add(value);
+                    }
+                    RandomSides = RandomSides.TrimEnd(',');
                 }
-                RandomSides = RandomSides.TrimEnd(',');
+
+                if (ini.SectionExists("MPColors"))
+                {
+                    Colors = string.Join("|", ini.GetSectionValues("MPColors"));
+                }
             }
 
-            if (ini.SectionExists("MPColors"))
+            #endregion
+
+            #region 从 ClientDefinitions.ini 提取 后缀 信息
+
+            var ClientDefinitionsPath = Path.Combine(path, "Resources/ClientDefinitions.ini");
+
+            if (File.Exists(ClientDefinitionsPath))
             {
-                Colors = string.Join("|", ini.GetSectionValues("MPColors"));
+                var ini = new IniFile(GameOptionsPath);
+                if (ini.SectionExists("Settings"))
+                    SettingsFile = ini.GetValue("Settings", "SettingsFile", "RA2MD.ini");
             }
+            #endregion
+
+            #region 从 GameCollectionConfig.ini 提取 Mod名称 信息
+
+            var GameCollectionConfigPath = Path.Combine(path, "Resources/GameCollectionConfig.ini");
+
+            if (File.Exists(GameCollectionConfigPath))
+            {
+                var ini = new IniFile(GameCollectionConfigPath);
+                ini.GetSections().ToList().ForEach(section =>
+                {
+                    if(ini.KeyExists(section, "UIName"))
+                        Name = ini.GetValue(section, "UIName", Name);
+                });
+            }
+
+            #endregion
+
         }
-
-
         var mod = new Mod
         {
             ID = id,
-            Name = Path.GetFileName(path),
+            Name = Name,
             md = md,
             MuVisible = true,
+            SettingsFile = SettingsFile
         };
 
         if (copyFile)
@@ -896,10 +933,10 @@ public class ModManager : XNAWindow
 
         //if (openFileDialog.ShowDialog() != DialogResult.OK)
         //    return;
-        
 
 
-        
+
+
 
         var infoWindows = new 导入选择窗口(WindowManager);
 
@@ -913,9 +950,9 @@ public class ModManager : XNAWindow
 
         var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
 
-        
 
-        
+
+
     }
 
     private void ReLoad()
@@ -1055,7 +1092,7 @@ public class ModManager : XNAWindow
         }
         try
         {
-            if(mod.FilePath.Contains("Mod&AI/Mod"))
+            if (mod.FilePath.Contains("Mod&AI/Mod"))
                 Directory.Delete(mod.FilePath, true);
         }
         catch
@@ -1160,6 +1197,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
     private XNAClientCheckBox chkCopyFile;
     private XNAClientCheckBox chkDeepImport;
     private XNALabel lblPath;
+    private XNAClientButton btnCancel;
     private XNAClientButton btnOk;
 
     public Action<bool, bool, string> selected;
@@ -1195,7 +1233,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         chkDeepImport = new XNAClientCheckBox(windowManager)
         {
             Text = "深度导入",
-            ClientRectangle = new Rectangle(20, 90, 0,0)
+            ClientRectangle = new Rectangle(20, 90, 0, 0)
         };
         chkDeepImport.SetToolTipText("若导入失败可勾选此项再次导入,会导致占用空间增大.");
 
@@ -1205,10 +1243,17 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             ClientRectangle = new Rectangle(20, 125, 0, 0)
         };
 
+        btnCancel = new XNAClientButton(windowManager)
+        {
+            Text = "取消",
+            ClientRectangle = new Rectangle(20, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+        };
+        btnCancel.LeftClick += BtnCancel_LeftClick;
+
         btnOk = new XNAClientButton(windowManager)
         {
             Text = "确定",
-            ClientRectangle = new Rectangle(20, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(130, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
 
         btnOk.LeftClick += BtnOk_LeftClick;
@@ -1221,6 +1266,25 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         AddChild(chkDeepImport);
         AddChild(lblPath);
         AddChild(btnOk);
+        AddChild(btnCancel);
+    }
+
+    private void BtnCancel_LeftClick(object sender, EventArgs e)
+    {
+        var box = new XNAMessageBox(WindowManager, "提示", "确定退出导入吗?",XNAMessageBoxButtons.YesNo);
+        box.YesClickedAction += (_) =>
+        {
+            Disable();
+            Dispose();
+        };
+        if (lblPath.Text == string.Empty)
+        {
+            box.YesClickedAction.Invoke(box);
+        }
+        else
+        {
+            box.Show();
+        }
     }
 
     private void BtnOk_LeftClick(object sender, EventArgs e)
@@ -1231,7 +1295,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             return;
         }
 
-        selected?.Invoke(chkCopyFile.Checked,chkDeepImport.Checked,lblPath.Text);
+        selected?.Invoke(chkCopyFile.Checked, chkDeepImport.Checked, lblPath.Text);
         Disable();
         Dispose();
     }

@@ -9,8 +9,11 @@ namespace ClientCore
 {
     public static class FileHelper
     {
-        public static void CopyDirectory(string sourceDirPath, string saveDirPath)
+        public static void CopyDirectory(string sourceDirPath, string saveDirPath, List<string> ignoreExtensions = null)
         {
+            // 如果未传入 ignoreExtensions，则默认为空列表
+            ignoreExtensions ??= new List<string>();
+
             if (!string.IsNullOrEmpty(sourceDirPath) && Directory.Exists(sourceDirPath))
             {
                 if (!Directory.Exists(saveDirPath))
@@ -22,6 +25,15 @@ namespace ClientCore
                 string[] files = Directory.GetFiles(sourceDirPath);
                 foreach (string file in files)
                 {
+                    // 获取文件的扩展名
+                    string fileExtension = Path.GetExtension(file).ToLower();
+
+                    // 如果当前文件的扩展名在忽略列表中，则跳过该文件
+                    if (ignoreExtensions.Any(ext => fileExtension.EndsWith(ext.ToLower())))
+                    {
+                        continue;
+                    }
+
                     string pFilePath = Path.Combine(saveDirPath, Path.GetFileName(file));
                     File.Copy(file, pFilePath, true);
                 }
@@ -31,7 +43,7 @@ namespace ClientCore
                 foreach (string directory in directories)
                 {
                     string pDirPath = Path.Combine(saveDirPath, Path.GetFileName(directory));
-                    CopyDirectory(directory, pDirPath);
+                    CopyDirectory(directory, pDirPath, ignoreExtensions);
                 }
             }
         }

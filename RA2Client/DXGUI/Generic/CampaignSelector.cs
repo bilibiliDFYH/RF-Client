@@ -173,31 +173,6 @@ namespace Ra2Client.DXGUI.Generic
             _tbMissionDescriptionList.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
                 _tbMissionDescriptionList.Width, _tbMissionDescriptionList.Height);
 
-            //_chkExtension = new XNAClientCheckBox(WindowManager);
-            //_chkExtension.Name = nameof(_chkExtension);
-            //_chkExtension.ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0, 0);
-            //_chkExtension.Text = "启用扩展平台";
-            //_chkExtension.CheckedChanged += ChkExtension_SelectedChanged;
-            //_chkExtension.LeftClick += (_, _) => {
-            //    if (UserINISettings.Instance.ChkExtensionIsFirst.Value)
-            //    {
-            //        XNAMessageBox.Show(WindowManager, "扩展平台", "打开后会启用扩展平台(如Ares,Phobos).\n" +
-            //            "部分功能只有在开启扩展平台后才能使用。如shift连点器，部分皮肤（建造预览，飞机尾迹等等），同时也会修复一些原版的bug（特性）。" +
-            //            "\n然而有些地图或任务使用了原版的特性，(如林德拉克计划)必须关闭扩展才能正常游玩。");
-
-            //        UserINISettings.Instance.ChkExtensionIsFirst.Value = false;
-            //        UserINISettings.Instance.SaveSettings();
-            //    }
-            //};
-            ////var  ToolTip = new ToolTip(WindowManager, chkExtension) { Text = "启用合适的扩展平台（Ares,Phobos等）。"};
-            //AddChild(_chkExtension);
-         //   _chkExtension.Visible = false;
-
-            var lblModify = new XNALabel(WindowManager);
-            lblModify.Name = nameof(lblModify);
-            lblModify.Text = "注：某些修改可能会破坏战役流程。";
-            lblModify.ClientRectangle = new Rectangle(_tbMissionDescriptionList.X, _tbMissionDescriptionList.Y + 40, 0, 0);
-
             var lblDifficultyLevel = new XNALabel(WindowManager);
             lblDifficultyLevel.Name = "lblDifficultyLevel";
             lblDifficultyLevel.Text = "DIFFICULTY LEVEL".L10N("UI:Main:DifficultyLevel");
@@ -218,6 +193,8 @@ namespace Ra2Client.DXGUI.Generic
                 new Color(0, 0, 0, 128), 2, 2);
             _trbDifficultySelector.ButtonTexture = AssetLoader.LoadTextureUncached(
                 "trackbarButton_difficulty.png");
+
+         
 
             _campaignMenu = new XNAContextMenu(WindowManager);
             _campaignMenu.Name = nameof(_campaignMenu);
@@ -361,7 +338,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_lbxInforBox);
             AddChild(_ddMissionPack);
             AddChild(lblalter);
-            AddChild(lblModify);
+            
             AddChild(_tbMissionDescriptionList);
             AddChild(lblDifficultyLevel);
             AddChild(_btnLaunch);
@@ -390,6 +367,13 @@ namespace Ra2Client.DXGUI.Generic
                 Text = "使用模组：",
                 ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0,0)
             };
+
+            var lblModify = new XNALabel(WindowManager);
+            lblModify.Name = nameof(lblModify);
+            lblModify.Text = "注：某些修改可能会破坏战役流程。";
+            lblModify.ClientRectangle = new Rectangle(_lblGame.X, _tbMissionDescriptionList.Y + 40, 0, 0);
+            AddChild(lblModify);
+
             _cmbGame = new GameLobbyDropDown(WindowManager) {
                 ClientRectangle = new Rectangle(_lblGame.Right + 75, _tbMissionDescriptionList.Y, 122, 23)
             };
@@ -1232,16 +1216,16 @@ namespace Ra2Client.DXGUI.Generic
                             dd.ApplySpawnIniCode(spawnIni);
                             dd.ApplyMapCode(mapIni, null);
                         }
-                        if (_cmbCredits.SelectedItem != null)
+                        if (_cmbCredits.SelectedItem != null && _cmbCredits.SelectedItem.Text != string.Empty)
                             Credits(mapIni, int.Parse(_cmbCredits.SelectedItem.Text) / 100);
 
 
 
-                        if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !m.YR)
-                        {
-                            if (mapIni.SectionExists("Countries"))
-                                mapIni.RenameSection("Countries", "YBCountry");
-                        }
+                        //if (((Mod)_cmbGame.SelectedItem.Tag).md == "md" && !m.YR)
+                        //{
+                        //    if (mapIni.SectionExists("Countries"))
+                        //        mapIni.RenameSection("Countries", "YBCountry");
+                        //}
 
                         mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario), Encoding.GetEncoding("Big5"));
                     }
@@ -1251,7 +1235,8 @@ namespace Ra2Client.DXGUI.Generic
                 UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;
                 UserINISettings.Instance.SaveSettings();
 
-                Mix.PackToMix(战役临时目录, Path.Combine(mission.MPack.FilePath, ProgramConstants.MISSION_MIX));
+                
+                //Mix.PackToMix(战役临时目录, Path.Combine(mission.MPack.FilePath, ProgramConstants.MISSION_MIX));
             }
 
             #region 切换文件

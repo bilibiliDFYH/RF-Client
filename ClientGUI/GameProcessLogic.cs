@@ -369,7 +369,10 @@ namespace ClientGUI
                     FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
                     // 加载任务
-                    FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录);
+                    FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录, [".map"]);
+
+                    var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
+                    FileHelper.CopyDirectory(战役临时目录, ProgramConstants.游戏目录);
 
                     FilePaths["Game"] = newGame;
                     FilePaths["Mission"] = newMission;

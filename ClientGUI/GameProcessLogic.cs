@@ -44,6 +44,7 @@ namespace ClientGUI
 
             RenderImage.CancelRendering();
             string r = 切换文件(iniFile.GetSection("Settings"));
+
             if (r != string.Empty)
             {
                 if( r == "尤复目录必须为纯净尤复目录")
@@ -65,7 +66,7 @@ namespace ClientGUI
                 加载音乐();
             }
 
-
+            FileHelper.CopyDirectory("Saved Games",Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
             File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
             if (File.Exists("spawnmap.ini"))
@@ -421,6 +422,8 @@ namespace ClientGUI
             proc.Exited -= Process_Exited;
             proc.Dispose();
             GameProcessExited?.Invoke();
+
+            FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
             获取新的存档();
         }
 

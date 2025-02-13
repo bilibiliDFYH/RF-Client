@@ -60,6 +60,49 @@ namespace Localization.Tools
             return regex.IsMatch(email);
         }
 
+        public static (int R, int G, int B) ConvertHSVToRGB(int H, int S, int V)
+        {
+            if (H == 360) H = 359; // 360为全黑，原因不明
+            float R = 0f, G = 0f, B = 0f;
+
+            if (S == 0)
+            {
+                // 如果饱和度为 0，颜色是灰色（V 值决定亮度）
+                return (V, V, V);
+            }
+
+            // 将 S 和 V 归一化到 [0, 1] 之间
+            float normalizedS = S / 255f;
+            float normalizedV = V / 255f;
+
+            // 获取 H 区间
+            int H1 = (int)(H / 60f);
+            float F = (H / 60f) - H1;
+
+            // 计算 P, Q, T 的值
+            float P = normalizedV * (1f - normalizedS);
+            float Q = normalizedV * (1f - F * normalizedS);
+            float T = normalizedV * (1f - (1f - F) * normalizedS);
+
+            switch (H1)
+            {
+                case 0: R = normalizedV; G = T; B = P; break;
+                case 1: R = Q; G = normalizedV; B = P; break;
+                case 2: R = P; G = normalizedV; B = T; break;
+                case 3: R = P; G = Q; B = normalizedV; break;
+                case 4: R = T; G = P; B = normalizedV; break;
+                case 5: R = normalizedV; G = P; B = Q; break;
+            }
+
+            // 将 R, G, B 放大到 [0, 255] 范围
+            R = R * 255;
+            G = G * 255;
+            B = B * 255;
+
+            // 返回 RGB 整数值
+            return ((int)R, (int)G, (int)B);
+        }
+
         public static string ComputeHash(this string filePath)
         {
             using var hashAlgorithm = SHA256.Create();

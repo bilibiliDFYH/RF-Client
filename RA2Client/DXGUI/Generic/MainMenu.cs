@@ -393,7 +393,9 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(btnExit);
             AddChild(lblCnCNetStatus);
             AddChild(lblCnCNetPlayerCount);
-
+            
+            var (R, G, B) = FunExtensions.ConvertHSVToRGB(25, 255, 255);
+            Console.WriteLine($"RGB: ({R}, {G}, {B})");
 
             if (!ClientConfiguration.Instance.ModMode)
             {

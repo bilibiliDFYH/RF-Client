@@ -1241,33 +1241,12 @@ namespace Ra2Client.DXGUI.Generic
 
             #region 切换文件
 
-            string newMain;
-            string newGame;
-            string newExtension = string.Empty;
-
             string newMission = mission.Path;
-            //string newReName = "Mod&AI/Extension/rename_YR";
-            //if(!mission.YR && ((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
-            //    newReName = "Mod&AI/Extension/rename_RA2";
-            string newAi = "Mod&AI/AI/Other";
+
           
-            Mod mod;
+            var mod = ((Mod)_cmbGame.SelectedItem.Tag);
 
-            if (_gameOptionsPanel.Visible) {
-
-                mod = ((Mod)_cmbGame.SelectedItem.Tag);
-
-                 newMain = mission.YR ?"Mod&AI/Main/YR_YR":
-                        (mod.md == "md" ?"Mod&AI/Main/RA2_YR":"Mod&AI/Main/RA2_RA2");
-
-                newGame = mod.FilePath;
-            }
-            else {
-               mod = Mod.Mods.Find(m => m.ID == _screenMissions[_lbxCampaignList.SelectedIndex].DefaultMod);
-                newMain = mission.YR ? "Mod&AI/Main/YR_YR" :
-                        (mod.md == "md" ? "Mod&AI/Main/RA2_YR" : "Mod&AI/Main/RA2_RA2");
-                newGame = mod.FilePath;
-            }
+            var newGame = mod.FilePath;
 
             #endregion
 
@@ -1276,13 +1255,8 @@ namespace Ra2Client.DXGUI.Generic
 
             var settings = new IniSection("Settings");
 
-            settings.SetValue("Main", newMain);
             //写入新游戏
             settings.SetValue("Game", newGame);
-            //写入新扩展
-            settings.SetValue("Extension", newExtension);
-            //写入新AI
-            settings.SetValue("AI", newAi);
 
             settings.SetValue("Mission", newMission);
 

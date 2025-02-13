@@ -427,15 +427,5 @@ namespace ClientGUI
             获取新的存档();
         }
 
-        public static (List<string>, List<string>) 支持的扩展()
-    => (
-        Directory.GetDirectories("Mod&AI/Extension/Ares")
-                .Select(Path.GetFileName)
-                .ToList(),
-        Directory.GetDirectories("Mod&AI/Extension/Phobos")
-                .Select(Path.GetFileName)
-                .ToList()
-    );
-
     }
 }

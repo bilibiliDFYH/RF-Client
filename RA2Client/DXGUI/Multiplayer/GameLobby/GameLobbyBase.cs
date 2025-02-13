@@ -614,7 +614,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 ddSide.AddItem("spectator".L10N("UI:Main:spectator"), LoadTextureOrNull("spectatoricon.png"));
             }
 
-            MapPreviewBox.SetFields(Players, AIPlayers, MPColors, GameOptionsIni.GetStringValue("General", "Sides", string.Empty).Split(','), GameOptionsIni);
+            MapPreviewBox.mpColors = MPColors;
+            MapPreviewBox.sides = sides;
+
+            //MapPreviewBox.SetFields(Players, AIPlayers, MPColors, GameOptionsIni.GetStringValue("General", "Sides", string.Empty).Split(','), GameOptionsIni);
             //cmbGame.AllowDropDown = false;
         }
 
@@ -2824,6 +2827,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             disableGameOptionUpdateBroadcast = false;
 
             PlayerExtraOptionsPanel?.UpdateForMap(Map);
+
+            CmbGame_SelectedChanged(null, null);
         }
 
         private void ApplyForcedCheckBoxOptions(List<GameLobbyCheckBox> optionList,

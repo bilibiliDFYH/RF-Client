@@ -124,13 +124,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private readonly string[] teamIds = new[] { string.Empty }
             .Concat(ProgramConstants.TEAMS.Select(team => $"[{team}]")).ToArray();
 
-        private string[] sides;
+        public string[] sides;
 
         public int RandomSelectorCount { get; set; }
 
         private PlayerLocationIndicator[] startingLocationIndicators;
 
-        private List<MultiplayerColor> mpColors;
+        public List<MultiplayerColor> mpColors;
         private List<PlayerInfo> players;
         private List<PlayerInfo> aiPlayers;
 

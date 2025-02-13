@@ -69,6 +69,10 @@ namespace ClientGUI
             FileHelper.CopyDirectory("Saved Games",Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
             File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+
+            var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
+            if(File.Exists(keyboardMD))
+                File.Copy("KeyboardMD.ini", Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini"), true);
             if (File.Exists("spawnmap.ini"))
                 File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
             // 加载渲染插件
@@ -422,7 +426,9 @@ namespace ClientGUI
             proc.Exited -= Process_Exited;
             proc.Dispose();
             GameProcessExited?.Invoke();
-
+            var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
+            if (File.Exists(keyboardMD))
+                File.Copy(keyboardMD, "KeyboardMD.ini", true);
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
             获取新的存档();
         }

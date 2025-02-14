@@ -908,10 +908,10 @@ namespace Ra2Client.DXGUI.Generic
             {
                 Logger.Log("错误", $"删除缓存文件夹出错: {ex.Message}");
             }
-            if (MapLoader.rootMaps.Count != 0)
-            {
-                XNAMessageBox.Show(WindowManager, "加载地图", $"检测到新地图,已移动至 Maps\\Multi\\Custom 文件夹. 包含:\n {string.Join("\n", MapLoader.rootMaps)}");
-            }
+            //if (MapLoader.rootMaps.Count != 0)
+            //{
+            //    XNAMessageBox.Show(WindowManager, "加载地图", $"检测到新地图,已移动至 Maps\\Multi\\Custom 文件夹. 包含:\n {string.Join("\n", MapLoader.rootMaps)}");
+            //}
 
             WindowManager.progress.Report(string.Empty);
         }

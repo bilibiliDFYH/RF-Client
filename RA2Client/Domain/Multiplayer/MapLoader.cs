@@ -17,6 +17,7 @@ using Localization.Tools;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using SharpDX.Direct2D1;
+using SharpDX.Direct3D9;
 using static System.Collections.Specialized.BitVector32;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 //using SharpDX.Direct3D9;
@@ -85,14 +86,6 @@ namespace Ra2Client.Domain.Multiplayer
             Logger.Log("开始加载地图...");
 
             WindowManager.progress.Report("正在转移根目录地图");
-            LoadRootMaps();
-
-            string[] maps = Directory.GetDirectories("Maps\\Multi");
-
-            var parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = Environment.ProcessorCount
-            };
 
             var gameModeIni = new IniFile(ClientConfiguration.Instance.GameModesIniPath, GameMode.ANNOTATION);
 
@@ -103,64 +96,12 @@ namespace Ra2Client.Domain.Multiplayer
 
             var exceptions = new ConcurrentBag<Exception>();
 
+            LoadRootMaps(exceptions);
+            LoadMultiMaps(exceptions);
+
+           
             // 使用ConcurrentBag代替List
             var concurrentGameModes = new ConcurrentBag<GameMode>(GameModes);
-
-            int 加载地图数量 = 0;
-            int 总数 = 0;
-
-            Parallel.ForEach(maps, parallelOptions, map =>
-            {
-                try
-                {
-                    TaskbarProgress.Instance.SetState( TaskbarProgress.TaskbarStates.Normal);
-
-                    var files = 
-                    Directory.GetFiles(map, "*.*", SearchOption.TopDirectoryOnly)
-                        .Where(file => file.ToLower().EndsWith(".map") ||
-                                       file.ToLower().EndsWith(".yrm") ||
-                                       file.ToLower().EndsWith(".mpr"))
-                    .Distinct()
-                    .ToList();
-
-                    if (!files.Any()) return;
-
-                    Interlocked.Add(ref 总数, files.Count);
-
-                    var ini = $"Maps\\Multi\\MPMaps{Path.GetFileName(map)}.ini";
-                    if (!File.Exists(ini))
-                        File.WriteAllText(ini, string.Empty);
-
-                    var mpMapsIni = new IniFile(ini, Map.ANNOTATION);
-
-                    Parallel.ForEach(files, parallelOptions, file =>
-                    {
-                        try
-                        {
-                            LoadMultiMaps2(mpMapsIni, file);
-                            Interlocked.Increment(ref 加载地图数量);
-
-                            
-                            WindowManager.progress.Report($"已加载地图{加载地图数量}/{总数},正在加载{file}");
-
-
-                            TaskbarProgress.Instance.SetValue((ulong)加载地图数量, (ulong)总数);
-                        }
-                        catch (Exception ex)
-                        {
-                            exceptions.Add(ex);
-                        }
-                    });
-                        
-                    mpMapsIni.WriteIniFile();
-                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
-                }
-            });
-
             WindowManager.progress.Report(string.Empty);
 
             _ = Parallel.ForEach(concurrentGameModes, gameMode =>
@@ -227,6 +168,71 @@ namespace Ra2Client.Domain.Multiplayer
                     _ = RenderImage.RenderImagesAsync();
                 });
 
+        }
+
+        private void LoadMultiMaps(ConcurrentBag<Exception> exceptions)
+        {
+            string[] maps = Directory.GetDirectories("Maps\\Multi");
+            
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            };
+
+            int 加载地图数量 = 0;
+            int 总数 = 0;
+
+            Parallel.ForEach(maps, parallelOptions, map =>
+            {
+                try
+                {
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
+                    var files =
+                    Directory.GetFiles(map, "*.*", SearchOption.TopDirectoryOnly)
+                        .Where(file => file.ToLower().EndsWith(".map") ||
+                                       file.ToLower().EndsWith(".yrm") ||
+                                       file.ToLower().EndsWith(".mpr"))
+                    .Distinct()
+                    .ToList();
+
+                    if (!files.Any()) return;
+
+                    Interlocked.Add(ref 总数, files.Count);
+
+                    var ini = $"Maps\\Multi\\MPMaps{Path.GetFileName(map)}.ini";
+                    if (!File.Exists(ini))
+                        File.WriteAllText(ini, string.Empty);
+
+                    var mpMapsIni = new IniFile(ini, Map.ANNOTATION);
+
+                    Parallel.ForEach(files, parallelOptions, file =>
+                    {
+                        try
+                        {
+                            LoadMultiMaps2(mpMapsIni, file);
+                            Interlocked.Increment(ref 加载地图数量);
+
+
+                            WindowManager.progress.Report($"已加载地图{加载地图数量}/{总数},正在加载{file}");
+
+
+                            TaskbarProgress.Instance.SetValue((ulong)加载地图数量, (ulong)总数);
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    });
+
+                    mpMapsIni.WriteIniFile();
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+            });
         }
 
         internal static List<string> 检测重复地图()
@@ -356,45 +362,67 @@ namespace Ra2Client.Domain.Multiplayer
 
         public static List<string> rootMaps = [];
 
-        private void LoadRootMaps()
+        private void LoadRootMaps(ConcurrentBag<Exception> exceptions)
         {
        
 
-            // 确保目标目录存在
-            if (!Directory.Exists(CUSTOM_MAPS_DIRECTORY))
-            {
-                Directory.CreateDirectory(CUSTOM_MAPS_DIRECTORY);
-            }
+            int 加载地图数量 = 0;
+            int 总数 = 0;
 
-            var customMaps = Directory.EnumerateFiles("./", "*.*", SearchOption.TopDirectoryOnly)
+            var parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            };
+
+          
+                try
+                {
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
+                    var files = Directory.EnumerateFiles("./", "*.*", SearchOption.TopDirectoryOnly)
                                      .Where(file => (file.ToLower().EndsWith(".map") ||
                                     file.ToLower().EndsWith(".yrm") ||
                                     file.ToLower().EndsWith(".mpr")
                                     ) && 是否为多人图(file)
                                     ).ToList();
 
-            
+                    if (!files.Any()) return;
 
-            //foreach(var d in Directory.GetDirectories("maps"))
-            //{
-            //    if (Path.GetFileName(d) == "CP" || Path.GetFileName(d) == "Multi") continue;
-            //    var maps = Directory.EnumerateFiles(d, "*.*", SearchOption.TopDirectoryOnly)
-            //                         .Where(file => (file.ToLower().EndsWith(".map") ||
-            //                        file.ToLower().EndsWith(".yrm") ||
-            //                        file.ToLower().EndsWith(".mpr")
-            //                        ) && 是否为多人图(file)
-            //                        ).ToList();
-            //    customMaps.AddRange(maps);
-            //}
+                    Interlocked.Add(ref 总数, files.Count);
 
-            rootMaps = customMaps;
+                    var ini = "MPMaps.ini";
+                    if (!File.Exists(ini))
+                        File.WriteAllText(ini, string.Empty);
 
-            foreach (var customMap in customMaps)
-            {
-                var fileName = Path.GetFileName(customMap);
-                var destFileName = Path.Combine(CUSTOM_MAPS_DIRECTORY, fileName);
-                File.Move(customMap, destFileName,true);
-            }
+                    var mpMapsIni = new IniFile(ini, Map.ANNOTATION);
+
+                    Parallel.ForEach(files, parallelOptions, file =>
+                    {
+                        try
+                        {
+                            LoadMultiMaps2(mpMapsIni, file);
+                            Interlocked.Increment(ref 加载地图数量);
+
+
+                            WindowManager.progress.Report($"已加载根目录地图{加载地图数量}/{总数},正在加载{file}");
+
+
+                            TaskbarProgress.Instance.SetValue((ulong)加载地图数量, (ulong)总数);
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    });
+
+                    mpMapsIni.WriteIniFile();
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
+          
 
         }
 

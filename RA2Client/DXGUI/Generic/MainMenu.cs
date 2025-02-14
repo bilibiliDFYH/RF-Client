@@ -469,9 +469,6 @@ namespace Ra2Client.DXGUI.Generic
 
             UseDownloadedData();
 
-            
-            
-
         }
 
         
@@ -765,7 +762,7 @@ namespace Ra2Client.DXGUI.Generic
             else
             {
                 IniFile ini = new IniFile(ProgramConstants.GamePath + "Resources/FinalAlert2SP/FinalAlert.ini", Encoding.GetEncoding("GBK"));
-                ini.SetStringValue("TS", "Exe", (ProgramConstants.GamePath + "gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
+                ini.SetStringValue("TS", "Exe", (UserINISettings.Instance.YRPath + "/gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
                 ini.WriteIniFile();
                 Logger.Log("写入地编游戏路径");
             }
@@ -773,8 +770,9 @@ namespace Ra2Client.DXGUI.Generic
             UserINISettings.Instance.IsFirstRun.Value = false;
             UserINISettings.Instance.SaveSettings();
 
-
             optionsWindow.PostInit();
+
+            btnOptions.OnLeftClick();
         }
 
         private void Verification_File()

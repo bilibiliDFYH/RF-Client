@@ -935,7 +935,7 @@ public static class Updater
                         Logger.Log("\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"");
 
                         Environment.Exit(0);
-                        //Restart?.Invoke(null, EventArgs.Empty);
+                        Restart?.Invoke(null, EventArgs.Empty);
                     }
                     else
                     {

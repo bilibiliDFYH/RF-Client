@@ -139,7 +139,7 @@ internal sealed class Program
                         {
                             try
                             {
-                                FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName, relativeFileInfo.ToString());
+                                FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName,relativeFileInfo.ToString());
                                 Write($"更新文件 -> {relativeFileInfo}");
 
                                 var p = Path.GetDirectoryName(copiedFile.FullName);
@@ -148,7 +148,8 @@ internal sealed class Program
                                     Directory.CreateDirectory(p);
                                 } 
 
-                                File.SetAttributes(copiedFile.FullName, FileAttributes.Normal);
+                                if(File.Exists(copiedFile.FullName))
+                                    File.SetAttributes(copiedFile.FullName, FileAttributes.Normal);
                                 fileInfo.CopyTo(copiedFile.FullName, true);
                             }
                             catch (Exception ex)
@@ -163,7 +164,8 @@ internal sealed class Program
 
                 if (updaterDirectory.Exists)
                 {
-                    try {
+                    try
+                    {
                         Directory.Delete(updaterDirectory.FullName, true);
                     }
                     catch

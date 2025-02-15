@@ -139,6 +139,8 @@ public class ModManager : XNAWindow
 
         DDModAI.SelectedIndexChanged += DDModAI_SelectedIndexChanged;
 
+       
+
         _tooltip = new ToolTip(WindowManager, _mcListBoxInfo)
         {
             Text = "选择可查看详细信息"
@@ -180,7 +182,10 @@ public class ModManager : XNAWindow
 
         //   EnabledChanged += ModManager_EnabledChanged;
 
+        //DDModAI.SelectedIndex = 0;
         ReLoad();
+
+       
     }
 
     private void EditCsf()
@@ -199,7 +204,7 @@ public class ModManager : XNAWindow
 
         ListBoxModAi.SelectedIndexChanged -= ListBoxModAISelectedIndexChanged;
         ListBoxModAi.SelectedIndex = -1;
-        ListBoxModAi.Clear();
+        ListBoxModAi.Items.Clear();
 
         switch (DDModAI.SelectedIndex)
         {
@@ -222,6 +227,7 @@ public class ModManager : XNAWindow
 
                     break;
                 }
+
         }
 
         ListBoxModAi.SelectedIndexChanged += ListBoxModAISelectedIndexChanged;
@@ -303,13 +309,15 @@ public class ModManager : XNAWindow
         if (!Directory.Exists(missionPack.FilePath))
             Directory.CreateDirectory(missionPack.FilePath);
 
-        if (Directory.Exists($"Mod&AI/Mod/{missionPack.ID}"))
-            Directory.GetFiles($"Mod&AI/Mod/{missionPack.ID}")
-                .ToList()
-                .ForEach(file => File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true));
+        //if (Directory.Exists($"Mod&AI/Mod/{missionPack.ID}"))
+        //    Directory.GetFiles($"Mod&AI/Mod/{missionPack.ID}")
+        //        .ToList()
+        //        .ForEach(file => File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true));
 
-        foreach (var file in Directory.GetFiles(MissionPackPath, "*.map"))
-            File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true);
+        //foreach (var file in Directory.GetFiles(MissionPackPath, "*.map"))
+        //    File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true);
+
+        FileHelper.CopyDirectory(MissionPackPath, missionPack.FilePath);
 
         foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
         {
@@ -338,14 +346,12 @@ public class ModManager : XNAWindow
             }
         }
 
-        if (File.Exists(Path.Combine(MissionPackPath, "missionmd.ini")))
-            File.Copy(Path.Combine(MissionPackPath, "missionmd.ini"), Path.Combine(missionPack.FilePath, "missionmd.ini"), true);
-        if (File.Exists(Path.Combine(MissionPackPath, "mapselmd.ini")))
-            File.Copy(Path.Combine(MissionPackPath, "mapselmd.ini"), Path.Combine(missionPack.FilePath, "mapselmd.ini"), true);
-        if (File.Exists(Path.Combine(MissionPackPath, "game.fnt")))
-            File.Copy(Path.Combine(MissionPackPath, "game.fnt"), Path.Combine(missionPack.FilePath, "game.fnt"), true);
-
-        missionPack.Create();
+        //if (File.Exists(Path.Combine(MissionPackPath, "missionmd.ini")))
+        //    File.Copy(Path.Combine(MissionPackPath, "missionmd.ini"), Path.Combine(missionPack.FilePath, "missionmd.ini"), true);
+        //if (File.Exists(Path.Combine(MissionPackPath, "mapselmd.ini")))
+        //    File.Copy(Path.Combine(MissionPackPath, "mapselmd.ini"), Path.Combine(missionPack.FilePath, "mapselmd.ini"), true);
+        //if (File.Exists(Path.Combine(MissionPackPath, "game.fnt")))
+        //    File.Copy(Path.Combine(MissionPackPath, "game.fnt"), Path.Combine(missionPack.FilePath, "game.fnt"), true);
     }
 
     void 查找并解压压缩包(string zip)
@@ -366,63 +372,73 @@ public class ModManager : XNAWindow
     /// <summary>
     /// 导入任务包.
     /// </summary>
-    public string 导入任务包(string filePath)
+    public string 导入任务包(bool copyFile, bool deepImport, string filePath)
     {
-        return "敬请期待";
 
-        var 后缀 = Path.GetExtension(filePath);
-        if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-            return "没有找到任务包文件";
-        }
+        //var 后缀 = Path.GetExtension(filePath);
+        //if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
+        //{
+        //    XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+        //    return "没有找到任务包文件";
+        //}
 
-        var path = Path.GetDirectoryName(filePath);
-        if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
-        {
-            var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
-            SevenZip.ExtractWith7Zip(filePath, missionPath);
-            path = missionPath;
-        }
+        //var path = Path.GetDirectoryName(filePath);
+        //if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
+        //{
+        //    var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
+        //    SevenZip.ExtractWith7Zip(filePath, missionPath);
+        //    path = missionPath;
+        //}
 
 
-        if (!Directory.Exists(path))
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
-            return string.Empty;
-        }
+        //if (!Directory.Exists(path))
+        //{
+        //    XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
+        //    return string.Empty;
+        //}
 
-        查找并解压压缩包(path);
+        //查找并解压压缩包(path);
 
         List<string> mapFiles = [];
 
         var id = string.Empty;
 
-        if (Directory.Exists(path))
+        //if (Directory.Exists(path))
+        //{
+        //    List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
+        //    foreach (var item in list)
+        //    {
+        //        if (判断是否为任务包(item))
+        //        {
+
+        //            var r = 导入具体任务包(item);
+        //            if (r != string.Empty)
+        //            {
+        //                id = r;
+        //                mapFiles.AddRange(Directory.GetFiles($"maps/cp/{id}", "*.map"));
+        //            }
+
+
+        //        }
+        //    }
+        //}
+        // 如果路径本身不符合任务包，才检查其子目录
+
+        if (判断是否为任务包(filePath))
         {
-            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
-            foreach (var item in list)
+
+            var r = 导入具体任务包(copyFile,deepImport,filePath);
+            if (r != null)
             {
-                if (判断是否为任务包(item))
-                {
-
-                    var r = 导入具体任务包(item);
-                    if (r != string.Empty)
-                    {
-                        id = r;
-                        mapFiles.AddRange(Directory.GetFiles($"maps/cp/{id}", "*.map"));
-                    }
-
-
-                }
+                id = r.ID;
+                mapFiles.AddRange(Directory.GetFiles(r.FilePath, "*.map"));
             }
         }
-        // 如果路径本身不符合任务包，才检查其子目录
 
 
         if (id == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
+            XNAMessageBox.Show(WindowManager, "错误", "请选择尤复任务包文件");
             return "没有找到任务包文件";
         }
 
@@ -441,17 +457,17 @@ public class ModManager : XNAWindow
         return id;
     }
 
-    public string 导入具体任务包(string missionPath)
+    public MissionPack 导入具体任务包(bool copyFile, bool deepImport, string missionPath)
     {
-        return "敬请期待";
 
         bool isYR = 判断是否为尤复(missionPath);
+        if (!isYR) return null;
 
         var id = Path.GetFileName(missionPath);
         var missionPack = new MissionPack
         {
             ID = id,
-            FilePath = $"Maps\\CP\\{id}",
+            FilePath = missionPath,
             Name = Path.GetFileName(missionPath),
             YR = isYR,
             Other = true,
@@ -461,17 +477,23 @@ public class ModManager : XNAWindow
 
         missionPack.DefaultMod = missionPack.Mod;
 
-        //if (导入具体Mod(missionPath, isYR, false) != string.Empty) //说明检测到Mod
-        //{
-        //    missionPack.Mod += "," + id;
-        //    missionPack.DefaultMod = id;
-        //}
+        var mod = 导入具体Mod(missionPath, copyFile, deepImport, isYR,false);
+        if (mod!=null) //说明检测到Mod
+        {
+            missionPack.Mod += "," + id;
+            missionPack.DefaultMod = id;
+            missionPack.FilePath = mod.FilePath;
+        }
+        else
+        {
+            整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
+            missionPack.FilePath = $"Maps\\CP\\{id}";
+        }
 
-        整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
-
+        missionPack.Create();
         写入任务INI(missionPack);
 
-        return id;
+        return missionPack;
     }
 
     private void 写入任务INI(MissionPack missionPack)
@@ -492,7 +514,7 @@ public class ModManager : XNAWindow
         if (File.Exists(Path.Combine(missionPack.FilePath, $"mission{md}.ini")))
             missionINIPath = Path.Combine(missionPack.FilePath, $"mission{md}.ini");
 
-        var csfPath = $"Maps\\CP\\{missionPack.ID}//ra2md.csf";
+        var csfPath = Path.Combine(missionPack.FilePath,"ra2md.csf");
         var csf = new CSF(csfPath).GetCsfDictionary();
 
         var missionINI = new IniFile(missionINIPath);
@@ -649,9 +671,9 @@ public class ModManager : XNAWindow
         if (判断是否为Mod(path, true))
         {
             var r = 导入具体Mod(path, copyFile, deepImport, true);
-            if (r != string.Empty)
+            if (r != null)
             {
-                id = r;
+                id = r.ID;
             }
         }
 
@@ -663,12 +685,12 @@ public class ModManager : XNAWindow
 
     }
 
-    private string 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR)
+    private Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true)
     {
 
-        var md = isYR ? "md" : string.Empty;
+        var md = isYR ? "md" : null;
 
-        if (!判断是否为Mod(path, isYR)) return "";
+        if (!判断是否为Mod(path, isYR)) return null;
 
         var id = Path.GetFileName(path);
 
@@ -717,7 +739,7 @@ public class ModManager : XNAWindow
 
             if (File.Exists(ClientDefinitionsPath))
             {
-                var ini = new IniFile(GameOptionsPath);
+                var ini = new IniFile(ClientDefinitionsPath);
                 if (ini.SectionExists("Settings"))
                     SettingsFile = ini.GetValue("Settings", "SettingsFile", "RA2MD.ini");
             }
@@ -745,7 +767,7 @@ public class ModManager : XNAWindow
             ID = id,
             Name = Name,
             md = md,
-            MuVisible = true,
+            MuVisible = muVisible,
             SettingsFile = SettingsFile
         };
 
@@ -770,7 +792,7 @@ public class ModManager : XNAWindow
             整合Mod文件(path, mod, deepImport);
 
         mod.Create(); //写入INI文件
-        return id;
+        return mod;
     }
 
     private void UpdateBase()
@@ -944,8 +966,8 @@ public class ModManager : XNAWindow
         {
             if (DDModAI.SelectedIndex == 0)
                 导入Mod(b1, b2, path);
-            // if (DDModAI.SelectedIndex == 2)
-            //  导入任务包(b1, b2, path);
+            if (DDModAI.SelectedIndex == 1)
+                导入任务包(b1, b2, path);
         };
 
         var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
@@ -979,7 +1001,7 @@ public class ModManager : XNAWindow
 
 
 
-        if (DDModAI.SelectedIndex == 2)
+        if (DDModAI.SelectedIndex == 1)
         {
             if (ListBoxModAi.SelectedItem.Tag is not MissionPack missionPack) return;
 
@@ -1060,7 +1082,8 @@ public class ModManager : XNAWindow
 
         try
         {
-            Directory.Delete(missionPack.FilePath, true);
+            if (missionPack.FilePath.Contains("Maps/CP"))
+                Directory.Delete(missionPack.FilePath, true);
         }
         catch
         {
@@ -1218,17 +1241,18 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         var btnZip = new XNAClientButton(windowManager)
         {
             Text = "压缩包导入",
-            ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
+            Enabled = false
         };
         btnZip.LeftClick += BtnZip_LeftClick;
         //btnZip.SetToolTipText
 
         chkCopyFile = new XNAClientCheckBox(windowManager)
         {
-            Text = "复制Mod文件",
+            Text = "复制模组文件",
             ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
-        chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地保留此Mod文件");
+        chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地复制保留此模组文件");
 
         chkDeepImport = new XNAClientCheckBox(windowManager)
         {

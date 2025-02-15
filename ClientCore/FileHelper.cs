@@ -20,6 +20,14 @@ namespace ClientCore
                 {
                     Directory.CreateDirectory(saveDirPath);
                 }
+                else
+                {
+                    // 解除目标文件夹内所有文件的只读属性
+                    foreach (string file in Directory.GetFiles(saveDirPath, "*", SearchOption.AllDirectories))
+                    {
+                        File.SetAttributes(file, FileAttributes.Normal);
+                    }
+                }
 
                 // 复制文件
                 string[] files = Directory.GetFiles(sourceDirPath);

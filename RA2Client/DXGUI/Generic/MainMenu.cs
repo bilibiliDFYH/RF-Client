@@ -904,7 +904,8 @@ namespace Ra2Client.DXGUI.Generic
             {
                 if (Directory.Exists("./tmp"))
                     Directory.Delete("./tmp", true);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Logger.Log("错误", $"删除缓存文件夹出错: {ex.Message}");
             }
@@ -1051,6 +1052,7 @@ namespace Ra2Client.DXGUI.Generic
                 return;
 
             Updater.CheckForUpdates();
+            WindowManager.Report();
             innerPanel.UpdateQueryWindow.GetUpdateContentsAsync(Updater.versionState.ToString(), VersionState.UPTODATE.ToString());
             lblUpdateStatus.Enabled = false;
             lblUpdateStatus.Text = "检查更新中...";

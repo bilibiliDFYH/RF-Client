@@ -73,7 +73,7 @@ namespace ClientGUI
             }
 
             FileHelper.CopyDirectory("Saved Games",Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
-            File.Copy(mod.SettingsFile, Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile), true);
+            File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile), true);
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
 
             var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
@@ -376,13 +376,15 @@ namespace ClientGUI
                     if(Directory.Exists("zh"))
                         FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
 
+
                     File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
                     File.Copy("cncnet5.dll", Path.Combine(ProgramConstants.游戏目录, "cncnet5.dll"), true);
                     // 加载模组
                     FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
                     // 加载任务
-                    FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录, [".map"]);
+                    if(newMission != newGame)
+                        FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录, [".map"]);
 
                     var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
                     FileHelper.CopyDirectory(战役临时目录, ProgramConstants.游戏目录);
@@ -440,7 +442,7 @@ namespace ClientGUI
 
             var RA2MD = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
             if (File.Exists(RA2MD))
-                File.Copy(RA2MD, mod.SettingsFile, true);
+                File.Copy(RA2MD, "RA2MD.ini", true);
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
             获取新的存档();
         }

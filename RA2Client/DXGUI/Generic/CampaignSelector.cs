@@ -213,29 +213,31 @@ namespace Ra2Client.DXGUI.Generic
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
                 Text = "任务包管理器",
-                SelectAction = () => ModManagerEnabled(2)
+                SelectAction = () => ModManagerEnabled(1)
             });
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
                 Text = "导入任务包",
                 SelectAction = () =>
                 {
-                    var openFileDialog = new OpenFileDialog
-                    {
-                        Title = "请选择文件夹或压缩包",
-                        Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.mix)|*.zip;*.rar;*.7z;*.map;*.mix|所有文件 (*.*)|*.*", // 限制选择的文件类型
-                        CheckFileExists = true,   // 检查文件是否存在
-                        ValidateNames = true,     // 验证文件名
-                        Multiselect = false       // 不允许多选
-                    };
+                    //var openFileDialog = new OpenFileDialog
+                    //{
+                    //    Title = "请选择文件夹或压缩包",
+                    //    Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.mix)|*.zip;*.rar;*.7z;*.map;*.mix|所有文件 (*.*)|*.*", // 限制选择的文件类型
+                    //    CheckFileExists = true,   // 检查文件是否存在
+                    //    ValidateNames = true,     // 验证文件名
+                    //    Multiselect = false       // 不允许多选
+                    //};
 
-                    if (openFileDialog.ShowDialog() != DialogResult.OK)
-                        return;
+                    //if (openFileDialog.ShowDialog() != DialogResult.OK)
+                    //    return;
 
-                    var id = _modManager.导入任务包(openFileDialog.FileName);
+                    //var id = _modManager.导入任务包(openFileDialog.FileName);
 
-                    _lbxCampaignList.SelectedIndex = _screenMissions.FindIndex(m => m?.MPack?.ID == id);
-                    _lbxCampaignList.TopIndex = _lbxCampaignList.SelectedIndex;
+                    //_lbxCampaignList.SelectedIndex = _screenMissions.FindIndex(m => m?.MPack?.ID == id);
+                    //_lbxCampaignList.TopIndex = _lbxCampaignList.SelectedIndex;
+                    ModManagerEnabled(1);
+                    _modManager.BtnNew.OnLeftClick();
 
                 }
             });
@@ -370,7 +372,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var lblModify = new XNALabel(WindowManager);
             lblModify.Name = nameof(lblModify);
-            lblModify.Text = "注：某些修改可能会破坏战役流程。";
+            lblModify.Text = "注：修改不一定生效，某些可能会破坏战役流程。";
             lblModify.ClientRectangle = new Rectangle(_lblGame.X, _tbMissionDescriptionList.Y + 40, 0, 0);
             AddChild(lblModify);
 
@@ -563,8 +565,9 @@ namespace Ra2Client.DXGUI.Generic
         /// 异步获取任务信息
         /// </summary>
         /// <param name="modChange"> 是否忽视缓存 </param>
-        private async Task GetMissionInfo(bool modChange)
+        private void GetMissionInfo(bool modChange)
         {
+            
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             _lbxInforBox.Clear();

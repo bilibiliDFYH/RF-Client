@@ -516,7 +516,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
 
-            if (mod.ID != "YRE")
+            if (mod.ID != "YR+" && mod.ID != "RA2")
             {
                 foreach (var chk in CheckBoxes)
                 {

@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using ClientCore;
 using ClientCore.INIProcessing;
+using DTAConfig.Entity;
 using Localization.Tools;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
@@ -34,6 +35,7 @@ namespace ClientGUI
         public static Dictionary<string, string> FilePaths = [];
         private static string[] oldSaves;
 
+        private static Mod mod;
 
         /// <summary>
         /// Starts the main game process.
@@ -43,7 +45,11 @@ namespace ClientGUI
         {
 
             RenderImage.CancelRendering();
-            string r = 切换文件(iniFile.GetSection("Settings"));
+            var settings = iniFile.GetSection("Settings");
+            string r = 切换文件(settings);
+
+            mod = Mod.Mods.Find(m => m.FilePath == settings.GetValue("Game", string.Empty));
+
 
             if (r != string.Empty)
             {
@@ -63,11 +69,11 @@ namespace ClientGUI
             if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")))
             {
                 WindowManager.progress.Report("正在加载音乐");
-                加载音乐();
+                加载音乐(mod.FilePath);
             }
 
             FileHelper.CopyDirectory("Saved Games",Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
-            File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, "RA2MD.ini"), true);
+            File.Copy(mod.SettingsFile, Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile), true);
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
 
             var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
@@ -231,12 +237,14 @@ namespace ClientGUI
         }
 
         static readonly FileInfo spawnerSettingsFile = SafePath.GetFile(ProgramConstants.GamePath, ProgramConstants.SPAWNER_SETTINGS);
-        private static void 加载音乐()
+        private static void 加载音乐(string modPath)
         {
             Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", Path.Combine(ProgramConstants.游戏目录, "thememd.mix"));
-            if (File.Exists("ra2md.csf"))
+            File.Copy($"{ProgramConstants.GamePath}Resources/thememd/thememd.ini", Path.Combine(ProgramConstants.游戏目录, "thememd.ini"));
+            var csfPath = Path.Combine(modPath, "ra2md.csf");
+            if (File.Exists(csfPath))
             {
-                var d = new CSF("ra2md.csf").GetCsfDictionary();
+                var d = new CSF(csfPath).GetCsfDictionary();
                 if (d != null)
                 {
                     foreach (var item in UserINISettings.Instance.MusicNameDictionary.Keys)
@@ -251,7 +259,7 @@ namespace ClientGUI
                         }
 
                     }
-                    CSF.WriteCSF(d, "ra2md.csf");
+                    CSF.WriteCSF(d, Path.Combine(ProgramConstants.游戏目录, "ra2md.csf"));
                 }
 
             }
@@ -429,6 +437,10 @@ namespace ClientGUI
             var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
             if (File.Exists(keyboardMD))
                 File.Copy(keyboardMD, "KeyboardMD.ini", true);
+
+            var RA2MD = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
+            if (File.Exists(RA2MD))
+                File.Copy(RA2MD, mod.SettingsFile, true);
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
             获取新的存档();
         }

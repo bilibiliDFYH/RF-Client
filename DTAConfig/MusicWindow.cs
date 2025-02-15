@@ -186,7 +186,7 @@ namespace DTAConfig
                 foreach (string sourceFilePath in openFileDialog.FileNames)
                 {
                     string fileName = Path.GetFileName(sourceFilePath);
-                    string uniqueId = Guid.NewGuid().ToString("N"); // 生成唯一文件名
+                    string uniqueId = Guid.NewGuid().ToString("N")[..8]; // 生成唯一文件名
                     string targetFilePath = Path.Combine(targetDirectory, $"_music{uniqueId}.wav");
 
                     try

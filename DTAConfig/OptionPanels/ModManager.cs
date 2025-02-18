@@ -89,6 +89,16 @@ public class ModManager : XNAWindow
         });
         _modMenu.AddItem(new XNAContextMenuItem
         {
+            Text = "将文件打包为MIX",
+            SelectAction = 将文件打包为MIX
+        });
+        _modMenu.AddItem(new XNAContextMenuItem
+        {
+            Text = "解压MIX",
+            SelectAction = 解压MIX
+        });
+        _modMenu.AddItem(new XNAContextMenuItem
+        {
             Text = "编辑CSF",
             SelectAction = EditCsf
         });
@@ -186,6 +196,52 @@ public class ModManager : XNAWindow
         ReLoad();
 
        
+    }
+
+    private void 解压MIX()
+    {
+        using OpenFileDialog fileDialog = new OpenFileDialog();
+        fileDialog.Filter = "MIX 文件 (*.mix)|*.mix";
+        fileDialog.Title = "选择MIX文件";
+        fileDialog.Multiselect = true; // 允许选择多个文件
+
+        if (fileDialog.ShowDialog() == DialogResult.OK)
+        {
+            foreach(var mix in fileDialog.FileNames)
+            {
+                var Dname = Path.GetDirectoryName(mix);
+                var Fname = Path.GetFileNameWithoutExtension(mix);
+
+                var path = Path.Combine(Dname,Fname); ;
+                Mix.UnPackMix(path, mix);
+                if (Directory.Exists(path))
+                {
+                    Process.Start("explorer.exe", path);
+                }
+             
+            }
+        }
+    }
+
+    private void 将文件打包为MIX()
+    {
+        using OpenFileDialog fileDialog = new OpenFileDialog();
+        fileDialog.Filter = "所有文件 (*.*)|*.*";
+        fileDialog.Title = "选择文件";
+        fileDialog.Multiselect = true; // 允许选择多个文件
+
+        if (fileDialog.ShowDialog() == DialogResult.OK)
+        {
+            var Dname = Path.GetDirectoryName(fileDialog.FileNames[0]);
+            var Fname = Path.GetFileName(Dname) + ".mix";
+            Mix.PackFilesToMix(fileDialog.FileNames.ToList(), Dname, Fname);
+            var path = Path.Combine(Dname,Fname);
+            if (File.Exists(path))
+            {
+                XNAMessageBox.Show(WindowManager, "提示", $"打包成功:{path}");
+            }else
+                XNAMessageBox.Show(WindowManager, "提示", $"打包失败");
+        }
     }
 
     private void EditCsf()
@@ -998,7 +1054,6 @@ public class ModManager : XNAWindow
             XNAMessageBox.Show(WindowManager, "错误", "系统自带的无法被删除");
             return;
         }
-
 
 
         if (DDModAI.SelectedIndex == 1)

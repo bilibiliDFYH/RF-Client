@@ -9,7 +9,7 @@ public static class Mix
     //将目录打包成mix
     public static void PackToMix(string path, string MixName)
     {
-        string command = $" pack -game ra2 -mix \"{MixName}\" -dir \"{path}\"";
+        string command = $" pack -game ra2 -mix \"{MixName}\" -dir \"{path}\" -database \"Resources\\global mix database.dat\"";
 
         Process process = new Process();
         process.StartInfo.FileName = "Resources\\ccmixar.exe";
@@ -54,7 +54,7 @@ public static class Mix
         }
     }
 
-    public static void UnPackMix(string path, string MixName)
+    public static void UnPackMix(string path, string MixName,bool del = false)
     {
         string command = $" unpack -game ra2 -mix \"{MixName}\" -dir \"Resources/MissionCashe\"";
 
@@ -72,10 +72,13 @@ public static class Mix
 
         if (!Directory.Exists("Resources/MissionCashe/"))
             Directory.CreateDirectory("Resources/MissionCashe/");
+        if(!Directory.Exists(path))
+            Directory.CreateDirectory(path);
 
         foreach (string file in Directory.GetFiles("Resources/MissionCashe/"))
-            File.Move(file, $"{path}{Path.GetFileName(file)}", true);
-        File.Delete(MixName);
+            File.Move(file, Path.Combine(path,Path.GetFileName(file)), true);
+        if(del)
+            File.Delete(MixName);
         Directory.Delete("Resources/MissionCashe/", true);
          
     }

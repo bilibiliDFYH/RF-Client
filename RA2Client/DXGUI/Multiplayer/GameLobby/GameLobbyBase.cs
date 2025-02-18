@@ -237,7 +237,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             _modManager = ModManager.GetInstance(WindowManager);
             
-            //_modManager.触发刷新 += ReloadAI;
+            
             _modManager.触发刷新 += ReloadMod;
 
             PlayerOptionsPanel = FindChild<XNAPanel>(nameof(PlayerOptionsPanel));

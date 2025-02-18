@@ -314,7 +314,7 @@ public class ModManager : XNAWindow
                 var extension = Path.GetExtension(file);
 
                 // 排除特定文件
-                if (!needRecursion && (extension == ".map" || extension == ".png" || extension == ".jpg" || extension == ".pdb"))
+                if (!needRecursion && (extension == ".png" || extension == ".jpg" || extension == ".pdb"))
                     continue;
 
                 // 检查文件哈希值并决定是否复制

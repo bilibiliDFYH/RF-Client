@@ -494,7 +494,7 @@ public class ModManager : XNAWindow
 
         if (id == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择尤复任务包文件");
+            XNAMessageBox.Show(WindowManager, "错误", "请选择尤复任务包或基于原生原版的任务包文件");
             return "没有找到任务包文件";
         }
 
@@ -517,7 +517,9 @@ public class ModManager : XNAWindow
     {
 
         bool isYR = 判断是否为尤复(missionPath);
-        if (!isYR) return null;
+        //if (!isYR) return null;
+
+        if (判断是否为Mod(missionPath, isYR) && !isYR) return null;
 
         var id = Path.GetFileName(missionPath);
         var missionPack = new MissionPack
@@ -534,13 +536,13 @@ public class ModManager : XNAWindow
         missionPack.DefaultMod = missionPack.Mod;
 
         var mod = 导入具体Mod(missionPath, copyFile, deepImport, isYR,false);
-        if (mod!=null) //说明检测到Mod
+        if (mod != null) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
             missionPack.DefaultMod = id;
             missionPack.FilePath = mod.FilePath;
         }
-        else
+        else 
         {
             整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
             missionPack.FilePath = $"Maps\\CP\\{id}";

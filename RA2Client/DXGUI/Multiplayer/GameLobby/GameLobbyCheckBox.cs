@@ -69,6 +69,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         public bool standard;
 
+        public bool expandable;
+
         private bool reversed;
 
         public bool Special { get; private set; } = false;
@@ -79,7 +81,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private string disabledSpawnIniValue = "False";
 
         public List<string> ControlName;
-        public string Extension = string.Empty;
         public List<string> ControlIndex;
 
         public bool basis = true;
@@ -156,11 +157,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 case "Special":
                     Special = bool.Parse(value);
                     return;
-                case "Extension":
-                    Extension = value;
-                    return;
                 case "Standard":
                     standard = Conversions.BooleanFromString(value, false);
+                    return;
+                case "Expandable":
+                    expandable = Conversions.BooleanFromString(value, false);
                     return;
                 case "DisallowedSideIndex":
                 case "DisallowedSideIndices":

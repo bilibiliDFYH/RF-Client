@@ -34,6 +34,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public int defaultIndex;
 
         public bool Special { get; private set; } = false;
+        public bool expandable { get; private set; }
 
         string[] RandomSides;
         public List<string> RandomSelectors = new List<string>();
@@ -139,6 +140,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 case "Standard":
                     standard = Conversions.BooleanFromString(value, false);
+                    return;
+                case "Expandable":
+                    expandable = Conversions.BooleanFromString(value, false);
                     return;
 
                 case "DefaultIndex":

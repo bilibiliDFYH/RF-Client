@@ -516,49 +516,26 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
 
-            if (mod.ID != "YR+" && mod.ID != "RA2" && mod.Compatible != "YR+")
+            foreach (var chk in CheckBoxes)
             {
-                foreach (var chk in CheckBoxes)
+                if ((!chk.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (chk.expandable && (mod.ID != "YR" || mod.Compatible != "YR")))
                 {
-                    if (!chk.standard)
-                    {
-
-                        chk.Checked = chk.defaultValue;
-                        chk.AllowChecking = false;
-                    }
-
+                    chk.Checked = chk.defaultValue;
+                    chk.AllowChecking = false;
                 }
-                foreach (var dd in DropDowns)
-                {
-                    if (!dd.standard)
-                    {
-
-                        dd.SelectedIndex = dd.defaultIndex;
-                        dd.AllowDropDown = false;
-                    }
-                }
-
+                else
+                    chk.AllowChecking = true;
             }
-            else
+            foreach (var dd in DropDowns)
             {
-                foreach (var chk in CheckBoxes)
-                {
-                    if (!chk.standard)
-                    {
-                        chk.AllowChecking = true;
-                    }
+                if ((!dd.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (dd.expandable && (mod.ID != "YR" || mod.Compatible != "YR")))
+                { 
+                    dd.SelectedIndex = dd.defaultIndex;
+                    dd.AllowDropDown = false;
                 }
-
-                foreach (var dd in DropDowns)
-                {
-                    if (!dd.standard)
-                    {
-                        dd.AllowDropDown = true;
-                    }
-                }
-
+                else
+                    dd.AllowDropDown = true;
             }
-
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());
             string randomColor = GameOptionsIni.GetStringValue("General", "RandomColor", "255,255,255");

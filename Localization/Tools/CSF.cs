@@ -197,5 +197,24 @@ namespace Localization.Tools
             }
             return strInvert;
         }
+
+        public static Dictionary<string, string> 获取目录下的CSF字典(string path)
+        {
+            var csfs = Directory.GetFiles(path, "*.csf");
+            var combinedDictionary = new Dictionary<string, string>();
+
+            foreach (var csf in csfs)
+            {
+                var csfDictionary = new CSF(csf).GetCsfDictionary();
+
+                foreach (var kvp in csfDictionary)
+                {
+                    // 如果键已经存在，替换它
+                    combinedDictionary[kvp.Key] = kvp.Value;
+                }
+            }
+
+            return combinedDictionary;
+        }
     }
 }

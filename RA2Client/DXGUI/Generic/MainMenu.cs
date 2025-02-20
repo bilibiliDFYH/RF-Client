@@ -541,13 +541,13 @@ namespace Ra2Client.DXGUI.Generic
                         // 设置新值
                         sessionManagerKey.SetValue(valueName, newValues, RegistryValueKind.MultiString);
 
-                        XNAMessageBox.Show(WindowManager, "信息", "我们注意到游戏渲染插件可能无法被正确调用，已经修复了，但这需要你重启计算机才能生效");
+                        XNAMessageBox.Show(WindowManager, "信息", "我们注意到游戏渲染插件可能无法被正确调用，已经修复了，但这需要你重启计算机才能生效.\n如果不重启电脑直接游玩,你可能会遇到 无法设置渲染模式,按ESC或者点击右上角按钮卡住,游戏运行不流畅  等问题.");
                     }
                     else
                     {
                         Logger.Log($"{dllName} 已存在于 {valueName} 中。");
                     }
-                }
+                }  
             }
             catch (Exception ex)
             {

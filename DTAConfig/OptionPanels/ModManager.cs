@@ -22,6 +22,8 @@ using System.Xml.Linq;
 using Microsoft.Xna.Framework.Input;
 using System.Diagnostics.Eventing.Reader;
 using ClientCore.Settings;
+using SharpDX.Direct2D1;
+using TsfSharp;
 
 namespace DTAConfig.OptionPanels;
 
@@ -812,7 +814,7 @@ public class ModManager : XNAWindow
                 var ini = new IniFile(GameCollectionConfigPath);
                 ini.GetSections().ToList().ForEach(section =>
                 {
-                    if(ini.KeyExists(section, "UIName"))
+                    if (ini.KeyExists(section, "UIName"))
                         Name = ini.GetValue(section, "UIName", Name);
                 });
             }
@@ -820,6 +822,33 @@ public class ModManager : XNAWindow
             #endregion
 
         }
+
+        #region 或从 rulesmd.ini 提取 国家 信息
+        if (Countries == string.Empty)
+        {
+            var RulesPath = Path.Combine(path, "rulesmd.ini");
+            if (File.Exists(RulesPath))
+            {
+                var ini = new IniFile(RulesPath);
+                if (ini.SectionExists("Countries"))
+                {
+                    var d = CSF.获取目录下的CSF字典(path);
+
+                    foreach (var country in ini.GetSectionValues("Countries").SkipLast(4))
+                    {
+                        var UIName = ini.GetValue(country, "UIName", $"Name:{country}");
+                        if (d.ContainsKey(UIName))
+                            Countries += d[UIName] + ',';
+                        else
+                            Countries += country + ',';
+                    }
+                    Countries = Countries.TrimEnd(',');
+                }
+
+            }
+        }
+        #endregion
+
         var mod = new Mod
         {
             ID = id,

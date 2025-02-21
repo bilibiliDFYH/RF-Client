@@ -88,8 +88,6 @@ namespace ClientGUI
 
             WindowManager.progress.Report("正在唤起游戏");
 
-
-
             Logger.Log("About to launch main game executable.");
 
             int waitTimes = 0;
@@ -227,7 +225,7 @@ namespace ClientGUI
                         Environment.NewLine + Environment.NewLine + "Returned error: " + ex.Message);
                     Process_Exited(gameProcess, EventArgs.Empty);
                     return;
-                }
+                }  
 
             }
 
@@ -240,7 +238,7 @@ namespace ClientGUI
         private static void 加载音乐(string modPath)
         {
             Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", Path.Combine(ProgramConstants.游戏目录, "thememd.mix"));
-            File.Copy($"{ProgramConstants.GamePath}Resources/thememd/thememd.ini", Path.Combine(ProgramConstants.游戏目录, "thememd.ini"));
+            File.Copy($"{ProgramConstants.GamePath}Resources/thememd/thememd.ini", Path.Combine(ProgramConstants.游戏目录, "thememd.ini"),true);
             var csfPath = Path.Combine(modPath, "ra2md.csf");
             if (File.Exists(csfPath))
             {

@@ -518,23 +518,30 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             foreach (var chk in CheckBoxes)
             {
-                if ((!chk.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (chk.expandable && (mod.ID != "YR" || mod.Compatible != "YR")))
+                //if ((!chk.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (chk.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
+                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")) || (chk.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
+                {
+                    chk.AllowChecking = true;
+                }
+                else
                 {
                     chk.Checked = chk.defaultValue;
                     chk.AllowChecking = false;
                 }
-                else
-                    chk.AllowChecking = true;
             }
             foreach (var dd in DropDowns)
             {
-                if ((!dd.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (dd.expandable && (mod.ID != "YR" || mod.Compatible != "YR")))
-                { 
+                // if ((!dd.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (dd.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
+                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")) || (dd.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
+                {
+                    dd.AllowDropDown = true;
+                }
+                else
+                {
                     dd.SelectedIndex = dd.defaultIndex;
                     dd.AllowDropDown = false;
                 }
-                else
-                    dd.AllowDropDown = true;
+                    
             }
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());

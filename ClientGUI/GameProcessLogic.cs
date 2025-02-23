@@ -73,7 +73,21 @@ namespace ClientGUI
             }
 
             FileHelper.CopyDirectory("Saved Games",Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
-            File.Copy("RA2MD.ini", Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile), true);
+
+            var ra2md = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
+            
+
+            if (File.Exists(ra2md))
+            {
+                var ra2mdIni = new IniFile(ra2md);
+                IniFile.ConsolidateIniFiles(ra2mdIni, new IniFile("RA2MD.ini"));
+                ra2mdIni.WriteIniFile();
+            }
+            else
+            {
+                File.Copy("RA2MD.ini", ra2md, true);
+            }
+
             File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
 
             var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");

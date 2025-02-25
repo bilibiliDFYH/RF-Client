@@ -112,7 +112,7 @@ public class SevenZip
         return files;
     }
 
-    public static void ExtractWith7Zip(string archivePath, string extractPath, ProgressCallback progressCallback = null,bool needDel = false)
+    public static void ExtractWith7Zip(string archivePath, string extractPath, ProgressCallback progressCallback = null, bool needDel = false)
     {
         try
         {
@@ -160,7 +160,7 @@ public class SevenZip
 
             process.WaitForExit(); // 等待解压完成
 
-            if (needDel)
+            if (process.ExitCode == 0 && needDel)
             {
                 try
                 {

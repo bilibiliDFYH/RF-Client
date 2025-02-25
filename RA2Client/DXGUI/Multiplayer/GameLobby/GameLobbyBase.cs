@@ -520,7 +520,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (var chk in CheckBoxes)
             {
                 //if ((!chk.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (chk.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
-                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+                if ((chk.standard || chk.Name == "chkAILimit" || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     chk.AllowChecking = true;
                 }
@@ -541,10 +541,22 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
 
             }
+
+            var chkAILimit = CheckBoxes.Find(chk => chk.Name == "chkAILimit");
+            if (mod.SuperWeaponBuildings == string.Empty)
+            {
+                chkAILimit.Checked = false;
+                chkAILimit.AllowChecking = false;
+            }
+            else
+            {
+                chkAILimit.AllowChecking = true;
+            }
+
             foreach (var dd in DropDowns)
             {
                 // if ((!dd.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (dd.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
-                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+                if ((dd.standard || dd.Name == "cmbSw" || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     dd.AllowDropDown = true;
                 }
@@ -564,6 +576,18 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     dd.AllowDropDown = true;
                 }
             }
+
+            var cmbSw = DropDowns.Find(dd => dd.Name == "cmbSw");
+            if(mod.SuperWeaponBuildings == string.Empty)
+            {
+                cmbSw.SelectedIndex = cmbSw.defaultIndex;
+                cmbSw.AllowDropDown = false;
+            }
+            else
+            {
+                cmbSw.AllowDropDown = true;
+            }
+
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());
             string randomColor = GameOptionsIni.GetStringValue("General", "RandomColor", "255,255,255");

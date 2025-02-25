@@ -36,7 +36,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public bool Special { get; private set; } = false;
         public bool expandable { get; private set; }
 
-        string[] RandomSides;
         public List<string> RandomSelectors = new List<string>();
         public List<List<string>> RandomSidesIndex = new List<List<string>>();
 

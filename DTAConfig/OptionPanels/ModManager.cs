@@ -381,7 +381,7 @@ public class ModManager : XNAWindow
         {
             if (covCsf)
             {
-                var d = new CSF(csf).GetCsfDictionary();
+                var d = new CSF(csf).GetCsfDictionary(); 
                 if (d != null)
                 {
                     d.ConvertValuesToSimplified();
@@ -546,8 +546,8 @@ public class ModManager : XNAWindow
         }
         else 
         {
-            整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
             missionPack.FilePath = $"Maps\\CP\\{id}";
+            整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
         }
 
         missionPack.Create();

@@ -66,7 +66,7 @@ public class Mod : InfoBaseClass
     }
 
 
-    public static void reLoad()
+    public static void ReLoad()
     {
 
         Mods.Clear();
@@ -100,6 +100,9 @@ public class Mod : InfoBaseClass
                 {
                     mod.art = Path.Combine(mod.FilePath, $"art{mod.md}.iniFile");
                 }
+
+                mod.SuperWeaponBuildings = iniFile.GetValue(modID, "SuperWeaponBuildings", string.Empty);
+                
 
                 if (iniFile.KeyExists(modID, "Sides"))
                 {
@@ -221,6 +224,8 @@ public class Mod : InfoBaseClass
     public string Compatible { get; set; } = string.Empty;
 
     public string SettingsFile { get; set; } = "RA2MD.ini";
+
+    public string SuperWeaponBuildings { get; set; } = string.Empty;
 
     /// <summary>
     /// 键,值：值Mod能玩的键Mod都能玩

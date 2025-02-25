@@ -1066,7 +1066,7 @@ public class ModManager : XNAWindow
 
     private void ReLoad()
     {
-        Mod.reLoad();
+        Mod.ReLoad();
 
         MissionPack.reLoad();
 

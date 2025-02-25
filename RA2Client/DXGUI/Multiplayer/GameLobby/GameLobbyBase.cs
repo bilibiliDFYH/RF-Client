@@ -29,6 +29,7 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Threading;
 using SharpDX.Direct3D9;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -519,7 +520,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (var chk in CheckBoxes)
             {
                 //if ((!chk.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (chk.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
-                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")) || (chk.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
+                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     chk.AllowChecking = true;
                 }
@@ -528,11 +529,22 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     chk.Checked = chk.defaultValue;
                     chk.AllowChecking = false;
                 }
+
+                if(chk.Name == "chkAILimit" && mod.SuperWeaponBuildings == string.Empty)
+                {
+                    chk.Checked = false;
+                    chk.AllowChecking = false;
+                }
+                else
+                {
+                    chk.AllowChecking = true;
+                }
+
             }
             foreach (var dd in DropDowns)
             {
                 // if ((!dd.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (dd.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
-                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")) || (dd.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
+                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     dd.AllowDropDown = true;
                 }
@@ -541,7 +553,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     dd.SelectedIndex = dd.defaultIndex;
                     dd.AllowDropDown = false;
                 }
-                    
+
+                if (dd.Name == "cmbSw" && mod.SuperWeaponBuildings == string.Empty)
+                {
+                    dd.SelectedIndex = dd.defaultIndex;
+                    dd.AllowDropDown = false;
+                }
+                else
+                {
+                    dd.AllowDropDown = true;
+                }
             }
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());
@@ -2130,6 +2151,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             IniFile mapIni = Map.GetMapIni();
 
+            var mod = (Mod)cmbGame.SelectedItem.Tag;
+
             //if (!chkExtension.Checked && ((Mod)cmbGame.SelectedItem.Tag).md == string.Empty)
             //{
             //    IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
@@ -2163,7 +2186,29 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
 
             IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
-         //   IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
+
+            #region 限制AI建造超级武器
+            var chkAILimit = CheckBoxes.Find(chk => chk.Name == "chkAILimit");
+            if (chkAILimit != null && chkAILimit.Checked)
+            {
+                foreach(var superWeaponBuilding in mod.SuperWeaponBuildings.Split(','))
+                {
+                    mapIni.SetValue(superWeaponBuilding, "AIBuildThis","no");
+                }
+            }
+            #endregion
+
+            #region 限制所有玩家建造超级武器
+            var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
+            if(cmbSw != null && cmbSw.SelectedIndex == 0)
+            {
+                foreach (var superWeaponBuilding in mod.SuperWeaponBuildings.Split(','))
+                {
+                    mapIni.SetValue(superWeaponBuilding, "TechLevel", "11");
+                }
+            }
+            #endregion
+
 
             string mapIniFileName = Path.GetFileName(mapIni.FileName);
             mapIni.SetStringValue("Basic", "OriginalFilename", mapIniFileName);

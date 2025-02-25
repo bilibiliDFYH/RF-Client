@@ -875,7 +875,7 @@ public static class Updater
                         //if (bRet)
                         //    File.Delete(pkgFile);
 
-                        SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName,needDel:true);
+                        SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName);
                     }
                     catch(Exception ex)
                     {

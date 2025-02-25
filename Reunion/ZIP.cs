@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Localization.SevenZip;
 using Rampastring.Tools;
 
-namespace Localization.Tools;
+namespace ZIP;
 
 public class SevenZip
 {

@@ -1,11 +1,10 @@
-﻿using Rampastring.Tools;
+﻿
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Localization.Tools
 {
@@ -57,7 +56,7 @@ namespace Localization.Tools
             uint numStrings = header.Item4; //读取字符串数
 
             // 检查标签数是否等于字符串数
-            if (numLabels != numStrings)
+            if (numLabels != numStrings && numLabels + 1 != numStrings)
             {
                 throw new InvalidDataException("Label count and string count are unequal"); // 如果不相等，抛出异常
             }
@@ -92,7 +91,10 @@ namespace Localization.Tools
                         // 检查每个标签的格式是否正确
                         if (lbl != " LBL" || one != 1)
                         {
-                            throw new InvalidDataException("Invalid label format"); // 格式错误抛出异常
+                            if (nameStrMap.Count > 0)
+                                continue;
+                            else 
+                                throw new InvalidDataException("Invalid label format"); // 格式错误抛出异常
                         }
 
                         byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);

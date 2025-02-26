@@ -406,23 +406,23 @@ namespace ClientGUI
                     // 加载任务
                     if (newMission != newGame)
                     {
-                  
+
                         var csfs = Directory.GetFiles(newMission, "*.csf")
                                                                     .OrderBy(f => f) // 按文件名升序处理
                                                                     .ToArray();
                         foreach (var csf in csfs)
                         {
                             var tagCsf = csf;
-                            if(csf == "ra2.csf")
+                            if (csf == "ra2.csf")
                             {
                                 tagCsf = "ra2md.csf";
                             }
-                            if(newMission.Contains("Maps/CP") && UserINISettings.Instance.SimplifiedCSF.Value)
+                            if (newMission.Contains("Maps/CP") && UserINISettings.Instance.SimplifiedCSF.Value)
                                 CSF.将繁体的CSF转化为简体CSF(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
                             else
                                 File.Copy(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf), true);
                         }
-
+                    }
                     // 加载战役图
                     if (newSection.KeyExists("CampaignID"))
                     {

@@ -870,6 +870,8 @@ public static class Updater
                                 return;
                             }
                         }
+
+                        RenderImage.CancelRendering();
                         //解压更新包文件
                         //bool bRet = SevenZip.CompressWith7Zip(pkgFile, tmpDirInfo.FullName);
                         //if (bRet)

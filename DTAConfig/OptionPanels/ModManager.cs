@@ -599,7 +599,7 @@ public class ModManager : XNAWindow
 
         foreach (var map in maps)
         {
-            var mapName = Path.GetFileName(map);
+            var mapName = Path.GetFileName(map).ToUpper();
 
             var sectionName = missionPack.ID + count;
 
@@ -612,15 +612,15 @@ public class ModManager : XNAWindow
             else if (mapName.ToLower().Contains("sov"))
                 阵营 = "Soviet";
 
-            var 任务名称 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "UIName", string.Empty)) ?? $"第{count}关";//任务名称
-            var 任务地点 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadMessage", string.Empty)) ?? ""; //任务地点
-            var 任务简报 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "Briefing", string.Empty)) ?? ""; //任务描述
-            var 任务目标 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty)) ?? ""; //任务目标
+            var 任务名称 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "UIName", string.Empty))?.ConvertValuesToSimplified() ?? $"第{count}关";//任务名称
+            var 任务地点 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadMessage", string.Empty))?.ConvertValuesToSimplified() ?? ""; //任务地点
+            var 任务简报 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "Briefing", string.Empty))?.ConvertValuesToSimplified() ?? ""; //任务描述
+            var 任务目标 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty))?.ConvertValuesToSimplified() ?? ""; //任务目标
 
             var LongDescription = 任务地点 + "@@" + 任务简报 + "@" + 任务目标;
 
             battleINI.SetValue("Battles", sectionName, sectionName)
-                     .SetValue(sectionName, "Scenario", mapName.ToUpper())
+                     .SetValue(sectionName, "Scenario", mapName)
                      .SetValue(sectionName, "Description", 任务名称)
                      .SetValue(sectionName, "LongDescription", LongDescription.Replace("\n", "@"))
                      .SetValue(sectionName, "MissionPack", missionPack.ID)

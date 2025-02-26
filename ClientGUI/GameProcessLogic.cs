@@ -38,7 +38,7 @@ namespace ClientGUI
         private static Mod mod;
 
         /// <summary>
-        /// Starts the main game process.
+        /// Starts the main game process.  
         /// </summary>
         /// 
         public static void StartGameProcess(WindowManager windowManager, IniFile iniFile = null)
@@ -392,8 +392,8 @@ namespace ClientGUI
                             , true);
                     }
 
-                    if(Directory.Exists("TX"))
-                        FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
+                    //if(Directory.Exists("TX"))
+                    //    FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
                     if(Directory.Exists("zh"))
                         FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
 

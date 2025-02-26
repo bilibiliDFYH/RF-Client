@@ -127,6 +127,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             IniNameOverride = nameof(LANGameLobby);
             base.Initialize();
             PostInitialize();
+            ReloadMod();
         }
 
         public void SetUp(bool isHost,

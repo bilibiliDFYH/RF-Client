@@ -198,8 +198,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnRandomMap.ClientRectangle = new Rectangle(btnLockGame.Right  + 200, btnLockGame.Y, btnLockGame.Width, btnLockGame.Height);
 
-          
-            
+
+            ReloadMod();
         }
 
         /// <summary>

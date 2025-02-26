@@ -762,7 +762,7 @@ namespace Ra2Client.DXGUI.Generic
             else
             {
                 IniFile ini = new IniFile(ProgramConstants.GamePath + "Resources/FinalAlert2SP/FinalAlert.ini", Encoding.GetEncoding("GBK"));
-                ini.SetStringValue("TS", "Exe", (UserINISettings.Instance.YRPath + "/gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
+                ini.SetStringValue("TS", "Exe", (ProgramConstants.GamePath + UserINISettings.Instance.YRPath.Value + "/gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
                 ini.WriteIniFile();
                 Logger.Log("写入地编游戏路径");
             }
@@ -1211,6 +1211,7 @@ namespace Ra2Client.DXGUI.Generic
         private void BtnMapEditor_LeftClick(object sender, EventArgs e)
         {
             RenderImage.CancelRendering();
+
             LaunchMapEditor();
         }
 
@@ -1448,7 +1449,7 @@ namespace Ra2Client.DXGUI.Generic
         }
 
         private void LaunchMapEditor()
-        {
+        { 
             OSVersion osVersion = ClientConfiguration.Instance.GetOperatingSystemVersion();
             Process mapEditorProcess = new Process();
 

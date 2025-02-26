@@ -203,7 +203,7 @@ namespace Localization.Tools
         public static Dictionary<string, string> 获取目录下的CSF字典(string path)
         {
             var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理
-            var combinedDictionary = new Dictionary<string, string>();
+            var combinedDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var csf in csfs)
             {

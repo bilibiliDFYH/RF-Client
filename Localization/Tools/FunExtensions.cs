@@ -36,6 +36,11 @@ namespace Localization.Tools
             }
         }
 
+        public static string ConvertValuesToSimplified(this string s)
+        {
+            return ChineseConverter.Convert(s, ChineseConversionDirection.TraditionalToSimplified);
+        }
+
         /// <summary>
         /// 将文件大小转换为MB
         /// </summary>

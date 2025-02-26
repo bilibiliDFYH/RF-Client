@@ -310,7 +310,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             cmbGame = FindChild<GameLobbyDropDown>(nameof(cmbGame));
 
-            foreach(var mod in Mod.Mods)
+            foreach(var mod in Mod.Mods.FindAll(mod => mod.MuVisible))
             {
                 cmbGame.AddItem(new XNADropDownItem()
                 {
@@ -1179,6 +1179,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             try
             {
+                RenderImage.CancelRendering();
+
                 MapLoader.DeleteCustomMap(GameModeMap);
 
                 tbMapSearch.Text = string.Empty;
@@ -1195,8 +1197,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 ListMaps();
                 ChangeMap(GameModeMap);
+
+                _ = RenderImage.RenderImagesAsync();
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 Logger.Log($"Deleting map {Map.BaseFilePath} failed! message: {ex.Message}");
                 XNAMessageBox.Show(WindowManager, "Deleting Map Failed".L10N("UI:Main:DeleteMapFailedTitle"),

@@ -200,7 +200,7 @@ namespace Localization.Tools
 
         public static Dictionary<string, string> 获取目录下的CSF字典(string path)
         {
-            var csfs = Directory.GetFiles(path, "*.csf");
+            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理
             var combinedDictionary = new Dictionary<string, string>();
 
             foreach (var csf in csfs)
@@ -215,6 +215,20 @@ namespace Localization.Tools
             }
 
             return combinedDictionary;
+        }
+
+        public static void 将繁体的CSF转化为简体CSF(string oldCsf ,string newCsf)
+        {
+            var oldCsfDictionary = new CSF(oldCsf).GetCsfDictionary();
+            if (oldCsfDictionary != null)
+            {
+                oldCsfDictionary.ConvertValuesToSimplified();
+                CSF.WriteCSF(oldCsfDictionary, newCsf);
+            }
+            else
+            {
+                File.Copy(oldCsf, newCsf,true);
+            }
         }
     }
 }

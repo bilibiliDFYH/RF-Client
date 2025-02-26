@@ -379,29 +379,15 @@ public class ModManager : XNAWindow
 
         foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
         {
+            var tagCsf = csf;
+            if (csf == "ra2.csf")
+            {
+                tagCsf = "ra2md.csf";
+            }
             if (covCsf)
-            {
-                var d = new CSF(csf).GetCsfDictionary(); 
-                if (d != null)
-                {
-                    d.ConvertValuesToSimplified();
-                    CSF.WriteCSF(d, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "ra2md.csf" : Path.GetFileName(csf)));
-                    if (Path.GetFileName(csf).ToLower() == "ra2.csf" || Path.GetFileName(csf).ToLower() == "ra2md.csf")
-                        CSF.WriteCSF(d, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "stringtable00.csf" : Path.GetFileName(csf)));
-                }
-                else
-                {
-                    File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "ra2md.csf" : Path.GetFileName(csf)), true);
-                    if (Path.GetFileName(csf).ToLower() == "ra2.csf" || Path.GetFileName(csf).ToLower() == "ra2md.csf")
-                        File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "stringtable00.csf" : Path.GetFileName(csf)), true);
-                }
-            }
+                CSF.将繁体的CSF转化为简体CSF(Path.Combine(MissionPackPath, csf), Path.Combine(MissionPackPath, tagCsf));
             else
-            {
-                File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "ra2md.csf" : Path.GetFileName(csf)), true);
-                if (Path.GetFileName(csf).ToLower() == "ra2.csf" || Path.GetFileName(csf).ToLower() == "ra2md.csf")
-                    File.Copy(csf, Path.Combine(missionPack.FilePath, Path.GetFileName(csf).ToLower() == "ra2.csf" ? "stringtable00.csf" : Path.GetFileName(csf)), true);
-            }
+                File.Copy(Path.Combine(MissionPackPath, csf), Path.Combine(MissionPackPath, tagCsf), true);
         }
 
         //if (File.Exists(Path.Combine(MissionPackPath, "missionmd.ini")))
@@ -574,8 +560,8 @@ public class ModManager : XNAWindow
         if (File.Exists(Path.Combine(missionPack.FilePath, $"mission{md}.ini")))
             missionINIPath = Path.Combine(missionPack.FilePath, $"mission{md}.ini");
 
-        var csfPath = Path.Combine(missionPack.FilePath,"ra2md.csf");
-        var csf = new CSF(csfPath).GetCsfDictionary();
+        //var csfPath = Path.Combine(missionPack.FilePath,"ra2md.csf");
+        var csf = CSF.获取目录下的CSF字典(missionPack.FilePath);
 
         var missionINI = new IniFile(missionINIPath);
         var mapSelINI = new IniFile(mapSelINIPath);

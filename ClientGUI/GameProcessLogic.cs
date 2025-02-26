@@ -395,11 +395,31 @@ namespace ClientGUI
                     FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
                     // 加载任务
-                    if(newMission != newGame)
-                        FileHelper.CopyDirectory(newMission, ProgramConstants.游戏目录, [".map"]);
+                    if (newMission != newGame)
+                    {
+                  
+                        var csfs = Directory.GetFiles(newMission, "*.csf")
+                                                                    .OrderBy(f => f) // 按文件名升序处理
+                                                                    .ToArray();
+                        foreach (var csf in csfs)
+                        {
+                            var tagCsf = csf;
+                            if(csf == "ra2.csf")
+                            {
+                                tagCsf = "ra2md.csf";
+                            }
+                            if(newMission.Contains("Maps/CP") && UserINISettings.Instance.SimplifiedCSF.Value)
+                                CSF.将繁体的CSF转化为简体CSF(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
+                            else
+                                File.Copy(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf), true);
+                        }
 
-                    var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
-                    FileHelper.CopyDirectory(战役临时目录, ProgramConstants.游戏目录);
+                    // 加载战役图
+                    if (newSection.KeyExists("CampaignID"))
+                    {
+                        var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
+                        FileHelper.CopyDirectory(战役临时目录, ProgramConstants.游戏目录);
+                    }
 
                     FilePaths["Game"] = newGame;
                     FilePaths["Mission"] = newMission;

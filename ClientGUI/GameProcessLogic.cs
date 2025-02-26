@@ -43,60 +43,69 @@ namespace ClientGUI
         /// 
         public static void StartGameProcess(WindowManager windowManager, IniFile iniFile = null)
         {
-
-            RenderImage.CancelRendering();
-            var settings = iniFile.GetSection("Settings");
-            string r = 切换文件(settings);
-
-            mod = Mod.Mods.Find(m => m.FilePath == settings.GetValue("Game", string.Empty));
-
-
-            if (r != string.Empty)
+            try
             {
-                if( r == "尤复目录必须为纯净尤复目录")
+                RenderImage.CancelRendering();
+                var settings = iniFile.GetSection("Settings");
+                string r = 切换文件(settings);
+
+                mod = Mod.Mods.Find(m => m.FilePath == settings.GetValue("Game", string.Empty));
+
+
+                if (r != string.Empty)
                 {
-                    var guideWindow = new YRPathWindow(windowManager);
-                    guideWindow.Show();
-                }else
-                    XNAMessageBox.Show(windowManager, "错误", r);
+                    if (r == "尤复目录必须为纯净尤复目录")
+                    {
+                        var guideWindow = new YRPathWindow(windowManager);
+                        guideWindow.Show();
+                    }
+                    else
+                        XNAMessageBox.Show(windowManager, "错误", r);
+                    return;
+                }
+
+
+                spawnerSettingsFile.Delete();
+                iniFile.WriteIniFile(spawnerSettingsFile.FullName);
+
+                if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")))
+                {
+                    WindowManager.progress.Report("正在加载音乐");
+                    加载音乐(mod.FilePath);
+                }
+
+                FileHelper.CopyDirectory("Saved Games", Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
+
+                var ra2md = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
+
+
+                if (File.Exists(ra2md))
+                {
+                    var ra2mdIni = new IniFile(ra2md);
+                    IniFile.ConsolidateIniFiles(ra2mdIni, new IniFile("RA2MD.ini"));
+                    ra2mdIni.WriteIniFile();
+                }
+                else
+                {
+                    File.Copy("RA2MD.ini", ra2md, true);
+                }
+
+                File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+
+                var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
+                if (File.Exists(keyboardMD))
+                    File.Copy("KeyboardMD.ini", Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini"), true);
+                if (File.Exists("spawnmap.ini"))
+                    File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
+                // 加载渲染插件
+                FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
+
+            }
+            catch(Exception ex)
+            {
+                XNAMessageBox.Show(windowManager,"错误",$"出现错误:{ex}");
                 return;
             }
-
-
-            spawnerSettingsFile.Delete();
-            iniFile.WriteIniFile(spawnerSettingsFile.FullName);
-
-            if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")))
-            {
-                WindowManager.progress.Report("正在加载音乐");
-                加载音乐(mod.FilePath);
-            }
-
-            FileHelper.CopyDirectory("Saved Games",Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
-
-            var ra2md = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
-            
-
-            if (File.Exists(ra2md))
-            {
-                var ra2mdIni = new IniFile(ra2md);
-                IniFile.ConsolidateIniFiles(ra2mdIni, new IniFile("RA2MD.ini"));
-                ra2mdIni.WriteIniFile();
-            }
-            else
-            {
-                File.Copy("RA2MD.ini", ra2md, true);
-            }
-
-            File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
-
-            var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
-            if(File.Exists(keyboardMD))
-                File.Copy("KeyboardMD.ini", Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini"), true);
-            if (File.Exists("spawnmap.ini"))
-                File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
-            // 加载渲染插件
-            FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
 
             oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
 

@@ -1206,7 +1206,7 @@ namespace Ra2Client.DXGUI.Generic
 
                         IniFile.ConsolidateIniFiles(mapIni, difficultyIni);
                         IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
-                        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
+                        //IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/SkinRulesmd.ini"));
 
                         foreach (GameLobbyCheckBox chkBox in CheckBoxes)
                         {

@@ -403,13 +403,9 @@ namespace ClientGUI
                     // 加载模组
                     FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
 
-                    // 加载任务
-                    if (newMission != newGame)
+                    void 复制CSF(string path,string tag,List<string> excludes)
                     {
-
-                        var csfs = Directory.GetFiles(newMission, "*.csf")
-                                                                    .OrderBy(f => f) // 按文件名升序处理
-                                                                    .ToArray();
+                        var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
                         foreach (var csf in csfs)
                         {
                             var tagCsf = csf;
@@ -417,12 +413,22 @@ namespace ClientGUI
                             {
                                 tagCsf = "ra2md.csf";
                             }
-                            if (newMission.Contains("Maps/CP") && UserINISettings.Instance.SimplifiedCSF.Value)
+                            if (path.Contains(tag) && UserINISettings.Instance.SimplifiedCSF.Value)
                                 CSF.将繁体的CSF转化为简体CSF(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
                             else
                                 File.Copy(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf), true);
                         }
+                        FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录, excludes);
                     }
+
+                    复制CSF(newGame, "Mod&AI/Mod", [".csf"]);
+
+                    // 加载任务
+                    if (newMission != newGame)
+                    {
+                        复制CSF(newMission, "Maps/CP", [".map", ".csf"]); //地图文件也不复制在后面处理
+                    }
+
                     // 加载战役图
                     if (newSection.KeyExists("CampaignID"))
                     {

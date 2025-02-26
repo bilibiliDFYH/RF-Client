@@ -1208,7 +1208,11 @@ namespace Ra2Client.DXGUI.Generic
                 MusicOff();
         }
 
-        private void BtnMapEditor_LeftClick(object sender, EventArgs e) => LaunchMapEditor();
+        private void BtnMapEditor_LeftClick(object sender, EventArgs e)
+        {
+            RenderImage.CancelRendering();
+            LaunchMapEditor();
+        }
 
         private void BtnStatistics_LeftClick(object sender, EventArgs e) =>
             innerPanel.Show(innerPanel.StatisticsWindow);

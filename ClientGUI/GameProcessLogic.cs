@@ -45,7 +45,7 @@ namespace ClientGUI
         {
             try
             {
-                RenderImage.CancelRendering();
+                //RenderImage.CancelRendering();
                 var settings = iniFile.GetSection("Settings");
                 string r = 加载模组文件(settings);
 
@@ -478,7 +478,7 @@ namespace ClientGUI
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
-            RenderImage.RenderImagesAsync();
+            //RenderImage.RenderImagesAsync();
 
             proc.Exited -= Process_Exited;
             proc.Dispose();

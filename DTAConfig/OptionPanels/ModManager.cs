@@ -77,7 +77,12 @@ public class ModManager : XNAWindow
         _modMenu.AddItem(new XNAContextMenuItem
         {
             Text = "打开文件位置",
-            SelectAction = () => { if (ListBoxModAi.SelectedIndex != -1) Process.Start("explorer.exe", ((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).FilePath); }
+            SelectAction = () => { if (ListBoxModAi.SelectedIndex != -1)
+                {
+                    var p = Path.Combine(ProgramConstants.GamePath, ((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).FilePath).Replace("/", "\\");
+                    Process.Start("explorer.exe", p);
+                }
+            }
         });
 
         _modMenu.AddItem(new XNAContextMenuItem
@@ -124,7 +129,7 @@ public class ModManager : XNAWindow
         {
             ListBoxModAi.SelectedIndex = ListBoxModAi.HoveredIndex;
 
-            if (ListBoxModAi.SelectedIndex == -1 || DDModAI.SelectedIndex == 1)
+            if (ListBoxModAi.SelectedIndex == -1)
                 return;
 
             var filePath = ((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).FilePath;
@@ -381,19 +386,19 @@ public class ModManager : XNAWindow
         //foreach (var file in Directory.GetFiles(MissionPackPath, "*.map"))
         //    File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true);
 
-        FileHelper.CopyDirectory(MissionPackPath, missionPack.FilePath);
+        FileHelper.CopyDirectory(MissionPackPath, missionPack.FilePath, [".csf"]);
 
         foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
         {
-            var tagCsf = csf;
+            var tagCsf = Path.GetFileName(csf);
             if (csf == "ra2.csf")
             {
                 tagCsf = "ra2md.csf";
             }
             if (covCsf)
-                CSF.将繁体的CSF转化为简体CSF(Path.Combine(MissionPackPath, csf), Path.Combine(MissionPackPath, tagCsf));
+                CSF.将繁体的CSF转化为简体CSF(Path.Combine(MissionPackPath, csf), Path.Combine(missionPack.FilePath, tagCsf));
             else
-                File.Copy(Path.Combine(MissionPackPath, csf), Path.Combine(MissionPackPath, tagCsf), true);
+                File.Copy(Path.Combine(MissionPackPath, csf), Path.Combine(missionPack.FilePath, tagCsf), true);
         }
 
         //if (File.Exists(Path.Combine(MissionPackPath, "missionmd.ini")))
@@ -436,10 +441,10 @@ public class ModManager : XNAWindow
                 List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
                 foreach (var item in list)
                 {
-                    if (判断是否为任务包(filePath))
+                    if (判断是否为任务包(item))
                     {
 
-                        var r = 导入具体任务包(copyFile, deepImport, filePath);
+                        var r = 导入具体任务包(copyFile, deepImport, item);
                         if (r != null)
                         {
                             id = r.ID;
@@ -657,13 +662,13 @@ public class ModManager : XNAWindow
             List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
             foreach (var item in list)
             {
-                if (!Directory.Exists(path)) continue;
+                if (!Directory.Exists(item)) continue;
 
-                if (!判断是否为尤复(path)) continue;
+                if (!判断是否为尤复(item)) continue;
 
-                if (判断是否为Mod(path, true))
+                if (判断是否为Mod(item, true))
                 {
-                    var r = 导入具体Mod(path, copyFile, deepImport, true);
+                    var r = 导入具体Mod(item, copyFile, deepImport, true);
                     if (r != null)
                     {
                         id = r.ID;
@@ -1296,7 +1301,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             return;
         }
 
-        selected?.Invoke(chkCopyFile.Checked, chkDeepImport.Checked, lblPath.Text);
+        selected?.Invoke(chkCopyFile.Checked, chkDeepImport.Checked, lblPath.Tag as string);
         Disable();
         Dispose();
     }
@@ -1316,12 +1321,17 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             foreach (var fileName in fileDialog.FileNames)
             {
                 var tagerPath = Path.Combine(ProgramConstants.GamePath, "Tmp", Path.GetFileNameWithoutExtension(fileName));
-                if (SevenZip.ExtractWith7Zip(fileName, tagerPath);
-                paths.Add(tagerPath);
+                if (SevenZip.ExtractWith7Zip(fileName, tagerPath))
+                    paths.Add(tagerPath);
             }
+
+            var fileNames = paths.Select(f => Path.GetFileNameWithoutExtension(f));
+
+            var d = string.Join(",", fileNames);
+
             var s = string.Join(",", paths);
-            lblPath.Text = s[..Math.Min(s.Length, 25)];
-            lblPath.Tag = paths;
+            lblPath.Text = d[..Math.Min(d.Length, 25)];
+            lblPath.Tag = s;
             chkCopyFile.Checked = true;
             chkCopyFile.AllowChecking = false;
         }

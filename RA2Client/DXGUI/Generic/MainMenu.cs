@@ -128,7 +128,7 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
             var ddMod = new XNAClientDropDown(WindowManager)
             {
-                ClientRectangle = new Rectangle(20, 50, 350, 25),
+                ClientRectangle = new Rectangle(20, 50, 200, 25),
                 Name = "ddMod",
             };
 
@@ -138,7 +138,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(100, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(50, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
                 Text = "确认"
             };
             btnConfirm.LeftClick += (sender, e) =>
@@ -150,9 +150,12 @@ namespace Ra2Client.DXGUI.Generic
                 GameProcessLogic.加载模组文件(section);
 
                 LaunchMapEditor();
+
+                Disable();
+                Dispose();
             };
 
-            ClientRectangle = new Rectangle(0, 0, label.Right + 24, btnConfirm.Y + 40);
+            ClientRectangle = new Rectangle(0, 0, ddMod.Right + 24, btnConfirm.Y + 40);
 
 
             base.Initialize();
@@ -168,8 +171,8 @@ namespace Ra2Client.DXGUI.Generic
         private void LaunchMapEditor()
         {
             var mapEditorProcess = new Process();
-            mapEditorProcess.StartInfo.FileName = "FinalAlert2SP.exe";
-            mapEditorProcess.StartInfo.WorkingDirectory = Path.Combine(ProgramConstants.GamePath,"Resources/FinalAlert2SP");
+            mapEditorProcess.StartInfo.FileName = Path.Combine(ProgramConstants.GamePath, "Resources\\FinalAlert2SP\\FinalAlert2SP.exe");
+            mapEditorProcess.StartInfo.WorkingDirectory = Path.Combine(ProgramConstants.GamePath,"Resources\\FinalAlert2SP");
             mapEditorProcess.StartInfo.UseShellExecute = false;   //是否使用操作系统shell启动 
             mapEditorProcess.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值 (不显示程序窗口)
             mapEditorProcess.Start();

@@ -409,7 +409,7 @@ namespace ClientGUI
                         var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
                         foreach (var csf in csfs)
                         {
-                            var tagCsf = csf;
+                            var tagCsf = Path.GetFileName(csf);
                             if (csf == "ra2.csf")
                             {
                                 tagCsf = "ra2md.csf";
@@ -425,7 +425,7 @@ namespace ClientGUI
                     复制CSF(newGame, "Mod&AI/Mod", [".csf"]);
 
                     // 加载任务
-                    if (newMission != newGame)
+                    if (newMission != newGame && newMission != string.Empty)
                     {
                         复制CSF(newMission, "Maps/CP", [".map", ".csf"]); //地图文件也不复制在后面处理
                     }

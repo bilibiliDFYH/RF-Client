@@ -56,10 +56,10 @@ namespace Localization.Tools
             uint numStrings = header.Item4; //读取字符串数
 
             // 检查标签数是否等于字符串数
-            if (numLabels != numStrings && numLabels + 1 != numStrings)
-            {
-                throw new InvalidDataException("Label count and string count are unequal"); // 如果不相等，抛出异常
-            }
+            //if (numLabels != numStrings && numLabels + 1 != numStrings)
+            //{
+            //    throw new InvalidDataException("Label count and string count are unequal"); // 如果不相等，抛出异常
+            //}
 
             return (int)numLabels;
         }
@@ -208,7 +208,7 @@ namespace Localization.Tools
             foreach (var csf in csfs)
             {
                 var csfDictionary = new CSF(csf).GetCsfDictionary();
-
+                if (csfDictionary == null) continue;
                 foreach (var kvp in csfDictionary)
                 {
                     // 如果键已经存在，替换它

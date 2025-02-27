@@ -530,15 +530,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     chk.AllowChecking = false;
                 }
 
-                if(chk.Name == "chkAILimit" && mod.SuperWeaponBuildings == string.Empty)
-                {
-                    chk.Checked = false;
-                    chk.AllowChecking = false;
-                }
-                else
-                {
-                    chk.AllowChecking = true;
-                }
 
             }
 
@@ -566,15 +557,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     dd.AllowDropDown = false;
                 }
 
-                if (dd.Name == "cmbSw" && mod.SuperWeaponBuildings == string.Empty)
-                {
-                    dd.SelectedIndex = dd.defaultIndex;
-                    dd.AllowDropDown = false;
-                }
-                else
-                {
-                    dd.AllowDropDown = true;
-                }
             }
 
             var cmbSw = DropDowns.Find(dd => dd.Name == "cmbSw");

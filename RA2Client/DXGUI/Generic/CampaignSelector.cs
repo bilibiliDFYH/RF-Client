@@ -149,7 +149,8 @@ namespace Ra2Client.DXGUI.Generic
 
             _ddMissionPack = new XNADropDown(WindowManager);
             _ddMissionPack.Name = nameof(_ddMissionPack);
-            _ddMissionPack.ClientRectangle = new Rectangle(_ddDifficulty.X, _ddDifficulty.Y + _ddDifficulty.Height + 5, _ddSide.X + _ddSide.Width - _ddDifficulty.X, _ddDifficulty.Height);
+            _ddMissionPack.ClientRectangle = new Rectangle(_ddDifficulty.X, _ddDifficulty.Y + _ddDifficulty.Height + 5, _lbxCampaignList.Width, _ddDifficulty.Height);
+
 
             var lblMissionDescriptionHeader = new XNALabel(WindowManager);
             lblMissionDescriptionHeader.Name = "lblMissionDescriptionHeader";
@@ -173,6 +174,7 @@ namespace Ra2Client.DXGUI.Generic
             _tbMissionDescriptionList.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
                 _tbMissionDescriptionList.Width, _tbMissionDescriptionList.Height);
 
+         
             var lblDifficultyLevel = new XNALabel(WindowManager);
             lblDifficultyLevel.Name = "lblDifficultyLevel";
             lblDifficultyLevel.Text = "DIFFICULTY LEVEL".L10N("UI:Main:DifficultyLevel");
@@ -377,7 +379,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(lblModify);
 
             _cmbGame = new GameLobbyDropDown(WindowManager) {
-                ClientRectangle = new Rectangle(_lblGame.Right + 75, _tbMissionDescriptionList.Y, 122, 23)
+                ClientRectangle = new Rectangle(_lblGame.Right + 75, _tbMissionDescriptionList.Y, 250, 23)
             };
             // lbCampaignList.SelectedIndex = 1;
             //    LbxCampaignListSelectedIndexChanged(lbCampaignList, new EventArgs());

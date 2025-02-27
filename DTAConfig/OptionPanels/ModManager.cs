@@ -76,6 +76,12 @@ public class ModManager : XNAWindow
 
         _modMenu.AddItem(new XNAContextMenuItem
         {
+            Text = "打开文件位置",
+            SelectAction = () => { if (ListBoxModAi.SelectedIndex != -1) Process.Start("explorer.exe", ((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).FilePath); }
+        });
+
+        _modMenu.AddItem(new XNAContextMenuItem
+        {
             Text = "新增",
             SelectAction = () => BtnNew.OnLeftClick()
         });
@@ -582,6 +588,9 @@ public class ModManager : XNAWindow
             var 任务简报 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "Briefing", string.Empty))?.ConvertValuesToSimplified() ?? ""; //任务描述
             var 任务目标 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty))?.ConvertValuesToSimplified() ?? ""; //任务目标
 
+            if (任务简报.Trim() == 任务目标.Trim())
+                任务简报 = string.Empty;
+
             var LongDescription = 任务地点 + "@@" + 任务简报 + "@" + 任务目标;
 
             battleINI.SetValue("Battles", sectionName, sectionName)
@@ -923,29 +932,6 @@ public class ModManager : XNAWindow
 
         if (mapFiles.Length == 0) return;
 
-        //var messageBox = new XNAMessage(WindowManager);
-
-        //messageBox.caption = "渲染中...";
-        //messageBox.description = $"已渲染图像 0 / {mapFiles.Length}";
-        //messageBox.Show();
-
-
-        //void RenderCompletedHandler(object sender, EventArgs e)
-        //{
-
-        //    messageBox.description = $"已渲染图像 {RenderImage.RenderCount} / {mapFiles.Length}";
-
-        //    if (RenderImage.RenderCount == mapFiles.Length)
-        //    {
-        //        messageBox.Disable();
-        //        // 渲染完成后，解除事件绑定
-        //        RenderImage.RenderCompleted -= RenderCompletedHandler;
-        //    }
-        //}
-
-        //RenderImage.RenderCompleted += RenderCompletedHandler;
-
-        //     RenderImage.RenderImagesAsync();
 
         RenderImage.需要渲染的地图列表.InsertRange(0, mapFiles);
         RenderImage.CancelRendering();

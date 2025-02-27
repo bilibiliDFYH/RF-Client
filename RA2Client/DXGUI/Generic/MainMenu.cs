@@ -34,6 +34,7 @@ using Rampastring.XNAUI.Input;
 using System.Net.Sockets;
 using Ra2Client.Domain.Multiplayer;
 using ClientCore.CnCNet5;
+using DTAConfig.Entity;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -112,7 +113,89 @@ namespace Ra2Client.DXGUI.Generic
         }
     }
 
+    class ModSelectWindow(WindowManager windowManager) : XNAWindow(windowManager), ISwitchable
+    {
+        public override void Initialize()
+        {
 
+            var label = new XNALabel(WindowManager)
+            {
+                ClientRectangle = new Rectangle(20, 10, 0, 0),
+                Text = "你想用哪个模组的地编?"
+            };
+
+
+            BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
+            var ddMod = new XNAClientDropDown(WindowManager)
+            {
+                ClientRectangle = new Rectangle(20, 50, 350, 25),
+                Name = "ddMod",
+            };
+
+            Mod.Mods.ForEach(m => ddMod.AddItem(m.Name,m));
+
+            ddMod.SelectedIndex = 0;
+
+            var btnConfirm = new XNAClientButton(WindowManager)
+            {
+                ClientRectangle = new Rectangle(100, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
+                Text = "确认"
+            };
+            btnConfirm.LeftClick += (sender, e) =>
+            {
+                var mod = ddMod.SelectedItem.Tag as Mod; //这里应该改成玩家选择
+                var section = new IniSection("Settings");
+                section.AddKey("Game", mod.FilePath);
+
+                GameProcessLogic.加载模组文件(section);
+
+                LaunchMapEditor();
+            };
+
+            ClientRectangle = new Rectangle(0, 0, label.Right + 24, btnConfirm.Y + 40);
+
+
+            base.Initialize();
+
+            AddChild(label);
+            AddChild(ddMod);
+            AddChild(btnConfirm);
+
+            WindowManager.CenterControlOnScreen(this);
+
+        }
+
+        private void LaunchMapEditor()
+        {
+            var mapEditorProcess = new Process();
+            mapEditorProcess.StartInfo.FileName = "FinalAlert2SP.exe";
+            mapEditorProcess.StartInfo.WorkingDirectory = Path.Combine(ProgramConstants.GamePath,"Resources/FinalAlert2SP");
+            mapEditorProcess.StartInfo.UseShellExecute = false;   //是否使用操作系统shell启动 
+            mapEditorProcess.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值 (不显示程序窗口)
+            mapEditorProcess.Start();
+            mapEditorProcess.WaitForExit();  //等待程序执行完退出进程
+            mapEditorProcess.Close();
+        }
+
+        public void Show()
+        {
+            DarkeningPanel.AddAndInitializeWithControl(WindowManager, this);
+        }
+        public string GetSwitchName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SwitchOff()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SwitchOn()
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     partial
 
@@ -394,8 +477,8 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(lblCnCNetStatus);
             AddChild(lblCnCNetPlayerCount);
             
-            var (R, G, B) = FunExtensions.ConvertHSVToRGB(25, 255, 255);
-            Console.WriteLine($"RGB: ({R}, {G}, {B})");
+            //var (R, G, B) = FunExtensions.ConvertHSVToRGB(25, 255, 255);
+            //Console.WriteLine($"RGB: ({R}, {G}, {B})");
 
             if (!ClientConfiguration.Instance.ModMode)
             {
@@ -658,7 +741,22 @@ namespace Ra2Client.DXGUI.Generic
                 discordHandler.Disconnect();
         }
 
-
+        private void 检查地编()
+        {
+            string FA2Path = ProgramConstants.GamePath + ClientConfiguration.Instance.MapEditorExePath;
+            if (!File.Exists(FA2Path))
+            {
+                Logger.Log("没有找到地编");
+                btnMapEditor.Enabled = false;
+            }
+            else
+            {
+                var ini = new IniFile(ProgramConstants.GamePath + "Resources/FinalAlert2SP/FinalAlert.ini", Encoding.GetEncoding("GBK"));
+                ini.SetStringValue("TS", "Exe", Path.Combine(ProgramConstants.游戏目录, "gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
+                ini.WriteIniFile();
+                Logger.Log("写入地编游戏路径");
+            }
+        }
 
         private void CheckCampaign()
         {
@@ -728,7 +826,7 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         private void FirstRun()
         {
-            ProgramConstants.清理缓存();
+            //ProgramConstants.清理缓存();
             var guideWindow = new GuideWindow(WindowManager);
             guideWindow.Show();
 
@@ -753,20 +851,6 @@ namespace Ra2Client.DXGUI.Generic
                 }
             }
 
-            string FA2Path = ProgramConstants.GamePath + ClientConfiguration.Instance.MapEditorExePath;
-            if (!File.Exists(FA2Path))
-            {
-                Logger.Log("没有找到地编");
-                btnMapEditor.Enabled = false;
-            }
-            else
-            {
-                IniFile ini = new IniFile(ProgramConstants.GamePath + "Resources/FinalAlert2SP/FinalAlert.ini", Encoding.GetEncoding("GBK"));
-                ini.SetStringValue("TS", "Exe", (ProgramConstants.GamePath + UserINISettings.Instance.YRPath.Value + "/gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
-                ini.WriteIniFile();
-                Logger.Log("写入地编游戏路径");
-            }
-
             UserINISettings.Instance.IsFirstRun.Value = false;
             UserINISettings.Instance.SaveSettings();
 
@@ -775,21 +859,21 @@ namespace Ra2Client.DXGUI.Generic
             btnOptions.OnLeftClick();
         }
 
-        private void Verification_File()
-        {
-            WindowManager.progress.Report("验证文件完整性.....");
-            string[] files = ["ra2.mix", "ra2md.mix", "language.mix", "langmd.mix", "RF.mix", "qres32.dll", "Resources/ccmixar.exe"];
-            foreach (var file in files)
-            {
-                var r = File.Exists(file);
-                if (!r)
-                {
-                    XNAMessageBox.Show(WindowManager, "文件校验不通过", $"文件校验不通过:${file}不存在,可能会影响游戏。");
-                    return;
-                }
+        //private void Verification_File()
+        //{
+        //    WindowManager.progress.Report("验证文件完整性.....");
+        //    string[] files = ["ra2.mix", "ra2md.mix", "language.mix", "langmd.mix", "RF.mix", "qres32.dll", "Resources/ccmixar.exe"];
+        //    foreach (var file in files)
+        //    {
+        //        var r = File.Exists(file);
+        //        if (!r)
+        //        {
+        //            XNAMessageBox.Show(WindowManager, "文件校验不通过", $"文件校验不通过:${file}不存在,可能会影响游戏。");
+        //            return;
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
         private void SharedUILogic_GameProcessStarted() => MusicOff();
 
@@ -899,6 +983,7 @@ namespace Ra2Client.DXGUI.Generic
             CheckPrivacyNotification();
             CheckDDRAW();
             CheckYRPath();
+            检查地编();
 
             try
             {
@@ -1210,9 +1295,12 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnMapEditor_LeftClick(object sender, EventArgs e)
         {
-            RenderImage.CancelRendering();
+            // RenderImage.CancelRendering();
 
-            LaunchMapEditor();
+            var guideWindow = new ModSelectWindow(WindowManager);
+            guideWindow.Show();
+
+            
         }
 
         private void BtnStatistics_LeftClick(object sender, EventArgs e) =>
@@ -1446,22 +1534,6 @@ namespace Ra2Client.DXGUI.Generic
                 Logger.Log("Error encountered when checking media player availability. Error message: " + e.Message);
                 return false;
             }
-        }
-
-        private void LaunchMapEditor()
-        { 
-            OSVersion osVersion = ClientConfiguration.Instance.GetOperatingSystemVersion();
-            Process mapEditorProcess = new Process();
-
-            string strCmdText = string.Format("/c cd /d {0} && FinalAlert2SP.exe", ProgramConstants.GamePath + "Resources/FinalAlert2SP");
-
-            mapEditorProcess.StartInfo.FileName = "cmd.exe";
-            mapEditorProcess.StartInfo.Arguments = strCmdText;
-            mapEditorProcess.StartInfo.UseShellExecute = false;   //是否使用操作系统shell启动 
-            mapEditorProcess.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值 (不显示程序窗口)
-            mapEditorProcess.Start();
-            mapEditorProcess.WaitForExit();  //等待程序执行完退出进程
-            mapEditorProcess.Close();
         }
 
         public string GetSwitchName() => "Main Menu".L10N("UI:Main:MainMenu");

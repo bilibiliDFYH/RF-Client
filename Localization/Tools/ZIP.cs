@@ -112,7 +112,7 @@ public class SevenZip
         return files;
     }
 
-    public static void ExtractWith7Zip(string archivePath, string extractPath, ProgressCallback progressCallback = null, bool needDel = false)
+    public static bool ExtractWith7Zip(string archivePath, string extractPath, ProgressCallback progressCallback = null, bool needDel = false)
     {
         try
         {
@@ -171,12 +171,17 @@ public class SevenZip
                     Console.WriteLine($"Error deleting file {archivePath}: {ex.Message}");
                 }
             }
+
+            return process.ExitCode == 0;
         }
         catch (Exception ex)
         {
             Logger.Log($"Error extracting archive {archivePath} to {extractPath} with 7z.exe: {ex.Message}");
             Console.WriteLine($"Error extracting archive {archivePath} to {extractPath} with 7z.exe: {ex.Message}");
+            return false;
         }
+
+        
     }
 
     public static void CompressWith7Zip(string sourcePath, string archivePath, ProgressCallback progressCallback = null)

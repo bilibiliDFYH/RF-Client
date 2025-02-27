@@ -47,7 +47,7 @@ namespace ClientGUI
             {
                 RenderImage.CancelRendering();
                 var settings = iniFile.GetSection("Settings");
-                string r = 切换文件(settings);
+                string r = 加载模组文件(settings);
 
                 mod = Mod.Mods.Find(m => m.FilePath == settings.GetValue("Game", string.Empty));
 
@@ -314,7 +314,7 @@ namespace ClientGUI
                 iniFile.WriteIniFile();
             }
         }
-        public static string 切换文件(IniSection newSection)
+        public static string 加载模组文件(IniSection newSection)
         {
 
 
@@ -343,7 +343,7 @@ namespace ClientGUI
                 if (!Directory.Exists(ProgramConstants.游戏目录)) return true;
 
                 if (!oldSettings.SectionExists("Settings")) return true;
-                //   string oldMain = oldSection.GetValue("Main", string.Empty);
+                
 
 
                 if (oldGame != newGame || oldMission != newMission) return true;
@@ -356,7 +356,7 @@ namespace ClientGUI
                     if (string.IsNullOrEmpty(fileType.Value) || !Directory.Exists(fileType.Value)) continue;
                     foreach (var file in Directory.GetFiles(fileType.Value))
                     {
-                        if (Path.GetExtension(file) == ".ini") continue;
+                        //if (Path.GetExtension(file) == ".ini") continue;
                         if (!value.TryGetValue(file, out var hash)) return true;
 
                         var newHash = file.ComputeHash();

@@ -195,6 +195,16 @@ public class XNADropDown : XNAControl
 
     }
 
+    public void AddItem(string text,object tag)
+    {
+        var item = new XNADropDownItem();
+        item.Text = text;
+        item.Tag = tag;
+
+        Items.Add(item);
+
+    }
+
     public XNADropDown AddItem(string[] texts)
     {
         foreach (var item in texts)

@@ -419,66 +419,31 @@ public class ModManager : XNAWindow
     public string 导入任务包(bool copyFile, bool deepImport, string filePath)
     {
 
-        //var 后缀 = Path.GetExtension(filePath);
-        //if (后缀 != ".zip" && 后缀 != ".rar" && 后缀 != ".7z" && 后缀 != ".map" && 后缀 != ".mix")
-        //{
-        //    XNAMessageBox.Show(WindowManager, "错误", "请选择任务包文件");
-        //    return "没有找到任务包文件";
-        //}
-
-        //var path = Path.GetDirectoryName(filePath);
-        //if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
-        //{
-        //    var missionPath = $"{ProgramConstants.GamePath}/tmp/{Path.GetFileNameWithoutExtension(filePath)}";
-        //    SevenZip.ExtractWith7Zip(filePath, missionPath);
-        //    path = missionPath;
-        //}
-
-
-        //if (!Directory.Exists(path))
-        //{
-        //    XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
-        //    return string.Empty;
-        //}
-
-        //查找并解压压缩包(path);
-
         List<string> mapFiles = [];
 
         var id = string.Empty;
 
-        //if (Directory.Exists(path))
-        //{
-        //    List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
-        //    foreach (var item in list)
-        //    {
-        //        if (判断是否为任务包(item))
-        //        {
-
-        //            var r = 导入具体任务包(item);
-        //            if (r != string.Empty)
-        //            {
-        //                id = r;
-        //                mapFiles.AddRange(Directory.GetFiles($"maps/cp/{id}", "*.map"));
-        //            }
-
-
-        //        }
-        //    }
-        //}
-        // 如果路径本身不符合任务包，才检查其子目录
-
-        if (判断是否为任务包(filePath))
+        foreach (var path in filePath.Split(','))
         {
-
-            var r = 导入具体任务包(copyFile,deepImport,filePath);
-            if (r != null)
+            if (Directory.Exists(path))
             {
-                id = r.ID;
-                mapFiles.AddRange(Directory.GetFiles(r.FilePath, "*.map"));
+                List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
+                foreach (var item in list)
+                {
+                    if (判断是否为任务包(filePath))
+                    {
+
+                        var r = 导入具体任务包(copyFile, deepImport, filePath);
+                        if (r != null)
+                        {
+                            id = r.ID;
+                            mapFiles.AddRange(Directory.GetFiles(r.FilePath, "*.map"));
+                        }
+                    }
+                }
             }
         }
-
+        //如果路径本身不符合任务包，才检查其子目录
 
         if (id == string.Empty)
         {
@@ -676,51 +641,32 @@ public class ModManager : XNAWindow
     private string 导入Mod(bool copyFile, bool deepImport, string filePath)
     {
 
-        var 后缀 = Path.GetExtension(filePath);
-
-        var path = filePath;
-        if (后缀 == ".zip" || 后缀 == ".rar" || 后缀 == ".7z")
-        {
-            var missionPath = $"./tmp/{Path.GetFileNameWithoutExtension(filePath)}";
-            SevenZip.ExtractWith7Zip(filePath, missionPath);
-            path = missionPath;
-        }
-
         var id = string.Empty;
 
-        if (!Directory.Exists(path))
+        foreach (var path in filePath.Split(','))
         {
-            XNAMessageBox.Show(WindowManager, "错误", "解压失败，请手动解压后选择文件夹中任意文件重新导入。");
-            return string.Empty;
-        }
-
-        //List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
-        //foreach (var item in list)
-        //{
-        //    if (判断是否为Mod(item, 判断是否为尤复(item)))
-        //    {
-        //        var r = 导入具体Mod(item, reload);
-        //        if (r != string.Empty)
-        //        {
-        //            id = r;
-        //        }
-        //    }
-
-        //}
-
-        if (!判断是否为尤复(path))
-        {
-            XNAMessageBox.Show(WindowManager, "错误", "抱歉,暂时不支持导入原版模组,请等待后续更新支持.");
-            return "抱歉,暂时不支持导入原版模组,请等待后续更新支持.";
-        }
-
-        if (判断是否为Mod(path, true))
-        {
-            var r = 导入具体Mod(path, copyFile, deepImport, true);
-            if (r != null)
+            List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
+            foreach (var item in list)
             {
-                id = r.ID;
+                if (!Directory.Exists(path)) continue;
+
+                if (!判断是否为尤复(path)) continue;
+
+                if (判断是否为Mod(path, true))
+                {
+                    var r = 导入具体Mod(path, copyFile, deepImport, true);
+                    if (r != null)
+                    {
+                        id = r.ID;
+                    }
+                }
             }
+        }
+
+        if (id == string.Empty)
+        {
+            XNAMessageBox.Show(WindowManager, "错误", "请选择尤复模组,暂不支持原版模组.");
+            return "没有找到合适的模组文件";
         }
 
         ReLoad();
@@ -1009,30 +955,6 @@ public class ModManager : XNAWindow
     private void BtnNew_LeftClick(object sender, EventArgs e)
     {
 
-        //var folderBrowser = new FolderBrowserDialog
-        //{
-        //    Description = "请选择目录"
-        //};
-        //if (folderBrowser.ShowDialog() != DialogResult.OK)
-        //    return;
-        //var missionPath = folderBrowser.SelectedPath;
-
-        //var openFileDialog = new OpenFileDialog
-        //{
-        //    Title = "请选择文件夹或压缩包",
-        //    Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.file)|*.zip;*.rar;*.7z;*.map;*.file|所有文件 (*.*)|*.*", // 限制选择的文件类型
-        //    CheckFileExists = true,   // 检查文件是否存在
-        //    ValidateNames = true,     // 验证文件名
-        //    Multiselect = false       // 不允许多选
-        //};
-
-        //if (openFileDialog.ShowDialog() != DialogResult.OK)
-        //    return;
-
-
-
-
-
         var infoWindows = new 导入选择窗口(WindowManager);
 
         infoWindows.selected += (b1, b2, path) =>
@@ -1044,9 +966,6 @@ public class ModManager : XNAWindow
         };
 
         var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
-
-
-
 
     }
 
@@ -1314,7 +1233,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         {
             Text = "压缩包导入",
             ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
-            Enabled = false
+            
         };
         btnZip.LeftClick += BtnZip_LeftClick;
         //btnZip.SetToolTipText
@@ -1401,11 +1320,22 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         using OpenFileDialog fileDialog = new OpenFileDialog();
         fileDialog.Filter = "压缩包 (*.zip;*.7z;*.rar)|*.zip;*.7z;*.rar";
         fileDialog.Title = "选择压缩包";
-        fileDialog.Multiselect = false; // 只能选一个文件
+        fileDialog.Multiselect = true; // 只能选一个文件
 
         if (fileDialog.ShowDialog() == DialogResult.OK)
         {
-            lblPath.Text = fileDialog.FileName;
+
+            List<string> paths = [];
+
+            foreach (var fileName in fileDialog.FileNames)
+            {
+                var tagerPath = Path.Combine(ProgramConstants.GamePath, "Tmp", Path.GetFileNameWithoutExtension(fileName));
+                if (SevenZip.ExtractWith7Zip(fileName, tagerPath);
+                paths.Add(tagerPath);
+            }
+            var s = string.Join(",", paths);
+            lblPath.Text = s[..Math.Min(s.Length, 25)];
+            lblPath.Tag = paths;
             chkCopyFile.Checked = true;
             chkCopyFile.AllowChecking = false;
         }

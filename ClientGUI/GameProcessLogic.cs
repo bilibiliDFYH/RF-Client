@@ -239,6 +239,7 @@ namespace ClientGUI
                     gameProcess.Start();
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
+                    RenderImage.RenderImagesAsync();
                 }
                 catch (Exception ex)
                 {
@@ -478,7 +479,7 @@ namespace ClientGUI
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
-            RenderImage.RenderImagesAsync();
+            
 
             proc.Exited -= Process_Exited;
             proc.Dispose();

@@ -519,8 +519,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             foreach (var chk in CheckBoxes)
             {
-                //if ((!chk.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (chk.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
-                if ((chk.standard || chk.Name == "chkAILimit" || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+                
+                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     chk.AllowChecking = true;
                 }
@@ -529,7 +529,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     chk.Checked = chk.defaultValue;
                     chk.AllowChecking = false;
                 }
-
 
             }
 
@@ -546,8 +545,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             foreach (var dd in DropDowns)
             {
-                // if ((!dd.standard && (mod.ID != "RA2" && mod.ID != "YR+" && mod.Compatible != "YR+")) && (dd.expandable && (mod.ID == "YR" || mod.Compatible == "YR")))
-                if ((dd.standard || dd.Name == "cmbSw" || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+                
+                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     dd.AllowDropDown = true;
                 }

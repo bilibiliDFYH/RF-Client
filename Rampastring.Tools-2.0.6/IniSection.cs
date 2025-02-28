@@ -62,6 +62,19 @@ public class IniSection : IIniSection
             Keys.Add(new KeyValuePair<string, string>(keyName, value));
     }
 
+    public void AddOrReplaceKey(int i,string keyName, string value)
+    {
+        if (keyName == null || value == null)
+            throw new ArgumentException("INI keys cannot have null key names or values.");
+
+        int index = Keys.FindIndex(k => k.Key == keyName);
+        if (index > -1)
+            Keys[index] = new KeyValuePair<string, string>(keyName, value);
+        else
+            Keys.Insert(i,new KeyValuePair<string, string>(keyName, value));
+    }
+
+
     /// <summary>
     /// Removes a key from the INI section.
     /// Does not throw an exception if the key does not exist.
@@ -212,6 +225,11 @@ public class IniSection : IIniSection
     public void SetStringValue(string key, string value)
     {
         AddOrReplaceKey(key, value);
+    }
+
+    public void SetStringValue(int i,string key, string value)
+    {
+        AddOrReplaceKey(i,key, value);
     }
 
     /// <summary>

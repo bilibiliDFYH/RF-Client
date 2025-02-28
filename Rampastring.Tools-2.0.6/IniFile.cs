@@ -359,6 +359,13 @@ public class IniFile : IIniFile
         return this;
     }
 
+    public IniFile AddSection(string sectionName,int index)
+    {
+        Sections.Insert(index,new IniSection(sectionName));
+
+        return this;
+    }
+
     /// <summary>
     /// Adds a section into the INI file.
     /// </summary>
@@ -804,6 +811,43 @@ public class IniFile : IIniFile
         else if (typeof(T) == typeof(string))
         {
             iniSection.SetStringValue(key, value as string);
+        }
+        else
+        {
+            throw new InvalidOperationException("Unsupported type");
+        }
+
+        return this;
+    }
+
+    public IniFile SetValue<T>(int index,string section, string key, T value)
+    {
+        var iniSection = Sections.Find(s => s.SectionName == section);
+        if (iniSection == null)
+        {
+            iniSection = new IniSection(section);
+            Sections.Insert(index,iniSection);
+        }
+
+        if (typeof(T) == typeof(int))
+        {
+            iniSection.SetStringValue(index,key, value.ToString());
+        }
+        else if (typeof(T) == typeof(double))
+        {
+            iniSection.SetStringValue(index, key, value.ToString());
+        }
+        else if (typeof(T) == typeof(float))
+        {
+            iniSection.SetStringValue(index, key, ((float)(object)value).ToString("N", CultureInfo.InvariantCulture));
+        }
+        else if (typeof(T) == typeof(bool))
+        {
+            iniSection.SetStringValue(index, key, value.ToString());
+        }
+        else if (typeof(T) == typeof(string))
+        {
+            iniSection.SetStringValue(index, key, value as string);
         }
         else
         {

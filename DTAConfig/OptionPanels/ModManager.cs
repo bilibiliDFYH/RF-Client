@@ -337,6 +337,11 @@ public class ModManager : XNAWindow
 
                 // 目标路径
                 var targetFilePath = Path.Combine(targetDir, fileName);
+                //var fileInfo = new FileInfo(targetFilePath);
+                //if (fileInfo.IsReadOnly)
+                //{
+                //    fileInfo.IsReadOnly = false;
+                //}
                 File.Copy(file, targetFilePath, overwrite: true);
             }
 
@@ -358,17 +363,17 @@ public class ModManager : XNAWindow
                 }
         }
 
-        try
-        {
+      //  try
+      //  {
             CopyFiles(modPath, mod.FilePath, deepImport);
 
             // FileHelper.CopyDirectory(modPath, mod.FilePath);
 
-        }
-        catch (Exception ex)
-        {
-            XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
-        }
+      //  }
+      //  catch (Exception ex)
+     //   {
+          //  XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
+   //     }
 
         #endregion
     }
@@ -706,6 +711,7 @@ public class ModManager : XNAWindow
         List<string> RandomSidesIndexs = [];
         var Colors = string.Empty;
         var SettingsFile = "RA2MD.ini";
+        var BattleFile = "";
 
         if (Directory.Exists("Resources"))
         {
@@ -739,7 +745,7 @@ public class ModManager : XNAWindow
 
             #endregion
 
-            #region 从 ClientDefinitions.ini 提取 后缀 信息
+            #region 从 ClientDefinitions.ini 提取 后缀和战役 信息
 
             var ClientDefinitionsPath = Path.Combine(path, "Resources/ClientDefinitions.ini");
 
@@ -747,7 +753,10 @@ public class ModManager : XNAWindow
             {
                 var ini = new IniFile(ClientDefinitionsPath);
                 if (ini.SectionExists("Settings"))
+                {
                     SettingsFile = ini.GetValue("Settings", "SettingsFile", "RA2MD.ini");
+                    BattleFile = ini.GetValue("Settings", "BattleFSFileName", "BattleFS.ini");
+                }
             }
             #endregion
 
@@ -823,6 +832,30 @@ public class ModManager : XNAWindow
 
         if (copyFile)
             整合Mod文件(path, mod, deepImport);
+
+        var BattleFilePath = Path.Combine(path,"INI",BattleFile);
+        var newBattleFilePath = Path.Combine("Maps\\CP\\", $"Battle{mod.ID}.ini");
+
+        if (BattleFile != string.Empty && File.Exists(BattleFilePath))
+        {
+            File.Copy(BattleFilePath, newBattleFilePath, true);
+            var ini = new IniFile(newBattleFilePath);
+            ini.AddSection("MissionPack")
+                .SetValue(mod.ID, "Mod", mod.ID)
+                .SetValue(mod.ID,"Name", mod.Name)
+                .SetValue(mod.ID, "Other",true)
+                .SetValue(mod.ID, "Description", mod.Name)
+                .SetValue(mod.ID, "LongDescription", mod.Name)
+                .SetValue(mod.ID, "BuildOffAlly", mod.Name)
+                ;
+            
+            ini.GetSections().ToList().ForEach(section => {
+              
+                ini.SetValue(0,section, "MissionPack", mod.ID);
+                }
+            );
+            ini.WriteIniFile();
+        }
 
         mod.Create(); //写入INI文件
         return mod;
@@ -1064,8 +1097,8 @@ public class ModManager : XNAWindow
 
         try
         {
-            if (missionPack.FilePath.Contains("Maps/CP"))
-                Directory.Delete(missionPack.FilePath, true);
+            if (missionPack.FilePath.Replace('/', '\\').Contains("Maps\\CP"))
+                FileHelper.ForceDeleteDirectory(missionPack.FilePath);
         }
         catch
         {
@@ -1097,8 +1130,8 @@ public class ModManager : XNAWindow
         }
         try
         {
-            if (mod.FilePath.Contains("Mod&AI/Mod"))
-                Directory.Delete(mod.FilePath, true);
+            if (mod.FilePath.Replace('/','\\').Contains("Mod&AI\\Mod"))
+                FileHelper.ForceDeleteDirectory(mod.FilePath);
         }
         catch
         {
@@ -1235,11 +1268,15 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
         chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地复制保留此模组文件");
+        chkCopyFile.LeftClick += ChkCopyFile_LeftClick;
 
         chkDeepImport = new XNAClientCheckBox(windowManager)
         {
             Text = "深度导入",
-            ClientRectangle = new Rectangle(20, 90, 0, 0)
+            ClientRectangle = new Rectangle(20, 90, 0, 0),
+            Checked = true,
+            AllowChecking = false
+            
         };
         chkDeepImport.SetToolTipText("若导入失败可勾选此项再次导入,会导致占用空间增大.");
 
@@ -1273,6 +1310,19 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         AddChild(lblPath);
         AddChild(btnOk);
         AddChild(btnCancel);
+    }
+
+    private void ChkCopyFile_LeftClick(object sender, EventArgs e)
+    {
+        if (chkCopyFile.Checked)
+        {
+            chkDeepImport.AllowChecking = true;
+        }
+        else
+        {
+            chkDeepImport.Checked = true;
+            chkDeepImport.AllowChecking = false;
+        }
     }
 
     private void BtnCancel_LeftClick(object sender, EventArgs e)
@@ -1343,6 +1393,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         if (folderDialog.ShowDialog() == DialogResult.OK)
         {
             lblPath.Text = folderDialog.SelectedPath;
+            lblPath.Tag = folderDialog.SelectedPath;
             chkCopyFile.AllowChecking = true;
         }
     }

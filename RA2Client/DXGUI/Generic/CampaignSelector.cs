@@ -222,22 +222,7 @@ namespace Ra2Client.DXGUI.Generic
                 Text = "导入任务包",
                 SelectAction = () =>
                 {
-                    //var openFileDialog = new OpenFileDialog
-                    //{
-                    //    Title = "请选择文件夹或压缩包",
-                    //    Filter = "压缩包 (*.zip;*.rar;*.7z;*.map;*.mix)|*.zip;*.rar;*.7z;*.map;*.mix|所有文件 (*.*)|*.*", // 限制选择的文件类型
-                    //    CheckFileExists = true,   // 检查文件是否存在
-                    //    ValidateNames = true,     // 验证文件名
-                    //    Multiselect = false       // 不允许多选
-                    //};
-
-                    //if (openFileDialog.ShowDialog() != DialogResult.OK)
-                    //    return;
-
-                    //var id = _modManager.导入任务包(openFileDialog.FileName);
-
-                    //_lbxCampaignList.SelectedIndex = _screenMissions.FindIndex(m => m?.MPack?.ID == id);
-                    //_lbxCampaignList.TopIndex = _lbxCampaignList.SelectedIndex;
+                   
                     ModManagerEnabled(1);
                     _modManager.BtnNew.OnLeftClick();
 
@@ -506,50 +491,7 @@ namespace Ra2Client.DXGUI.Generic
 
         }
 
-        /// <summary>
-        /// 返回当前可使用扩展平台情况
-        /// </summary>
-        /// <returns>键：0表示必须使用扩展平台,1表示可用可不用</returns>
-        //private void GetUseExtension()
-        //{
-        //    //  Tuple<int, List<string>> Extension = new Dictionary<int, List<string>>();
-        //    List<string> list;
-
-
-        //    // 优先级 任务>任务包>Mod
-
-            
-
-        //    Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
-
-        //    if (mod.ExtensionOn)
-        //    {  //如果任务，任务包，Mod 有必须使用扩展的
-        //       // Extension.Add(0, null);
-        //        _extension = new Tuple<int, List<string>>(0, null);
-        //        return;
-        //    }
-
-        //    ////如果都不是空那就取交集
-        //    //if(!string.IsNullOrEmpty(mission.Extension) && !string.IsNullOrEmpty(mod.Extension))
-        //    //{
-        //    //    var missionExtensions = mission.Extension.Split(',').ToList();
-        //    //    var modExtensions = mod.Extension.Split(',').ToList();
-        //    //    list = missionExtensions.Intersect(modExtensions).ToList();
-        //    //}
-        //    //else
-        //    //{
-        //    //    //如果都是空那就没有可用的扩展。
-        //    //    if (string.IsNullOrEmpty(mission.Extension) && string.IsNullOrEmpty(mod.Extension))
-        //    //        list = null;
-        //    //    else if (!string.IsNullOrEmpty(mission.Extension))
-        //    //        list = mission.Extension.Split(',').ToList();
-        //    //    else if(!string.IsNullOrEmpty(mod.Extension))
-        //    //        list = mod.Extension.Split(',').ToList();
-        //    //}
-
-        //    _extension = new Tuple<int, List<string>>(1, null);
-        //}
-
+        
         private void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
             if (_cmbGame.SelectedItem == null || _cmbGame.SelectedItem == null)
@@ -558,6 +500,40 @@ namespace Ra2Client.DXGUI.Generic
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             Task.Run(() => { GetMissionInfo(true); });
+
+            Mod mod = ((Mod)_cmbGame.SelectedItem.Tag);
+
+            foreach (var chk in CheckBoxes)
+            {
+
+                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+                {
+                    chk.AllowChecking = true;
+                }
+                else
+                {
+                    chk.Checked = chk.defaultValue;
+                    chk.AllowChecking = false;
+                }
+
+            }
+
+           
+            foreach (var dd in DropDowns)
+            {
+
+                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+                {
+                    dd.AllowDropDown = true;
+                }
+                else
+                {
+                    dd.SelectedIndex = dd.defaultIndex;
+                    dd.AllowDropDown = false;
+                }
+
+            }
+
 
             base.OnSelectedChanged();
 
@@ -1368,9 +1344,18 @@ namespace Ra2Client.DXGUI.Generic
                     else
                         item.TextColor = Color.AliceBlue;
                 }
+                var mod = Mod.Mods.Find(mod => mod.ID == mission?.MPack?.DefaultMod);
 
-                if (!string.IsNullOrEmpty(mission.IconPath))
-                    item.Texture = AssetLoader.LoadTexture(mission.IconPath + "icon.png");
+                 var iconPath = Path.Combine(ProgramConstants.GamePath, "Resources", mission.IconPath + "icon.png");
+                if (mod != null)
+                {
+                    var modIconPath = Path.Combine(mod.FilePath,"Resources", mission.IconPath) + "icon.png";
+                    if (File.Exists(modIconPath))
+                        iconPath = modIconPath;
+                } 
+
+                if (File.Exists(iconPath))
+                    item.Texture = AssetLoader.LoadTexture(iconPath);
 
                 _lbxCampaignList.AddItem(item);
             }

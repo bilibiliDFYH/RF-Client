@@ -68,7 +68,7 @@ namespace ClientGUI
                 spawnerSettingsFile.Delete();
                 iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
-                if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")))
+                if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")) && !File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.ini")))
                 {
                     WindowManager.progress.Report("正在加载音乐");
                     加载音乐(mod.FilePath);

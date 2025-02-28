@@ -501,38 +501,38 @@ namespace Ra2Client.DXGUI.Generic
 
             Task.Run(() => { GetMissionInfo(true); });
 
-            Mod mod = ((Mod)_cmbGame.SelectedItem.Tag);
+            //Mod mod = ((Mod)_cmbGame.SelectedItem.Tag);
 
-            foreach (var chk in CheckBoxes)
-            {
+            //foreach (var chk in CheckBoxes)
+            //{
 
-                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
-                {
-                    chk.AllowChecking = true;
-                }
-                else
-                {
-                    chk.Checked = chk.defaultValue;
-                    chk.AllowChecking = false;
-                }
+            //    if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+            //    {
+            //        chk.AllowChecking = true;
+            //    }
+            //    else
+            //    {
+            //        chk.Checked = chk.defaultValue;
+            //        chk.AllowChecking = false;
+            //    }
 
-            }
+            //}
 
            
-            foreach (var dd in DropDowns)
-            {
+            //foreach (var dd in DropDowns)
+            //{
 
-                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
-                {
-                    dd.AllowDropDown = true;
-                }
-                else
-                {
-                    dd.SelectedIndex = dd.defaultIndex;
-                    dd.AllowDropDown = false;
-                }
+            //    if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
+            //    {
+            //        dd.AllowDropDown = true;
+            //    }
+            //    else
+            //    {
+            //        dd.SelectedIndex = dd.defaultIndex;
+            //        dd.AllowDropDown = false;
+            //    }
 
-            }
+            //}
 
 
             base.OnSelectedChanged();

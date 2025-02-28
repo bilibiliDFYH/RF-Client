@@ -1267,7 +1267,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
         chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地复制保留此模组文件");
-        chkCopyFile.LeftClick += ChkCopyFile_LeftClick;
+        chkCopyFile.CheckedChanged += ChkCopyFile_LeftClick;
 
         chkDeepImport = new XNAClientCheckBox(windowManager)
         {

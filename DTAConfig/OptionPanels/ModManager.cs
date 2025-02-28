@@ -7,7 +7,6 @@ using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using ToolTip = ClientGUI.ToolTip;
-using XNATextBox = ClientGUI.XNATextBox;
 using Localization.Tools;
 using System.Linq;
 using DTAConfig.Entity;

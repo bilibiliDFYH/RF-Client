@@ -35,11 +35,11 @@ internal abstract class IMEHandler
 
     public static IMEHandler Create(Game game)
     {
-#if !GL
-        return new WinFormsIMEHandler(game);
-#else
+//#if !GL
+//        return new WinFormsIMEHandler(game);
+//#else
         return new SdlIMEHandler(game);
-#endif
+//#endif
     }
 
     /// <summary>

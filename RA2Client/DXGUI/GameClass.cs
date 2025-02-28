@@ -25,8 +25,8 @@ using Ra2Client.Online;
 using DTAConfig;
 using DTAConfig.Settings;
 using DTAConfig.OptionPanels;
-using XNATextBox = ClientGUI.XNATextBox;
 using System.Threading.Tasks;
+using ClientGUI.IME;
 
 namespace Ra2Client.DXGUI
 {
@@ -131,6 +131,13 @@ namespace Ra2Client.DXGUI
             WindowManager wm = new WindowManager(this, graphics);
             wm.Initialize(content, ProgramConstants.GetBaseResourcePath());
 
+            IMEHandler imeHandler = IMEHandler.Create(this);
+            wm.IMEHandler = imeHandler;
+
+            wm.WindowSizeChangedByUser += (sender, e) =>
+            {
+                imeHandler.SetIMETextInputRectangle(wm);
+            };
             WindowManager.标题改变 += ChangeTiTle;
          //   ClientConfiguration.标题改变 += ChangeTiTle;
 
@@ -176,10 +183,10 @@ namespace Ra2Client.DXGUI
             FileInfo primaryNativeCursorPath = SafePath.GetFile(ProgramConstants.GetResourcePath(), "cursor.cur");
             FileInfo alternativeNativeCursorPath = SafePath.GetFile(ProgramConstants.GetBaseResourcePath(), "cursor.cur");
 
-            if (primaryNativeCursorPath.Exists)
-                wm.Cursor.LoadNativeCursor(primaryNativeCursorPath.FullName);
-            else if (alternativeNativeCursorPath.Exists)
-                wm.Cursor.LoadNativeCursor(alternativeNativeCursorPath.FullName);
+            //if (primaryNativeCursorPath.Exists)
+            //    wm.Cursor.LoadNativeCursor(primaryNativeCursorPath.FullName);
+            //else if (alternativeNativeCursorPath.Exists)
+            //    wm.Cursor.LoadNativeCursor(alternativeNativeCursorPath.FullName);
 
             Components.Add(wm);
 

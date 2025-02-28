@@ -372,7 +372,7 @@ public class EditWindow(WindowManager windowManager, Music _music) : XNAWindow(w
             ClientRectangle = new Rectangle(20,30, 0, 0)
         };
 
-        var ctbName = new ClientGUI.XNATextBox(WindowManager)
+        var ctbName = new XNATextBox(WindowManager)
         {
             Name = "ctbName",
             Text = _music.CName,

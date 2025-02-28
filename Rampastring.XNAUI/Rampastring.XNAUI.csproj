@@ -54,10 +54,6 @@
 	    <None Remove="build\**" />
 	    <None Remove="References\**" />
     </ItemGroup>
-    <ItemGroup>
-	    <Compile Remove="Input\KeyboardEventArgs.cs" />
-	    <Compile Remove="Input\KeyboardEventInput.cs" />
-    </ItemGroup>
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
@@ -66,7 +62,7 @@
     <PackageReference Include="MonoGame.Framework.WindowsDX" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" Version="3.8.0.1641" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ImeSharp" Version="1.2.5" />
+    <PackageReference Include="ImeSharp" Version="1.4.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />

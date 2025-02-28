@@ -24,6 +24,9 @@
     <DefineConstants>$(DefineConstants);</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="ImeSharp" Version="1.4.0" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\ClientCore\ClientCore.csproj" />
     <ProjectReference Include="..\Localization\Localization.csproj" />
     <ProjectReference Include="..\Rampastring.Tools-2.0.6\Rampastring.Tools.csproj" />

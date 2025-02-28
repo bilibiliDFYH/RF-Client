@@ -17,7 +17,7 @@ using Rampastring.XNAUI.XNAControls;
 using SixLabors.ImageSharp;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
-using XNATextBox = ClientGUI.XNATextBox;
+
 
 namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 {

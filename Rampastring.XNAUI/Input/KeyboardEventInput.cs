@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using System.ComponentModel;
-using Windows.Win32.Globalization;
+
 
 namespace Rampastring.XNAUI.Input
 {
@@ -37,13 +37,14 @@ namespace Rampastring.XNAUI.Input
         private static bool initialized;
         private static IntPtr prevWndProc;
         private static WNDPROC hookProcDelegate;
-        private static HIMC hIMC;
+
+        // private static HIMC hIMC;
 
         /// <summary>
         /// Initialize the TextInput with the given GameWindow.
         /// </summary>
         /// <param name="window">The XNA window to which text input should be linked.</param>
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
         [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
 #endif
         public static void Initialize(GameWindow window)
@@ -72,7 +73,8 @@ namespace Rampastring.XNAUI.Input
                 prevWndProc = result;
             }
 
-            hIMC = PInvoke.ImmGetContext((HWND)window.Handle);
+            // hIMC = PInvoke.ImmGetContext((HWND)window.Handle);
+
             initialized = true;
         }
 
@@ -102,15 +104,15 @@ namespace Rampastring.XNAUI.Input
                     CharEntered?.Invoke(null, new KeyboardEventArgs((char)wParam.Value, (int)lParam.Value));
                     break;
 
-                case PInvoke.WM_IME_SETCONTEXT:
-                    if (wParam == 1)
-                        PInvoke.ImmAssociateContext(hWnd, hIMC);
-                    break;
+                // case PInvoke.WM_IME_SETCONTEXT:
+                //     if (wParam == 1)
+                //         PInvoke.ImmAssociateContext(hWnd, hIMC);
+                //     break;
 
-                case PInvoke.WM_INPUTLANGCHANGE:
-                    PInvoke.ImmAssociateContext(hWnd, hIMC);
-                    returnCode = (LRESULT)1;
-                    break;
+                // case PInvoke.WM_INPUTLANGCHANGE:
+                //     PInvoke.ImmAssociateContext(hWnd, hIMC);
+                //     returnCode = (LRESULT)1;
+                //     break;
             }
 
             return returnCode;

@@ -17,7 +17,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using XNATextBox = ClientGUI.XNATextBox;
 using Component = DTAConfig.Entity.Component;
 using SharpDX.MediaFoundation;
 using System.Timers;

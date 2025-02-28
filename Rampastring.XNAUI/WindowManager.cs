@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-#if NETFRAMEWORK
-using System.Reflection;
-#endif
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.XNAUI.XNAControls;
@@ -14,7 +8,15 @@ using Microsoft.Xna.Framework.Content;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Rampastring.XNAUI.Input;
+using System.Diagnostics;
+using System.Linq;
 using Rampastring.XNAUI.PlatformSpecific;
+#if NETFRAMEWORK
+using System.Reflection;
+#endif
+
+using System.Windows.Forms;
+
 
 namespace Rampastring.XNAUI;
 
@@ -25,7 +27,6 @@ namespace Rampastring.XNAUI;
 public class WindowManager : DrawableGameComponent
 {
     private const int XNA_MAX_TEXTURE_SIZE = 2048;
-    internal IMEHandler IMEHandler { get; }
 
     /// <summary>
     /// Creates a new WindowManager.
@@ -34,7 +35,6 @@ public class WindowManager : DrawableGameComponent
     /// <param name="graphics">The game's GraphicsDeviceManager.</param>
     public WindowManager(Game game, GraphicsDeviceManager graphics) : base(game)
     {
-        IMEHandler = IMEHandler.Create(game);
         this.graphics = graphics;
     }
 
@@ -48,11 +48,13 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public event EventHandler RenderResolutionChanged;
 
+
     /// <summary>
     /// Raised when the size of the game window has been changed by the user or the operating system.
     /// This event is not raised by calling <see cref="InitGraphicsMode(int, int, bool)"/>.
     /// </summary>
     public event EventHandler WindowSizeChangedByUser;
+
 
     /// <summary>
     /// The input cursor.
@@ -143,6 +145,13 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public List<IControlINIAttributeParser> ControlINIAttributeParsers { get; private set; } = new List<IControlINIAttributeParser>();
 
+    /// <summary>
+    /// If set, only scales the rendered screen by integer scaling factors. Unfilled space is filled with black.
+    /// </summary>
+    public bool IntegerScalingOnly { get; set; }
+
+    public IIMEHandler IMEHandler { get; set; } = null;
+
     private GraphicsDeviceManager graphics;
 
     private IGameWindowManager gameWindowManager;
@@ -157,12 +166,26 @@ public class WindowManager : DrawableGameComponent
     /// <param name="y">The height of the back buffer.</param>
     public void SetRenderResolution(int x, int y)
     {
+#if XNA
+        x = Math.Min(x, XNA_MAX_TEXTURE_SIZE);
+        y = Math.Min(y, XNA_MAX_TEXTURE_SIZE);
+#endif
+
         RenderResolutionX = x;
         RenderResolutionY = y;
 
         RecalculateScaling();
         RenderResolutionChanged?.Invoke(this, EventArgs.Empty);
     }
+
+    public static event Action<string> 标题改变;
+
+    public static readonly IProgress<string> progress = new Progress<string>(s =>
+    {
+        标题改变?.Invoke(s);
+    });
+
+    public static void Report(string s = "") => progress.Report(s);
 
     /// <summary>
     /// Re-calculates the scaling of the rendered screen to fill the window.
@@ -172,8 +195,14 @@ public class WindowManager : DrawableGameComponent
         int clientAreaWidth = Game.Window.ClientBounds.Width;
         int clientAreaHeight = Game.Window.ClientBounds.Height;
 
-        double xRatio = (clientAreaWidth) / (double)RenderResolutionX;
-        double yRatio = (clientAreaHeight) / (double)RenderResolutionY;
+        double xRatio = clientAreaWidth / (double)RenderResolutionX;
+        double yRatio = clientAreaHeight / (double)RenderResolutionY;
+
+        if (IntegerScalingOnly && clientAreaWidth >= RenderResolutionX && clientAreaHeight >= RenderResolutionY)
+        {
+            xRatio = clientAreaWidth / RenderResolutionX;
+            yRatio = clientAreaHeight / RenderResolutionY;
+        }
 
         double ratio;
 
@@ -185,12 +214,22 @@ public class WindowManager : DrawableGameComponent
             ratio = yRatio;
             int textureWidth = (int)(RenderResolutionX * ratio);
             texturePositionX = (clientAreaWidth - textureWidth) / 2;
+            if (IntegerScalingOnly)
+            {
+                int textureHeight = (int)(RenderResolutionY * ratio);
+                texturePositionY = (clientAreaHeight - textureHeight) / 2;
+            }
         }
         else
         {
             ratio = xRatio;
             int textureHeight = (int)(RenderResolutionY * ratio);
             texturePositionY = (clientAreaHeight - textureHeight) / 2;
+            if (IntegerScalingOnly)
+            {
+                int textureWidth = (int)(RenderResolutionX * ratio);
+                texturePositionX = (clientAreaWidth - textureWidth) / 2;
+            }
         }
 
         ScaleRatio = ratio;
@@ -211,6 +250,14 @@ public class WindowManager : DrawableGameComponent
 
         if (ScaleRatio > 1.5 && ScaleRatio % 1.0 == 0)
         {
+#if XNA
+            if (RenderResolutionX * 2 > XNA_MAX_TEXTURE_SIZE || RenderResolutionY * 2 > XNA_MAX_TEXTURE_SIZE)
+            {
+                doubledRenderTarget = null;
+                return;
+            }
+#endif
+
             // Enable sharper scaling method
             doubledRenderTarget = new RenderTarget2D(GraphicsDevice,
                 RenderResolutionX * 2, RenderResolutionY * 2, false, SurfaceFormat.Color,
@@ -227,6 +274,12 @@ public class WindowManager : DrawableGameComponent
     /// </summary>
     public void CloseGame()
     {
+#if !WINFORMS
+        // When using UniversalGL both GameClosing and Game.Exiting trigger GameWindowManager_GameWindowClosing().
+        // To avoid executing shutdown code twice we unsubscribe here from Game.Exiting.
+        // The default double subscription needs to stay to handle the case of a forceful shutdown e.g. alt+F4.
+        Game.Exiting -= GameWindowManager_GameWindowClosing;
+#endif
         GameClosing?.Invoke(this, EventArgs.Empty);
         Game.Exit();
     }
@@ -238,11 +291,13 @@ public class WindowManager : DrawableGameComponent
     {
         Logger.Log("Restarting game.");
 
+#if !XNA
         // MonoGame takes ages to unload assets compared to XNA; sometimes MonoGame
         // can take over 8 seconds while XNA takes only 1 second
         // This is a bit dirty, but at least it makes the MonoGame build exit quicker
         GameClosing?.Invoke(this, EventArgs.Empty);
-        
+        // TODO move Windows-specific functionality
+
         Application.DoEvents();
 
 #if NETFRAMEWORK
@@ -254,7 +309,11 @@ public class WindowManager : DrawableGameComponent
             Arguments = Environment.CommandLine
         });
 #endif
+
         Environment.Exit(0);
+#else
+        Application.Restart();
+#endif
     }
 
     /// <summary>
@@ -281,19 +340,16 @@ public class WindowManager : DrawableGameComponent
         gameWindowManager.GameWindowClosing += GameWindowManager_GameWindowClosing;
         gameWindowManager.ClientSizeChanged += GameWindowManager_ClientSizeChanged;
 
+        Game.Exiting += GameWindowManager_GameWindowClosing;
+
+
         if (UISettings.ActiveSettings == null)
             UISettings.ActiveSettings = new UISettings();
+#if XNA
+
+        KeyboardEventInput.Initialize(Game.Window);
+#endif
     }
-
-    public static event Action<string> 标题改变;
-
-    public static readonly IProgress<string> progress = new Progress<string>(s =>
-    {
-        标题改变?.Invoke(s);
-    });
-
-    public static void Report(string s = "") => progress.Report(s);
-
 
 
     private void GameWindowManager_ClientSizeChanged(object sender, EventArgs e)
@@ -319,6 +375,7 @@ public class WindowManager : DrawableGameComponent
     {
         gameWindowManager.SetFormBorderStyle(formBorderStyle);
     }
+
 
     /// <summary>
     /// Schedules a delegate to be executed on the next game loop frame, 
@@ -408,6 +465,7 @@ public class WindowManager : DrawableGameComponent
         gameWindowManager.SetBorderlessMode(value);
     }
 
+
     public void MinimizeWindow()
     {
         gameWindowManager.MinimizeWindow();
@@ -456,6 +514,11 @@ public class WindowManager : DrawableGameComponent
     }
 
     /// <summary>
+    /// Enables or disables the "maximize box" for the game form.
+    /// </summary>
+    public void SetMaximizeBox(bool value) => gameWindowManager.SetMaximizeBox(value);
+
+    /// <summary>
     /// Enables or disables the "control box" (minimize/maximize/close buttons) for the game form.
     /// </summary>
     /// <param name="value">True to enable the control box, false to disable it.</param>
@@ -479,6 +542,7 @@ public class WindowManager : DrawableGameComponent
     {
         gameWindowManager.AllowClosing();
     }
+
 
     /// <summary>
     /// Removes a control from the window manager.
@@ -527,7 +591,7 @@ public class WindowManager : DrawableGameComponent
     /// <param name="bFullScreen">True if you wish to go to Full Screen, false for Windowed Mode.</param>
     public bool InitGraphicsMode(int iWidth, int iHeight, bool bFullScreen)
     {
-        Logger.Log("初始化图形模式: " + iWidth + "x" + iHeight);
+        Logger.Log("InitGraphicsMode: " + iWidth + "x" + iHeight);
         WindowWidth = iWidth;
         WindowHeight = iHeight;
         // If we aren't using a full screen mode, the height and width of the window can
@@ -537,13 +601,20 @@ public class WindowManager : DrawableGameComponent
             if ((iWidth <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width)
                 && (iHeight <= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height))
             {
+
                 gameWindowManager.ClientSizeChanged -= GameWindowManager_ClientSizeChanged;
+
+
                 graphics.PreferredBackBufferWidth = iWidth;
                 graphics.PreferredBackBufferHeight = iHeight;
                 graphics.IsFullScreen = bFullScreen;
                 graphics.ApplyChanges();
                 RecalculateScaling();
+
+
                 gameWindowManager.ClientSizeChanged += GameWindowManager_ClientSizeChanged;
+
+
                 return true;
             }
         }
@@ -560,13 +631,20 @@ public class WindowManager : DrawableGameComponent
                 {
                     // The mode is supported, so set the buffer formats, apply changes and return
 
+
                     gameWindowManager.ClientSizeChanged -= GameWindowManager_ClientSizeChanged;
+
+
                     graphics.PreferredBackBufferWidth = iWidth;
                     graphics.PreferredBackBufferHeight = iHeight;
                     graphics.IsFullScreen = bFullScreen;
                     graphics.ApplyChanges();
                     RecalculateScaling();
+
+
                     gameWindowManager.ClientSizeChanged += GameWindowManager_ClientSizeChanged;
+
+
                     return true;
                 }
             }
@@ -721,8 +799,14 @@ public class WindowManager : DrawableGameComponent
             Game.Window.ClientBounds.Width - (SceneXPosition * 2), Game.Window.ClientBounds.Height - (SceneYPosition * 2)), Color.White);
 
 #if DEBUG
-        Renderer.DrawString("Active Control " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+        Renderer.DrawString("Active control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+
+        if (IMEHandler != null && IMEHandler.TextCompositionEnabled)
+        {
+            Renderer.DrawString("IME Enabled", 0, new Vector2(0, 16), Color.Red, 1.0f);
+        }
 #endif
+
         if (Cursor.Visible)
             Cursor.Draw(gameTime);
 

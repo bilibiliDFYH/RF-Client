@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-using XNATextBox = ClientGUI.XNATextBox;
+
 
 namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 {

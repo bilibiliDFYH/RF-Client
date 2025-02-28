@@ -6,7 +6,7 @@ using Localization;
 using Microsoft.Xna.Framework; 
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-using XNATextBox = ClientGUI.XNATextBox;
+
 
 namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 {

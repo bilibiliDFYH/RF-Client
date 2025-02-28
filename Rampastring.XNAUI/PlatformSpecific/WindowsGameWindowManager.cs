@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
+
+using Rampastring.Tools;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Rampastring.Tools;
+
 
 namespace Rampastring.XNAUI.PlatformSpecific;
 
@@ -15,6 +16,10 @@ internal class WindowsGameWindowManager : IGameWindowManager
     public WindowsGameWindowManager(Game game)
     {
         this.game = game;
+
+        game.Window.ClientSizeChanged += GameForm_ClientSizeChanged;
+
+
         gameForm = (Form)Control.FromHandle(game.Window.Handle);
 
         if (gameForm != null)
@@ -22,21 +27,35 @@ internal class WindowsGameWindowManager : IGameWindowManager
             gameForm.FormClosing += GameForm_FormClosing_Event;
             gameForm.ResizeEnd += GameForm_ClientSizeChanged;
         }
+
     }
 
+
+
     private Form gameForm;
+
     private bool closingPrevented = false;
+
     public event EventHandler GameWindowClosing;
+
+
     public event EventHandler ClientSizeChanged;
+
     private Game game;
+
 
     private void GameForm_FormClosing_Event(object sender, FormClosingEventArgs e)
     {
         GameWindowClosing?.Invoke(this, EventArgs.Empty);
     }
 
+
     private void GameForm_ClientSizeChanged(object sender, EventArgs e)
     {
+
+        if (gameForm == null)
+            return;
+
         ClientSizeChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -45,8 +64,10 @@ internal class WindowsGameWindowManager : IGameWindowManager
     /// </summary>
     public void CenterOnScreen()
     {
-        if (gameForm == null)
+
+        if (gameForm == null) 
             return;
+
         var screen = System.Windows.Forms.Screen.FromHandle(gameForm.Handle);
         int currentWidth = screen.Bounds.Width;
         int currentHeight = screen.Bounds.Height;
@@ -54,7 +75,13 @@ internal class WindowsGameWindowManager : IGameWindowManager
         int y = (currentHeight - game.Window.ClientBounds.Height) / 2;
         int screenX = screen.Bounds.X;
         int screenY = screen.Bounds.Y;
+
+
+#if XNA
+        gameForm.DesktopLocation = new System.Drawing.Point(x, y);
+#else
         game.Window.Position = new Microsoft.Xna.Framework.Point(screenX + x, screenY + y);
+#endif
     }
 
     /// <summary>
@@ -64,8 +91,16 @@ internal class WindowsGameWindowManager : IGameWindowManager
     /// windowed mode should be enabled.</param>
     public void SetBorderlessMode(bool value)
     {
+#if !XNA
         game.Window.IsBorderless = value;
+#else
+        if (value)
+            gameForm.FormBorderStyle = FormBorderStyle.None;
+        else
+            gameForm.FormBorderStyle = FormBorderStyle.FixedSingle;
+#endif
     }
+
 
     /// <summary>
     /// Minimizes the game window.
@@ -114,7 +149,7 @@ internal class WindowsGameWindowManager : IGameWindowManager
     /// <summary>
     /// Flashes the game window on the taskbar.
     /// </summary>
-#if !NETFRAMEWORK
+#if NET5_0_OR_GREATER
     [System.Runtime.Versioning.SupportedOSPlatform("windows5.1.2600")]
 #endif
     public void FlashWindow()
@@ -148,6 +183,15 @@ internal class WindowsGameWindowManager : IGameWindowManager
             return IntPtr.Zero;
 
         return gameForm.Handle;
+    }
+
+    /// <summary>
+    /// Enables or disables the "maximize box" for the game form.
+    /// </summary>
+    public void SetMaximizeBox(bool value)
+    {
+        if (gameForm != null)
+            gameForm.MaximizeBox = value;
     }
 
     /// <summary>
@@ -206,9 +250,18 @@ internal class WindowsGameWindowManager : IGameWindowManager
 
     public void SetFormBorderStyle(FormBorderStyle borderStyle)
     {
+#if !XNA
         if (borderStyle != FormBorderStyle.None && game.Window.IsBorderless)
             throw new ArgumentException("Cannot set form border style when game window has been set to borderless!");
+#endif
 
-        gameForm.FormBorderStyle = borderStyle;
+        if (gameForm != null)
+            gameForm.FormBorderStyle = borderStyle;
     }
+
+    //public bool HasFocus()
+    //{
+    //    return game.IsActive;
+    //}
+
 }

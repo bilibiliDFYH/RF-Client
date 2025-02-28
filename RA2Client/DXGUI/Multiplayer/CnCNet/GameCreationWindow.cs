@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-using XNATextBox = ClientGUI.XNATextBox;
+
 
 namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 {

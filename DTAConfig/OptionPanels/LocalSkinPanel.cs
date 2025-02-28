@@ -13,7 +13,7 @@ using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using XNATextBox = ClientGUI.XNATextBox;
+
 
 
 namespace DTAConfig.OptionPanels

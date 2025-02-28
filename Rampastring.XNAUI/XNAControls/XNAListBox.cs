@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+#if WINFORMS
+using Rampastring.XNAUI.Input;
+using TextCopy;
+#endif
+using System;
 using System.Collections.Generic;
 using Rampastring.Tools;
 using System.Globalization;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Rampastring.XNAUI.Input;
-using TextCopy;
 
 namespace Rampastring.XNAUI.XNAControls;
 
@@ -15,8 +17,8 @@ namespace Rampastring.XNAUI.XNAControls;
 /// </summary>
 public class XNAListBox : XNAPanel
 {
-    private const int MARGIN = 5;
-    private const int ITEM_TEXT_TEXTURE_MARGIN = 5;
+    private const int MARGIN = 2;
+    private const int ITEM_TEXT_TEXTURE_MARGIN = 2;
     private const double SCROLL_REPEAT_TIME = 0.03;
     private const double FAST_SCROLL_TRIGGER_TIME = 0.4;
 
@@ -56,7 +58,8 @@ public class XNAListBox : XNAPanel
     /// RefreshScrollbar afterwards.
     /// !!! DO NOT remove items directly, use <see cref="Clear"/> or
     /// one of the <see cref="RemoveItem(int)"/> overloads instead
-    /// or you risk leaking memory.    
+    /// or you risk leaking memory.
+    /// TODO change to ObservableCollection?
     /// </summary>
     public List<XNAListBoxItem> Items = new List<XNAListBoxItem>();
 
@@ -342,7 +345,7 @@ public class XNAListBox : XNAPanel
 
     public void AddItem(string text,object tag)
     {
-        AddItem(text, null, true,tag:tag);
+        AddItem(text, null, true,null,tag);
     }
 
     public void AddItem(string text, bool selectable)
@@ -365,7 +368,7 @@ public class XNAListBox : XNAPanel
         AddItem(text, null, selectable, textColor);
     }
 
-    public void AddItem(string text, Texture2D texture, bool selectable, Color? textColor = null, object tag = null)
+    public void AddItem(string text, Texture2D texture, bool selectable, Color? textColor = null,object tag = null)
     {
         var item = new XNAListBoxItem();
         if (textColor.HasValue)
@@ -500,7 +503,10 @@ public class XNAListBox : XNAPanel
         int lineCount = 0;
 
         foreach (XNAListBoxItem item in Items)
-            lineCount += item.TextLines.Count;
+        {
+            if (item.Visible)
+                lineCount += item.TextLines.Count;
+        }
 
         return lineCount;
     }
@@ -529,14 +535,47 @@ public class XNAListBox : XNAPanel
     }
 
     /// <summary>
+    /// Scrolls the list box so that the selected element is made visible, if it is not visible already.
+    /// </summary>
+    public void ScrollToSelectedElement()
+    {
+        int totalHeight = 0;
+        int itemY = 0;
+
+        for (int i = 0; i < Items.Count; i++)
+        {
+            int elementHeight = Items[i].TextLines.Count * LineHeight;
+
+            totalHeight += elementHeight;
+
+            if (i < SelectedIndex)
+                itemY += elementHeight;
+        }
+
+        const int listBoxMargin = 2;
+
+        if (ViewTop > itemY + LineHeight)
+            ViewTop = itemY;
+        else if (ViewTop + Height <= itemY)
+            ViewTop = Math.Min(itemY, totalHeight - Height + (listBoxMargin * 2));
+    }
+
+    /// <summary>
     /// Initializes the list box.
     /// </summary>
     public override void Initialize()
     {
         base.Initialize();
 
+#if WINFORMS
         Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
+#endif
+
+#if !XNA
         Game.Window.TextInput += Window_TextInput;
+#else
+        KeyboardEventInput.CharEntered += KeyboardEventInput_CharEntered;
+#endif
 
         ScrollBar.ClientRectangle = new Rectangle(Width - ScrollBar.ScrollWidth - 1,
             1, ScrollBar.ScrollWidth, Height - 2);
@@ -552,8 +591,15 @@ public class XNAListBox : XNAPanel
 
     public override void Kill()
     {
+#if WINFORMS
         Keyboard.OnKeyPressed -= Keyboard_OnKeyPressed;
+#endif
+
+#if !XNA
         Game.Window.TextInput -= Window_TextInput;
+#else
+        KeyboardEventInput.CharEntered -= KeyboardEventInput_CharEntered;
+#endif
 
         ParentChanged -= Parent_ClientRectangleUpdated;
 
@@ -581,6 +627,7 @@ public class XNAListBox : XNAPanel
         ViewTop = ScrollBar.ViewTop;
     }
 
+#if WINFORMS
     /// <summary>
     /// Allows copying items to the clipboard using Ctrl + C.
     /// </summary>
@@ -592,11 +639,19 @@ public class XNAListBox : XNAPanel
         if (e.PressedKey == Keys.C && Keyboard.IsCtrlHeldDown())
             ClipboardService.SetText(SelectedItem.Text);
     }
+#endif
 
+#if XNA
+    private void KeyboardEventInput_CharEntered(object sender, KeyboardEventArgs e)
+    {
+        HandleCharInput(e.Character);
+    }
+#else
     private void Window_TextInput(object sender, TextInputEventArgs e)
     {
         HandleCharInput(e.Character);
     }
+#endif
 
     /// <summary>
     /// Allows the user to select items by selecting the list box and then
@@ -708,6 +763,9 @@ public class XNAListBox : XNAPanel
 
         for (int i = SelectedIndex - 1; i > -1; i--)
         {
+            if (!Items[i].Visible)
+                continue;
+
             if (Items[i].Selectable)
             {
                 SelectedIndex = i;
@@ -730,6 +788,9 @@ public class XNAListBox : XNAPanel
         int scrollLineCount = 1;
         for (int i = SelectedIndex + 1; i < Items.Count; i++)
         {
+            if (!Items[i].Visible)
+                continue;
+
             if (Items[i].Selectable)
             {
                 SelectedIndex = i;
@@ -739,6 +800,7 @@ public class XNAListBox : XNAPanel
                 ScrollBar.RefreshButtonY(ViewTop);
                 return;
             }
+
             scrollLineCount++;
         }
 
@@ -863,6 +925,9 @@ public class XNAListBox : XNAPanel
         {
             XNAListBoxItem lbItem = Items[i];
 
+            if (!lbItem.Visible)
+                continue;
+
             height += lbItem.TextLines.Count * LineHeight;
 
             if (height > mouseLocation.Y)
@@ -977,6 +1042,9 @@ public class XNAListBox : XNAPanel
         for (int i = drawInfo.TopIndex; i < Items.Count; i++)
         {
             XNAListBoxItem lbItem = Items[i];
+
+            if (!lbItem.Visible)
+                continue;
 
             DrawListBoxItem(i, height);
 

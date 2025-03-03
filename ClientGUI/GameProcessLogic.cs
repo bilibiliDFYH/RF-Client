@@ -300,7 +300,6 @@ namespace ClientGUI
                 var mission = spawn.GetValue("Settings", "Mission", string.Empty);
 
                 var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
-                var YR_to_RA2 = spawn.GetValue("Settings", "YR_to_RA2", false);
                 // 找到在 newSaves 中但不在 oldSaves 中的文件
                 var addedFiles = newSaves.Where(newFile => !oldSaves.Contains(newFile)).ToArray();
 
@@ -310,7 +309,6 @@ namespace ClientGUI
 
                     iniFile.SetValue(fileName, "Game", game);
                     iniFile.SetValue(fileName, "Mission", mission);
-                    iniFile.SetValue(fileName, "RA2Mode", YR_to_RA2);
                 }
                 iniFile.WriteIniFile();
             }
@@ -438,7 +436,7 @@ namespace ClientGUI
                     }
 
                     FilePaths["Game"] = newGame;
-                    FilePaths["Mission"] = newMission;
+                    FilePaths["Mission"] = newMission; 
 
                     foreach (var keyValue in FilePaths)
                     {
@@ -449,13 +447,15 @@ namespace ClientGUI
 
                         foreach (var fileName in Directory.GetFiles(keyValue.Value))
                         {
-                            if (Path.GetExtension(fileName) == ".ini") continue;
+                            //if (Path.GetExtension(fileName) == ".ini") continue;
 
                             FileHash[keyValue.Key][fileName] = fileName.ComputeHash();
                         }
                     }
 
                     File.Copy("LiteExt.dll", Path.Combine(ProgramConstants.游戏目录, "LiteExt.dll"), true);
+                    File.Copy("qres.dat", Path.Combine(ProgramConstants.游戏目录, "qres.dat"), true);
+                    File.Copy("qres32.dll", Path.Combine(ProgramConstants.游戏目录, "qres32.dll"), true);
 
                     WindowManager.progress.Report("正在加载语音");
                     FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", ProgramConstants.游戏目录);

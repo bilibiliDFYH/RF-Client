@@ -134,14 +134,21 @@ namespace Ra2Client.DXGUI.Generic
             _modManager.触发刷新 += ReadMissionList;
             //modManager.EnabledChanged += CampaignSelector_EnabledChanged;
 
+            var btnImport = new XNAClientButton(WindowManager)
+            {
+                Text = "导入任务包",
+                ClientRectangle = new Rectangle(10, 32, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT)
+            }; 
+            btnImport.LeftClick += BtnImport_LeftClick;
+
             var _lblScreen = new XNALabel(WindowManager);
             _lblScreen.Name = "lblScreen";
             _lblScreen.Text = "筛选:";
-            _lblScreen.ClientRectangle = new Rectangle(10, 35, 0, 0);
+            _lblScreen.ClientRectangle = new Rectangle(10, 60, 0, 0);
 
             _ddDifficulty = new XNADropDown(WindowManager);
             _ddDifficulty.Name = nameof(_ddDifficulty);
-            _ddDifficulty.ClientRectangle = new Rectangle(10, 60, 100, 25);
+            _ddDifficulty.ClientRectangle = new Rectangle(50, 60, 100, 25);
 
             _ddSide = new XNADropDown(WindowManager);
             _ddSide.Name = nameof(_ddSide);
@@ -149,7 +156,7 @@ namespace Ra2Client.DXGUI.Generic
 
             _ddMissionPack = new XNADropDown(WindowManager);
             _ddMissionPack.Name = nameof(_ddMissionPack);
-            _ddMissionPack.ClientRectangle = new Rectangle(_ddDifficulty.X, _ddDifficulty.Y + _ddDifficulty.Height + 5, _lbxCampaignList.Width, _ddDifficulty.Height);
+            _ddMissionPack.ClientRectangle = new Rectangle(_lblScreen.X, _ddDifficulty.Y + _ddDifficulty.Height + 5, _lbxCampaignList.Width, _ddDifficulty.Height);
 
 
             var lblMissionDescriptionHeader = new XNALabel(WindowManager);
@@ -220,13 +227,7 @@ namespace Ra2Client.DXGUI.Generic
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
                 Text = "导入任务包",
-                SelectAction = () =>
-                {
-                   
-                    ModManagerEnabled(1);
-                    _modManager.BtnNew.OnLeftClick();
-
-                }
+                SelectAction = btnImport.OnLeftClick
             });
 
             AddChild(_campaignMenu);
@@ -327,7 +328,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_lbxInforBox);
             AddChild(_ddMissionPack);
             AddChild(lblalter);
-            
+            AddChild(btnImport);
             AddChild(_tbMissionDescriptionList);
             AddChild(lblDifficultyLevel);
             AddChild(_btnLaunch);
@@ -413,6 +414,12 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_mapPreviewBox);
 
 
+        }
+
+        private void BtnImport_LeftClick(object sender, EventArgs e)
+        {
+            ModManagerEnabled(1);
+            _modManager.BtnNew.OnLeftClick();
         }
 
         private void MapPreviewBox_LeftClick(object sender, EventArgs e)

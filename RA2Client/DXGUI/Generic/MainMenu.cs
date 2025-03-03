@@ -35,6 +35,7 @@ using System.Net.Sockets;
 using Ra2Client.Domain.Multiplayer;
 using ClientCore.CnCNet5;
 using DTAConfig.Entity;
+using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -761,36 +762,88 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void CheckCampaign()
+        private void 检查根目录下是否有玩家放入的Mod或任务包()
         {
-            XNAMessageBox messageBox;
-
-            if (File.Exists("mapsmd03.mix"))
-                Mix.UnPackMix(ProgramConstants.GamePath, $"{ProgramConstants.GamePath}mapsmd03.mix");
-            if (File.Exists("maps01.mix"))
-                Mix.UnPackMix(ProgramConstants.GamePath, $"{ProgramConstants.GamePath}mapsmd01.mix");
-            if (File.Exists("maps02.mix"))
-                Mix.UnPackMix(ProgramConstants.GamePath, $"{ProgramConstants.GamePath}maps02.mix");
-
-            var alls = Directory.GetFiles("./", "all*.map");
-            var sovs = Directory.GetFiles("./", "sov*.map");
-
-            if (alls.Length + sovs.Length != 0)
+            var modManager = ModManager.GetInstance(WindowManager);
+            if (ModManager.判断是否为Mod(ProgramConstants.GamePath,true))
             {
-                // 提示用户加载任务包
-                messageBox = new XNAMessageBox(WindowManager, "检测到可能存在的任务包", "您需要加载此任务包吗？", XNAMessageBoxButtons.YesNo);
-                messageBox.Show();
-                messageBox.YesClickedAction += CheckCampaign_YesClicked;
+
+                var XNAMessageBox = new XNAMessageBox(WindowManager, "提示", "检测到模组或任务包.\n选 是 则按模组导入.选 否 则按任务包导入.", XNAMessageBoxButtons.YesNo);
+                XNAMessageBox.YesClickedAction += (_) => {
+                    modManager.导入具体Mod(ProgramConstants.GamePath,true, true,true);
+                    清理根目录();
+                };
+                XNAMessageBox.NoClickedAction += (_) => {
+                    modManager.导入具体任务包(true, true, ProgramConstants.GamePath);
+                    清理根目录();
+                };
+                XNAMessageBox.Show();
+            }
+            else if (ModManager.判断是否为任务包(ProgramConstants.GamePath))
+            {
+                modManager.导入具体任务包(true, true, ProgramConstants.GamePath);
+                清理根目录();
             }
 
         }
 
-        private void CheckCampaign_YesClicked(XNAMessageBox messageBox)
+        private FileSystemWatcher _watcher;
+        private System.Timers.Timer _timer;
+        private readonly object _lock = new();
+        private void 监控根目录()
         {
-            var modManager = ModManager.GetInstance(WindowManager);
-            //modManager.ImportMissionPack(ProgramConstants.游戏目录, false);
-          //  modManager.导入Mod(ProgramConstants.游戏目录);
+            // 初始化 FileSystemWatcher
+            _watcher = new FileSystemWatcher();
+            _watcher.Path = ProgramConstants.GamePath;
+
+            // 监控所有文件（按需修改筛选条件）
+            _watcher.Filter = "*.*";
+            // 或者监控特定类型文件，例如：_watcher.Filter = "*.txt";
+
+            // 设置监控哪些变更类型
+            _watcher.NotifyFilter = NotifyFilters.FileName;
+
+            _timer = new System.Timers.Timer(1000); // 500ms 触发一次
+            _timer.Elapsed += (_, _) => 检查根目录下是否有玩家放入的Mod或任务包();
+            _timer.AutoReset = false; // 只触发一次，防止重复执行
+
+            // 订阅事件
+            _watcher.Created += (_,_)=> {
+                lock (_lock)
+                {
+                    _timer.Stop();  // 每次触发时先停止计时器
+                    _timer.Start(); // 重新启动计时器，等待新的事件
+                }
+            };
+
+            // 启用监控
+            _watcher.EnableRaisingEvents = true;
         }
+
+        private void 清理根目录()
+        {
+            List<string> whitelist = [
+                "cncnet5.dll", 
+                "gamemd-spawn.exe", 
+                "LiteExt.dll", 
+                "RA2MD.ini", 
+                "Reunion.deps.json", 
+                "Reunion.dll", 
+                "Reunion.dll.config", 
+                "Reunion.exe", 
+                "Reunion.runtimeconfig.json"
+                ];
+
+            foreach (string file in Directory.GetFiles(ProgramConstants.GamePath))
+            {
+                if (whitelist.Contains(Path.GetFileName(file))) continue;
+                if((Path.GetExtension(file) == ".map" || Path.GetExtension(file) == ".yrm" || Path.GetExtension(file) == ".mpr") && MapLoader.是否为多人图(file)) continue;
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+
+            }
+        }
+        
 
         private void CheckForbiddenFiles()
         {
@@ -987,7 +1040,8 @@ namespace Ra2Client.DXGUI.Generic
             CheckDDRAW();
             CheckYRPath();
             检查地编();
-
+            检查根目录下是否有玩家放入的Mod或任务包();
+            监控根目录();
             try
             {
                 if (Directory.Exists("./tmp"))

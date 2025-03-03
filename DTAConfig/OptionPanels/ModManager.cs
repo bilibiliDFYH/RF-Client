@@ -616,16 +616,16 @@ public class ModManager : XNAWindow
 
     }
 
-    private bool 判断是否为Mod(string path, bool isYR)
+    public static bool 判断是否为Mod(string path, bool isYR)
     {
         var md = isYR ? "md" : string.Empty;
 
         var shps = Directory.GetFiles(path, "*.shp")
-           .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
+           .Where(file => !Path.GetFileName(file).ToLower().StartsWith("ls") && !Path.GetFileName(file).ToLower().StartsWith("gls"))
            .ToArray();
         var vxls = Directory.GetFiles(path, "*.vxl");
         var pals = Directory.GetFiles(path, "*.pal")
-            .Where(file => !Path.GetFileName(file).StartsWith("ls") && !Path.GetFileName(file).StartsWith("gls"))
+            .Where(file => !Path.GetFileName(file).ToLower().StartsWith("ls") && !Path.GetFileName(file).ToLower().StartsWith("gls"))
             .ToArray();
 
         var mixs = Directory.GetFiles(path, $"expand{md}*.mix")
@@ -633,18 +633,21 @@ public class ModManager : XNAWindow
 
         var inis = Directory.GetFiles(path, $"*.ini")
             .Where(file =>
-            Path.GetFileName(file) != $"battle{md}.ini" &&
-                    Path.GetFileName(file) != $"mapsel{md}.ini" &&
-                    Path.GetFileName(file) != $"ai{md}.ini" &&
-                    Path.GetFileName(file) != $"ai{md}.ini" &&
-                    Path.GetFileName(file) != $"mpbattle{md}.ini"
+            Path.GetFileName(file).ToLower() != $"battle{md}.ini" &&
+                    Path.GetFileName(file).ToLower() != $"mapsel{md}.ini" &&
+                    Path.GetFileName(file).ToLower() != $"ai{md}.ini" &&
+                    Path.GetFileName(file).ToLower() != $"ai{md}.ini" &&
+                    Path.GetFileName(file).ToLower() != $"ra2{md}.ini" &&
+                    Path.GetFileName(file).ToLower() != $"spawn.ini" &&
+                    Path.GetFileName(file).ToLower() != $"spawnmap.ini" &&
+                    Path.GetFileName(file).ToLower() != $"mpbattle{md}.ini"
                     )
             .ToArray();
 
         return shps.Length + vxls.Length + pals.Length + mixs.Length + inis.Length != 0;
     }
 
-    private bool 判断是否为任务包(string path)
+    public static bool 判断是否为任务包(string path)
     {
         return Directory.Exists(path) && (Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0);
     }
@@ -656,7 +659,7 @@ public class ModManager : XNAWindow
         return Directory.Exists(path) && YRFiles.Any(file => File.Exists(Path.Combine(path, file))) || Directory.GetFiles(path, "expandmd*.mix").Length != 0 || Directory.GetFiles(path, "*md.map").Length != 0;
     }
 
-    private string 导入Mod(bool copyFile, bool deepImport, string filePath)
+    public string 导入Mod(bool copyFile, bool deepImport, string filePath)
     {
 
         var id = string.Empty;
@@ -695,7 +698,7 @@ public class ModManager : XNAWindow
 
     }
 
-    private Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true)
+    public Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true)
     {
 
         var md = isYR ? "md" : null;
@@ -859,6 +862,8 @@ public class ModManager : XNAWindow
         mod.Create(); //写入INI文件
         return mod;
     }
+
+
 
     private void UpdateBase()
     {

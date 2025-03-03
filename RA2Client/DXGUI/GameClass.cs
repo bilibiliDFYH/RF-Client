@@ -25,8 +25,7 @@ using Ra2Client.Online;
 using DTAConfig;
 using DTAConfig.Settings;
 using DTAConfig.OptionPanels;
-using System.Threading.Tasks;
-using ClientGUI.IME;
+
 
 namespace Ra2Client.DXGUI
 {

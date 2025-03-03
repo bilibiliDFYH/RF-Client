@@ -770,18 +770,18 @@ namespace Ra2Client.DXGUI.Generic
 
                 var XNAMessageBox = new XNAMessageBox(WindowManager, "提示", "检测到模组或任务包.\n选 是 则按模组导入.选 否 则按任务包导入.", XNAMessageBoxButtons.YesNo);
                 XNAMessageBox.YesClickedAction += (_) => {
-                    modManager.导入具体Mod(ProgramConstants.GamePath,true, true,true);
+                    modManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
                     清理根目录();
                 };
                 XNAMessageBox.NoClickedAction += (_) => {
-                    modManager.导入具体任务包(true, true, ProgramConstants.GamePath);
+                    modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
                     清理根目录();
                 };
                 XNAMessageBox.Show();
             }
             else if (ModManager.判断是否为任务包(ProgramConstants.GamePath))
             {
-                modManager.导入具体任务包(true, true, ProgramConstants.GamePath);
+                modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
                 清理根目录();
             }
 

@@ -317,50 +317,7 @@ public class ModManager : XNAWindow
         if (!Directory.Exists(mod.FilePath))
             Directory.CreateDirectory(mod.FilePath);
 
-        void CopyFiles(string sourceDir, string targetDir, bool needRecursion = false)
-        {
-            // 复制当前目录下的文件
-            foreach (var file in Directory.GetFiles(sourceDir))
-            {
-                var fileName = Path.GetFileName(file);
-                var extension = Path.GetExtension(file);
-
-                // 排除特定文件
-                if (!needRecursion && (extension == ".png" || extension == ".jpg" || extension == ".pdb"))
-                    continue;
-
-                // 检查文件哈希值并决定是否复制
-                if (ProgramConstants.PureHashes.ContainsKey(fileName) &&
-                    ProgramConstants.PureHashes[fileName] == Utilities.CalculateSHA1ForFile(file))
-                    continue;
-
-                // 目标路径
-                var targetFilePath = Path.Combine(targetDir, fileName);
-                //var fileInfo = new FileInfo(targetFilePath);
-                //if (fileInfo.IsReadOnly)
-                //{
-                //    fileInfo.IsReadOnly = false;
-                //}
-                File.Copy(file, targetFilePath, overwrite: true);
-            }
-
-            if (needRecursion)
-                // 递归处理子目录
-                foreach (var dir in Directory.GetDirectories(sourceDir))
-                {
-                    var dirName = Path.GetFileName(dir);
-                    var targetSubDir = Path.Combine(targetDir, dirName);
-
-                    // 如果目标子目录不存在，创建它
-                    if (!Directory.Exists(targetSubDir))
-                    {
-                        Directory.CreateDirectory(targetSubDir);
-                    }
-
-                    // 递归复制子目录中的文件
-                    CopyFiles(dir, targetSubDir);
-                }
-        }
+        
 
       //  try
       //  {
@@ -377,7 +334,47 @@ public class ModManager : XNAWindow
         #endregion
     }
 
-    private static void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf)
+    private void CopyFiles(string sourceDir, string targetDir, bool needRecursion = false)
+    {
+        // 复制当前目录下的文件
+        foreach (var file in Directory.GetFiles(sourceDir))
+        {
+            var fileName = Path.GetFileName(file);
+            var extension = Path.GetExtension(file);
+
+            // 排除特定文件
+            if (!needRecursion && (extension == ".png" || extension == ".jpg" || extension == ".pdb"))
+                continue;
+
+            // 检查文件哈希值并决定是否复制
+            if (ProgramConstants.PureHashes.ContainsKey(fileName) &&
+                ProgramConstants.PureHashes[fileName] == Utilities.CalculateSHA1ForFile(file))
+                continue;
+
+            // 目标路径
+            var targetFilePath = Path.Combine(targetDir, fileName);
+            File.Copy(file, targetFilePath, overwrite: true);
+        }
+
+        if (needRecursion)
+            // 递归处理子目录
+            foreach (var dir in Directory.GetDirectories(sourceDir))
+            {
+                var dirName = Path.GetFileName(dir);
+                var targetSubDir = Path.Combine(targetDir, dirName);
+
+                // 如果目标子目录不存在，创建它
+                if (!Directory.Exists(targetSubDir))
+                {
+                    Directory.CreateDirectory(targetSubDir);
+                }
+
+                // 递归复制子目录中的文件
+                CopyFiles(dir, targetSubDir);
+            }
+    }
+
+    private  void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf, bool deepImport = false)
     {
         if (!Directory.Exists(missionPack.FilePath))
             Directory.CreateDirectory(missionPack.FilePath);
@@ -390,7 +387,7 @@ public class ModManager : XNAWindow
         //foreach (var file in Directory.GetFiles(MissionPackPath, "*.map"))
         //    File.Copy(file, Path.Combine(missionPack.FilePath, Path.GetFileName(file)), true);
 
-        FileHelper.CopyDirectory(MissionPackPath, missionPack.FilePath, [".csf"]);
+        CopyFiles(MissionPackPath, missionPack.FilePath, deepImport);
 
         foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
         {
@@ -649,7 +646,12 @@ public class ModManager : XNAWindow
 
     public static bool 判断是否为任务包(string path)
     {
-        return Directory.Exists(path) && (Directory.GetFiles(path, "*.map").Length + Directory.GetFiles(path, "*.mix").Length != 0);
+        if (!Directory.Exists(path)) return false;
+
+        var maps = Directory.GetFiles(path, "*.map").Length;
+        var mixs = Directory.GetFiles(path, "*.mix").Length;
+
+        return maps + mixs != 0;
     }
 
     private static bool 判断是否为尤复(string path)

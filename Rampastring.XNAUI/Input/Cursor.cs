@@ -1,12 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.IO;
+using Windows.Win32;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-#if WINFORMS
-using System.IO;
 using Rampastring.Tools;
-using Windows.Win32;
-#endif
 
 namespace Rampastring.XNAUI.Input;
 
@@ -85,7 +83,6 @@ public class Cursor : DrawableGameComponent
 
     private WindowManager windowManager;
     private MouseState previousMouseState;
-#if WINFORMS
 
     /// <summary>
     /// Attempts to replace the native operating system pointer cursor with
@@ -93,7 +90,7 @@ public class Cursor : DrawableGameComponent
     /// the cursor sprite is hidden, otherwise the cursor sprite remains visible.
     /// </summary>
     /// <param name="path">The path to the cursor (.cur) file.</param>
-#if NET5_0_OR_GREATER
+#if !NETFRAMEWORK
     [System.Runtime.Versioning.SupportedOSPlatform("windows5.0")]
 #endif
     public void LoadNativeCursor(string path)
@@ -125,7 +122,6 @@ public class Cursor : DrawableGameComponent
          * A shared cursor is valid as long as the module from which it was loaded remains in memory.
          * LoadCursorFromFile creates a shared cursor */
     }
-#endif
 
     public override void Initialize()
     {

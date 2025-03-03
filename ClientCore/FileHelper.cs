@@ -56,24 +56,6 @@ namespace ClientCore
             }
         }
 
-        public static void DelFiles(List<string> deleteFiles)
-        {
-            if (deleteFiles != null)
-            {
-                foreach (string file in deleteFiles)
-                {
-                    try
-                    {   if(!string.IsNullOrEmpty(file))
-                            File.Delete(file);
-                    }
-                    catch
-                    {
-                        throw new FileLockedException($"文件操作失败，可能是这个文件{file}被占用了，等待几秒重试，若反复出现此问题可联系作者");
-                    }
-                }
-            }
-        }
-
         public static void ForceDeleteDirectory(string targetDir)
         {
             if (!Directory.Exists(targetDir))

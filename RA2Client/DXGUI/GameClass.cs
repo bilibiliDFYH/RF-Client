@@ -25,6 +25,7 @@ using Ra2Client.Online;
 using DTAConfig;
 using DTAConfig.Settings;
 using DTAConfig.OptionPanels;
+using ClientGUI.IME;
 
 
 namespace Ra2Client.DXGUI
@@ -182,10 +183,10 @@ namespace Ra2Client.DXGUI
             FileInfo primaryNativeCursorPath = SafePath.GetFile(ProgramConstants.GetResourcePath(), "cursor.cur");
             FileInfo alternativeNativeCursorPath = SafePath.GetFile(ProgramConstants.GetBaseResourcePath(), "cursor.cur");
 
-            //if (primaryNativeCursorPath.Exists)
-            //    wm.Cursor.LoadNativeCursor(primaryNativeCursorPath.FullName);
-            //else if (alternativeNativeCursorPath.Exists)
-            //    wm.Cursor.LoadNativeCursor(alternativeNativeCursorPath.FullName);
+            if (primaryNativeCursorPath.Exists)
+                wm.Cursor.LoadNativeCursor(primaryNativeCursorPath.FullName);
+            else if (alternativeNativeCursorPath.Exists)
+                wm.Cursor.LoadNativeCursor(alternativeNativeCursorPath.FullName);
 
             Components.Add(wm);
 

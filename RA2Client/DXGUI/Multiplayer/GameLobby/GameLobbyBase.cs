@@ -134,7 +134,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected GameLaunchButton btnLaunchGame;
 
         protected XNAClientButton btnPickRandomMap;
-        protected XNAClientButton btnAginLoadMaps;
+        protected XNAClientButton btnLoadMaps;
         protected XNAClientButton btnRandomMap;
 
 
@@ -291,21 +291,19 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 Text = "导入Mod",
                 SelectAction = () =>
                 {
-                    ModManagerEnabled();
-                    _modManager.DDModAI.SelectedIndex = 0;
-                    _modManager.BtnNew.OnLeftClick();
+                    var infoWindows = new 导入选择窗口(WindowManager);
+
+                    infoWindows.selected += (b1, b2, path) =>
+                    {
+                        var modID = _modManager.导入Mod(b1, b2, path);
+                        var index = (cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == modID);
+                        if(index > -1) cmbGame.SelectedIndex = index;
+                    };
+
+                    var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
                 }
             });
-            ModMenu.AddItem(new XNAContextMenuItem
-            {
-                Text = "导入AI",
-                SelectAction = () =>
-                {
-                    ModManagerEnabled();
-                    _modManager.DDModAI.SelectedIndex = 1;
-                    _modManager.BtnNew.OnLeftClick();
-                }
-            });
+            
             AddChild(ModMenu);
 
             cmbGame = FindChild<GameLobbyDropDown>(nameof(cmbGame));
@@ -342,6 +340,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //});
             //AddChild(mapContextMenu);
 
+            mapContextMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "刷新地图列表",
+                SelectAction = 刷新地图列表
+            });
+            mapContextMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "导入新地图",
+                SelectAction = btnLoadMaps.OnLeftClick
+            });
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
                 Text = "打开地图位置",
@@ -386,19 +394,19 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             btnPickRandomMap = FindChild<XNAClientButton>(nameof(btnPickRandomMap));
             btnPickRandomMap.LeftClick += BtnPickRandomMap_LeftClick;
 
-            btnAginLoadMaps = new XNAClientButton(WindowManager);
-            //   btnAginLoadMaps = FindChild<XNAClientButton>(nameof(btnAginLoadMaps));
-            btnAginLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
-            btnAginLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
-            btnAginLoadMaps.Text = "Refresh the map".L10N("UI:Main:AginLoad");
-            btnAginLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
-            btnAginLoadMaps.LeftClick += btnAginLoadMaps_LeftClick;
-            AddChild(btnAginLoadMaps);
+            btnLoadMaps = new XNAClientButton(WindowManager);
+            //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
+            btnLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
+            btnLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
+            btnLoadMaps.Text = "Refresh the map".L10N("UI:Main:AginLoad");
+            btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
+            btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
+            AddChild(btnLoadMaps);
 
             lblscreen = new XNALabel(WindowManager);
             lblscreen.Name = nameof(lblscreen);
             lblscreen.Text = "人数：";
-            lblscreen.ClientRectangle = new Rectangle(btnAginLoadMaps.X, ddGameModeMapFilter.Y, 0, 0);
+            lblscreen.ClientRectangle = new Rectangle(btnLoadMaps.X, ddGameModeMapFilter.Y, 0, 0);
             AddChild(lblscreen);
 
             ddPeople = new XNADropDown(WindowManager);
@@ -418,7 +426,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             lblModeText = new XNALabel(WindowManager);
             lblModeText.Name = nameof(lblModeText);
-            lblModeText.ClientRectangle = new Rectangle(btnAginLoadMaps.X + 120, btnAginLoadMaps.Y + 5 , 0, 0);
+            lblModeText.ClientRectangle = new Rectangle(btnLoadMaps.X + 120, btnLoadMaps.Y + 5 , 0, 0);
             AddChild(lblModeText);
 
             randomMap = new 生成随机地图窗口(WindowManager, MapLoader);
@@ -451,6 +459,64 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             CmbGame_SelectedChanged(cmbGame, null);
         }
 
+        private void BtnLoadMaps_LeftClick(object sender, EventArgs e)
+        {
+            var w = new 导入选择窗口(WindowManager);
+            w.chkCopyFile.Checked = true;
+            w.chkCopyFile.AllowChecking = false;
+            w.chkDeepImport.Checked = true;
+            w.chkDeepImport.AllowChecking = false;
+
+            w.selected += (cf, di,path) =>
+            {
+                导入地图(path);
+            };
+            var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
+        }
+
+        private void 导入地图(string path)
+        {
+            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetDirectoryName(path));
+
+            if (!Directory.Exists(targetFolder))
+            {
+                Directory.CreateDirectory(targetFolder);
+            }
+
+            string[] files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+            var count = 0;
+            foreach (string file in files)
+            {
+                string extension = Path.GetExtension(file).ToLower();
+                if (extension == ".map" || extension == ".yrm" || extension == ".mpr")
+                {
+                    if (MapLoader.是否为多人图(file))
+                    {
+                        string fileName = Path.GetFileName(file);
+                        string destinationPath = Path.Combine(targetFolder, fileName);
+
+                        try
+                        {
+                            File.Copy(file, destinationPath, true);
+                            count++;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log($"复制失败: {file}, 错误: {ex.Message}");
+                        }
+                    }
+                }
+            }
+            if (count > 0)
+            {
+                XNAMessageBox.Show(WindowManager, "信息", $"成功导入了{count}张地图,复制到了{targetFolder}");
+                刷新地图列表();
+            }
+            else
+                XNAMessageBox.Show(WindowManager, "信息", "没有找到符合条件的地图:\nmap,yrm,mpr格式的多人地图.");
+
+        }
+
         private void 打开地图位置()
         {
             System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{Map.BaseFilePath}\"");
@@ -472,7 +538,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     try
                     {
                         duplicateFiles.ForEach(file => File.Delete(file));
-                        btnAginLoadMaps_LeftClick(null, null);
+                        刷新地图列表();
                     }
                     catch(Exception ex)
                     {
@@ -519,7 +585,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             foreach (var chk in CheckBoxes)
             {
-                
+                if (chk.Name == "chkAILimit") continue;
                 if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     chk.AllowChecking = true;
@@ -545,7 +611,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             foreach (var dd in DropDowns)
             {
-                
+                if (dd.Name == "cmbSw") continue;
                 if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
                 {
                     dd.AllowDropDown = true;
@@ -794,12 +860,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void BtnPickRandomMap_LeftClick(object sender, EventArgs e) => PickRandomMap();
 
-        public void btnAginLoadMaps_LeftClick(object sender, EventArgs e)
+        public void 刷新地图列表()
         {
-
             MapLoader.AgainLoadMaps();
             重新显示地图();
-
         }
 
         public void 重新显示地图()
@@ -828,7 +892,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (!randomMap.Enabled && !string.IsNullOrEmpty(r))
             {
 
-                btnAginLoadMaps_LeftClick(null,null);
+                刷新地图列表();
 
                 ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(d => d.Text == "常规作战");
 

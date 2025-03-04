@@ -317,19 +317,15 @@ public class ModManager : XNAWindow
         if (!Directory.Exists(mod.FilePath))
             Directory.CreateDirectory(mod.FilePath);
 
-        
-
-      //  try
-      //  {
+        try
+        {
             CopyFiles(modPath, mod.FilePath, deepImport);
 
-            // FileHelper.CopyDirectory(modPath, mod.FilePath);
-
-      //  }
-      //  catch (Exception ex)
-     //   {
-          //  XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
-   //     }
+        }
+        catch (Exception ex)
+        {
+            XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
+        }
 
         #endregion
     }
@@ -455,7 +451,7 @@ public class ModManager : XNAWindow
                 }
             }
         }
-        //如果路径本身不符合任务包，才检查其子目录
+        
 
         if (id == string.Empty)
         {
@@ -482,11 +478,16 @@ public class ModManager : XNAWindow
     {
 
         bool isYR = 判断是否为尤复(missionPath);
-        //if (!isYR) return null;
+        
 
         if (判断是否为Mod(missionPath, isYR) && !isYR) return null;
 
         var id = Path.GetFileName(missionPath);
+        if(missionPath == ProgramConstants.GamePath)
+        {
+            id = DateTime.Now.ToString("yyyyMMddHHmmss");
+        }
+
         var missionPack = new MissionPack
         {
             ID = id,
@@ -537,7 +538,7 @@ public class ModManager : XNAWindow
         if (File.Exists(Path.Combine(missionPack.FilePath, $"mission{md}.ini")))
             missionINIPath = Path.Combine(missionPack.FilePath, $"mission{md}.ini");
 
-        //var csfPath = Path.Combine(missionPack.FilePath,"ra2md.csf");
+        
         var csf = CSF.获取目录下的CSF字典(missionPack.FilePath);
 
         var missionINI = new IniFile(missionINIPath);
@@ -708,6 +709,10 @@ public class ModManager : XNAWindow
         if (!判断是否为Mod(path, isYR)) return null;
 
         var id = Path.GetFileName(path);
+        if (path == ProgramConstants.GamePath)
+        {
+            id = DateTime.Now.ToString("yyyyMMddHHmmss");
+        }
 
         var Name = id;
         var Countries = string.Empty;
@@ -1238,8 +1243,8 @@ public class ModManager : XNAWindow
 
 public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowManager)
 {
-    private XNAClientCheckBox chkCopyFile;
-    private XNAClientCheckBox chkDeepImport;
+    public XNAClientCheckBox chkCopyFile;
+    public XNAClientCheckBox chkDeepImport;
     private XNALabel lblPath;
     private XNAClientButton btnCancel;
     private XNAClientButton btnOk;
@@ -1254,14 +1259,14 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
         var btnFold = new XNAClientButton(windowManager)
         {
-            Text = "文件夹导入",
+            Text = "从文件夹导入",
             ClientRectangle = new Rectangle(20, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnFold.LeftClick += BtnFold_LeftClick;
 
         var btnZip = new XNAClientButton(windowManager)
         {
-            Text = "压缩包导入",
+            Text = "从压缩包导入",
             ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
             
         };
@@ -1273,7 +1278,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             Text = "复制模组文件",
             ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
-        chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地复制保留此模组文件");
+        chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地复制保留文件");
         chkCopyFile.CheckedChanged += ChkCopyFile_LeftClick;
 
         chkDeepImport = new XNAClientCheckBox(windowManager)
@@ -1284,11 +1289,11 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             AllowChecking = false
             
         };
-        chkDeepImport.SetToolTipText("若导入失败可勾选此项再次导入,会导致占用空间增大.");
+        chkDeepImport.SetToolTipText("深度复制.若导入后游玩出现问题可勾选此项再次导入,会导致占用空间增大.");
 
         lblPath = new XNALabel(windowManager)
         {
-            Text = string.Empty,
+            Text = string.Empty,  
             ClientRectangle = new Rectangle(20, 125, 0, 0)
         };
 

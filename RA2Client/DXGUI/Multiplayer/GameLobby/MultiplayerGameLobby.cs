@@ -685,7 +685,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             lbGameModeMapList.Disable();
             tbMapSearch.Disable();
             btnPickRandomMap.Disable();
-            btnAginLoadMaps.Disable();
+            btnLoadMaps.Disable();
             btnMapSortAlphabetically.Disable();
         }
 

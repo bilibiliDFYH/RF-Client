@@ -211,7 +211,7 @@ namespace Ra2Client.DXGUI.Generic
             //_campaignMenu.AddItem("删除这组任务");
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "刷新",
+                Text = "刷新地图列表",
                 SelectAction = () => ReadMissionList()
             });
             _campaignMenu.AddItem(new XNAContextMenuItem
@@ -221,14 +221,15 @@ namespace Ra2Client.DXGUI.Generic
             });
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "任务包管理器",
-                SelectAction = () => ModManagerEnabled(1)
-            });
-            _campaignMenu.AddItem(new XNAContextMenuItem
-            {
                 Text = "导入任务包",
                 SelectAction = btnImport.OnLeftClick
             });
+            _campaignMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "任务包管理",
+                SelectAction = () => ModManagerEnabled(1)
+            });
+            
 
             AddChild(_campaignMenu);
 
@@ -246,8 +247,16 @@ namespace Ra2Client.DXGUI.Generic
                 Text = "导入Mod",
                 SelectAction = () =>
                 {
-                    ModManagerEnabled(0);
-                    _modManager.BtnNew.OnLeftClick();
+                    var infoWindows = new 导入选择窗口(WindowManager);
+
+                    infoWindows.selected += (b1, b2, path) =>
+                    {
+                        var modID = _modManager.导入Mod(b1, b2, path);
+                        var index = (cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == modID);
+                        if (index > -1) cmbGame.SelectedIndex = index;
+                    };
+
+                    var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
                 }
             });
             AddChild(_modMenu);
@@ -418,8 +427,19 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnImport_LeftClick(object sender, EventArgs e)
         {
-            ModManagerEnabled(1);
-            _modManager.BtnNew.OnLeftClick();
+            var infoWindows = new 导入选择窗口(WindowManager);
+
+            infoWindows.selected += (b1, b2, path) =>
+            {
+                var missionPackID = _modManager.导入任务包(b1, b2, path);
+                var index = (_lbxCampaignList.Items.FindIndex(item => item.Tag as string == missionPackID);
+                if (index > -1) { 
+                    _lbxCampaignList.SelectedIndex = index;
+                    _lbxCampaignList.TopIndex = index;
+                }
+            };
+
+            var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
         }
 
         private void MapPreviewBox_LeftClick(object sender, EventArgs e)

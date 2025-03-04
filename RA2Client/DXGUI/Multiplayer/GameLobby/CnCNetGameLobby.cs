@@ -145,7 +145,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 var task = Task.Run(async () =>
                 {
                     await webClient.DownloadFileTaskAsync(new Uri(baseUrl), strLocPath);
-                    btnAginLoadMaps_LeftClick(null, null);
+                    刷新地图列表();
                     //MapLoader.AgainLoadMaps();
 
                     GameModeMap = GameModeMaps.Find(gmm => gmm.Map.SHA1 == sha);
@@ -153,8 +153,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 });
 
                 task.Wait();
-
-                
 
             }
             catch (Exception ex)

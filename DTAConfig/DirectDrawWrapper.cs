@@ -163,24 +163,24 @@ namespace DTAConfig
         /// </summary>
         public void Apply()
         {
-            if (!string.IsNullOrEmpty(ddrawDLLPath))
-            {
-                File.Copy(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), ddrawDLLPath), SafePath.CombineFilePath(ProgramConstants.GamePath, "ddraw.dll"), true);
-            }
-            else
-                File.Delete(SafePath.CombineFilePath(ProgramConstants.GamePath, "ddraw.dll"));
+            //if (!string.IsNullOrEmpty(ddrawDLLPath))
+            //{
+            //    File.Copy(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), ddrawDLLPath), SafePath.CombineFilePath(ProgramConstants.GamePath, "ddraw.dll"), true);
+            //}
+            //else
+            //    File.Delete(SafePath.CombineFilePath(ProgramConstants.GamePath, "ddraw.dll"));
 
 
-            if (!string.IsNullOrEmpty(ConfigFileName) && !string.IsNullOrEmpty(resConfigFileName)
-                && !SafePath.GetFile(ProgramConstants.GamePath, ConfigFileName).Exists) // Do not overwrite settings
-            {
-                File.Copy(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), resConfigFileName), SafePath.CombineFilePath(ProgramConstants.GamePath, Path.GetFileName(ConfigFileName)));
-            }
+            //if (!string.IsNullOrEmpty(ConfigFileName) && !string.IsNullOrEmpty(resConfigFileName)
+            //    && !SafePath.GetFile(ProgramConstants.GamePath, ConfigFileName).Exists) // Do not overwrite settings
+            //{
+            //    File.Copy(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), resConfigFileName), SafePath.CombineFilePath(ProgramConstants.GamePath, Path.GetFileName(ConfigFileName)));
+            //}
 
-            foreach (var file in filesToCopy)
-            {
-                File.Copy(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), file), SafePath.CombineFilePath(ProgramConstants.GamePath, Path.GetFileName(file)), true);
-            }
+            //foreach (var file in filesToCopy)
+            //{
+            //    File.Copy(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), file), SafePath.CombineFilePath(ProgramConstants.GamePath, Path.GetFileName(file)), true);
+            //}
         }
 
         /// <summary>

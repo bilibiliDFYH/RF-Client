@@ -296,7 +296,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     infoWindows.selected += (b1, b2, path) =>
                     {
                         var modID = _modManager.导入Mod(b1, b2, path);
-                        var index = (cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == modID);
+                        var index = cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == modID);
                         if(index > -1) cmbGame.SelectedIndex = index;
                     };
 
@@ -326,7 +326,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             mapContextMenu = new XNAContextMenu(WindowManager);
             mapContextMenu.Name = nameof(mapContextMenu);
             mapContextMenu.Width = 100;
-            mapContextMenu.AddItem("Delete Map".L10N("UI:Main:DeleteMap"), DeleteMapConfirmation, null, CanDeleteMap);
+
+            mapContextMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "打开地图位置",
+                SelectAction = 打开地图位置
+            });
             toggleFavoriteItem = new XNAContextMenuItem
             {
                 Text = "Favorite".L10N("UI:Main:Favorite"),
@@ -340,6 +345,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //});
             //AddChild(mapContextMenu);
 
+            btnLoadMaps = new XNAClientButton(WindowManager);
+            //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
+            btnLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
+            btnLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
+            btnLoadMaps.Text = "导入地图";
+            btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
+            btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
+            AddChild(btnLoadMaps);
+
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
                 Text = "刷新地图列表",
@@ -350,11 +364,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 Text = "导入新地图",
                 SelectAction = btnLoadMaps.OnLeftClick
             });
-            mapContextMenu.AddItem(new XNAContextMenuItem
-            {
-                Text = "打开地图位置",
-                SelectAction = 打开地图位置
-            });
+            
+            mapContextMenu.AddItem("Delete Map".L10N("UI:Main:DeleteMap"), DeleteMapConfirmation, null, CanDeleteMap);
 
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
@@ -394,14 +405,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             btnPickRandomMap = FindChild<XNAClientButton>(nameof(btnPickRandomMap));
             btnPickRandomMap.LeftClick += BtnPickRandomMap_LeftClick;
 
-            btnLoadMaps = new XNAClientButton(WindowManager);
-            //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
-            btnLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
-            btnLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
-            btnLoadMaps.Text = "Refresh the map".L10N("UI:Main:AginLoad");
-            btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
-            btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
-            AddChild(btnLoadMaps);
+            
 
             lblscreen = new XNALabel(WindowManager);
             lblscreen.Name = nameof(lblscreen);
@@ -462,21 +466,28 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private void BtnLoadMaps_LeftClick(object sender, EventArgs e)
         {
             var w = new 导入选择窗口(WindowManager);
+            var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, w);
             w.chkCopyFile.Checked = true;
             w.chkCopyFile.AllowChecking = false;
             w.chkDeepImport.Checked = true;
             w.chkDeepImport.AllowChecking = false;
 
-            w.selected += (cf, di,path) =>
+            w.selected += (cf, di,path) => 
             {
+                var p = path + "\\";
+                if (p.Contains(ProgramConstants.GamePath))
+                {
+                    XNAMessageBox.Show(WindowManager, "?", "你在干什么，不可以这么做。");
+                    return;
+                }
                 导入地图(path);
             };
-            var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
+            
         }
 
         private void 导入地图(string path)
         {
-            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetDirectoryName(path));
+            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetFileName(path));
 
             if (!Directory.Exists(targetFolder))
             {

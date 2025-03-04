@@ -252,8 +252,8 @@ namespace Ra2Client.DXGUI.Generic
                     infoWindows.selected += (b1, b2, path) =>
                     {
                         var modID = _modManager.导入Mod(b1, b2, path);
-                        var index = (cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == modID);
-                        if (index > -1) cmbGame.SelectedIndex = index;
+                        var index = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == modID);
+                        if (index > -1) _cmbGame.SelectedIndex = index;
                     };
 
                     var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
@@ -432,7 +432,7 @@ namespace Ra2Client.DXGUI.Generic
             infoWindows.selected += (b1, b2, path) =>
             {
                 var missionPackID = _modManager.导入任务包(b1, b2, path);
-                var index = (_lbxCampaignList.Items.FindIndex(item => item.Tag as string == missionPackID);
+                var index = _lbxCampaignList.Items.FindIndex(item => item.Tag as string == missionPackID);
                 if (index > -1) { 
                     _lbxCampaignList.SelectedIndex = index;
                     _lbxCampaignList.TopIndex = index;

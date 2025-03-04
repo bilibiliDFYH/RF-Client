@@ -445,7 +445,7 @@ namespace ClientGUI
 
                         if (string.IsNullOrEmpty(keyValue.Value) || !Directory.Exists(keyValue.Value)) continue;
 
-                        foreach (var fileName in Directory.GetFiles(keyValue.Value))
+                        foreach (var fileName in Directory.GetFiles(keyValue.Value)) 
                         {
                             //if (Path.GetExtension(fileName) == ".ini") continue;
 

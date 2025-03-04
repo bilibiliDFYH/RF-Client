@@ -495,6 +495,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                         string fileName = Path.GetFileName(file);
                         string destinationPath = Path.Combine(targetFolder, fileName);
 
+                        if(Utilities.CalculateSHA1ForFile(file) == Utilities.CalculateSHA1ForFile(destinationPath)) continue;
+
+                        int copyIndex = 2;
+                        while (File.Exists(destinationPath))
+                        {
+                            string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}({copyIndex}){extension}";
+                            destinationPath = Path.Combine(targetFolder, newFileName);
+                            copyIndex++;
+                        }
+
                         try
                         {
                             File.Copy(file, destinationPath, true);
@@ -514,7 +524,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             else
                 XNAMessageBox.Show(WindowManager, "信息", "没有找到符合条件的地图:\nmap,yrm,mpr格式的多人地图.");
-
         }
 
         private void 打开地图位置()

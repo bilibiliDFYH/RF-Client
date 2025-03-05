@@ -356,7 +356,7 @@ namespace Ra2Client.DXGUI.Generic
 
             ReadMissionList();
 
-            UserINISettings.Instance.ReLoadMissionList += ReadMissionList;
+            UserINISettings.Instance.重新加载地图和任务包 += ReadMissionList;
 
             //ReadDrop();
 
@@ -904,8 +904,6 @@ namespace Ra2Client.DXGUI.Generic
             ScreenMission();
         }
 
-        private CancellationTokenSource _cts;
-
         private void SetDescriptionList(string description)
         {
             foreach (var s in description.Split("\r\n"))
@@ -918,10 +916,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            CancellationToken token = _cts.Token;
 
             _tbMissionDescriptionList.Clear();
 
@@ -1067,7 +1061,7 @@ namespace Ra2Client.DXGUI.Generic
 
                 SetDescriptionList(mission.GUIDescription);
 
-            }, token);
+            });
           
         }
 

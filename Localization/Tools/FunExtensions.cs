@@ -1,8 +1,11 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
 
@@ -63,6 +66,105 @@ namespace Localization.Tools
             // 使用正则表达式进行匹配验证
             Regex regex = new Regex(pattern);
             return regex.IsMatch(email);
+        }
+
+        public static Dictionary<TKey, TSource> ToDictionaryWithConflictLog<TSource, TKey>(
+            this IEnumerable<TSource> source, Func<TSource, TKey> keySelector,
+            string debugName, Func<TKey, string> logKey, Func<TSource, string> logValue)
+        {
+            return ToDictionaryWithConflictLog(source, keySelector, x => x, debugName, logKey, logValue);
+        }
+        public static Dictionary<TKey, TElement> ToDictionaryWithConflictLog<TSource, TKey, TElement>(
+            this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector,
+            string debugName, Func<TKey, string> logKey = null, Func<TElement, string> logValue = null)
+        {
+            var output = new Dictionary<TKey, TElement>();
+            IntoDictionaryWithConflictLog(source, keySelector, elementSelector, debugName, output, logKey, logValue);
+            return output;
+        }
+
+        public static void IntoDictionaryWithConflictLog<TSource, TKey, TElement>(
+            this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector,
+            string debugName, Dictionary<TKey, TElement> output,
+            Func<TKey, string> logKey = null, Func<TElement, string> logValue = null)
+        {
+            // Fall back on ToString() if null functions are provided:
+            logKey ??= s => s.ToString();
+            logValue ??= s => s.ToString();
+
+            // Try to build a dictionary and log all duplicates found (if any):
+            Dictionary<TKey, List<string>> dupKeys = null;
+            var capacity = source is ICollection<TSource> collection ? collection.Count : 0;
+            output.Clear();
+            output.EnsureCapacity(capacity);
+            foreach (var item in source)
+            {
+                var key = keySelector(item);
+                var element = elementSelector(item);
+
+                // Discard elements with null keys
+                if (!typeof(TKey).IsValueType && key == null)
+                    continue;
+
+                // Check for a key conflict:
+                if (!output.TryAdd(key, element))
+                {
+                    dupKeys ??= new Dictionary<TKey, List<string>>();
+                    if (!dupKeys.TryGetValue(key, out var dupKeyMessages))
+                    {
+                        // Log the initial conflicting value already inserted:
+                        dupKeyMessages = new List<string>
+                        {
+                            logValue(output[key])
+                        };
+                        dupKeys.Add(key, dupKeyMessages);
+                    }
+
+                    // Log this conflicting value:
+                    dupKeyMessages.Add(logValue(element));
+                }
+            }
+
+            // If any duplicates were found, throw a descriptive error
+            if (dupKeys != null)
+            {
+                var badKeysFormatted = new StringBuilder(
+                    $"{debugName}, duplicate values found for the following keys: ");
+                foreach (var p in dupKeys)
+                    badKeysFormatted.Append(CultureInfo.InvariantCulture, $"{logKey(p.Key)}: [{string.Join(",", p.Value)}]");
+                throw new ArgumentException(badKeysFormatted.ToString());
+            }
+        }
+
+        public static V GetOrAdd<K, V>(this Dictionary<K, V> d, K k)
+            where V : new()
+        {
+            return d.GetOrAdd(k, new V());
+        }
+
+        public static V GetOrAdd<K, V>(this Dictionary<K, V> d, K k, V v)
+        {
+            // SAFETY: Dictionary cannot be modified whilst the ref is alive.
+            ref var value = ref CollectionsMarshal.GetValueRefOrAddDefault(d, k, out var exists);
+            if (!exists)
+                value = v;
+            return value;
+        }
+
+        public static V GetOrAdd<K, V>(this Dictionary<K, V> d, K k, Func<K, V> createFn)
+        {
+            // Cannot use CollectionsMarshal.GetValueRefOrAddDefault here,
+            // the creation function could mutate the dictionary which would invalidate the ref.
+            if (!d.TryGetValue(k, out var ret))
+                d.Add(k, ret = createFn(k));
+            return ret;
+        }
+
+        public static T GetOrAdd<T>(this HashSet<T> set, T value)
+        {
+            if (!set.TryGetValue(value, out var ret))
+                set.Add(ret = value);
+            return ret;
         }
 
         public static (int R, int G, int B) ConvertHSVToRGB(int H, int S, int V)

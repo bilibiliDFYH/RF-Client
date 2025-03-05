@@ -276,7 +276,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             lbGameModeMapList.LineHeight = 25; //行间距扩大
             lbGameModeMapList.FontIndex = 1;
 
-            UserINISettings.Instance.ReLoadMissionList += 重新显示地图;
+            UserINISettings.Instance.重新加载地图和任务包 += 重新显示地图;
 
             ModMenu = new XNAContextMenu(WindowManager);
             ModMenu.Name = nameof(ModMenu);
@@ -474,12 +474,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             w.selected += (cf, di,path) => 
             {
-                var p = path + "\\";
-                if (p.Contains(ProgramConstants.GamePath))
-                {
-                    XNAMessageBox.Show(WindowManager, "?", "你在干什么，不可以这么做。");
-                    return;
-                }
+                
                 导入地图(path);
             };
             

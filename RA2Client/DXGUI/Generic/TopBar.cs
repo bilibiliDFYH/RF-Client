@@ -15,6 +15,9 @@ using Rampastring.XNAUI.Input;
 using Rampastring.XNAUI.XNAControls;
 using DTAConfig.OptionPanels;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Diagnostics;
+using System.IO;
+using System.Timers;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -297,7 +300,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnModManager_LeftClick(object sender, EventArgs e)
         {
-            // ActivateSecretFunction();
+            // 触发彩蛋();
             var modManager = ModManager.GetInstance(WindowManager);
             if (modManager.Enabled)
                 return;
@@ -439,6 +442,9 @@ namespace Ra2Client.DXGUI.Generic
         private List<Keys> secretCodeSequence = new List<Keys> { Keys.Up, Keys.Up, Keys.Down, Keys.Down, Keys.Left, Keys.Right, Keys.Left, Keys.Right, Keys.B, Keys.A, Keys.B, Keys.A };
         private int secretCodeIndex = 0;
 
+        private int escPressCount = 0;
+        private System.Timers.Timer escTimer = new System.Timers.Timer(1000); // 1秒超时
+
         private void Keyboard_OnKeyPressed(object sender, KeyPressEventArgs e)
         {
             if (!Enabled || !WindowManager.HasFocus || ProgramConstants.IsInGame)
@@ -464,6 +470,9 @@ namespace Ra2Client.DXGUI.Generic
                 case Keys.F11 when btnModManager.AllowClick:
                     BtnModManager_LeftClick(this, EventArgs.Empty);
                     break;
+                case Keys.Escape:
+                    HandleEscPress();
+                    break;
                 default:
                     if (e.PressedKey == secretCodeSequence[secretCodeIndex])
                     {
@@ -471,7 +480,7 @@ namespace Ra2Client.DXGUI.Generic
 
                         if (secretCodeIndex == secretCodeSequence.Count)
                         {
-                            ActivateSecretFunction();
+                            触发彩蛋();
                             secretCodeIndex = 0;
                         }
                     }
@@ -480,9 +489,44 @@ namespace Ra2Client.DXGUI.Generic
                         secretCodeIndex = 0;
                     }
                     break;
+            }
+        }
 
+        private void HandleEscPress()
+        {
+            escPressCount++;
+
+            if (escPressCount == 2)
+            {
+                // 第一次按下ESC时启动计时器
+                escTimer.Elapsed += ResetEscCount;
+                escTimer.AutoReset = false;
+                escTimer.Start();
             }
 
+            if (escPressCount >= 5)
+            {
+                OpenClientLog();
+                escPressCount = 1;
+                escTimer.Stop();
+            }
+        }
+
+        private void ResetEscCount(object sender, ElapsedEventArgs e)
+        {
+            escPressCount = 1;
+        }
+
+        // 打开Client文件夹并选中Client.log
+        private void OpenClientLog()
+        {
+          
+            string logFilePath = Path.Combine(ProgramConstants.GamePath,"Client", "Client.log");
+
+            if (File.Exists(logFilePath))
+            {
+                Process.Start("explorer.exe", $"/select,\"{logFilePath}\"");
+            }
         }
 
         public override void OnMouseOnControl()
@@ -581,7 +625,7 @@ namespace Ra2Client.DXGUI.Generic
             Renderer.DrawRectangle(new Rectangle(X, ClientRectangle.Bottom - 2, Width, 1), UISettings.ActiveSettings.PanelBorderColor);
         }
 
-        private void ActivateSecretFunction()
+        private void 触发彩蛋()
         {
 
             if (!minesweeperGameWindow.Enabled)

@@ -36,6 +36,7 @@ using Ra2Client.Domain.Multiplayer;
 using ClientCore.CnCNet5;
 using DTAConfig.Entity;
 using Microsoft.Extensions.FileSystemGlobbing;
+using OpenRA.Mods.Cnc.FileSystem;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -762,7 +763,7 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void 检查根目录下是否有玩家放入的Mod或任务包()
+        private void 检查根目录下是否有玩家放入的Mod或任务包或多人图()
         {
             var modManager = ModManager.GetInstance(WindowManager);
             if (ModManager.判断是否为Mod(ProgramConstants.GamePath,true))
@@ -785,6 +786,25 @@ namespace Ra2Client.DXGUI.Generic
                 清理根目录();
             }
 
+            var allowedExtensions = new HashSet<string>(
+                    [".map", ".yrm", ".mpr"],
+                    StringComparer.OrdinalIgnoreCase
+                );
+
+            if (Directory.EnumerateFiles(ProgramConstants.GamePath)
+                .Any(file => allowedExtensions.Contains(Path.GetExtension(file))
+                             && MapLoader.是否为多人图(file)))
+            {
+                UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+            }
+
+            var p = "E:\\Documents\\file\\RF-Client\\Bin\\expandmd01.mix";
+            using (var source = File.OpenRead(p))
+            {
+                var mix = new MixLoader.MixFile(source, p, []);
+            }
+          
+
         }
 
         private FileSystemWatcher _watcher;
@@ -804,7 +824,7 @@ namespace Ra2Client.DXGUI.Generic
             _watcher.NotifyFilter = NotifyFilters.FileName;
 
             _timer = new System.Timers.Timer(1000); // 500ms 触发一次
-            _timer.Elapsed += (_, _) => 检查根目录下是否有玩家放入的Mod或任务包();
+            _timer.Elapsed += (_, _) => 检查根目录下是否有玩家放入的Mod或任务包或多人图();
             _timer.AutoReset = false; // 只触发一次，防止重复执行
 
             // 订阅事件
@@ -1040,7 +1060,7 @@ namespace Ra2Client.DXGUI.Generic
             CheckDDRAW();
             CheckYRPath();
             检查地编();
-            检查根目录下是否有玩家放入的Mod或任务包();
+            检查根目录下是否有玩家放入的Mod或任务包或多人图();
             监控根目录();
             try
             {

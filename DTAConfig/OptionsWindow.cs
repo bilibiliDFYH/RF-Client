@@ -203,7 +203,7 @@ namespace DTAConfig
             //tabControl.MakeSelectable(4); 
             if (componentsPanel.需要刷新)
             {
-                UserINISettings.Instance.ReLoadMissionList?.Invoke();
+                UserINISettings.Instance.重新加载地图和任务包?.Invoke();
                 componentsPanel.需要刷新 = false;
             }
             

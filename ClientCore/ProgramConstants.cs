@@ -20,6 +20,8 @@ namespace ClientCore
 
         public static readonly string 游戏目录 = Path.Combine(Path.GetTempPath(),"RA2_RF");
 
+        public static readonly List<int> Version_24H2 = [26100, 26120];
+
         public static string CUR_SERVER_URL = "";
 
         public static bool SkipLogo = false;

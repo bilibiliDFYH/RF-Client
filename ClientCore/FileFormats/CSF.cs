@@ -1,17 +1,24 @@
 ﻿
+using OpenRA.Mods.Cnc.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 
 
 namespace Localization.Tools
 {
-    public class CSF(string csfFilename)
+    public class CSF(string csfFilename="")
     {
 
         public string csfPath = csfFilename;
+
+        public Dictionary<string, string> GetCsfDictionary(byte[] content)
+        {
+            return ReadCSF(content);
+        }
 
         // 获取 CSF 文件内容的方法
         public Dictionary<string, string> GetCsfDictionary()
@@ -67,17 +74,20 @@ namespace Localization.Tools
         // 读取 CSF 文件并返回一个字典
         static Dictionary<string, string> ReadCSF(string csfFilename)
         {
+            return ReadCSF(File.OpenRead(csfFilename));
+        }
+
+        static Dictionary<string, string> ReadCSF(Stream csfStream)
+        {
             try
             {
-                //创建字典，获取键时忽略大小写
                 var nameStrMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-                using (var csfFile = new BinaryReader(File.OpenRead(csfFilename)))
+                using (var csfFile = new BinaryReader(csfStream))
                 {
                     Tuple<byte[], uint, uint, uint, uint, uint> header = ReadHeader(csfFile);
                     int numLabels = CheckHeader(header);
 
-                    // 遍历文件中的每个标签和字符串
                     for (int i = 0; i < numLabels; i++)
                     {
                         byte[] lblBytes = csfFile.ReadBytes(4);
@@ -88,13 +98,12 @@ namespace Localization.Tools
                         int one = BitConverter.ToInt32(oneBytes);
                         int uinameLength = BitConverter.ToInt32(uinameLengthBytes);
 
-                        // 检查每个标签的格式是否正确
                         if (lbl != " LBL" || one != 1)
                         {
                             if (nameStrMap.Count > 0)
                                 continue;
-                            else 
-                                throw new InvalidDataException("Invalid label format"); // 格式错误抛出异常
+                            else
+                                throw new InvalidDataException("Invalid label format");
                         }
 
                         byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
@@ -113,18 +122,25 @@ namespace Localization.Tools
 
                         string content = BytesToString(contentRaw);
                         nameStrMap[uiName] = content;
-
                     }
-
                 }
 
                 return nameStrMap;
             }
-            catch (Exception ex)
-            { 
-                return null; 
+            catch (Exception)
+            {
+                return null;
             }
         }
+
+        static Dictionary<string, string> ReadCSF(byte[] csfData)
+        {
+            using (var csfStream = new MemoryStream(csfData))
+            {
+                return ReadCSF(csfStream);
+            }
+        }
+
 
         // 将字节数组转换为字符串
         static string BytesToString(byte[] content)
@@ -202,8 +218,21 @@ namespace Localization.Tools
 
         public static Dictionary<string, string> 获取目录下的CSF字典(string path)
         {
-            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理
             var combinedDictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            var miscsfs = MixLoader.MixFile.GetDirCSFs(path); //读目录下的MIX里的CSF
+            foreach (var csf in miscsfs)
+            {
+                var csfDictionary = new CSF().GetCsfDictionary(csf);
+                if (csfDictionary == null) continue;
+                foreach (var kvp in csfDictionary)
+                {
+                    // 如果键已经存在，替换它
+                    combinedDictionary[kvp.Key] = kvp.Value;
+                }
+            }
+
+            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 读目录下的CSF,按文件名升序处理
 
             foreach (var csf in csfs)
             {

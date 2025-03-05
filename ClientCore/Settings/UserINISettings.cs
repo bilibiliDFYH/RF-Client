@@ -165,8 +165,9 @@ namespace ClientCore
             FavoriteMaps = new StringListSetting(iniFile, OPTIONS, "FavoriteMaps", new List<string>());
 
             Mod_cath = new BoolSetting(iniFile, OPTIONS, "Mod_cath", true);
-            //Console.WriteLine(Environment.OSVersion.Version.Build);
-            Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", Environment.OSVersion.Version.Build == 26100);
+            //Logger(Environment.OSVersion.Version.Build);
+            
+            Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", ProgramConstants.Version_24H2.Contains(Environment.OSVersion.Version.Build));
             //StartCap = new BoolSetting(iniFile, OPTIONS, "StartCap", true);
 
             第一次下载扩展 = new BoolSetting(iniFile, OPTIONS, "FirstDownload", true);
@@ -328,7 +329,7 @@ namespace ClientCore
         public BoolSetting ForceEnableGameOptions { get; private set; }
 
 
-        public Action ReLoadMissionList { get; set; }
+        public Action 重新加载地图和任务包 { get; set; }
         public BoolSetting 第一次下载扩展 { get; set; }
 
         public bool IsGameFollowed(string gameName)

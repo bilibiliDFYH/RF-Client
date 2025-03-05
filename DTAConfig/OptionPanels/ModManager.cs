@@ -1362,6 +1362,8 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             return;
         }
 
+        
+
         selected?.Invoke(chkCopyFile.Checked, chkDeepImport.Checked, lblPath.Tag as string);
         Disable();
         Dispose();
@@ -1403,9 +1405,16 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         using FolderBrowserDialog folderDialog = new FolderBrowserDialog();
         if (folderDialog.ShowDialog() == DialogResult.OK)
         {
+            var p = folderDialog.SelectedPath + "\\";
+            if (p.Contains(ProgramConstants.GamePath))
+            {
+                XNAMessageBox.Show(WindowManager, "错误", "不能导入游戏文件夹内的地图.");
+                return;
+            }
+
             lblPath.Text = folderDialog.SelectedPath;
             lblPath.Tag = folderDialog.SelectedPath;
-            chkCopyFile.AllowChecking = true;
+            chkCopyFile.AllowChecking = chkDeepImport.AllowChecking;
         }
     }
 }

@@ -133,7 +133,7 @@ namespace Ra2Client.DXGUI.Generic
             var newMain = saveIni.GetValue(sg.FileName, "Main", string.Empty);
             var newGame = saveIni.GetValue(sg.FileName, "Game", string.Empty);
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);
-            string newAi = "Mod&AI/AI/Other";
+            string newAi = "Mod&AI\\AI\\Other";
             var newExtension = saveIni.GetValue(sg.FileName, "Extension", string.Empty);
 
             bool º”‘ÿ“Ù¿÷ = true;

@@ -43,8 +43,10 @@ namespace ClientGUI
         /// 
         public static void StartGameProcess(WindowManager windowManager, IniFile iniFile = null)
         {
+#if !DEBUG
             try
             {
+#endif
                 //RenderImage.CancelRendering();
                 var settings = iniFile.GetSection("Settings");
                 string r = 加载模组文件(settings);
@@ -71,7 +73,7 @@ namespace ClientGUI
                 if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")) && !File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.ini")))
                 {
                     WindowManager.progress.Report("正在加载音乐");
-                    加载音乐(mod.FilePath);
+                    加载音乐(ProgramConstants.游戏目录);
                 }
 
                 FileHelper.CopyDirectory("Saved Games", Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
@@ -99,14 +101,14 @@ namespace ClientGUI
                     File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
                 // 加载渲染插件
                 FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
-
+#if !DEBUG
             }
             catch(Exception ex)
             {
                 XNAMessageBox.Show(windowManager,"错误",$"出现错误:{ex}");
                 return;
             }
-
+#endif
             oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
 
             WindowManager.progress.Report("正在唤起游戏");
@@ -408,7 +410,7 @@ namespace ClientGUI
                         foreach (var csf in csfs)
                         {
                             var tagCsf = Path.GetFileName(csf);
-                            if (csf == "ra2.csf")
+                            if (tagCsf == "ra2.csf")
                             {
                                 tagCsf = "ra2md.csf";
                             }
@@ -417,15 +419,16 @@ namespace ClientGUI
                             else
                                 File.Copy(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf), true);
                         }
-                        FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录, excludes);
+                        FileHelper.CopyDirectory(path, ProgramConstants.游戏目录, excludes);
                     }
 
-                    复制CSF(newGame, "Mod&AI/Mod", [".csf"]);
+                    复制CSF(newGame, "Mod&AI\\Mod", [".csf"]);
 
                     // 加载任务
                     if (newMission != newGame && newMission != string.Empty)
                     {
-                        复制CSF(newMission, "Maps/CP", [".map", ".csf"]); //地图文件也不复制在后面处理
+                        复制CSF(newMission, "Maps\\CP", [".map", ".csf"]); //地图文件也不复制在后面处理
+                       
                     }
 
                     // 加载战役图

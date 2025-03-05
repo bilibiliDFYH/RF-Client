@@ -459,6 +459,13 @@ public class ModManager : XNAWindow
             return "没有找到任务包文件";
         }
 
+        刷新并渲染(mapFiles);
+
+        return id;
+    }
+
+    public void 刷新并渲染(List<string> mapFiles)
+    {
 
         ReLoad();
 
@@ -470,11 +477,9 @@ public class ModManager : XNAWindow
             });
 
         触发刷新?.Invoke();
-
-        return id;
     }
 
-    public MissionPack 导入具体任务包(bool copyFile, bool deepImport, string missionPath)
+    public MissionPack 导入具体任务包(bool copyFile, bool deepImport, string missionPath,bool muVisible = false)
     {
 
         bool isYR = 判断是否为尤复(missionPath);
@@ -501,7 +506,7 @@ public class ModManager : XNAWindow
 
         missionPack.DefaultMod = missionPack.Mod;
 
-        var mod = 导入具体Mod(missionPath, copyFile, deepImport, isYR,false);
+        var mod = 导入具体Mod(missionPath, copyFile, deepImport, isYR, muVisible);
         if (mod != null) //说明检测到Mod
         {
             missionPack.Mod += "," + id;
@@ -722,7 +727,7 @@ public class ModManager : XNAWindow
         var SettingsFile = "RA2MD.ini";
         var BattleFile = "";
 
-        if (Directory.Exists("Resources"))
+        if (Directory.Exists("Resources") && path != ProgramConstants.GamePath)
         {
             #region 从 GameOptions.ini 提取 国家 和 颜色信息
 
@@ -853,6 +858,7 @@ public class ModManager : XNAWindow
                 .SetValue(mod.ID, "Mod", mod.ID)
                 .SetValue(mod.ID,"Name", mod.Name)
                 .SetValue(mod.ID, "Other",true)
+                .SetValue(mod.ID, "Mission", mod.FilePath)
                 .SetValue(mod.ID, "Description", mod.Name)
                 .SetValue(mod.ID, "LongDescription", mod.Name)
                 .SetValue(mod.ID, "BuildOffAlly", mod.Name)
@@ -1414,7 +1420,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
             lblPath.Text = folderDialog.SelectedPath;
             lblPath.Tag = folderDialog.SelectedPath;
-            chkCopyFile.AllowChecking = chkDeepImport.AllowChecking;
+            chkDeepImport.AllowChecking = chkCopyFile.AllowChecking;
         }
     }
 }
@@ -1646,7 +1652,7 @@ public class ModInfoWindows : XNAWindow
         _ctbModName.Text = _mod.Name;
         _ctbModDescription.Text = _mod.Description;
         _ctbVersion.Text = _mod.Version;
-        _ctbModPath.Text = _mod.FilePath ?? $"Mod&AI/Mod/{_mod.ID}";
+        _ctbModPath.Text = _mod.FilePath ?? $"Mod&AI/Mod\\{_mod.ID}";
         _ctbCountries.Text = _mod.Countries;
         _ctbAuthor.Text = _mod.Author;
         _chkCsf.Checked = UserINISettings.Instance.SimplifiedCSF;

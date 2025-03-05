@@ -13,7 +13,7 @@ public class Mod : InfoBaseClass
     /// </summary>
     public override void Create()
     {
-       var iniFile = new IniFile(FileName ?? $"Mod&AI/Mod&AI{ID}.ini", ANNOTATION).
+       var iniFile = new IniFile(FileName ?? $"Mod&AI\\Mod&AI{ID}.ini", ANNOTATION).
             SetValue("Mod", ID, ID).
             AddSection(ID).
             SetValue(ID, "Name", Name).
@@ -71,7 +71,7 @@ public class Mod : InfoBaseClass
 
         Mods.Clear();
 
-        var modAI = Directory.GetFiles("Mod&AI/", "Mod&AI*.ini");
+        var modAI = Directory.GetFiles("Mod&AI\\", "Mod&AI*.ini");
 
         foreach (var file in modAI)
         {
@@ -86,7 +86,7 @@ public class Mod : InfoBaseClass
 
                 var mod = new Mod();
                 mod = Init(iniFile, modID, mod) as Mod;
-                mod.FilePath = iniFile.GetValue(modID, "FilePath", $"Mod&AI/Mod/{modID}");
+                mod.FilePath = iniFile.GetValue(modID, "FilePath", $"Mod&AI\\Mod\\{modID}");
 
                 if (iniFile.KeyExists(modID, "YR"))
                     mod.md = iniFile.GetValue(modID, "YR", true) ? "md" : string.Empty;

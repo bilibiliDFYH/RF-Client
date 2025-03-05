@@ -83,15 +83,20 @@ namespace OpenRA.Mods.Cnc.FileSystem
 			public static List<byte[]> GetCSFs(string filename)
 			{
 				var csfs = new List<byte[]>();
-				var mix = new MixFile(filename);
-                foreach (var entry in mix.Index.OrderBy(e => e.Key))
-                {
-                    if (entry.Key.EndsWith(".csf", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        csfs.Add(mix.GetFileContent(entry.Key));
-                    }
-                }
-
+				try
+				{
+					var mix = new MixFile(filename);
+					foreach (var entry in mix.Index.OrderBy(e => e.Key))
+					{
+						if (entry.Key.EndsWith(".csf", StringComparison.InvariantCultureIgnoreCase))
+						{
+							csfs.Add(mix.GetFileContent(entry.Key));
+						}
+					}
+				}
+				catch (Exception)
+				{
+				}
                     return csfs;
 			}
 

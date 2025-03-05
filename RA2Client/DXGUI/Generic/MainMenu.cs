@@ -773,37 +773,43 @@ namespace Ra2Client.DXGUI.Generic
                 XNAMessageBox.YesClickedAction += (_) => {
                     modManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
                     清理根目录();
+                    modManager.刷新并渲染([]);
                 };
                 XNAMessageBox.NoClickedAction += (_) => {
-                    modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
-                    清理根目录();
+                    var m = modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
+                    if (m != null)
+                    {
+                        清理根目录();
+                        modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
+                    }
                 };
                 XNAMessageBox.Show();
             }
             else if (ModManager.判断是否为任务包(ProgramConstants.GamePath))
             {
-                modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
-                清理根目录();
+                var m = modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
+                if (m != null)
+                {
+                    清理根目录();
+                    modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
+                }
             }
 
-            var allowedExtensions = new HashSet<string>(
-                    [".map", ".yrm", ".mpr"],
-                    StringComparer.OrdinalIgnoreCase
-                );
+            
+            //var allowedExtensions = new HashSet<string>(
+            //        [".map", ".yrm", ".mpr"],
+            //        StringComparer.OrdinalIgnoreCase
+            //    );
 
-            if (Directory.EnumerateFiles(ProgramConstants.GamePath)
-                .Any(file => allowedExtensions.Contains(Path.GetExtension(file))
-                             && MapLoader.是否为多人图(file)))
-            {
-                UserINISettings.Instance.重新加载地图和任务包?.Invoke();
-            }
+            //if (Directory.EnumerateFiles(ProgramConstants.GamePath)
+            //    .Any(file => allowedExtensions.Contains(Path.GetExtension(file))
+            //                 && MapLoader.是否为多人图(file)))
+            //{
+            //    UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+            //}
 
-            var p = "E:\\Documents\\file\\RF-Client\\Bin\\expandmd01.mix";
-            using (var source = File.OpenRead(p))
-            {
-                var mix = new MixLoader.MixFile(source, p, []);
-            }
-          
+
+
 
         }
 
@@ -851,7 +857,9 @@ namespace Ra2Client.DXGUI.Generic
                 "Reunion.dll", 
                 "Reunion.dll.config", 
                 "Reunion.exe", 
-                "Reunion.runtimeconfig.json"
+                "Reunion.runtimeconfig.json",
+                "qres.dat",
+                "qres32.dll"
                 ];
 
             foreach (string file in Directory.GetFiles(ProgramConstants.GamePath))

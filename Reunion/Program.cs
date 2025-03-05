@@ -129,10 +129,14 @@ internal sealed class Program
                 Environment.SetEnvironmentVariable("DOTNET_EnableWriteXorExecute", "0");
             }
 
-            foreach (var zip in Directory.GetFiles("./Tmp/", "Updater*.7z"))
+            if(Directory.Exists("./Tmp/"))
             {
-                ZIP.SevenZip.ExtractWith7Zip(zip, "./", needDel: true);
+                foreach (var zip in Directory.GetFiles("./Tmp/", "Updater*.7z"))
+                {
+                    ZIP.SevenZip.ExtractWith7Zip(zip, "./", needDel: true);
+                }
             }
+            
            
             using var p = Process.Start(new ProcessStartInfo
             {

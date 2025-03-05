@@ -2011,7 +2011,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             settings.SetValue("CustomLoadScreen", LoadingScreenController.GetLoadScreenName(houseInfos[myIndex].InternalSideIndex.ToString()));
             settings.SetValue("AIPlayers", AIPlayers.Count);
             settings.SetValue("Seed", RandomSeed);
-            if (GetPvPTeamCount() > 1)
+
+            var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
+            if (cmbSw != null && cmbSw.SelectedIndex == 0)
+            {
+                settings.SetValue("Superweapons", false);
+            }
+
+                if (GetPvPTeamCount() > 1)
                 settings.SetValue("CoachMode", true);
             if (GetGameType() == GameType.Coop)
                 settings.SetValue("AutoSurrender", false);

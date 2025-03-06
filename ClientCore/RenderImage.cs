@@ -90,59 +90,35 @@ namespace ClientCore
             RenderCount = 0;
             tasks.Clear();
 
-            var semaphore = new SemaphoreSlim(1, 1); // 限制并发任务数量为1
-
-            var parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = 1, // 初始并发数，使用 CPU 核心数的两倍
-                CancellationToken = cts.Token // 支持任务取消
-            };
-
             try
             {
                 TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
 
-                // 使用 Parallel.ForEach 执行并行渲染
-                Parallel.ForEach(需要渲染的地图列表, parallelOptions, (map) =>
+                foreach (var map in 需要渲染的地图列表)
                 {
-                    tasks.Add(Task.Run(async () =>
+                    if (cts.Token.IsCancellationRequested)
+                        break;
+
+                    pauseEvent.Wait(); // 等待继续信号
+
+                    try
                     {
-                        await semaphore.WaitAsync(); // 等待信号量
+                        // 渲染任务
+                        await RenderOneImageAsync(map);
+                        Interlocked.Increment(ref RenderCount);
+                        TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Console.WriteLine("渲染任务已取消");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"渲染异常: {ex.Message}");
+                    }
+                }
 
-                        try
-                        {
-                            while (!cts.Token.IsCancellationRequested)
-                            {
-                                pauseEvent.Wait(); // 等待继续信号
-
-                                try
-                                {
-                                    // 渲染任务
-                                    await RenderOneImageAsync(map);
-                                    Interlocked.Increment(ref RenderCount);
-                                    TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
-                                }
-                                catch (OperationCanceledException)
-                                {
-                                    Console.WriteLine("渲染任务已取消");
-                                    break;
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine($"渲染异常: {ex.Message}");
-                                }
-
-                                break; // 渲染成功后退出循环
-                            }
-                        }
-                        finally
-                        {
-                            semaphore.Release(); // 释放信号量
-                        }
-                    }));
-                });
-
-                await Task.WhenAll(tasks); // 等待所有任务完成
                 TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
                 WindowManager.progress.Report(""); // 更新进度
             }

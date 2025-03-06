@@ -859,7 +859,8 @@ namespace Ra2Client.DXGUI.Generic
                 "Reunion.exe", 
                 "Reunion.runtimeconfig.json",
                 "qres.dat",
-                "qres32.dll"
+                "qres32.dll",
+                "KeyBoardMD.ini"
                 ];
 
             foreach (string file in Directory.GetFiles(ProgramConstants.GamePath))

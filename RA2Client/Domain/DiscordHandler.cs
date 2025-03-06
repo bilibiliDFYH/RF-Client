@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using ClientCore;
 using DiscordRPC;
@@ -197,10 +198,24 @@ namespace Ra2Client.Domain
         public void UpdatePresence(string map, string mode, string state, string side, bool resetTimer = false)
         {
             string sideKey = new Regex("[^a-zA-Z0-9]").Replace(side.ToLower(), "");
+
+            string details = $"Skirmish • {map} • {mode}";
+            if (Encoding.UTF8.GetByteCount(details) > 128)
+            {
+                string shortMap = map.Length > 10 ? map[..10] + "..." : map;
+                details = $"Skirmish • {shortMap} • {mode}";
+
+                if (Encoding.UTF8.GetByteCount(details) > 128) // 还是超出？
+                {
+                    string shortMode = mode.Length > 10 ? mode[..10] + "..." : mode;
+                    details = $"Skirmish • {shortMap} • {shortMode}";
+                }
+            }
+
             CurrentPresence = new RichPresence()
             {
                 State = $"{state}",
-                Details = $"Skirmish • {map} • {mode}",
+                Details = details,
                 Assets = new Assets()
                 {
                     LargeImageKey = "logo",

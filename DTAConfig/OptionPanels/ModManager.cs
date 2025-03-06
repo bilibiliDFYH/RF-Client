@@ -619,10 +619,23 @@ public class ModManager : XNAWindow
 
     }
 
+    private static readonly List<string> IniFileWhitelist = new List<string>
+    {
+        "battle",
+        "mapsel",
+        "ai",
+        "ra2",
+        "spawn",
+        "spawnmap",
+        "mpbattle",
+        "keyboard",
+        "ddraw",
+    };
+
     public static bool 判断是否为Mod(string path, bool isYR)
     {
         var md = isYR ? "md" : string.Empty;
-
+        
         var shps = Directory.GetFiles(path, "*.shp")
            .Where(file => !Path.GetFileName(file).ToLower().StartsWith("ls") && !Path.GetFileName(file).ToLower().StartsWith("gls"))
            .ToArray();
@@ -636,16 +649,12 @@ public class ModManager : XNAWindow
 
         var inis = Directory.GetFiles(path, $"*.ini")
             .Where(file =>
-            Path.GetFileName(file).ToLower() != $"battle{md}.ini" &&
-                    Path.GetFileName(file).ToLower() != $"mapsel{md}.ini" &&
-                    Path.GetFileName(file).ToLower() != $"ai{md}.ini" &&
-                    Path.GetFileName(file).ToLower() != $"ai{md}.ini" &&
-                    Path.GetFileName(file).ToLower() != $"ra2{md}.ini" &&
-                    Path.GetFileName(file).ToLower() != $"spawn.ini" &&
-                    Path.GetFileName(file).ToLower() != $"spawnmap.ini" &&
-                    Path.GetFileName(file).ToLower() != $"mpbattle{md}.ini"
-                    )
+            {
+                var fileName = Path.GetFileName(file).ToLower();
+                return !IniFileWhitelist.Any(whitelisted => fileName.StartsWith(whitelisted) && fileName.EndsWith($"{md}.ini"));
+            })
             .ToArray();
+            
 
         return shps.Length + vxls.Length + pals.Length + mixs.Length + inis.Length != 0;
     }

@@ -37,6 +37,7 @@ using ClientCore.CnCNet5;
 using DTAConfig.Entity;
 using Microsoft.Extensions.FileSystemGlobbing;
 using OpenRA.Mods.Cnc.FileSystem;
+using System.Timers;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -765,6 +766,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void 检查根目录下是否有玩家放入的Mod或任务包或多人图()
         {
+            _timer.Elapsed -= TimerElapsedHandler;
             var modManager = ModManager.GetInstance(WindowManager);
             if (ModManager.判断是否为Mod(ProgramConstants.GamePath,true))
             {
@@ -774,6 +776,7 @@ namespace Ra2Client.DXGUI.Generic
                     modManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
                     清理根目录();
                     modManager.刷新并渲染([]);
+                    _timer.Elapsed += TimerElapsedHandler;
                 };
                 XNAMessageBox.NoClickedAction += (_) => {
                     var m = modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
@@ -781,6 +784,7 @@ namespace Ra2Client.DXGUI.Generic
                     {
                         清理根目录();
                         modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
+                        _timer.Elapsed += TimerElapsedHandler;
                     }
                 };
                 XNAMessageBox.Show();
@@ -792,25 +796,15 @@ namespace Ra2Client.DXGUI.Generic
                 {
                     清理根目录();
                     modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
+                    _timer.Elapsed += TimerElapsedHandler;
                 }
             }
 
-            
-            //var allowedExtensions = new HashSet<string>(
-            //        [".map", ".yrm", ".mpr"],
-            //        StringComparer.OrdinalIgnoreCase
-            //    );
+        }
 
-            //if (Directory.EnumerateFiles(ProgramConstants.GamePath)
-            //    .Any(file => allowedExtensions.Contains(Path.GetExtension(file))
-            //                 && MapLoader.是否为多人图(file)))
-            //{
-            //    UserINISettings.Instance.重新加载地图和任务包?.Invoke();
-            //}
-
-
-
-
+        private void TimerElapsedHandler(object sender, ElapsedEventArgs e)
+        {
+            检查根目录下是否有玩家放入的Mod或任务包或多人图();
         }
 
         private FileSystemWatcher _watcher;
@@ -830,7 +824,7 @@ namespace Ra2Client.DXGUI.Generic
             _watcher.NotifyFilter = NotifyFilters.FileName;
 
             _timer = new System.Timers.Timer(1000); // 500ms 触发一次
-            _timer.Elapsed += (_, _) => 检查根目录下是否有玩家放入的Mod或任务包或多人图();
+            _timer.Elapsed += TimerElapsedHandler;
             _timer.AutoReset = false; // 只触发一次，防止重复执行
 
             // 订阅事件

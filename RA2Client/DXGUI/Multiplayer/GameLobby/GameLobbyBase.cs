@@ -639,17 +639,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             }
 
-            var cmbSw = DropDowns.Find(dd => dd.Name == "cmbSw");
-            if(mod.SuperWeaponBuildings == string.Empty)
-            {
-                cmbSw.SelectedIndex = cmbSw.defaultIndex;
-                cmbSw.AllowDropDown = false;
-            }
-            else
-            {
-                cmbSw.AllowDropDown = true;
-            }
-
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());
             string randomColor = GameOptionsIni.GetStringValue("General", "RandomColor", "255,255,255");
@@ -1967,8 +1956,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             Logger.Log("Writing spawn.ini");
 
-
-            string newGame = ((Mod)cmbGame.SelectedItem.Tag).FilePath;
+            var mod = (Mod)cmbGame.SelectedItem.Tag;
+            string newGame = mod.FilePath;
             
 
             string newExtension = string.Empty;
@@ -2013,7 +2002,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             settings.SetValue("Seed", RandomSeed);
 
             var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
-            if (cmbSw != null && cmbSw.SelectedIndex == 0)
+            if (cmbSw != null && cmbSw.SelectedIndex == 0 && mod.SuperWeaponBuildings == string.Empty)
             {
                 settings.SetValue("Superweapons", false);
             }
@@ -2295,7 +2284,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             #region 限制所有玩家建造超级武器
             var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
-            if(cmbSw != null && cmbSw.SelectedIndex == 0)
+            if(cmbSw != null && cmbSw.SelectedIndex == 0 && mod.SuperWeaponBuildings != string.Empty)
             {
                 foreach (var superWeaponBuilding in mod.SuperWeaponBuildings.Split(','))
                 {

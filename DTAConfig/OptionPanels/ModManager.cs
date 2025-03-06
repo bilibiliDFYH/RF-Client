@@ -651,7 +651,7 @@ public class ModManager : XNAWindow
             .Where(file =>
             {
                 var fileName = Path.GetFileName(file).ToLower();
-                return !IniFileWhitelist.Any(whitelisted => fileName.StartsWith(whitelisted) && fileName.EndsWith($"{md}.ini"));
+                return !IniFileWhitelist.Any(whitelisted => fileName.StartsWith(whitelisted) || fileName.EndsWith($"{md}.ini"));
             })
             .ToArray();
             

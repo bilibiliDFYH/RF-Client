@@ -413,7 +413,7 @@ namespace ClientGUI
                         var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
                         foreach (var csf in csfs)
                         {
-                            var tagCsf = Path.GetFileName(csf);
+                            var tagCsf = Path.GetFileName(csf).ToLower();
                             if (tagCsf == "ra2.csf")
                             {
                                 tagCsf = "ra2md.csf";

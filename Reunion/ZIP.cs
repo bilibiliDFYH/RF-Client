@@ -62,7 +62,7 @@ public class SevenZip
 
             process.WaitForExit(); // 等待解压完成
 
-            if (process.ExitCode == 0 && needDel)
+            if (needDel)
             {
                 try
                 {

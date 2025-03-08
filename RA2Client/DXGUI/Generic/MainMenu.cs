@@ -766,7 +766,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private void 检查根目录下是否有玩家放入的Mod或任务包或多人图()
         {
-            _timer.Elapsed -= TimerElapsedHandler;
+            if(_timer!=null)
+                _timer.Elapsed -= TimerElapsedHandler;
             var modManager = ModManager.GetInstance(WindowManager);
             if (ModManager.判断是否为Mod(ProgramConstants.GamePath,true))
             {
@@ -776,7 +777,8 @@ namespace Ra2Client.DXGUI.Generic
                     modManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
                     清理根目录();
                     modManager.刷新并渲染([]);
-                    _timer.Elapsed += TimerElapsedHandler;
+                    if (_timer != null)
+                        _timer.Elapsed += TimerElapsedHandler;
                 };
                 XNAMessageBox.NoClickedAction += (_) => {
                     var m = modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
@@ -784,7 +786,8 @@ namespace Ra2Client.DXGUI.Generic
                     {
                         清理根目录();
                         modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
-                        _timer.Elapsed += TimerElapsedHandler;
+                        if (_timer != null)
+                            _timer.Elapsed += TimerElapsedHandler;
                     }
                 };
                 XNAMessageBox.Show();
@@ -796,7 +799,8 @@ namespace Ra2Client.DXGUI.Generic
                 {
                     清理根目录();
                     modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
-                    _timer.Elapsed += TimerElapsedHandler;
+                    if (_timer != null)
+                        _timer.Elapsed += TimerElapsedHandler;
                 }
             }
 

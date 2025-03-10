@@ -620,7 +620,7 @@ public class ModManager : XNAWindow
         {
             var mapName = Path.GetFileName(map).ToUpper();
 
-            var sectionName = missionPack.ID + count;
+            var sectionName = missionPack.ID + $"第{count}关";
 
             if (!battleINI.SectionExists(sectionName))
                 battleINI.AddSection(sectionName);

@@ -486,6 +486,7 @@ namespace Ra2Client.DXGUI.Generic
             }
 
             string missionName = _screenMissions[_lbxCampaignList.SelectedIndex].SectionName;
+            var missionPack = _screenMissions[_lbxCampaignList.SelectedIndex].MPack.Name;
             var ini = new IniFile(ProgramConstants.GamePath + SETTINGS_PATH);
             if (!ini.SectionExists(missionName))
                 ini.AddSection(missionName);
@@ -497,7 +498,7 @@ namespace Ra2Client.DXGUI.Generic
             {
                _ = Task.Run(async() =>
                 {
-                    await UploadScore(missionName, _scoreLevel);
+                    await UploadScore(missionName, missionPack, _scoreLevel);
 
                     ini.SetValue(missionName, "Mark", _scoreLevel);
                     ini.WriteIniFile();
@@ -806,22 +807,6 @@ namespace Ra2Client.DXGUI.Generic
             //显示远程总分数
             try
             {
-                //var uri = "https://autopatch1-js.yra2.com/Client/Scores/rating_index.php";
-                //Dictionary<string, string> dic = new Dictionary<string, string>();
-                //dic.Add("id", name);
-                //dic.Add("op", "query");
-                //dic.Add("key", "r2e0u2n3i1o1n");
-                //var response = await WebHelper.HttpGet(uri, dic);
-                //if (!string.IsNullOrEmpty(response))
-                //{
-                //    RatingObejct ratingObj = (RatingObejct)JsonSerializer.Deserialize(response, typeof(RatingObejct));
-                //    int nTotalNum = int.Parse(ratingObj.total);
-                //    if (nTotalNum > 0)
-                //        _lblRatingResult.Text = string.Format("任务评分:{0:F1}分（参与人数:{1}）", float.Parse(ratingObj.score), nTotalNum);
-                //    else
-                //        _lblRatingResult.Text = "快来抢占您的第一个评分^_^";
-                //}
-
                 var score = NetWorkINISettings.Get<ClientCore.Entity.Score>($"score/getScore?name={name}").GetAwaiter().GetResult().Item1;
                 if (score != null)
                     _lblRatingResult.Text = string.Format("任务评分:{0:F1}分（参与人数:{1}）", score.score, score.total);
@@ -863,23 +848,12 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private async Task UploadScore(string strName, int strScore)
+        private async Task UploadScore(string strName,string missionPack, int strScore)
         {
-            //var uri = "https://autopatch1-js.yra2.com/Client/Scores/rating_index.php";
-            //Dictionary<string, string> dic = new Dictionary<string, string>();
-            //dic.Add("id", strName);
-            //dic.Add("op", "upload");
-            //dic.Add("score", strScore);
-            //dic.Add("key", "r2e0u2n3i1o1n");
-            //var response = await WebHelper.HttpGet(uri, dic);
-            //if (!string.IsNullOrEmpty(response))
-            //{
-            //    Console.WriteLine(response);
-            //}
-            //return true;
 
             var score = new ClientCore.Entity.Score()
             {
+                missionPack = missionPack,
                 name = strName,
                 score = strScore,
                 total = 1

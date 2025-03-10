@@ -36,6 +36,8 @@ namespace DTAConfig.OptionPanels
 
         private XNAClientDropDown comboBoxtypes;
 
+        private XNATextBox textBoxSearch;
+
         private XNAClientButton mainButton;
 
         private XNALabel lbstatus;
@@ -98,6 +100,19 @@ namespace DTAConfig.OptionPanels
                 comboBoxtypes.SelectedIndex = 0;
                 comboBoxtypes.SelectedIndexChanged += ComboBoxtypes_SelectedIndexChanged;
                 AddChild(comboBoxtypes);
+
+                var lblSearch = new XNALabel(WindowManager)
+                {
+                    Text = "搜索",
+                    ClientRectangle = new Rectangle(comboBoxtypes.Right + 80, labeltypes.Y,0,0)
+                };
+                AddChild(lblSearch);
+
+                textBoxSearch = new XNATextBox(WindowManager);
+                textBoxSearch.Name = nameof(textBoxSearch);
+                textBoxSearch.ClientRectangle = new Rectangle(lblSearch.Right + 50,comboBoxtypes.Y, 200, UIDesignConstants.BUTTON_HEIGHT);
+                textBoxSearch.TextChanged += ComboBoxtypes_SelectedIndexChanged;
+                AddChild(textBoxSearch);
 
                 CompList = new XNAMultiColumnListBox(WindowManager);
                 CompList.Name = nameof(CompList);
@@ -208,7 +223,10 @@ namespace DTAConfig.OptionPanels
           //  {
                 CompList.ClearItems();
                 
-                _components = All_components.FindAll(p => comboBoxtypes.SelectedIndex == 0 || p.type == comboBoxtypes.SelectedIndex - 1);
+                _components = All_components
+                .FindAll(p => comboBoxtypes.SelectedIndex == 0 || p.type == comboBoxtypes.SelectedIndex - 1)
+                .FindAll(p => p.name.Contains(textBoxSearch.Text.TrimEnd()))
+                ;
               
           //  }
             InitialComponetsList(_components);

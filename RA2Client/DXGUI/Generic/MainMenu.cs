@@ -918,7 +918,7 @@ namespace Ra2Client.DXGUI.Generic
                     "Client/custom_rules_all.ini",
                     //"Client/custom_rules_ra2.ini",
                     //"Client/custom_rules_yr.ini",
-                    "Client/custom_art_all.ini",
+                    //"Client/custom_art_all.ini",
                     //"Client/custom_art_ra2.ini",
                     //"Client/custom_art_yr.ini",
                     "Client/CampaignSetting.ini",

@@ -59,7 +59,7 @@ namespace DTAConfig.OptionPanels
             foreach (var item in types) tabControl.AddTab(item, UIDesignConstants.BUTTON_WIDTH_92);
 
             tabControl.SelectedIndexChanged += Tab切换事件;
-            tabControl.MakeUnselectable(1);
+            //tabControl.MakeUnselectable(1);
             tabControl.MakeUnselectable(2);
 
             AddChild(tabControl);
@@ -241,7 +241,7 @@ namespace DTAConfig.OptionPanels
 
         private void 切换到任务包类型()
         {
-            
+            btnSelectOther.Visible = false;
         }
 
         private void 切换到地图包类型()
@@ -295,7 +295,7 @@ namespace DTAConfig.OptionPanels
                 return;
             }
 
-            var path = 检查地图并打包(btnSelect.Text);
+            var path = 检查并打包(btnSelect.Text);
 
             var componentDTO = new MultipartFormDataContent
                     {
@@ -357,7 +357,7 @@ namespace DTAConfig.OptionPanels
                 return;
             }
 
-            var path = 检查地图并打包(btnSelect.Text);
+            var path = 检查并打包(btnSelect.Text);
 
             if(path.Length == 0)
             {
@@ -365,9 +365,9 @@ namespace DTAConfig.OptionPanels
                 return;
             }
 
-            if(double.Parse(new FileInfo(path).Length.ToFileSizeString(1)) > 500)
+            if(double.Parse(new FileInfo(path).Length.ToFileSizeString(1)) > 20)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "压缩包不能超过500MB");
+                XNAMessageBox.Show(WindowManager, "错误", "压缩包不能超过20MB");
                 return;
             }
 
@@ -386,7 +386,7 @@ namespace DTAConfig.OptionPanels
                         { new StringContent(UserINISettings.Instance.User.id.ToString(), encoding: null),"uploadUser"},
                         { fileContent, "file", Path.GetFileName(path) }
                     };
-            WindowManager.progress.Report("正在上传任务包...");
+            WindowManager.progress.Report("正在上传...");
            var (r,msg) = NetWorkINISettings.Post<bool?>("component/addComponent", componentDTO).GetAwaiter().GetResult();
 
             if (r != true)
@@ -410,7 +410,9 @@ namespace DTAConfig.OptionPanels
 
         }
 
-        private string 检查地图并打包(string selectedFile)
+
+
+        private string 检查并打包(string selectedFile)
         {
             string extension = Path.GetExtension(selectedFile).ToLower();
 
@@ -419,9 +421,8 @@ namespace DTAConfig.OptionPanels
             {
                 #region 打包地图
                 // 如果是 .yrm、.mpr 或 .map 文件，压缩成 .7z 文件
-                if (extension != ".yrm" && extension != ".mpr" && extension != ".map")
-                    return string.Empty;
-
+                //if (extension != ".yrm" && extension != ".mpr" && extension != ".map")
+                //    return string.Empty;
 
                 string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
                 var originalFileName = Path.GetFileNameWithoutExtension(selectedFile);
@@ -455,6 +456,44 @@ namespace DTAConfig.OptionPanels
                 }
                 return compressedFile;
                 #endregion
+            }
+            else if (tabControl.SelectedTab == 1)
+            {
+                string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+
+                var directoryPath = $"地图包_{timestamp}";
+
+                if (!Directory.Exists($"./Tmp/{directoryPath}"))
+                    Directory.CreateDirectory($"./Tmp/{directoryPath}");
+
+                var modManager = ModManager.GetInstance(WindowManager);
+
+                modManager.导入具体任务包(true,true,btnSelect.Text,false,Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}"));
+                
+                //foreach (var file in MapFiles)
+                //{
+                //    File.Copy(file, $"./tmp/{directoryPath}/{Path.GetFileName(file)}", true);
+                //}
+
+                //if (ModManager.判断是否为任务包($".\\tmp\\{directoryPath}")) 
+                //{
+                //    XNAMessageBox.Show(WindowManager,"信息","你选择的文件无法构成任务包.");
+                //    return string.Empty;
+                //}
+
+
+                string compressedFile = Path.Combine(ProgramConstants.GamePath,$"Tmp\\{directoryPath}.7z");
+
+                SevenZip.CompressWith7Zip(Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}\\*"), compressedFile);
+                //try
+                //{
+                //    Directory.Delete($"./tmp/{directoryPath}", true);
+                //}
+                //catch (Exception ex)
+                //{
+                //    Logger.Log($"目录./tmp/{directoryPath}删除失败:{ex.Message}");
+                //}
+                return compressedFile;
             }
             else if(tabControl.SelectedTab == 3)
             {
@@ -525,6 +564,32 @@ namespace DTAConfig.OptionPanels
                     _ctbName.Text = Path.GetFileNameWithoutExtension(btnSelect.Text);
                 }
                 #endregion
+            }
+            else if (tabControl.SelectedTab == 1)
+            {
+                
+                #region 选择单个文件夹
+                // 打开文件夹对话框选择单个文件夹
+                using (var folderBrowserDialog = new FolderBrowserDialog())
+                {
+                    folderBrowserDialog.Description = "选择任务文件夹";
+                    folderBrowserDialog.ShowNewFolderButton = false;
+
+                    if (folderBrowserDialog.ShowDialog() != DialogResult.OK) return;
+
+                    // 将选中的文件夹路径保存到 MapFiles 列表
+                    //MapFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath);
+                    if(ModManager.判断是否为任务包(folderBrowserDialog.SelectedPath))
+                        btnSelect.Text = folderBrowserDialog.SelectedPath;
+                    else
+                    {
+                        XNAMessageBox.Show(WindowManager, "错误", "你选择的文件夹中无法构成任务包");
+                    }
+                    // 显示文件数在按钮上
+
+                }
+                #endregion
+
             }
             else if(tabControl.SelectedTab == 3)
             {

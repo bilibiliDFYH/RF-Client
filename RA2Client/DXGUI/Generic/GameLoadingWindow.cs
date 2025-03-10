@@ -133,8 +133,6 @@ namespace Ra2Client.DXGUI.Generic
             var newMain = saveIni.GetValue(sg.FileName, "Main", string.Empty);
             var newGame = saveIni.GetValue(sg.FileName, "Game", string.Empty);
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);
-            string newAi = "Mod&AI\\AI\\Other";
-            var newExtension = saveIni.GetValue(sg.FileName, "Extension", string.Empty);
 
             bool 加载音乐 = true;
 
@@ -145,10 +143,6 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("Main", newMain);
             //写入新游戏
             settings.SetValue("Game", newGame);
-            //写入新扩展
-            settings.SetValue("Extension", newExtension);
-            //写入新AI
-            settings.SetValue("AI", newAi);
 
             settings.SetValue("Mission", newMission); 
 

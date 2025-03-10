@@ -190,12 +190,19 @@ public class SevenZip
         {
             // 构造命令行参数，将文件压缩为 .7z
             string arguments = $"a -t7z \"{archivePath}\" \"{sourcePath}\" -r";
+
             Logger.Log(arguments);
 
-            // 启动 7z.exe 进程
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            string architecture = Environment.Is64BitProcess ? "x64" : "x86";
+            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm || RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
             {
-                FileName = string.Format("Resources/Binaries/7z-{0}.exe", Environment.Is64BitProcess ? "x64" : "x86"),
+                architecture = "arm64";
+            }
+
+            // 启动 7z.exe 进程
+            ProcessStartInfo startInfo = new()
+            {
+                FileName = $"Resources\\Binaries\\{architecture}\\7z.exe",
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程
@@ -237,10 +244,16 @@ public class SevenZip
             string arguments = $"a -t7z \"{archivePath}\" \"{sourceFiles}\" -r";
             Logger.Log(arguments);
 
-            // 启动 7z.exe 进程
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            string architecture = Environment.Is64BitProcess ? "x64" : "x86";
+            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm || RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
             {
-                FileName = string.Format("Resources/Binaries/7z-{0}.exe", Environment.Is64BitProcess ? "x64" : "x86"),
+                architecture = "arm64";
+            }
+
+            // 启动 7z.exe 进程
+            ProcessStartInfo startInfo = new()
+            {
+                FileName = $"Resources/Binaries/{architecture}/7z.exe",
                 Arguments = arguments,
                 CreateNoWindow = true, // 不显示命令行窗口
                 UseShellExecute = false, // 不使用操作系统外壳程序启动进程

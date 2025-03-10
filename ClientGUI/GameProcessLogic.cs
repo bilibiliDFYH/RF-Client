@@ -426,7 +426,7 @@ namespace ClientGUI
                         FileHelper.CopyDirectory(path, ProgramConstants.游戏目录, excludes);
                     }
 
-                    复制CSF(newGame, "Mod&AI\\Mod", [".csf"]);
+                    复制CSF(newGame, "Mod&AI", [".csf"]);
 
                     // 加载任务
                     if (newMission != newGame && newMission != string.Empty)

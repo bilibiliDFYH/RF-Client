@@ -105,12 +105,12 @@ namespace ClientCore
         public static void ReNameCustomFile(bool Online = false)
         {
             List<string> customFile = [
-                "custom_art_all.ini", 
-                "custom_art_ra2.ini",
-                "custom_art_yr.ini",
+                //"custom_art_all.ini", 
+               // "custom_art_ra2.ini",
+                //"custom_art_yr.ini",
                 "custom_rules_all.ini",
-                "custom_rules_ra2.ini",
-                "custom_rules_yr.ini"
+                //"custom_rules_ra2.ini",
+               // "custom_rules_yr.ini"
                 ];
 
             var tag = Online ? string.Empty : "Online";

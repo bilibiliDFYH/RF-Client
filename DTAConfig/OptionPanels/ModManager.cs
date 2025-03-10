@@ -513,7 +513,7 @@ public class ModManager : XNAWindow
         return missionPack;
     }
 
-   private Dictionary<string, string> 默认战役名称 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+   private readonly Dictionary<string, string> 默认战役名称 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Name:TRN01", "新兵训练营 - 第一天" },
                 { "Name:TRN02", "新兵训练营 - 第二天" },

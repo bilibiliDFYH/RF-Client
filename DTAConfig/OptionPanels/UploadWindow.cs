@@ -469,30 +469,18 @@ namespace DTAConfig.OptionPanels
                 var modManager = ModManager.GetInstance(WindowManager);
 
                 modManager.导入具体任务包(true,true,btnSelect.Text,false,Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}"));
-                
-                //foreach (var file in MapFiles)
-                //{
-                //    File.Copy(file, $"./tmp/{directoryPath}/{Path.GetFileName(file)}", true);
-                //}
-
-                //if (ModManager.判断是否为任务包($".\\tmp\\{directoryPath}")) 
-                //{
-                //    XNAMessageBox.Show(WindowManager,"信息","你选择的文件无法构成任务包.");
-                //    return string.Empty;
-                //}
-
 
                 string compressedFile = Path.Combine(ProgramConstants.GamePath,$"Tmp\\{directoryPath}.7z");
 
                 SevenZip.CompressWith7Zip(Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}\\*"), compressedFile);
-                //try
-                //{
-                //    Directory.Delete($"./tmp/{directoryPath}", true);
-                //}
-                //catch (Exception ex)
-                //{
-                //    Logger.Log($"目录./tmp/{directoryPath}删除失败:{ex.Message}");
-                //}
+                try
+                {
+                    Directory.Delete($"./tmp/{directoryPath}", true);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"目录./tmp/{directoryPath}删除失败:{ex.Message}");
+                }
                 return compressedFile;
             }
             else if(tabControl.SelectedTab == 3)
@@ -579,8 +567,14 @@ namespace DTAConfig.OptionPanels
 
                     // 将选中的文件夹路径保存到 MapFiles 列表
                     //MapFiles = Directory.GetFiles(folderBrowserDialog.SelectedPath);
-                    if(ModManager.判断是否为任务包(folderBrowserDialog.SelectedPath))
+                    if (ModManager.判断是否为任务包(folderBrowserDialog.SelectedPath))
+                    {
                         btnSelect.Text = folderBrowserDialog.SelectedPath;
+                        if(_ctbName.Text == string.Empty)
+                        {
+                            _ctbName.Text = Path.GetFileName(folderBrowserDialog.SelectedPath);
+                        }
+                    }
                     else
                     {
                         XNAMessageBox.Show(WindowManager, "错误", "你选择的文件夹中无法构成任务包");
@@ -642,9 +636,9 @@ namespace DTAConfig.OptionPanels
 
         private string Check(bool upLoad = true)
         {
-            if( _ctbName.Text.Length == 0 || _ctbAuthor.Text.Length == 0 || _ctbVersion.Text.Length == 0)
+            if( _ctbName.Text.Length == 0)
             {
-                return "存在未填写的信息。";
+                return "请填写名称。";
             }
 
             //if (!File.Exists(btnSelect.Text) && upLoad)

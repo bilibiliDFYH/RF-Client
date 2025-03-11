@@ -8,11 +8,27 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
+using Rampastring.Tools;
 
 namespace Localization.Tools
 {
     public static class FunExtensions
     {
+        public static bool 是否为多人图(string mapFilePath)
+        {
+            try
+            {
+                var ini = new IniFile(mapFilePath);
+
+                return !ini.SectionExists("Basic") || ini.GetIntValue("Basic", "MultiplayerOnly", 0) == 1;
+
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         /// <summary>
         /// 判断字符串是否包含中文
         /// </summary>

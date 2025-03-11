@@ -349,7 +349,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
             btnLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
             btnLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
-            btnLoadMaps.Text = "导入地图";
+            btnLoadMaps.Text = "批量导入地图";
             btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
             btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
             AddChild(btnLoadMaps);
@@ -496,7 +496,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 string extension = Path.GetExtension(file).ToLower();
                 if (extension == ".map" || extension == ".yrm" || extension == ".mpr")
                 {
-                    if (MapLoader.是否为多人图(file))
+                    if (FunExtensions.是否为多人图(file))
                     {
                         string fileName = Path.GetFileName(file);
                         string destinationPath = Path.Combine(targetFolder, fileName);

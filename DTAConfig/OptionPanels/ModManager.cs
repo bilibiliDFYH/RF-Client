@@ -38,10 +38,12 @@ public class ModManager : XNAWindow
     private ToolTip _tooltip;
     private XNAClientButton _btnReturn;
     public XNAClientButton BtnNew;
+    public XNAClientButton BtnDownload;
     public XNAClientButton BtnDel;
 
     private XNAContextMenu _modMenu;
     public Action 触发刷新;
+    public OptionsWindow optionsWindow;
 
     public override void Initialize()
     {
@@ -176,10 +178,18 @@ public class ModManager : XNAWindow
         _btnReturn.LeftClick += BtnReturn_LeftClick;
         AddChild(_btnReturn);
 
+        BtnDownload = new XNAClientButton(WindowManager)
+        {
+            Text = "下载更多",
+            ClientRectangle = new Rectangle(_mcListBoxInfo.X, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+        };
+        BtnDownload.LeftClick += BtnDownload_LeftClick;
+        AddChild(BtnDownload);
+
         BtnNew = new XNAClientButton(WindowManager)
         {
             Visible = false,
-            ClientRectangle = new Rectangle(_mcListBoxInfo.X, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(BtnDownload.X + 110, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         BtnNew.LeftClick += BtnNew_LeftClick;
         AddChild(BtnNew);
@@ -187,7 +197,7 @@ public class ModManager : XNAWindow
         BtnDel = new XNAClientButton(WindowManager)
         {
             Visible = false,
-            ClientRectangle = new Rectangle(BtnNew.X + 120, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(BtnNew.X + 110, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         BtnDel.LeftClick += BtnDel_LeftClick;
         AddChild(BtnDel);
@@ -195,7 +205,7 @@ public class ModManager : XNAWindow
         var btnReload = new XNAClientButton(WindowManager)
         {
             Text = "刷新",
-            ClientRectangle = new Rectangle(BtnDel.X + 120, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(BtnDel.X + 110, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnReload.LeftClick += (_, _) => ReLoad();
         AddChild(btnReload);
@@ -208,6 +218,15 @@ public class ModManager : XNAWindow
         ReLoad();
 
        
+    }
+
+    private void BtnDownload_LeftClick(object sender, EventArgs e)
+    {
+        optionsWindow.Open();
+        optionsWindow.tabControl.SelectedTab = 5;
+        optionsWindow.componentsPanel.comboBoxtypes.SelectedIndex = 3 - DDModAI.SelectedIndex;
+        Disable();
+        Detach();
     }
 
     private void 解压MIX()
@@ -309,17 +328,19 @@ public class ModManager : XNAWindow
     /// </summary>
     /// <param name="modPath">mod原路径</param>
     /// <param name="mod">mod信息</param>
-    private void 整合Mod文件(string modPath, Mod mod, bool deepImport = false)
+    private void 整合Mod文件(string startPath,string modPath, Mod mod, bool deepImport = false)
     {
         #region 导入Mod文件
 
+        var tagerPath = Path.Combine(startPath, mod.FilePath);
+
         //提取Mod文件
-        if (!Directory.Exists(mod.FilePath))
-            Directory.CreateDirectory(mod.FilePath);
+        if (!Directory.Exists(tagerPath))
+            Directory.CreateDirectory(tagerPath);
 
         try
         {
-            CopyFiles(modPath, mod.FilePath, deepImport);
+            CopyFiles(modPath, tagerPath, deepImport);
 
         }
         catch (Exception ex)
@@ -370,12 +391,13 @@ public class ModManager : XNAWindow
             }
     }
 
-    private  void 整合任务包文件(string MissionPackPath, MissionPack missionPack, bool covCsf, bool deepImport = false)
+    private  void 整合任务包文件(string startPath,string MissionPackPath, MissionPack missionPack, bool covCsf, bool deepImport = false)
     {
-        if (!Directory.Exists(missionPack.FilePath))
-            Directory.CreateDirectory(missionPack.FilePath);
+        var tagerPath = Path.Combine(startPath, missionPack.FilePath);
+        if (!Directory.Exists(tagerPath))
+            Directory.CreateDirectory(tagerPath);
 
-        CopyFiles(MissionPackPath, missionPack.FilePath, deepImport);
+        CopyFiles(MissionPackPath, tagerPath, deepImport);
 
         foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
         {
@@ -385,9 +407,9 @@ public class ModManager : XNAWindow
                 tagCsf = "ra2md.csf";
             }
             if (covCsf)
-                CSF.将繁体的CSF转化为简体CSF(Path.Combine(MissionPackPath, csf), Path.Combine(missionPack.FilePath, tagCsf));
+                CSF.将繁体的CSF转化为简体CSF(Path.Combine(MissionPackPath, csf), Path.Combine(tagerPath, tagCsf));
             else
-                File.Copy(Path.Combine(MissionPackPath, csf), Path.Combine(missionPack.FilePath, tagCsf), true);
+                File.Copy(Path.Combine(MissionPackPath, csf), Path.Combine(tagerPath, tagCsf), true);
         }
 
     }
@@ -417,6 +439,7 @@ public class ModManager : XNAWindow
 
         var id = string.Empty;
 
+
         foreach (var path in filePath.Split(','))
         {
             if (Directory.Exists(path))
@@ -424,9 +447,10 @@ public class ModManager : XNAWindow
                 List<string> list = [path, .. Directory.GetDirectories(path, "*", SearchOption.AllDirectories)];
                 foreach (var item in list)
                 {
+                    if (Directory.GetFiles(item).Length == 0 && Directory.GetDirectories(item).Length > 0) continue;
+
                     if (判断是否为任务包(item))
                     {
-
                         var r = 导入具体任务包(copyFile, deepImport, item);
                         if (r != null)
                         {
@@ -437,8 +461,7 @@ public class ModManager : XNAWindow
                 }
             }
         }
-        
-
+            
         if (id == string.Empty)
         {
             XNAMessageBox.Show(WindowManager, "错误", "请选择尤复任务包或基于原生原版的任务包文件");
@@ -467,6 +490,8 @@ public class ModManager : XNAWindow
 
     public MissionPack 导入具体任务包(bool copyFile, bool deepImport, string missionPath,bool muVisible = false, string startPath = null)
     {
+        if(missionPath == null) return null;
+
         startPath ??= ProgramConstants.GamePath;
 
         bool isYR = 判断是否为尤复(missionPath);
@@ -484,7 +509,7 @@ public class ModManager : XNAWindow
         {
             ID = id,
             FilePath = missionPath,
-            FileName = Path.Combine(startPath, $"Maps/Cp/battle{id}.ini"),
+            FileName = Path.Combine(startPath,$"Maps/Cp/battle{id}.ini"),
             Name = Path.GetFileName(missionPath),
             YR = isYR,
             Other = true,
@@ -503,8 +528,8 @@ public class ModManager : XNAWindow
         }
         else 
         {
-            missionPack.FilePath = Path.Combine(startPath,$"Maps\\CP\\{id}");
-            整合任务包文件(missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
+            missionPack.FilePath = $"Maps\\CP\\{id}";
+            整合任务包文件(startPath,missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
         }
 
         missionPack.Create();
@@ -563,24 +588,25 @@ public class ModManager : XNAWindow
 
     private void 写入任务INI(MissionPack missionPack,string startPath)
     {
-        var maps = Directory.GetFiles(missionPack.FilePath, "*.map").ToList();
+        var tagerPath = Path.Combine(startPath, missionPack.FilePath);
+        var maps = Directory.GetFiles(tagerPath, "*.map").ToList();
         var md = missionPack.YR ? "md" : string.Empty;
 
-        var battleINI = new IniFile(Path.Combine(startPath,$"Maps\\CP\\battle{missionPack.ID}.ini"));
+        var battleINI = new IniFile(Path.Combine(startPath,$"Maps\\CP\\battle{missionPack.ID}.ini"),MissionPack.ANNOTATION);
         if (!battleINI.SectionExists("Battles"))
             battleINI.AddSection("Battles");
 
         //先确定可用的ini
         var mapSelINIPath = "Resources//mapselmd.ini";
-        if (File.Exists(Path.Combine(missionPack.FilePath, $"mapsel{md}.ini")))
-            mapSelINIPath = Path.Combine(missionPack.FilePath, $"mapsel{md}.ini");
+        if (File.Exists(Path.Combine(tagerPath, $"mapsel{md}.ini")))
+            mapSelINIPath = Path.Combine(tagerPath, $"mapsel{md}.ini");
 
         var missionINIPath = "Resources//missionmd.ini";
-        if (File.Exists(Path.Combine(missionPack.FilePath, $"mission{md}.ini")))
-            missionINIPath = Path.Combine(missionPack.FilePath, $"mission{md}.ini");
+        if (File.Exists(Path.Combine(tagerPath, $"mission{md}.ini")))
+            missionINIPath = Path.Combine(tagerPath, $"mission{md}.ini");
 
         
-        var csf = CSF.获取目录下的CSF字典(missionPack.FilePath);
+        var csf = CSF.获取目录下的CSF字典(tagerPath);
 
         var missionINI = new IniFile(missionINIPath);
         var mapSelINI = new IniFile(mapSelINIPath);
@@ -671,6 +697,8 @@ public class ModManager : XNAWindow
         "mpbattle",
         "keyboard",
         "ddraw",
+        "_desktop",
+        "desktop",
     };
 
     public static bool 判断是否为Mod(string path, bool isYR)
@@ -704,7 +732,7 @@ public class ModManager : XNAWindow
     {
         if (!Directory.Exists(path)) return false;
 
-        var maps = Directory.GetFiles(path, "*.map").Length;
+        var maps = Directory.GetFiles(path, "*.map").Count(map => FunExtensions.是否为多人图(map));
         var mixs = Directory.GetFiles(path, "*.mix").Length;
 
         return maps + mixs != 0;
@@ -879,7 +907,7 @@ public class ModManager : XNAWindow
         };
 
         if (copyFile)
-            mod.FilePath = Path.Combine(startPath,$"Mod&AI\\{id}");
+            mod.FilePath = $"Mod&AI\\{id}";
         else
             mod.FilePath = path;
 
@@ -896,7 +924,7 @@ public class ModManager : XNAWindow
             mod.Colors = Colors;
 
         if (copyFile)
-            整合Mod文件(path, mod, deepImport);
+            整合Mod文件(startPath,path, mod, deepImport);
 
         var BattleFilePath = Path.Combine(path,"INI",BattleFile);
         var newBattleFilePath = Path.Combine("Maps\\CP\\", $"Battle{mod.ID}.ini");
@@ -1441,7 +1469,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             foreach (var fileName in fileDialog.FileNames)
             {
                 var tagerPath = Path.Combine(ProgramConstants.GamePath, "Tmp", Path.GetFileNameWithoutExtension(fileName));
-                if (SevenZip.ExtractWith7Zip(fileName, tagerPath,needDel:true))
+                if (SevenZip.ExtractWith7Zip(fileName, tagerPath))
                     paths.Add(tagerPath);
             }
 

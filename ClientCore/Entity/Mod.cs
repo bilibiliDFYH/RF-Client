@@ -86,7 +86,7 @@ public class Mod : InfoBaseClass
 
                 var mod = new Mod();
                 mod = Init(iniFile, modID, mod) as Mod;
-                mod.FilePath = iniFile.GetValue(modID, "FilePath", $"Mod&AI\\{modID}");
+                mod.FilePath = iniFile.GetValue(modID, "FilePath", $"Mod&AI\\Mod\\{modID}");
 
                 if (iniFile.KeyExists(modID, "YR"))
                     mod.md = iniFile.GetValue(modID, "YR", true) ? "md" : string.Empty;

@@ -269,97 +269,6 @@ namespace Ra2Client.Domain.Multiplayer
             return [.. duplicateFiles];
         }
 
-        private static bool 是否为任务图(string mapFilePath)
-        {
-            try
-            {
-                var ini = new IniFile(mapFilePath);
-              
-                return ini.GetIntValue("Basic", "MultiplayerOnly", 1) == 0;
-                
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// 这两其实有区别,因为还存在一种加密的地图,你压根不知道他是单人还是多人图 
-        /// </summary>
-        public static bool 是否为多人图(string mapFilePath)
-        {
-            try
-            {
-                var ini = new IniFile(mapFilePath);
-
-                return !ini.SectionExists("Basic") || ini.GetIntValue("Basic", "MultiplayerOnly", 0) == 1;
-
-            }
-            catch
-            { 
-                return false;
-            }
-        }
-
-
-
-        //private void 渲染地图()
-        //{
-        //    // 定义并行选项
-        //    var parallelOptions = new ParallelOptions
-        //    {
-        //        MaxDegreeOfParallelism = 1, // 初始并发数，使用 CPU 核心数的两倍
-        //        CancellationToken = cts.Token // 支持任务取消
-        //    };
-
-        //    try
-        //    {
-        //        // 使用 Parallel.ForEach 执行并行渲染
-        //        Parallel.ForEach(需要渲染的地图列表, parallelOptions, (map) =>
-        //        {
-        //            while (!cts.Token.IsCancellationRequested)
-        //            {
-        //                pauseEvent.Wait(); // 等待继续信号
-
-        //                try
-        //                {
-        //                    // 渲染任务
-        //                    if (RenderImage.RenderOneImageAsync(map.BaseFilePath).Result)
-        //                    {
-        //                        map.PreviewTexture = AssetLoader.LoadTexture(map.PreviewPath);
-        //                    }
-        //                    else
-        //                    {
-        //                        Console.WriteLine($"渲染失败 {map.BaseFilePath}");
-        //                    }
-        //                }
-        //                catch (OperationCanceledException)
-        //                {
-        //                    Console.WriteLine("渲染任务已取消");
-        //                    break;
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                    Console.WriteLine($"渲染异常: {ex.Message}");
-        //                }
-
-        //                break; // 渲染成功后退出循环
-        //            }
-        //        });
-
-        //        WindowManager.progress.Report(""); // 更新进度
-        //    }
-        //    catch (OperationCanceledException)
-        //    {
-        //        Console.WriteLine("所有渲染任务已取消");
-        //    }
-        //    catch (AggregateException ex)
-        //    {
-        //        Console.WriteLine($"并行任务发生异常: {ex.Flatten().Message}");
-        //    }
-        //}
-
         public static List<string> rootMaps = [];
 
         private void LoadRootMaps(ConcurrentBag<Exception> exceptions)
@@ -383,7 +292,7 @@ namespace Ra2Client.Domain.Multiplayer
                                      .Where(file => (file.ToLower().EndsWith(".map") ||
                                     file.ToLower().EndsWith(".yrm") ||
                                     file.ToLower().EndsWith(".mpr")
-                                    ) && 是否为多人图(file)
+                                    ) && FunExtensions.是否为多人图(file)
                                     ).ToList();
 
                     if (!files.Any()) return;

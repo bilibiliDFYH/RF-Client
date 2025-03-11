@@ -154,10 +154,9 @@ public class IniFile : IIniFile
         return this;
     }
 
-    private IniFile ParseIniFile(Stream stream, Encoding encoding = null)
+    private void ParseIniFile(Stream stream, Encoding encoding = null)
     {
-       
-            encoding ??= Encoding;
+        encoding ??= Encoding;
 
         using var reader = new StreamReader(stream, encoding);
 
@@ -170,34 +169,40 @@ public class IniFile : IIniFile
 
             int commentStartIndex = currentLine.IndexOf(';');
             if (commentStartIndex > -1)
-                currentLine = currentLine.Substring(0, commentStartIndex);
+                currentLine = currentLine[..commentStartIndex];
 
             if (string.IsNullOrWhiteSpace(currentLine))
                 continue;
 
             if (currentLine[0] == '[')
             {
-                int sectionNameEndIndex = currentLine.IndexOf(']');
+                int sectionNameEndIndex = currentLine.LastIndexOf(']');
+
                 if (sectionNameEndIndex == -1)
-                    //throw new IniParseException("Invalid INI section definition: " + currentLine);
                     continue;
 
-                string sectionName = currentLine.Substring(1, sectionNameEndIndex - 1);
-                int index = Sections.FindIndex(c => c.SectionName == sectionName);
-
-                if (index > -1)
+                if (sectionNameEndIndex == currentLine.Length - 1)
                 {
-                    currentSectionId = index;
-                }
-                else if (AllowNewSections)
-                {
-                    Sections.Add(new IniSection(sectionName));
-                    currentSectionId = Sections.Count - 1;
-                }
-                else
-                    currentSectionId = -1;
 
-                continue;
+                    string sectionName = currentLine[1..sectionNameEndIndex];
+                    int index = Sections.FindIndex(c => c.SectionName == sectionName);
+
+                    if (index > -1)
+                    {
+                        currentSectionId = index;
+                    }
+                    else if (AllowNewSections)
+                    {
+                        Sections.Add(new IniSection(sectionName));
+                        currentSectionId = Sections.Count - 1;
+                    }
+                    else
+                    {
+                        currentSectionId = -1;
+                    }
+
+                    continue;
+                }
             }
 
             if (currentSectionId == -1)
@@ -211,21 +216,18 @@ public class IniFile : IIniFile
             }
             else
             {
-                string value = currentLine.Substring(equalsIndex + 1).Trim();
+                string value = currentLine[(equalsIndex + 1)..].Trim();
 
                 if (value == TextBlockBeginIdentifier)
                 {
                     value = ReadTextBlock(reader);
                 }
 
-                Sections[currentSectionId].AddOrReplaceKey(currentLine.Substring(0, equalsIndex).Trim(),
-                    value);
+                Sections[currentSectionId].AddOrReplaceKey(currentLine[..equalsIndex].Trim(), value);
             }
         }
 
         ApplyBaseIni();
-
-        return this;
     }
 
     private string ReadTextBlock(StreamReader reader)
@@ -327,13 +329,17 @@ public class IniFile : IIniFile
     public IniFile WriteIniFile(string filePath)
     {
         FileInfo fileInfo = SafePath.GetFile(filePath);
+        DirectoryInfo directory = fileInfo.Directory;
+
+        if (!directory.Exists)
+            directory.Create();
 
         if (fileInfo.Exists)
             fileInfo.Delete();
 
         using var stream = fileInfo.OpenWrite();
 
-       return WriteIniStream(stream);
+        return WriteIniStream(stream);
     }
 
     public IniFile WriteIniFile(string filePath, Encoding encoding)

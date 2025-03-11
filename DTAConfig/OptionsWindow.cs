@@ -32,7 +32,7 @@ namespace DTAConfig
         private ThankWindow thankWindow;
 
         private XNAOptionsPanel[] optionsPanels;
-        private ComponentsPanel componentsPanel;
+        public ComponentsPanel componentsPanel;
 
         private DisplayOptionsPanel displayOptionsPanel;
         private XNAControl topBar;

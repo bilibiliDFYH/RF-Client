@@ -558,6 +558,10 @@ namespace Ra2Client.DXGUI.Generic
 
             UseDownloadedData();
 
+            //var ini = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\Maps\\CP\\battle[汉化]国外尤里任务—冰与火.ini");
+            //ini.SetValue("MissionPack", "[汉化]国外尤里任务—冰与火", "[汉化]国外尤里任务—冰与火");
+            //ini.WriteIniFile();
+
         }
 
         
@@ -864,7 +868,7 @@ namespace Ra2Client.DXGUI.Generic
             foreach (string file in Directory.GetFiles(ProgramConstants.GamePath))
             {
                 if (whitelist.Contains(Path.GetFileName(file))) continue;
-                if((Path.GetExtension(file) == ".map" || Path.GetExtension(file) == ".yrm" || Path.GetExtension(file) == ".mpr") && MapLoader.是否为多人图(file)) continue;
+                if((Path.GetExtension(file) == ".map" || Path.GetExtension(file) == ".yrm" || Path.GetExtension(file) == ".mpr") && FunExtensions.是否为多人图(file)) continue;
                 File.SetAttributes(file, FileAttributes.Normal);
                 File.Delete(file);
 
@@ -1031,6 +1035,7 @@ namespace Ra2Client.DXGUI.Generic
             privateMessagingPanel.AddChild(privateMessagingWindow);
             topBar.SetTertiarySwitch(privateMessagingWindow);
             topBar.SetOptionsWindow(optionsWindow);
+            ModManager.GetInstance(WindowManager).optionsWindow = optionsWindow;
             WindowManager.AddAndInitializeControl(gameInProgressWindow);
             skirmishLobby.Disable();
             cncnetLobby.Disable();

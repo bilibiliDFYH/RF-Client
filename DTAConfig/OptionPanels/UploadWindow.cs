@@ -81,7 +81,7 @@ namespace DTAConfig.OptionPanels
 
             _ctbName = new XNATextBox(WindowManager)
             {
-                ClientRectangle = new Rectangle(lblName.Right + 80, lblName.Y, CtbW, CtbH)
+                ClientRectangle = new Rectangle(lblName.Right + 80, lblName.Y, 3*CtbW, CtbH)
             };
             AddChild(_ctbName);
 
@@ -187,7 +187,7 @@ namespace DTAConfig.OptionPanels
                 Disable();
             };
 
-            _ctbAuthor.Text = UserINISettings.Instance.User.username;
+            //_ctbAuthor.Text = UserINISettings.Instance.User.username;
             if (component != null)
             {
                 _ctbName.Text = component.name;
@@ -217,9 +217,11 @@ namespace DTAConfig.OptionPanels
             switch (tabControl.SelectedTab)
             {
                 case 0:
+                    btnSelectOther.Text = "点击选择以上传附带的文件(如CSF等):";
                     切换到地图类型();
                     break;
                 case 1:
+                    btnSelectOther.Text = "点击选择以上传任务压缩包:";
                     切换到任务包类型();
                     break;
                 case 2:
@@ -241,7 +243,7 @@ namespace DTAConfig.OptionPanels
 
         private void 切换到任务包类型()
         {
-            btnSelectOther.Visible = false;
+
         }
 
         private void 切换到地图包类型()
@@ -261,29 +263,50 @@ namespace DTAConfig.OptionPanels
 
         private void btnSelectOther_LeftClick(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            switch (tabControl.SelectedTab)
             {
-                Filter = "",
-                Title = "选择附带的文件",
-                Multiselect = true // 允许多选
-            };
+                case 2:
+                case 3:
+                case 0:
+                    OpenFileDialog openFileDialog = new OpenFileDialog
+                    {
+                        Filter = "",
+                        Title = "选择附带的文件",
+                        Multiselect = true // 允许多选
+                    };
 
-            if (openFileDialog.ShowDialog() != DialogResult.OK) return;
+                    if (openFileDialog.ShowDialog() != DialogResult.OK) return;
 
-            // 使用 List<string> 保存选中的文件路径
-            OtherFiles = openFileDialog.FileNames;
+                    // 使用 List<string> 保存选中的文件路径
+                    OtherFiles = openFileDialog.FileNames;
 
-            // 提取文件名并使用逗号分隔
-            string fileNames = string.Join(", ", Array.ConvertAll(OtherFiles, Path.GetFileName));
+                    // 提取文件名并使用逗号分隔
+                    string fileNames = string.Join(", ", Array.ConvertAll(OtherFiles, Path.GetFileName));
 
-            // 设置显示的最大长度
-            int maxLength = 50; // 根据需要调整最大长度
-            if (fileNames.Length > maxLength)
-            {
-                fileNames = string.Concat(fileNames.AsSpan(0, maxLength), "...");
+                    // 设置显示的最大长度
+                    int maxLength = 50; // 根据需要调整最大长度
+                    if (fileNames.Length > maxLength)
+                    {
+                        fileNames = string.Concat(fileNames.AsSpan(0, maxLength), "...");
+                    }
+
+                    btnSelectOther.Text = fileNames;
+                    break;
+                case 1:
+                    OpenFileDialog openFileDialogSingle = new OpenFileDialog
+                    {
+                        Filter = "压缩文件 (*.7z;*.zip;*.rar)|*.7z;*.zip;*.rar",
+                        Title = "选择压缩包文件",
+                        Multiselect = false // 只允许单选
+                    };
+
+                    if (openFileDialogSingle.ShowDialog() != DialogResult.OK) return;
+
+                    btnSelect.Text = openFileDialogSingle.FileName;
+                    if(_ctbName.Text == string.Empty)
+                        _ctbName.Text = Path.GetFileNameWithoutExtension(openFileDialogSingle.FileName);
+                    break;
             }
-
-            btnSelectOther.Text = fileNames;
         }
 
         private void 编辑(object sender, EventArgs e)
@@ -361,7 +384,7 @@ namespace DTAConfig.OptionPanels
 
             if(path.Length == 0)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "请选择地图文件");
+               // XNAMessageBox.Show(WindowManager, "错误", "请选择正确的文件");
                 return;
             }
 
@@ -410,6 +433,27 @@ namespace DTAConfig.OptionPanels
 
         }
 
+        private string FindFirstNonEmptyDirectory(string path)
+        {
+            if (Directory.GetFiles(path).Length > 0) return path;
+
+            foreach (var directory in Directory.GetDirectories(path))
+            {
+                if (Directory.GetFiles(directory).Length > 0)
+                {
+                    return directory;
+                }
+                else
+                {
+                    var result = FindFirstNonEmptyDirectory(directory);
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        return result;
+                    }
+                }
+            }
+            return null;
+        }
 
 
         private string 检查并打包(string selectedFile)
@@ -459,6 +503,22 @@ namespace DTAConfig.OptionPanels
             }
             else if (tabControl.SelectedTab == 1)
             {
+                var misssionPackPath = btnSelect.Text;
+                
+                List<string> 压缩包类型 = [".7z", ".rar", ".zip"];
+                if (压缩包类型.Contains(extension))
+                {
+                    var tagerPath = Path.Combine(ProgramConstants.GamePath, "Tmp", Path.GetFileNameWithoutExtension(misssionPackPath));
+                    if (!SevenZip.ExtractWith7Zip(misssionPackPath, tagerPath))
+                    {
+                        XNAMessageBox.Show(WindowManager, "错误", "解压压缩包失败,请手动解压后用文件夹上传");
+                        return string.Empty;
+                    }
+                    misssionPackPath = tagerPath;
+                    misssionPackPath = FindFirstNonEmptyDirectory(misssionPackPath);
+                }
+
+            
                 string timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
 
                 var directoryPath = $"地图包_{timestamp}";
@@ -468,7 +528,11 @@ namespace DTAConfig.OptionPanels
 
                 var modManager = ModManager.GetInstance(WindowManager);
 
-                modManager.导入具体任务包(true,true,btnSelect.Text,false,Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}"));
+                if(modManager.导入具体任务包(true,true, misssionPackPath, false,Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}")) == null)
+                {
+                    XNAMessageBox.Show(WindowManager, "错误", "未找到任务包文件");
+                    return string.Empty;
+                }
 
                 string compressedFile = Path.Combine(ProgramConstants.GamePath,$"Tmp\\{directoryPath}.7z");
 

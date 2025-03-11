@@ -26,7 +26,7 @@ using ClientCore.Entity;
 
 namespace DTAConfig.OptionPanels
 {
-    class ComponentsPanel : XNAOptionsPanel
+   public class ComponentsPanel : XNAOptionsPanel
     {
         private const string COMPONENTS_FILE = "该用户所有组件";
 
@@ -34,7 +34,7 @@ namespace DTAConfig.OptionPanels
 
         private XNALabel labeltypes;
 
-        private XNAClientDropDown comboBoxtypes;
+        public XNAClientDropDown comboBoxtypes;
 
         private XNATextBox textBoxSearch;
 
@@ -193,11 +193,19 @@ namespace DTAConfig.OptionPanels
                 }
                 else
                     mainButton.Visible = false;
+
+                EnabledChanged += ComponentsPanel_EnabledChanged;
         }
         catch (Exception ex)
         {
             Logger.Log("组件初始化出错：" + ex);
         }
+        }
+
+        private void ComponentsPanel_EnabledChanged(object sender, EventArgs e)
+        {
+            if(Enabled)
+                InitialComponets();
         }
 
         private bool 判断是否有介绍() => !string.IsNullOrEmpty(_curComponent?.description);
@@ -267,7 +275,7 @@ namespace DTAConfig.OptionPanels
             if (null == components || null == CompList)
                 return;
             CompList.ClearItems();
-            int i = 0;
+            int i = 1;
             foreach (var comp in components)
             {
                 StateItem item = CheckComponentStatus(comp);

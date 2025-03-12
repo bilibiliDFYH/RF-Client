@@ -499,6 +499,7 @@ namespace ClientGUI
             if (File.Exists(RA2MD))
                 File.Copy(RA2MD, "RA2MD.ini", true);
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
+            FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Debug"), "Debug");
             获取新的存档();
         }
 

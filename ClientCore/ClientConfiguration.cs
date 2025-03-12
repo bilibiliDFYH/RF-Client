@@ -232,7 +232,7 @@ namespace ClientCore
 
         public bool CopyResolutionDependentLanguageDLL => clientDefinitionsIni.GetBooleanValue(SETTINGS, "CopyResolutionDependentLanguageDLL", true);
 
-        public string StatisticsLogFileName => clientDefinitionsIni.GetStringValue(SETTINGS, "StatisticsLogFileName", "DTA.LOG");
+        public string StatisticsLogFileName => clientDefinitionsIni.GetStringValue(SETTINGS, "StatisticsLogFileName", "Debug/debug.log");
 
         public string[] GetLanguageInfoFromIndex(int languageIndex) => clientDefinitionsIni.GetStringValue("Language", languageIndex.ToString(), ",").Split(',');
 

@@ -128,6 +128,8 @@ namespace Ra2Client.DXGUI
 
             InitializeUISettings();
 
+
+
             WindowManager wm = new WindowManager(this, graphics);
             wm.Initialize(content, ProgramConstants.GetBaseResourcePath());
 

@@ -66,7 +66,7 @@ namespace ClientCore.Statistics
             LengthInSeconds = (int)(DateTime.Now - DateAndTime).TotalSeconds;
 
             var parser = new LogFileStatisticsParser(this, isLoadedGame);
-            parser.ParseStats(gamePath, ClientConfiguration.Instance.StatisticsLogFileName);
+            parser.ParseStats(gamePath,Path.Combine(ProgramConstants.游戏目录,ClientConfiguration.Instance.StatisticsLogFileName));
         }
 
         public PlayerStatistics GetEmptyPlayerByName(string playerName)

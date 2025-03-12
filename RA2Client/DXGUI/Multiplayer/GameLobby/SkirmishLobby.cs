@@ -200,7 +200,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (string.IsNullOrEmpty(error))
             {
                 SaveSettings();
-                FileHelper.ReNameCustomFile();
+               // FileHelper.ReNameCustomFile();
                 StartGame();
                 return;
             }

@@ -293,6 +293,8 @@ namespace Ra2Client.Domain.Multiplayer
         /// <returns>True if loading the map succeeded, otherwise false.</returns>
         public  bool SetInfoFromMpMapsINI(IniFile iniFile)
         {
+            if(iniFile == null) return false;
+
             try
             {
                 IniFile mapini = null;
@@ -304,16 +306,12 @@ namespace Ra2Client.Domain.Multiplayer
                     return mapini;
                 };
 
-
-
                 var sectionName = BaseFilePath.Remove(BaseFilePath.Length - 4).Replace('\\', '/');
                 if(!iniFile.SectionExists(sectionName))
                     iniFile.AddSection(sectionName);
                 
                 var section = iniFile.GetSection(sectionName);
-                
 
-                
                 Official = whitelist.Any(sectionName.Contains);
 
                 #region 处理预览图

@@ -349,7 +349,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
             btnLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
             btnLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
-            btnLoadMaps.Text = "批量导入地图";
+            btnLoadMaps.Text = "导入地图";
             btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
             btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
             AddChild(btnLoadMaps);
@@ -465,63 +465,53 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void BtnLoadMaps_LeftClick(object sender, EventArgs e)
         {
-            var w = new 导入选择窗口(WindowManager);
-            var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, w);
-            w.chkCopyFile.Checked = true;
-            w.chkCopyFile.AllowChecking = false;
-            w.chkDeepImport.Checked = true;
-            w.chkDeepImport.AllowChecking = false;
-
-            w.selected += (cf, di,path) => 
+            using OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Map files (*.yrm;*.mpr;*.map)|*.yrm;*.mpr;*.map";
+            openFileDialog.Multiselect = true;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                
-                导入地图(path);
-            };
-            
-        }
-
-        private void 导入地图(string path)
-        {
-            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetFileName(path));
-
-            if (!Directory.Exists(targetFolder))
-            {
-                Directory.CreateDirectory(targetFolder);
+                导入地图(openFileDialog.FileNames);
             }
 
-            string[] files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+        }
+
+        private void 导入地图(string[] files)
+        {
+            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetDirectoryName(files[0]));
+
+            if (!Directory.Exists(targetFolder)) Directory.CreateDirectory(targetFolder);
+
             var count = 0;
             foreach (string file in files)
             {
                 string extension = Path.GetExtension(file).ToLower();
-                if (extension == ".map" || extension == ".yrm" || extension == ".mpr")
+                
+                if (FunExtensions.是否为多人图(file))
                 {
-                    if (FunExtensions.是否为多人图(file))
+                    string fileName = Path.GetFileName(file);
+                    string destinationPath = Path.Combine(targetFolder, fileName);
+
+                    if(Utilities.CalculateSHA1ForFile(file) == Utilities.CalculateSHA1ForFile(destinationPath)) continue;
+
+                    int copyIndex = 2;
+                    while (File.Exists(destinationPath))
                     {
-                        string fileName = Path.GetFileName(file);
-                        string destinationPath = Path.Combine(targetFolder, fileName);
+                        string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}({copyIndex}){extension}";
+                        destinationPath = Path.Combine(targetFolder, newFileName);
+                        copyIndex++;
+                    }
 
-                        if(Utilities.CalculateSHA1ForFile(file) == Utilities.CalculateSHA1ForFile(destinationPath)) continue;
-
-                        int copyIndex = 2;
-                        while (File.Exists(destinationPath))
-                        {
-                            string newFileName = $"{Path.GetFileNameWithoutExtension(fileName)}({copyIndex}){extension}";
-                            destinationPath = Path.Combine(targetFolder, newFileName);
-                            copyIndex++;
-                        }
-
-                        try
-                        {
-                            File.Copy(file, destinationPath, true);
-                            count++;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log($"复制失败: {file}, 错误: {ex.Message}");
-                        }
+                    try
+                    {
+                        File.Copy(file, destinationPath, true);
+                        count++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log($"复制失败: {file}, 错误: {ex.Message}");
                     }
                 }
+                
             }
             if (count > 0)
             {

@@ -162,11 +162,11 @@ namespace Ra2Client.Domain.Multiplayer
                 }
             }
 
-            if (UserINISettings.Instance.RenderPreviewImage.Value)
-                Task.Run(() =>
-                {
+            //if (UserINISettings.Instance.RenderPreviewImage.Value)
+            //    Task.Run(() =>
+            //    {
                     _ = RenderImage.RenderImagesAsync();
-                });
+            //    });
 
         }
 

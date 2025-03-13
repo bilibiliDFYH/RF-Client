@@ -223,9 +223,6 @@ namespace Ra2Client.Domain.Multiplayer
         [JsonInclude]
         public string Mission = string.Empty;
 
-        [JsonInclude]
-        public bool UseExtension;
-
         public int Money = 0;
 
         public static readonly string ANNOTATION = "" +
@@ -319,8 +316,10 @@ namespace Ra2Client.Domain.Multiplayer
                     PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.jpg"));
                 else 
                     {
-                    if (!File.Exists($"{sectionName}.png"))
+                    if (!File.Exists($"{sectionName}.png") && UserINISettings.Instance.RenderPreviewImage.Value)
+                    {
                         RenderImage.需要渲染的地图列表.Add(BaseFilePath);
+                    }
                     PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
                     }
                     
@@ -336,7 +335,7 @@ namespace Ra2Client.Domain.Multiplayer
                 if (Author == string.Empty)
                 {
                     // 尝试从其他地方获取作者信息
-                    Author = GetMapIni(BaseFilePath).GetValue("Basic", "Author", "佚名");
+                    Author = GetMapIni(BaseFilePath).GetValue("Basic", "Author", "佚名"); 
 
                     if (Author == "佚名")
                     {
@@ -352,8 +351,6 @@ namespace Ra2Client.Domain.Multiplayer
                     // 保存作者信息
                     section.SetValue("Author", Author);
                 }
-
-
 
                 GameModes = section.GetStringValue("GameModes", "常规作战").Split(',');
                 Mission = section.GetStringValue("Mission", string.Empty);

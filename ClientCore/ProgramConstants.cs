@@ -18,7 +18,7 @@ namespace ClientCore
 
         public static readonly string StartupPath = SafePath.CombineDirectoryPath(new FileInfo(StartupExecutable).Directory.FullName);
 
-        public static readonly string 游戏目录 = Path.Combine(Path.GetTempPath(),"RA2_RF");
+        public static readonly string 游戏目录 = Path.Combine(SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName), "Run");
 
         public static readonly List<int> Version_24H2 = [26100, 26120];
 
@@ -175,53 +175,7 @@ namespace ClientCore
         {
             try
             {
-                //string[] mixFile = ["ra2.mix", "ra2md.mix", "thememd.mix", "language.mix", "langmd.mix", "RF.mix"];
-
-                //string[] iniFile = ["RA2MD.ini", "ddraw.ini", "KeyboardMD.ini","spawnmap.ini"];
-
-                //WindowManager.progress.Report("正在清理MIX文件...");
-                //foreach (var mix in Directory.GetFiles(GamePath, "*.mix"))
-                //{
-                //    if (!Array.Exists(mixFile, file => file.Equals(Path.GetFileName(mix), StringComparison.OrdinalIgnoreCase)))
-                //        File.Delete(mix);
-                //}
-
-                //WindowManager.progress.Report("正在清理INI文件...");
-                //foreach (var ini in Directory.GetFiles(GamePath, "*.ini"))
-                //{
-                //    if (!Array.Exists(iniFile, file => file.Equals(Path.GetFileName(ini), StringComparison.OrdinalIgnoreCase)))
-                //        File.Delete(ini);
-                //}
-
-                //WindowManager.progress.Report("正在清理SHP文件...");
-                //foreach (var shp in Directory.GetFiles(GamePath, "*.shp"))
-                //{
-                //    File.Delete(shp);
-                //}
-
-                //WindowManager.progress.Report("正在清理PAL文件...");
-                //foreach (var pal in Directory.GetFiles(GamePath, "*.pal"))
-                //{
-                //    File.Delete(pal);
-                //}
-
-                //WindowManager.progress.Report("正在清理CSF文件...");
-                //foreach (var pal in Directory.GetFiles(GamePath, "*.csf"))
-                //{
-                //    File.Delete(pal);
-                //}
-
-                //WindowManager.progress.Report("正在清理其他文件...");
-                //File.Delete("phobos.dll");
-                //File.Delete("Ares.dll");
-                //File.Delete("Mars.dll");
-                //File.Delete("game.fnt");
-                //File.Delete("Syringe.exe");
-                //File.Delete("gamemd.exe");
-
                 FileHelper.ForceDeleteDirectory(游戏目录);
-
-       
 
                 return true;
             }

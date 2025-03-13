@@ -397,8 +397,8 @@ namespace ClientGUI
                             , true);
                     }
 
-                    //if(Directory.Exists("TX"))
-                    //    FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
+                    if(Directory.Exists("TX"))
+                        FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
                     if(Directory.Exists("zh"))
                         FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
 

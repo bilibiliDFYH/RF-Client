@@ -479,11 +479,11 @@ public class ModManager : XNAWindow
         ReLoad();
 
         //渲染预览图
-        if (UserINISettings.Instance.RenderPreviewImage.Value)
+       // if (UserINISettings.Instance.RenderPreviewImage.Value)
             Task.Run(async () =>
             {
-                await RenderPreviewImageAsync(mapFiles.ToArray());
-            });
+                _ = RenderImage.RenderPreviewImageAsync(mapFiles.ToArray());
+           });
 
         触发刷新?.Invoke();
     }
@@ -1054,22 +1054,11 @@ public class ModManager : XNAWindow
             if (rander)
             {
                 string[] mapFiles = Directory.GetFiles(missionPack.FilePath, "*.map");
-                await RenderPreviewImageAsync(mapFiles);
+                await RenderImage.RenderPreviewImageAsync(mapFiles);
             }
             ReLoad(); //重新载入
             触发刷新?.Invoke();
         };
-    }
-
-    private async Task RenderPreviewImageAsync(string[] mapFiles)
-    {
-
-        if (mapFiles.Length == 0) return;
-
-
-        RenderImage.需要渲染的地图列表.InsertRange(0, mapFiles);
-        RenderImage.CancelRendering();
-        _ = RenderImage.RenderImagesAsync();
     }
 
     private void BtnNew_LeftClick(object sender, EventArgs e)

@@ -1,9 +1,11 @@
 ﻿
+using ClientCore;
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 
 namespace DTAConfig.Entity;
@@ -63,7 +65,15 @@ public class MissionPack : InfoBaseClass
         YR = iniFile.GetValue(ID, "YR", true);
         //  Author = iniFile.GetValue(ID, "Author", string.Empty);
         BuildOffAlly = iniFile.GetValue(ID, nameof(BuildOffAlly), false);
+        
+            if(UserINISettings.Instance.RenderPreviewImage.Value)
+        foreach(var map in Directory.GetFiles(FilePath,"*.map"))
+        {
+            var png = Path.GetFileNameWithoutExtension(map) + ".png";
+            if(File.Exists(Path.Combine(FilePath, png))) continue;
+                RenderImage.需要渲染的地图列表.Add(map);
 
+        }
     }
 
     public static void reLoad()
@@ -87,7 +97,12 @@ public class MissionPack : InfoBaseClass
                 var m = (MissionPack)Init(ini, missionPackID, missionPack);
                 MissionPacks.Add(m);
             }
-        } 
+        }
+
+        Task.Run(() =>
+        {
+            _ = RenderImage.RenderImagesAsync();
+        });
     }
 
     public bool BuildOffAlly { get; set; }

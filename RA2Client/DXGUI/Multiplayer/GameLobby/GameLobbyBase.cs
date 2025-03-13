@@ -1950,7 +1950,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             string newGame = mod.FilePath;
             
 
-            string newExtension = string.Empty;
+           // string newExtension = string.Empty;
 
             string newMission = Map.Mission;
 
@@ -2258,8 +2258,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
                 mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
 
-
-            IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
+            if(Name == "SkirmishLobby")
+                IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
 
             #region 限制AI建造超级武器
             var chkAILimit = CheckBoxes.Find(chk => chk.Name == "chkAILimit");

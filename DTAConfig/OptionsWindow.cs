@@ -266,6 +266,7 @@ namespace DTAConfig
                     restartRequired = panel.Save() || restartRequired;
                 }
                 UserINISettings.Instance.SaveSettings();
+                ProgramConstants.清理缓存();
             }
             catch (Exception ex)
             {

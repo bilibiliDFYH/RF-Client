@@ -31,6 +31,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         public override void Initialize()
         {
+            Name = "SkirmishLobby";
             base.Initialize();
 
             RandomSeed = new Random().Next();

@@ -84,6 +84,8 @@ namespace ClientCore
         // 渲染多张图片的方法
         public static async Task RenderImagesAsync()
         {
+            if(需要渲染的地图列表.Count == 0) return;
+
             cts = new CancellationTokenSource();
             pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
@@ -132,6 +134,16 @@ namespace ClientCore
             }
         }
 
+        public static async Task RenderPreviewImageAsync(string[] mapFiles)
+        {
+
+            if (mapFiles.Length == 0) return;
+
+            if (!UserINISettings.Instance.RenderPreviewImage.Value) return;
+            需要渲染的地图列表.InsertRange(0, mapFiles);
+            CancelRendering();
+            _ = RenderImagesAsync();
+        }
         public static void PauseRendering()
         {
             pauseEvent.Reset(); // 暂停

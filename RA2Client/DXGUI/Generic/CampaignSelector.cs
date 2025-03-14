@@ -487,6 +487,7 @@ namespace Ra2Client.DXGUI.Generic
 
             string missionName = _screenMissions[_lbxCampaignList.SelectedIndex].SectionName;
             var missionPack = _screenMissions[_lbxCampaignList.SelectedIndex].MPack.Name;
+            var brief = _screenMissions[_lbxCampaignList.SelectedIndex].GUIDescription;
             var ini = new IniFile(ProgramConstants.GamePath + SETTINGS_PATH);
             if (!ini.SectionExists(missionName))
                 ini.AddSection(missionName);
@@ -498,7 +499,7 @@ namespace Ra2Client.DXGUI.Generic
             {
                _ = Task.Run(async() =>
                 {
-                    await UploadScore(missionName, missionPack, _scoreLevel);
+                    await UploadScore(missionName, missionPack, brief, _scoreLevel);
 
                     ini.SetValue(missionName, "Mark", _scoreLevel);
                     ini.WriteIniFile();
@@ -848,13 +849,14 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private async Task UploadScore(string strName,string missionPack, int strScore)
+        private async Task UploadScore(string strName,string missionPack,string brief, int strScore)
         {
 
             var score = new ClientCore.Entity.Score()
             {
                 missionPack = missionPack,
                 name = strName,
+                brief = brief,
                 score = strScore,
                 total = 1
             };

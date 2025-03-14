@@ -305,7 +305,7 @@ namespace ClientGUI
 
                 var mission = spawn.GetValue("Settings", "Mission", string.Empty);
 
-                var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
+               // var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
                 // 找到在 newSaves 中但不在 oldSaves 中的文件
                 var addedFiles = newSaves.Where(newFile => !oldSaves.Contains(newFile)).ToArray();
 
@@ -403,10 +403,10 @@ namespace ClientGUI
                         FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
 
 
-                    File.Copy("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
-                    File.Copy("cncnet5.dll", Path.Combine(ProgramConstants.游戏目录, "cncnet5.dll"), true);
+                    FileHelper.CopyFile("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
+                    FileHelper.CopyFile("cncnet5.dll", Path.Combine(ProgramConstants.游戏目录, "cncnet5.dll"), true);
                     // 加载模组
-                    FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录);
+                    FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录,killProcesses:true);
 
                     void 复制CSF(string path,string tag,List<string> excludes)
                     {

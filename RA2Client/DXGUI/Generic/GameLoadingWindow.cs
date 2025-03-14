@@ -130,17 +130,19 @@ namespace Ra2Client.DXGUI.Generic
 
             var saveIni = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
 
-            var newMain = saveIni.GetValue(sg.FileName, "Main", string.Empty);
             var newGame = saveIni.GetValue(sg.FileName, "Game", string.Empty);
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);
 
-            bool 加载音乐 = true;
+            if(!Directory.Exists(newGame) || !Directory.Exists(newMission))
+            {
+                XNAMessageBox.Show(WindowManager,"错误","任务包文件或模组文件已被删除，无法加载存档。");
+                return;
+            }
 
             var spawnIni = new IniFile();
 
             var settings = new IniSection("Settings");
 
-            settings.SetValue("Main", newMain);
             //写入新游戏
             settings.SetValue("Game", newGame);
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,34 @@ namespace ClientCore
 {
     public static class FileHelper
     {
-        public static void CopyDirectory(string sourceDirPath, string saveDirPath, List<string> ignoreExtensions = null)
+        public static void CopyFile(string sourceFilePath, string saveFilePath, bool killProcesses = false)
+        {
+            if (File.Exists(sourceFilePath))
+            {
+                // 如果需要解除进程占用，先调用 KillProcessUsingFile
+                if (killProcesses)
+                {
+                    KillProcessUsingFile(sourceFilePath);
+                }
+
+                // 复制文件
+                try
+                {
+                    File.Copy(sourceFilePath, saveFilePath, true);
+                    Console.WriteLine($"File copied successfully from {sourceFilePath} to {saveFilePath}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error copying file: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Source file does not exist: {sourceFilePath}");
+            }
+        }
+
+        public static void CopyDirectory(string sourceDirPath, string saveDirPath, List<string> ignoreExtensions = null, bool killProcesses = false)
         {
             // 如果未传入 ignoreExtensions，则默认为空列表
             ignoreExtensions ??= new List<string>();
@@ -43,6 +71,14 @@ namespace ClientCore
                     }
 
                     string pFilePath = Path.Combine(saveDirPath, Path.GetFileName(file));
+
+                    // 如果需要解除进程占用，先调用 KillProcessUsingFile
+                    if (killProcesses)
+                    {
+                        KillProcessUsingFile(file);
+                    }
+
+                    // 复制文件
                     File.Copy(file, pFilePath, true);
                 }
 
@@ -51,7 +87,7 @@ namespace ClientCore
                 foreach (string directory in directories)
                 {
                     string pDirPath = Path.Combine(saveDirPath, Path.GetFileName(directory));
-                    CopyDirectory(directory, pDirPath, ignoreExtensions);
+                    CopyDirectory(directory, pDirPath, ignoreExtensions, killProcesses);
                 }
             }
         }
@@ -124,6 +160,69 @@ namespace ClientCore
                 {
                     File.Move(ini, $"{ProgramConstants.GamePath}Client/{tag2}{fileName}",true);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 查找并杀死占用该文件的进程
+        /// </summary>
+        private static void KillProcessUsingFile(string filePath)
+        {
+            try
+            {
+                // 使用 cmd 的 tasklist 命令查找占用文件的进程
+                string taskKillCommand = $"tasklist /fi \"imagename eq {filePath}\"";
+
+                Process process = new Process();
+                process.StartInfo.FileName = "cmd.exe";
+                process.StartInfo.Arguments = $"/c {taskKillCommand}";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+
+                // 输出结果并处理，找出占用该文件的进程ID
+                if (output.Contains(filePath))
+                {
+                    string[] lines = output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains(filePath))
+                        {
+                            string[] parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                            string pid = parts[1]; // 提取 PID
+                            KillProcessById(pid);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 通过 PID 杀死进程
+        /// </summary>
+        private static void KillProcessById(string pid)
+        {
+            try
+            {
+                Process killProcess = new Process();
+                killProcess.StartInfo.FileName = "cmd.exe";
+                killProcess.StartInfo.Arguments = $"/c taskkill /pid {pid} /f"; // /f 强制杀死进程
+                killProcess.StartInfo.UseShellExecute = false;
+                killProcess.StartInfo.CreateNoWindow = true;
+                killProcess.Start();
+                killProcess.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error killing process: {ex.Message}");
             }
         }
     }

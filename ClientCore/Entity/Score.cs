@@ -10,7 +10,7 @@ namespace ClientCore.Entity
     {
         public string name { get; set; }
         public double score { get; set; }
-
+        public string brief { get; set; }
         public string missionPack { get; set; }
         public int total { get; set; }
     }

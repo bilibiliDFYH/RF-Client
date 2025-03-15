@@ -514,7 +514,8 @@ public class ModManager : XNAWindow
             YR = isYR,
             Other = true,
             LongDescription = Path.GetFileName(missionPath),
-            Mod = isYR ? "YR" : "RA2"
+            Mod = isYR ? "YR" : "RA2",
+            DefaultMod = isYR ? "YR+" : "RA2+"
         };
 
         missionPack.DefaultMod = missionPack.Mod;

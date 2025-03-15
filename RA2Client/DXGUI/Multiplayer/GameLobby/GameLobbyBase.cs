@@ -1273,7 +1273,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             // if(GameModeMap != null)
             ChangeMap(GameModeMap);
 
-            CmbGame_SelectedChanged(cmbGame, null);
+            //CmbGame_SelectedChanged(cmbGame, null);
             //},token);
         }
 
@@ -2781,6 +2781,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <param name="gameModeMap">The new game mode map.</param>
         protected virtual void ChangeMap(GameModeMap gameModeMap)
         {
+            CmbGame_SelectedChanged(null, null);
+
             GameModeMap = gameModeMap;
 
             if (GameMode == null || Map == null)
@@ -2931,7 +2933,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             PlayerExtraOptionsPanel?.UpdateForMap(Map);
 
-            CmbGame_SelectedChanged(null, null);
+            
         }
 
         private void ApplyForcedCheckBoxOptions(List<GameLobbyCheckBox> optionList,

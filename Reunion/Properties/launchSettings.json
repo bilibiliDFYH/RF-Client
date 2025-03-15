@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Reunion": {
-      "commandName": "Project",
-      "commandLineArgs": "-NOLOGO"
-    }
-  }
-}

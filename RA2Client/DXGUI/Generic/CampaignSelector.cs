@@ -326,7 +326,9 @@ namespace Ra2Client.DXGUI.Generic
             var lblalter = new XNALabel(WindowManager);
             lblalter.Text = "这个任务有以下改动: ";
 
-            
+            timer = new System.Windows.Forms.Timer();
+            timer.Interval = 延迟时间; // 延迟 500ms
+            timer.Tick += Timer_Tick;
 
             AddChild(lblSelectCampaign);
             AddChild(lblMissionDescriptionHeader);
@@ -487,7 +489,7 @@ namespace Ra2Client.DXGUI.Generic
 
             string missionName = _screenMissions[_lbxCampaignList.SelectedIndex].SectionName;
             var missionPack = _screenMissions[_lbxCampaignList.SelectedIndex].MPack.Name;
-            var brief = _screenMissions[_lbxCampaignList.SelectedIndex].GUIDescription;
+            var brief = _screenMissions[_lbxCampaignList.SelectedIndex].GUIName;
             var ini = new IniFile(ProgramConstants.GamePath + SETTINGS_PATH);
             if (!ini.SectionExists(missionName))
                 ini.AddSection(missionName);
@@ -528,7 +530,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
-            Task.Run(() => { GetMissionInfo(true); });
+           GetMissionInfo(true);
 
             //Mod mod = ((Mod)_cmbGame.SelectedItem.Tag);
 
@@ -890,155 +892,200 @@ namespace Ra2Client.DXGUI.Generic
 
         private string 上次选择的任务包ID = string.Empty;
 
-        private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
+        private bool isUpdating = false;
+        private System.Windows.Forms.Timer timer;
+        private int 延迟时间 = 300;
+        private DateTime lastActionTime = DateTime.MinValue;
+
+        private void Timer_Tick(object sender, EventArgs e)
         {
+            timer.Stop();
+            ExecuteUpdate(); // 定时触发
+        }
 
-            _tbMissionDescriptionList.Clear();
+        private void ExecuteUpdate()
+        {
+            if (isUpdating) return;
 
-            if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
+            try
             {
+                isUpdating = true;
 
-                _btnLaunch.AllowClick = false;
-                return;
-            }
-
-            Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
-
-
-            // 如果不是任务
-            if (string.IsNullOrEmpty(mission.Scenario) || !mission.Enabled)
-            {
-                _btnLaunch.AllowClick = false;
-                return;
-            }
-
-            _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
-
-            var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
-
-            _cmbGame.Items.Clear();
-
-            if (null == mission.Mod)
-                return;
-
-
-            if (mission.Mod.Count != 0) //如果任务指定了Mod
-            {
-                foreach (var item in mission.Mod)
+                if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count)
                 {
 
-                    Mod mod = Mod.Mods.Find(i => i.ID == item && i.CpVisible);
-                    if (mod != null)
+                    _btnLaunch.AllowClick = false;
+                    return;
+                }
+
+                Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
+
+
+                // 如果不是任务
+                if (string.IsNullOrEmpty(mission.Scenario) || !mission.Enabled)
+                {
+                    _btnLaunch.AllowClick = false;
+                    return;
+                }
+
+                _cmbGame.SelectedIndexChanged -= CmbGame_SelectedChanged;
+
+                var oldModID = (_cmbGame.SelectedItem?.Tag as Mod)?.ID;
+
+                _cmbGame.Items.Clear();
+
+                if (null == mission.Mod)
+                    return;
+
+
+                if (mission.Mod.Count != 0) //如果任务指定了Mod
+                {
+                    foreach (var item in mission.Mod)
+                    {
+
+                        Mod mod = Mod.Mods.Find(i => i.ID == item && i.CpVisible);
+                        if (mod != null)
+                            _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
+                    }
+                }
+                else
+                {
+                    foreach (var mod in Mod.Mods.Where(mod => mod.CpVisible))
+                    {
                         _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
+                    }
                 }
-            }
-            else
-            {
-                foreach (var mod in Mod.Mods.Where(mod => mod.CpVisible))
-                {
-                    _cmbGame.AddItem(new XNADropDownItem() { Text = mod.Name, Tag = mod });
-                }
-            }
 
-            if (上次选择的任务包ID == mission?.MPack?.ID)
-                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == oldModID);
-            else
-                _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == mission.DefaultMod);
+                if (上次选择的任务包ID == mission?.MPack?.ID)
+                    _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == oldModID);
+                else
+                    _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == mission.DefaultMod);
 
-            上次选择的任务包ID = mission?.MPack?.ID ?? string.Empty;
+                上次选择的任务包ID = mission?.MPack?.ID ?? string.Empty;
 
-            if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
-                _cmbGame.SelectedIndex = 0;
+                if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
+                    _cmbGame.SelectedIndex = 0;
 
-            CmbGame_SelectedChanged(null, null);
+                CmbGame_SelectedChanged(null, null);
 
-            _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
+                _cmbGame.SelectedIndexChanged += CmbGame_SelectedChanged;
 
-            _ = Task.Run(async () =>
-            {
-                 // 如果地图文件存在
-                _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));
-
-                _mapPreviewBox.Visible = false;
-
-                //重新加载Mod选择器
-
-                _btnLaunch.AllowClick = true;
+                _tbMissionDescriptionList.Clear();
+                SetDescriptionList(mission.GUIDescription);
 
                 if ((_cmbGame.SelectedItem?.Tag as Mod)?.ID != oldModID)
                     CmbGame_SelectedChanged(null, null);
                 else//获取任务解析
                     GetMissionInfo(false);
-
-                if (!string.IsNullOrEmpty(mission.Scenario))
+                _ = Task.Run(async () =>
                 {
-                    string img = Path.Combine(ProgramConstants.GamePath, mission.Path,
-                        mission.Scenario[..mission.Scenario.LastIndexOf('.')] + ".png");
-                    if (File.Exists(img))
+                    // 如果地图文件存在
+                    _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));
+
+                    _mapPreviewBox.Visible = false;
+
+                    //重新加载Mod选择器
+
+                    _btnLaunch.AllowClick = true;
+
+                    
+
+                    if (!string.IsNullOrEmpty(mission.Scenario))
                     {
-                        // 加载图像
-                        var originalImage = System.Drawing.Image.FromFile(img);
-
-                        // 获取图像的宽高比例
-                        float imageAspectRatio = (float)originalImage.Width / originalImage.Height;
-
-                        // 设置预览框的大小为设计时的大小
-                        float boxWidth = MapPreviewBoxPosition.Width;
-                        float boxHeight = MapPreviewBoxPosition.Height;
-
-                        // 计算预览框的宽高比例
-                        float boxAspectRatio = boxWidth / boxHeight;
-
-                        // 如果图像的宽高比例大于预览框的宽高比例，则以预览框的宽度为基准调整高度
-                        if (imageAspectRatio > boxAspectRatio)
+                        string img = Path.Combine(ProgramConstants.GamePath, mission.Path,
+                            mission.Scenario[..mission.Scenario.LastIndexOf('.')] + ".png");
+                        if (File.Exists(img))
                         {
-                            boxHeight = boxWidth / imageAspectRatio;
+                            // 加载图像
+                            var originalImage = System.Drawing.Image.FromFile(img);
+
+                            // 获取图像的宽高比例
+                            float imageAspectRatio = (float)originalImage.Width / originalImage.Height;
+
+                            // 设置预览框的大小为设计时的大小
+                            float boxWidth = MapPreviewBoxPosition.Width;
+                            float boxHeight = MapPreviewBoxPosition.Height;
+
+                            // 计算预览框的宽高比例
+                            float boxAspectRatio = boxWidth / boxHeight;
+
+                            // 如果图像的宽高比例大于预览框的宽高比例，则以预览框的宽度为基准调整高度
+                            if (imageAspectRatio > boxAspectRatio)
+                            {
+                                boxHeight = boxWidth / imageAspectRatio;
+                            }
+                            // 如果图像的宽高比例小于预览框的宽高比例，则以预览框的高度为基准调整宽度
+                            else
+                            {
+                                boxWidth = boxHeight * imageAspectRatio;
+                            }
+
+                            // 计算预览框的位置
+                            int x = MapPreviewBoxPosition.Left + (MapPreviewBoxPosition.Width - (int)boxWidth) / 2;
+                            int y = MapPreviewBoxPosition.Top + (MapPreviewBoxPosition.Height - (int)boxHeight) / 2;
+
+                            // 设置预览框的大小
+
+
+                            MapPreviewBoxAspectPosition = new Rectangle(x, y, (int)boxWidth, (int)boxHeight);
+
+                            _mapPreviewBox.ClientRectangle = MapPreviewBoxAspectPosition;
+
+                            // 将图像设置为预览框的纹理
+                            _mapPreviewBox.IdleTexture = AssetLoader.LoadTexture(img);
+
+                            // 设置预览框可见
+                            _mapPreviewBox.Visible = true;
                         }
-                        // 如果图像的宽高比例小于预览框的宽高比例，则以预览框的高度为基准调整宽度
-                        else
-                        {
-                            boxWidth = boxHeight * imageAspectRatio;
-                        }
-
-                        // 计算预览框的位置
-                        int x = MapPreviewBoxPosition.Left + (MapPreviewBoxPosition.Width - (int)boxWidth) / 2;
-                        int y = MapPreviewBoxPosition.Top + (MapPreviewBoxPosition.Height - (int)boxHeight) / 2;
-
-                        // 设置预览框的大小
 
 
-                        MapPreviewBoxAspectPosition = new Rectangle(x, y, (int)boxWidth, (int)boxHeight);
-
-                        _mapPreviewBox.ClientRectangle = MapPreviewBoxAspectPosition;
-
-                        // 将图像设置为预览框的纹理
-                        _mapPreviewBox.IdleTexture = AssetLoader.LoadTexture(img);
-
-                        // 设置预览框可见
-                        _mapPreviewBox.Visible = true;
                     }
 
-
-                }
-
-                if (!mission.Other)
-                {
-                    await updateMark(mission.SectionName).ConfigureAwait(false);
-                    if (!_ratingBox.Visible)
+                    if (!mission.Other)
                     {
-                        _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = true;
+                        await updateMark(mission.SectionName).ConfigureAwait(false);
+                        if (!_ratingBox.Visible)
+                        {
+                            _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = true;
+                        }
                     }
-                }
-                else
-                {
-                    if (_ratingBox.Visible)
-                        _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = false;
-                }
+                    else
+                    {
+                        if (_ratingBox.Visible)
+                            _lblRatingResult.Visible = _ratingBox.Visible = _btnRatingDone.Visible = false;
+                    }
+                });
+            }
+            finally
+            {
+                isUpdating = false;
+            }
+        }
 
-                SetDescriptionList(mission.GUIDescription);
+        private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
+        {
 
-            });
-          
+
+            if (isUpdating) return;
+
+            // 计算与上次触发时间的间隔
+            var now = DateTime.Now;
+            var timeSinceLastAction = (now - lastActionTime).TotalMilliseconds;
+
+            if (timeSinceLastAction < 延迟时间)
+            {
+                // 如果间隔小于 500ms，重置 Timer 进行延迟触发
+                timer.Stop();
+                timer.Start();
+            }
+            else
+            {
+                // 直接触发
+                ExecuteUpdate();
+            }
+
+            lastActionTime = now;
+
         }
 
         private void BtnCancel_LeftClick(object sender, EventArgs e)

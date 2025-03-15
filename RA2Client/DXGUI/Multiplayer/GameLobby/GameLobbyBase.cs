@@ -30,6 +30,7 @@ using System.Collections;
 using System.Threading;
 using SharpDX.Direct3D9;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using System.Drawing.Drawing2D;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -477,7 +478,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void 导入地图(string[] files)
         {
-            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetDirectoryName(files[0]));
+            var targetFolder = Path.Combine(ProgramConstants.GamePath, "Maps\\Multi", Path.GetFileName(Path.GetDirectoryName(files[0])));
 
             if (!Directory.Exists(targetFolder)) Directory.CreateDirectory(targetFolder);
 
@@ -519,7 +520,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 刷新地图列表();
             }
             else
-                XNAMessageBox.Show(WindowManager, "信息", "没有找到符合条件的地图:\nmap,yrm,mpr格式的多人地图.");
+                XNAMessageBox.Show(WindowManager, "信息", "没有找到符合条件的地图或已在地图库中:\nmap,yrm,mpr格式的多人地图.");
         }
 
         private void 打开地图位置()

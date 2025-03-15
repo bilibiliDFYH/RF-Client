@@ -694,6 +694,7 @@ public class ModManager : XNAWindow
         "ai",
         "ra2",
         "spawn",
+        "mpmaps",
         "spawnmap",
         "mpbattle",
         "keyboard",
@@ -733,7 +734,7 @@ public class ModManager : XNAWindow
     {
         if (!Directory.Exists(path)) return false;
 
-        var maps = Directory.GetFiles(path, "*.map").Count(map => FunExtensions.是否为多人图(map));
+        var maps = Directory.GetFiles(path, "*.map").Count(map => !FunExtensions.是否为多人图(map));
         var mixs = Directory.GetFiles(path, "*.mix").Length;
 
         return maps + mixs != 0;

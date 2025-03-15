@@ -1,50 +1,58 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
-    <LangVersion>13.0</LangVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F7E8F566-7354-4EB9-BD57-E123BA92C0A8}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <Title>Reunion</Title>
-    <Description>Launcher for Reunion Client</Description>
-    <Company></Company>
-    <Product>Reunion Client Launcher</Product>
-    <Copyright>Copyright © Snowy Studio 2022-2025</Copyright>
-    <Trademark>Snowy</Trademark>
-    <AssemblyName>Reunion</AssemblyName>
     <RootNamespace>Reunion</RootNamespace>
-    <Nullable>disable</Nullable>
-    <ComVisible>false</ComVisible>
-    <CLSCompliant>false</CLSCompliant>
-	  <UseWindowsForms>True</UseWindowsForms>
-    <AnalysisLevel>latest-all</AnalysisLevel>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <Platform>AnyCPU</Platform>
-    <ApplicationIcon>clienticon.ico</ApplicationIcon>
-    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyName>Reunion</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
-<PropertyGroup>
-  <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  <OutputPath>..\Bin\</OutputPath>
-  <PlatformTarget>x86</PlatformTarget>
-  <IsPublishable>False</IsPublishable>
-  <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-  <Prefer32Bit>True</Prefer32Bit>
-  <NoWarn>1701;1702;SA1101;</NoWarn>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-  <Prefer32Bit>True</Prefer32Bit>
-  <NoWarn>1701;1702;SA1101;</NoWarn>
-</PropertyGroup>
-<ItemGroup>
-  <Content Include="clienticon.ico" />
-</ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>clienticon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ZIP.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="clienticon.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

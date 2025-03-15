@@ -18,13 +18,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Localization", "Localizatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.XNAUI", "Rampastring.XNAUI\Rampastring.XNAUI.csproj", "{6D24CD76-1841-413C-B067-9D4929795DAA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Reunion", "Reunion\Reunion.csproj", "{3E3F724C-2CF6-4B56-8622-26C0765E4F4C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientUpdater", "ClientUpdater\ClientUpdater.csproj", "{D033D895-4A81-4F20-B24C-93FA240A1737}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.Tools", "Rampastring.Tools-2.0.6\Rampastring.Tools.csproj", "{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomMapGenerator", "RandomMapGenerator\RandomMapGenerator.csproj", "{551789CD-3FF6-4259-B2F1-551B1CC722DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunion", "Reunion\Reunion.csproj", "{F7E8F566-7354-4EB9-BD57-E123BA92C0A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,10 +56,6 @@ Global
 		{6D24CD76-1841-413C-B067-9D4929795DAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D24CD76-1841-413C-B067-9D4929795DAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D24CD76-1841-413C-B067-9D4929795DAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3E3F724C-2CF6-4B56-8622-26C0765E4F4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3E3F724C-2CF6-4B56-8622-26C0765E4F4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3E3F724C-2CF6-4B56-8622-26C0765E4F4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3E3F724C-2CF6-4B56-8622-26C0765E4F4C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D033D895-4A81-4F20-B24C-93FA240A1737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D033D895-4A81-4F20-B24C-93FA240A1737}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D033D895-4A81-4F20-B24C-93FA240A1737}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -72,6 +68,10 @@ Global
 		{551789CD-3FF6-4259-B2F1-551B1CC722DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{551789CD-3FF6-4259-B2F1-551B1CC722DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{551789CD-3FF6-4259-B2F1-551B1CC722DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7E8F566-7354-4EB9-BD57-E123BA92C0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7E8F566-7354-4EB9-BD57-E123BA92C0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7E8F566-7354-4EB9-BD57-E123BA92C0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7E8F566-7354-4EB9-BD57-E123BA92C0A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -352,7 +352,7 @@ namespace Ra2Client.DXGUI.Generic
             btnLoadGame.HoverTexture = AssetLoader.LoadTexture("MainMenu/loadmission_c.png");
             btnLoadGame.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnLoadGame.LeftClick += BtnLoadGame_LeftClick;
-            btnLoadGame.Text = "reLoad Game".L10N("UI:Main:LoadGame");
+            btnLoadGame.Text = "ReLoad Game".L10N("UI:Main:LoadGame");
             btnLoadGame.Tag = "载入存档";
 
             btnSkirmish = new XNAClientButton(WindowManager);
@@ -1069,7 +1069,8 @@ namespace Ra2Client.DXGUI.Generic
             CheckHostName();
             CheckForbiddenFiles();
             CheckPrivacyNotification();
-            CheckDDRAW();
+            if(Environment.OSVersion.Version.Major > 6)
+                CheckDDRAW();
             CheckYRPath();
             检查地编();
             检查根目录下是否有玩家放入的Mod或任务包或多人图();

@@ -76,7 +76,7 @@ public class MissionPack : InfoBaseClass
         }
     }
 
-    public static void reLoad()
+    public static void ReLoad()
     {
         MissionPacks.Clear();
         

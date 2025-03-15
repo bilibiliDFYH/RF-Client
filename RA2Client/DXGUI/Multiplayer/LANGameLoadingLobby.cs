@@ -607,7 +607,7 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         public override string GetSwitchName()
         {
-            return "reLoad Game".L10N("UI:Main:LoadGameSwitchName");
+            return "ReLoad Game".L10N("UI:Main:LoadGameSwitchName");
         }
 
         public override void Update(GameTime gameTime)

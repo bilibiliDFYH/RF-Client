@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using Microsoft.Win32;
+
 
 internal sealed class Program
 {
@@ -37,74 +39,74 @@ internal sealed class Program
 
         try
         {
-#if DEBUG
-            RunDialogTest();
-#else
+//#if DEBUG
+           // RunDialogTest();
+//#else
             RunDX();
-#endif
+//#endif
         }
         catch (Exception ex)
         {
-            AdvancedMessageBoxHelper.ShowOkMessageBox(ex.ToString(), "客户端启动异常", okText: "Exit");
+            _ = MessageBox.Show(ex.ToString(), "客户端启动异常");
             Environment.Exit(1);
         }
     }
 
-    private static void RunDialogTest()
-    {
-        var msgbox = new AdvancedMessageBox();
-        var model = (AdvancedMessageBoxViewModel)msgbox.DataContext;
-        model.Title = "客户端启动测试";
-        model.Message = "点击以下按钮测试错误效果：";
-        model.Commands = new ObservableCollection<CommandViewModel>()
-        {
-            new CommandViewModel()
-            {
-                Text = "显示不兼容GPU对话框",
-                Command = new RelayCommand(_ => ShowIncompatibleGPUMessage(new[] { "打开链接 (所有按钮均不工作)", "启动 DirectX11 版本", "退出" })),
-            },
+    //private static void RunDialogTest()
+    //{
+    //    var msgbox = new AdvancedMessageBox();
+    //    var model = (AdvancedMessageBoxViewModel)msgbox.DataContext;
+    //    model.Title = "客户端启动测试";
+    //    model.Message = "点击以下按钮测试错误效果：";
+    //    model.Commands = new ObservableCollection<CommandViewModel>()
+    //    {
+    //        new CommandViewModel()
+    //        {
+    //            Text = "显示不兼容GPU对话框",
+    //            Command = new RelayCommand(_ => ShowIncompatibleGPUMessage(new[] { "打开链接 (所有按钮均不工作)", "启动 DirectX11 版本", "退出" })),
+    //        },
 
-            new CommandViewModel()
-            {
-                Text = "显示丢失组件对话框",
-                Command = new RelayCommand(_ => ShowMissingComponent("组件名称", new Uri("https://www.yra2.com"))),
-            },
+    //        new CommandViewModel()
+    //        {
+    //            Text = "显示丢失组件对话框",
+    //            Command = new RelayCommand(_ => ShowMissingComponent("组件名称", new Uri("https://www.yra2.com"))),
+    //        },
 
-            new CommandViewModel()
-            {
-                Text = "抛出错误",
-                Command = new RelayCommand(_ => throw new Exception("异常消息")),
-            },
+    //        new CommandViewModel()
+    //        {
+    //            Text = "抛出错误",
+    //            Command = new RelayCommand(_ => throw new Exception("异常消息")),
+    //        },
 
-            new CommandViewModel()
-            {
-                Text = "正常启动客户端",
-                Command = new RelayCommand(_ => RunDX()),
-            },
+    //        new CommandViewModel()
+    //        {
+    //            Text = "正常启动客户端",
+    //            Command = new RelayCommand(_ => RunDX()),
+    //        },
 
-            new CommandViewModel()
-            {
-                Text = "退出",
-                Command = new RelayCommand(_ => msgbox.Close()),
-            },
-        };
-        msgbox.ShowDialog();
-    }
+    //        new CommandViewModel()
+    //        {
+    //            Text = "退出",
+    //            Command = new RelayCommand(_ => msgbox.Close()),
+    //        },
+    //    };
+    //    msgbox.ShowDialog();
+    //}
 
     private static void RunDX() => StartProcess(GetClientProcessPath("Ra2Client.dll"));
 
     private static string GetClientProcessPath(string file) => $"{Resources}\\{Binaries}\\{file}";
 
-    private static int? ShowIncompatibleGPUMessage(string[] selections)
-    {
-        return AdvancedMessageBoxHelper.ShowMessageBoxWithSelection(
-            string.Format(
-                "检测到您的图形卡与Reunion客户端的DirectX11版本不兼容\n" +
-                "您可以尝试启动客户端的DirectX11版本。\n" +
-                "我们对给您带来的不便表示歉意。"),
-            "不兼容信息",
-            selections);
-    }
+    //private static int? ShowIncompatibleGPUMessage(string[] selections)
+    //{
+    //    return AdvancedMessageBoxHelper.ShowMessageBoxWithSelection(
+    //        string.Format(
+    //            "检测到您的图形卡与Reunion客户端的DirectX11版本不兼容\n" +
+    //            "您可以尝试启动客户端的DirectX11版本。\n" +
+    //            "我们对给您带来的不便表示歉意。"),
+    //        "不兼容信息",
+    //        selections);
+    //}
 
     private static void StartProcess(string relPath, bool run32Bit = false, bool runDesktop = true)
     {
@@ -117,7 +119,7 @@ internal sealed class Program
 
             if (!File.Exists(absPath))
             {
-                AdvancedMessageBoxHelper.ShowOkMessageBox($"客户端入口 ({relPath}) 不存在!", "客户端启动异常", okText: "退出");
+                _ = MessageBox.Show($"客户端入口 ({relPath}) 不存在!", "客户端启动异常");
                 Environment.Exit(3);
             }
 
@@ -148,7 +150,7 @@ internal sealed class Program
         }
         catch (Exception ex)
         {
-            AdvancedMessageBoxHelper.ShowOkMessageBox($"启动客户端异常：{ex.Message}", "客户端启动异常", okText: "退出");
+            _ = MessageBox.Show($"启动客户端异常：{ex.Message}", "客户端启动异常");
             Environment.Exit(4);
         }
     }
@@ -197,17 +199,16 @@ internal sealed class Program
     }
 
     private static void ShowMissingComponent(string missingComponent, Uri downloadLink)
-    {
-        bool dialogResult = AdvancedMessageBoxHelper.ShowYesNoMessageBox(
+   {
+        _ = MessageBox.Show(
             string.Format(
             "运行时组件 \"{0}\" 缺失. \n" +
             "手动下载地址(推荐): https://alist.ru2023.top/.NET6 \n" +
             "手动下载地址(备用): https://alist.yra2.com/.NET6 \n\n" +
             "您也可以通过以下链接进行安装: \n{1}",
-            missingComponent, downloadLink.ToString()), "运行时组件缺失",
-            yesText: "打开下载链接(aka.ms)", noText: "退出");
-        if (dialogResult)
-            OpenUri(downloadLink);
+            missingComponent, downloadLink.ToString()), "运行时组件缺失");
+        
+            //OpenUri(downloadLink);
     }
 
     private static FileInfo? GetDotNetHost(Architecture architecture)

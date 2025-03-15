@@ -60,7 +60,7 @@ namespace Ra2Client.DXGUI.Generic
             btnLaunch = new XNAClientButton(WindowManager);
             btnLaunch.Name = nameof(btnLaunch);
             btnLaunch.ClientRectangle = new Rectangle(125, 345, 110, 23);
-            btnLaunch.Text = "reLoad".L10N("UI:Main:ButtonLoad");
+            btnLaunch.Text = "ReLoad".L10N("UI:Main:ButtonLoad");
             btnLaunch.AllowClick = false;
             btnLaunch.LeftClick += BtnLaunch_LeftClick;
 
@@ -130,7 +130,6 @@ namespace Ra2Client.DXGUI.Generic
 
             var saveIni = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
 
-            var newMain = saveIni.GetValue(sg.FileName, "Main", string.Empty);
             var newGame = saveIni.GetValue(sg.FileName, "Game", string.Empty);
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);
 
@@ -140,7 +139,6 @@ namespace Ra2Client.DXGUI.Generic
 
             var settings = new IniSection("Settings");
 
-            settings.SetValue("Main", newMain);
             //–¥»Î–¬”Œœ∑
             settings.SetValue("Game", newGame);
 

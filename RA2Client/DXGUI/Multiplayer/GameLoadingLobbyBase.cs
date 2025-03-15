@@ -85,7 +85,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             lblDescription = new XNALabel(WindowManager);
             lblDescription.Name = nameof(lblDescription);
             lblDescription.ClientRectangle = new Rectangle(12, 12, 0, 0);
-            lblDescription.Text = "Wait for all players to join and get ready, then click reLoad Game to load the saved multiplayer game.".L10N("UI:Main:LobbyInitialTip");
+            lblDescription.Text = "Wait for all players to join and get ready, then click ReLoad Game to load the saved multiplayer game.".L10N("UI:Main:LobbyInitialTip");
 
             panelPlayers = new XNAPanel(WindowManager);
             panelPlayers.ClientRectangle = new Rectangle(12, 32, 373, 125);
@@ -170,7 +170,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             btnLoadGame.Name = nameof(btnLoadGame);
             btnLoadGame.ClientRectangle = new Rectangle(lbChatMessages.X,
                 tbChatInput.Bottom + 6, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
-            btnLoadGame.Text = "reLoad Game".L10N("UI:Main:LoadGame");
+            btnLoadGame.Text = "ReLoad Game".L10N("UI:Main:LoadGame");
             btnLoadGame.LeftClick += BtnLoadGame_LeftClick;
 
             btnLeaveGame = new XNAClientButton(WindowManager);
@@ -396,7 +396,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             lbChatMessages.TopIndex = 0;
 
             ddSavedGame.AllowDropDown = isHost;
-            btnLoadGame.Text = isHost ? "reLoad Game".L10N("UI:Main:ButtonLoadGame") : "I'm Ready".L10N("UI:Main:ButtonGetReady");
+            btnLoadGame.Text = isHost ? "ReLoad Game".L10N("UI:Main:ButtonLoadGame") : "I'm Ready".L10N("UI:Main:ButtonGetReady");
 
             IniFile spawnSGIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "Saved Games", "spawnSG.ini"));
 

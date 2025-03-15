@@ -3,7 +3,6 @@
     <TargetFramework>net6.0-windows7.0</TargetFramework>
     <LangVersion>13.0</LangVersion>
     <OutputType>WinExe</OutputType>
-    <UseWPF>true</UseWPF>
     <Title>Reunion</Title>
     <Description>Launcher for Reunion Client</Description>
     <Company></Company>
@@ -15,6 +14,7 @@
     <Nullable>disable</Nullable>
     <ComVisible>false</ComVisible>
     <CLSCompliant>false</CLSCompliant>
+	  <UseWindowsForms>True</UseWindowsForms>
     <AnalysisLevel>latest-all</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <Platform>AnyCPU</Platform>
@@ -25,7 +25,7 @@
 <PropertyGroup>
   <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   <OutputPath>..\Bin\</OutputPath>
-  <PlatformTarget>AnyCPU</PlatformTarget>
+  <PlatformTarget>x86</PlatformTarget>
   <IsPublishable>False</IsPublishable>
   <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
 </PropertyGroup>
@@ -46,18 +46,5 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
 </Project>

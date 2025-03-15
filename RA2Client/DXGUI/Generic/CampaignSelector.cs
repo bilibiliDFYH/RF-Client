@@ -1154,19 +1154,11 @@ namespace Ra2Client.DXGUI.Generic
                     }
                     else
                     {
-                        //if (!_chkExtension.Checked)
-                        //{
-                        //    if (((Mod)_cmbGame.SelectedItem.Tag).md == string.Empty)
-                        //    {
-                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_ra2.ini"));
-                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_ra2.ini"));
-                        //    }
-                        //    else
-                        //    {
-                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/rules_repair_yr.ini"));
-                        //        IniFile.ConsolidateIniFiles(mapIni, new IniFile("Resources/repair_rules_yr.ini"));
-                        //    }
-                        //}
+
+                        if(!mapIni.SectionExists("Header"))
+                            mapIni.AddSection("Header");
+                        if(mapIni.GetValue("Header", "NumberStartingPoints",string.Empty) == string.Empty)
+                            mapIni.SetValue("Header", "NumberStartingPoints", 0);
 
                         if (!mapIni.SectionExists("General"))
                             mapIni.AddSection("General");
@@ -1360,8 +1352,9 @@ namespace Ra2Client.DXGUI.Generic
 
         public void ReadMissionList()
         {
-            MissionPack.reLoad();
-
+            Mod.ReLoad();
+            MissionPack.ReLoad();
+            
             _missions.Clear();
          
             _ddSide.SelectedIndexChanged -= DDDifficultySelectedIndexChanged;

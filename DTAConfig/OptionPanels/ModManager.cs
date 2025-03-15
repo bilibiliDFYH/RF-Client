@@ -213,7 +213,7 @@ public class ModManager : XNAWindow
         Enabled = false;
 
         //   EnabledChanged += ModManager_EnabledChanged;
-
+        //UserINISettings.Instance.重新加载地图和任务包 += 触发刷新;
         //DDModAI.SelectedIndex = 0;
         ReLoad();
 
@@ -1082,7 +1082,7 @@ public class ModManager : XNAWindow
     {
         Mod.ReLoad();
 
-        MissionPack.reLoad();
+        MissionPack.ReLoad();
 
         // listBoxModAI.Clear();
 

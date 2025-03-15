@@ -68,7 +68,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             btnLoadGame.IdleTexture = btnNewGame.IdleTexture;
             btnLoadGame.HoverTexture = btnNewGame.HoverTexture;
             btnLoadGame.FontIndex = 1;
-            btnLoadGame.Text = "reLoad Game".L10N("UI:Main:LoadGame");
+            btnLoadGame.Text = "ReLoad Game".L10N("UI:Main:LoadGame");
             btnLoadGame.HoverSoundEffect = btnNewGame.HoverSoundEffect;
             btnLoadGame.LeftClick += BtnLoadGame_LeftClick;
 

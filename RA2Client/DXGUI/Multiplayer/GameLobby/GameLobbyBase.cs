@@ -752,7 +752,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 loadOrSaveGameOptionPresetWindow.Disable();
                 var loadConfigMenuItem = new XNAContextMenuItem()
                 {
-                    Text = "reLoad".L10N("UI:Main:ButtonLoad"),
+                    Text = "ReLoad".L10N("UI:Main:ButtonLoad"),
                     SelectAction = () => loadOrSaveGameOptionPresetWindow.Show(true)
                 };
                 var saveConfigMenuItem = new XNAContextMenuItem()

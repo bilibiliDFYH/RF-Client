@@ -562,6 +562,9 @@ namespace Ra2Client.DXGUI.Generic
             //ini.SetValue("MissionPack", "[汉化]国外尤里任务—冰与火", "[汉化]国外尤里任务—冰与火");
             //ini.WriteIniFile();
 
+            var csf = new CSF("Run\\ra2md.csf").GetCsfDictionary();
+            Logger.Log("");
+
         }
 
         

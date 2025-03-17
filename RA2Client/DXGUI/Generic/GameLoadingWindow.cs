@@ -133,7 +133,7 @@ namespace Ra2Client.DXGUI.Generic
             var newGame = saveIni.GetValue(sg.FileName, "Game", string.Empty);
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);
 
-            if(!Directory.Exists(newGame) || !Directory.Exists(newMission))
+            if((newGame != string.Empty &&!Directory.Exists(newGame)) || (newMission != string.Empty && !Directory.Exists(newMission)))
             {
                 XNAMessageBox.Show(WindowManager,"错误","任务包文件或模组文件已被删除，无法加载存档。");
                 return;

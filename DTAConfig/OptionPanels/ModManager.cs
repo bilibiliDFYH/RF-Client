@@ -193,7 +193,7 @@ public class ModManager : XNAWindow
         };
         BtnNew.LeftClick += BtnNew_LeftClick;
         AddChild(BtnNew);
-
+        
         BtnDel = new XNAClientButton(WindowManager)
         {
             Visible = false,
@@ -231,7 +231,8 @@ public class ModManager : XNAWindow
         optionsWindow.tabControl.SelectedTab = 5;
         optionsWindow.componentsPanel.comboBoxtypes.SelectedIndex = selectIndex;
         Disable();
-        Detach();
+
+        //Detach();
     }
 
     private void 解压MIX()
@@ -1319,7 +1320,8 @@ public class ModManager : XNAWindow
     public static ModManager GetInstance(WindowManager windowManager)
     {
         if (_instance != null) return _instance;
-
+        
+        
         _instance = new ModManager(windowManager);
         _instance.Initialize();
         return _instance;

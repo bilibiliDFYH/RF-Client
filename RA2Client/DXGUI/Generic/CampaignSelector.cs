@@ -459,8 +459,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnDownLoad_LeftClick(object sender, EventArgs e)
         {
-            _modManager.DDModAI.SelectedIndex = 1;
-            _modManager.BtnDownload.OnLeftClick();
+            var _modManager = ModManager.GetInstance(WindowManager);
+            _modManager.打开创意工坊(2);
         }
 
         private void BtnImport_LeftClick(object sender, EventArgs e)
@@ -1304,9 +1304,8 @@ namespace Ra2Client.DXGUI.Generic
             //    settings.SetValue("Ra2Mode", mod.md != "md");
             //else//这里不知为何一定得写False，即使是用原版玩，用True会弹窗
                 settings.SetValue("Ra2Mode", false);
-
+            settings.SetValue("chkSatellite", CheckBoxes?.Find(chk => chk.Name == "chkSatellite")?.Checked ?? false);
             settings.SetValue("Scenario", mission.Scenario);
-
             settings.SetValue("CampaignID", mission.Index);
             settings.SetValue("IsSinglePlayer", true);
             settings.SetValue("SidebarHack", ClientConfiguration.Instance.SidebarHack);

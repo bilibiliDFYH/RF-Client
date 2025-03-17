@@ -92,37 +92,54 @@ namespace ClientCore
             }
         }
 
-        public static void ForceDeleteDirectory(string targetDir)
+        public static void ForceDeleteDirectory(string targetDir, bool forceKill = false)
         {
             if (!Directory.Exists(targetDir))
                 return;
 
-            // 移除文件的只读属性并删除文件
+            // 删除文件
             foreach (string file in Directory.GetFiles(targetDir))
             {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
+                try
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+                catch (IOException) when (forceKill)
+                {
+                    // 如果文件被占用，尝试终止相关进程
+                    KillProcessUsingFile(file);
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+                catch (UnauthorizedAccessException) when (forceKill)
+                {
+                    KillProcessUsingFile(file);
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
             }
 
-            // 递归处理子目录
+            // 递归删除子目录
             foreach (string dir in Directory.GetDirectories(targetDir))
             {
-                ForceDeleteDirectory(dir);
+                ForceDeleteDirectory(dir, forceKill);
             }
 
-            // 移除目录的只读属性并删除空目录
+            // 删除目录
             try
             {
                 Directory.Delete(targetDir, false);
             }
-            catch (IOException)
+            catch (IOException) when (forceKill)
             {
-                // 处理可能的异常，如目录非空（理论上不应发生）
+                KillProcessUsingFile(targetDir);
                 File.SetAttributes(targetDir, FileAttributes.Normal);
                 Directory.Delete(targetDir, false);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException) when (forceKill)
             {
+                KillProcessUsingFile(targetDir);
                 File.SetAttributes(targetDir, FileAttributes.Normal);
                 Directory.Delete(targetDir, false);
             }
@@ -223,6 +240,35 @@ namespace ClientCore
             catch (Exception ex)
             {
                 Console.WriteLine($"Error killing process: {ex.Message}");
+            }
+        }
+
+        public static void KillGameMdProcesses()
+        {
+            string[] processNames = { "gamemd", "gamemd-spawn" };
+
+            foreach (var processName in processNames)
+            {
+                try
+                {
+                    Process[] processes = Process.GetProcessesByName(processName);
+                    foreach (var process in processes)
+                    {
+                        Console.WriteLine($"Killing process {process.ProcessName} (PID: {process.Id})...");
+                        process.Kill(); // 强制终止进程
+                        process.WaitForExit(); // 等待进程退出
+                        Console.WriteLine($"Process {process.Id} terminated.");
+                    }
+
+                    if (processes.Length == 0)
+                    {
+                        Console.WriteLine($"No {processName}.exe process found.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to kill {processName}.exe: {ex.Message}");
+                }
             }
         }
     }

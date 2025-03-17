@@ -66,8 +66,16 @@ namespace ClientGUI
                     return;
                 }
 
+            if (settings.KeyExists("CampaignID") && settings.GetValue("chkSatellite", false))
+            {
+                FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
+            }
+            else
+            {
+                File.Delete(Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
+            }
 
-                spawnerSettingsFile.Delete();
+            spawnerSettingsFile.Delete();
                 iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
                 if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")) && !File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.ini")))
@@ -328,7 +336,7 @@ namespace ClientGUI
         public static string 加载模组文件(IniSection newSection)
         {
 
-
+            FileHelper.KillGameMdProcesses();
             string newGame = newSection.GetValue("Game", string.Empty);
             string newMission = newSection.GetValue("Mission", string.Empty);
 
@@ -383,7 +391,7 @@ namespace ClientGUI
                 try
                 {
                     if (Directory.Exists(ProgramConstants.游戏目录))
-                        FileHelper.ForceDeleteDirectory(ProgramConstants.游戏目录);
+                        FileHelper.ForceDeleteDirectory(ProgramConstants.游戏目录,true);
 
                     if (!ProgramConstants.判断目录是否为纯净尤复(UserINISettings.Instance.YRPath))
                     {
@@ -446,6 +454,10 @@ namespace ClientGUI
                     {
                         var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
                         FileHelper.CopyDirectory(战役临时目录, ProgramConstants.游戏目录);
+                        //if (newSection.GetValue("chkSatellite",false))
+                        //{
+                        //    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
+                        //}
                     }
 
                     FilePaths["Game"] = newGame;

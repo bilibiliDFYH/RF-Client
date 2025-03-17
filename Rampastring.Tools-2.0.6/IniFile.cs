@@ -859,14 +859,14 @@ public class IniFile : IIniFile
         return 1; // 无效字节，按单字节处理
     }
 
-    private static bool TryReadUtf8Char(byte[] bytes, ref int position, out byte[] b,out char result)
+    private static bool TryReadUtf8Char(byte[] bytes, ref int position, out int l, out char result)
     {
         result = '\0';
         int remaining = bytes.Length - position;
 
         if (remaining == 0)
         {
-            b = [];
+            l = 0;
             return false;
         }
 
@@ -876,21 +876,20 @@ public class IniFile : IIniFile
         // 检查是否有足够的字节
         if (remaining < charLength)
         {
-            b = [];
+            l = 0;
             return false;
         }
         try
         {
             // 解码字符
             result = Encoding.UTF8.GetString(bytes, position, charLength)[0];
-            b = bytes[position..(position + charLength)];
             position += charLength;
-            
+            l = charLength;
             return true;
         }
         catch
         {
-            b = [];
+            l = 0;
             return false;
         }
     }
@@ -915,10 +914,12 @@ public class IniFile : IIniFile
             position = 3;
         }
 
+        int i = 0;
+
         while (position < bytes.Length)
         {
             // 尝试解析当前字符
-            if (TryReadUtf8Char(bytes, ref position,out byte[] b, out char c))
+            if (TryReadUtf8Char(bytes, ref position, out int l,out char c))
             {
                 stringBuilder.Append(c);
 
@@ -932,38 +933,48 @@ public class IniFile : IIniFile
 
                     int commentStartIndex = currentLine.IndexOf(';');
                     if (commentStartIndex > -1)
-                        currentLine = currentLine.Substring(0, commentStartIndex);
+                        currentLine = currentLine.Substring(0, commentStartIndex).TrimEnd();
 
                     if (string.IsNullOrWhiteSpace(currentLine))
-                        continue;
-
-                    if (currentLine[0] == '[')
                     {
-                        int sectionNameEndIndex = currentLine.IndexOf(']');
-                        if (sectionNameEndIndex == -1)
-                            //throw new IniParseException("Invalid INI section definition: " + currentLine);
-                            continue;
-
-                        string sectionName = currentLine.Substring(1, sectionNameEndIndex - 1);
-                        int index = Sections.FindIndex(c => c.SectionName == sectionName);
-
-                        if (index > -1)
-                        {
-                            currentSectionId = index;
-                        }
-                        else if (AllowNewSections)
-                        {
-                            Sections.Add(new IniSection(sectionName));
-                            currentSectionId = Sections.Count - 1;
-                        }
-                        else
-                            currentSectionId = -1;
-
+                      //  i++;
                         continue;
                     }
 
+                    if (currentLine[0] == '[')
+                    {
+                        int sectionNameEndIndex = currentLine.LastIndexOf(']');
+                        if (sectionNameEndIndex == -1)
+                            //throw new IniParseException("Invalid INI section definition: " + currentLine);
+                            continue;
+                        if (sectionNameEndIndex == currentLine.Length - 1)
+                        {
+                            string sectionName = currentLine.Substring(1, sectionNameEndIndex - 1);
+                            int index = Sections.FindIndex(c => c.SectionName == sectionName);
+
+                            if (index > -1)
+                            {
+                                currentSectionId = index;
+                            }
+                            else if (AllowNewSections)
+                            {
+                                Sections.Add(new IniSection(sectionName));
+                                currentSectionId = Sections.Count - 1;
+                            }
+                            else
+                                currentSectionId = -1;
+
+                            continue;
+                        }
+                    }
+
                     if (currentSectionId == -1)
+                    {
+                        i += l;
+                        otherChar.AddRange(bytes[(position - i)..position]);
+                        i = 0;
                         continue;
+                    }
 
                     int equalsIndex = currentLine.IndexOf('=');
 
@@ -982,16 +993,21 @@ public class IniFile : IIniFile
 
                         Sections[currentSectionId].AddOrReplaceKey(currentLine.Substring(0, equalsIndex).Trim(),
                             value);
+
                     }
+                    
 
                 }
                 else
                 {
-                    otherChar.AddRange(b);
+                    i += l;
+                    Console.Write("");
+                   // otherChar.AddRange(b);
                 }
             }
             else
             {
+                i++;
                 // 无效字节：跳过 1 字节
                 position++;
             }

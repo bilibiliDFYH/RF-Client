@@ -9,6 +9,7 @@ namespace ClientGUI
     public class XNAClientDropDown : XNADropDown
     {
         public ToolTip ToolTip { get; set; }
+        private string _toolTipText { get; set; }
 
         public XNAClientDropDown(WindowManager windowManager) : base(windowManager)
         {
@@ -16,33 +17,40 @@ namespace ClientGUI
 
         private void CreateToolTip()
         {
-            if (ToolTip == null)
-                ToolTip = new ToolTip(WindowManager, this);
+            ToolTip ??= new ToolTip(WindowManager, this);
         }
 
         public override void Initialize()
         {
             ClickSoundEffect = new EnhancedSoundEffect("dropdown.wav");
 
-            CreateToolTip();
+            
 
             base.Initialize();
+            CreateToolTip();
+            SetToolTipText(_toolTipText);
         }
 
-      
+        public void SetToolTipText(string text)
+        {
+            _toolTipText = text ?? string.Empty;
+            if (ToolTip != null)
+                ToolTip.Text = _toolTipText;
+        }
 
         public override void ParseControlINIAttribute(IniFile iniFile, string key, string value)
         {
             if (key == "ToolTip")
             {
                 CreateToolTip();
-                ToolTip.Text = value.Replace("@", Environment.NewLine);
+                SetToolTipText(value.Replace("@", Environment.NewLine));
                 return;
             }
             if (key == "$ToolTip")
             {
+                
                 CreateToolTip();
-                ToolTip.Text = string.Empty.L10N("UI:Main:" + value).Replace("@", Environment.NewLine);
+                SetToolTipText(value.Replace("@", Environment.NewLine));
                 return;
             }
             base.ParseControlINIAttribute(iniFile, key, value);

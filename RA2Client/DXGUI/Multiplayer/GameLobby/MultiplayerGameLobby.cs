@@ -681,7 +681,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             ddGameModeMapFilter.Disable();
             lblGameModeSelect.Disable();
-            lblModeText.Disable();
+            btnDownLoad.Disable();
             lbGameModeMapList.Disable();
             tbMapSearch.Disable();
             btnPickRandomMap.Disable();

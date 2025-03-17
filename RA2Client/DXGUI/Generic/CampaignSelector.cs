@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Threading;
 using System.Text;
+using System.Diagnostics;
 
 
 namespace Ra2Client.DXGUI.Generic
@@ -140,6 +141,13 @@ namespace Ra2Client.DXGUI.Generic
                 ClientRectangle = new Rectangle(10, 32, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT)
             }; 
             btnImport.LeftClick += BtnImport_LeftClick;
+
+            var btnDownLoad = new XNAClientButton(WindowManager)
+            {
+                Text = "下载任务包",
+                ClientRectangle = new Rectangle(btnImport.Right + 10, 32, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT)
+            };
+            btnDownLoad.LeftClick += BtnDownLoad_LeftClick;
 
             var _lblScreen = new XNALabel(WindowManager);
             _lblScreen.Name = "lblScreen";
@@ -324,7 +332,7 @@ namespace Ra2Client.DXGUI.Generic
             _lbxInforBox = new XNAListBox(WindowManager);
 
             var lblalter = new XNALabel(WindowManager);
-            lblalter.Text = "这个任务有以下改动: ";
+            lblalter.Text = "任务包附带说明文件，双击可打开。";
 
             timer = new System.Windows.Forms.Timer();
             timer.Interval = 延迟时间; // 延迟 500ms
@@ -340,6 +348,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_ddMissionPack);
             AddChild(lblalter);
             AddChild(btnImport);
+            AddChild(btnDownLoad);
             AddChild(_tbMissionDescriptionList);
             AddChild(lblDifficultyLevel);
             AddChild(_btnLaunch);
@@ -350,7 +359,6 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(lblHard);
             base.Initialize();
 
-            
 
             _ddSide.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
             _ddDifficulty.SelectedIndexChanged += DDDifficultySelectedIndexChanged;
@@ -397,9 +405,9 @@ namespace Ra2Client.DXGUI.Generic
 
             _lbxInforBox.ClientRectangle = new Rectangle(_gameOptionsPanel.X, _mapPreviewBox.Y + 25, 345, _mapPreviewBox.Height - 185);
             _lbxInforBox.FontIndex = 1;
-            _lbxInforBox.LineHeight = 20;
+            _lbxInforBox.LineHeight = 25;
             _lbxInforBox.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
-
+            _lbxInforBox.DoubleLeftClick += _lbxInforBox_DoubleLeftClick;
 
             lblalter.ClientRectangle = new Rectangle(_gameOptionsPanel.X, _mapPreviewBox.Y, 0, 0);
 
@@ -425,6 +433,34 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(_mapPreviewBox);
 
 
+        }
+
+        private void _lbxInforBox_DoubleLeftClick(object sender, EventArgs e)
+        {
+            if (_lbxInforBox.SelectedIndex == -1) return;
+
+            var path = _lbxInforBox.SelectedItem.Tag as string;
+
+            if (File.Exists(path))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                }
+                catch(Exception ex)
+                {
+                    XNAMessageBox.Show(WindowManager, "错误", ex.ToString());
+                }
+            }
+            else
+                XNAMessageBox.Show(WindowManager, "信息", $"文件{path}不存在！");
+
+        }
+
+        private void BtnDownLoad_LeftClick(object sender, EventArgs e)
+        {
+            _modManager.DDModAI.SelectedIndex = 1;
+            _modManager.BtnDownload.OnLeftClick();
         }
 
         private void BtnImport_LeftClick(object sender, EventArgs e)
@@ -530,46 +566,28 @@ namespace Ra2Client.DXGUI.Generic
 
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
-           GetMissionInfo(true);
-
-            //Mod mod = ((Mod)_cmbGame.SelectedItem.Tag);
-
-            //foreach (var chk in CheckBoxes)
-            //{
-
-            //    if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
-            //    {
-            //        chk.AllowChecking = true;
-            //    }
-            //    else
-            //    {
-            //        chk.Checked = chk.defaultValue;
-            //        chk.AllowChecking = false;
-            //    }
-
-            //}
-
-           
-            //foreach (var dd in DropDowns)
-            //{
-
-            //    if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
-            //    {
-            //        dd.AllowDropDown = true;
-            //    }
-            //    else
-            //    {
-            //        dd.SelectedIndex = dd.defaultIndex;
-            //        dd.AllowDropDown = false;
-            //    }
-
-            //}
-
 
             base.OnSelectedChanged();
 
         }
         IniFile infoini = null;
+
+        private void 显示任务包TxT文件列表(string mpPath)
+        {
+
+            _lbxInforBox.Clear();
+            if(Directory.Exists(mpPath))
+            foreach (var txt in Directory.GetFiles(mpPath, "*.txt"))
+            {
+                    _lbxInforBox.AddItem(new XNAListBoxItem()
+                    {
+                        Text = Path.GetFileNameWithoutExtension(txt),
+                        Tag = Path.Combine(ProgramConstants.GamePath,txt)
+                    });
+
+            }
+        }
+
         /// <summary>
         /// 异步获取任务信息
         /// </summary>
@@ -957,9 +975,15 @@ namespace Ra2Client.DXGUI.Generic
                 }
 
                 if (上次选择的任务包ID == mission?.MPack?.ID)
+                {
                     _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == oldModID);
+
+                }
                 else
+                {
                     _cmbGame.SelectedIndex = _cmbGame.Items.FindIndex(item => ((Mod)(item.Tag)).ID == mission.DefaultMod);
+                    显示任务包TxT文件列表(mission.MPack.FilePath);
+                }
 
                 上次选择的任务包ID = mission?.MPack?.ID ?? string.Empty;
 
@@ -975,9 +999,8 @@ namespace Ra2Client.DXGUI.Generic
 
                 if ((_cmbGame.SelectedItem?.Tag as Mod)?.ID != oldModID)
                     CmbGame_SelectedChanged(null, null);
-                else//获取任务解析
-                    GetMissionInfo(false);
-                _ = Task.Run(async () =>
+
+                    _ = Task.Run(async () =>
                 {
                     // 如果地图文件存在
                     _gameOptionsPanel.Visible = File.Exists(Path.Combine(ProgramConstants.GamePath, mission.Path, mission.Scenario));

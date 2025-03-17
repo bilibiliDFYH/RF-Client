@@ -103,8 +103,14 @@ namespace ClientGUI
                     File.Copy("KeyboardMD.ini", Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini"), true);
                 if (File.Exists("spawnmap.ini"))
                     File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
-                // 加载渲染插件
-                FileHelper.CopyDirectory(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value), ProgramConstants.游戏目录);
+
+            // 加载渲染插件
+            foreach (var file in Directory.GetFiles(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value)))
+            {
+                var targetFileName = Path.Combine(ProgramConstants.游戏目录, "ddraw" + Path.GetExtension(file));
+                FileHelper.CopyFile(file, targetFileName, true);
+            }
+
 #if !DEBUG
             }
             catch(Exception ex)
@@ -149,46 +155,46 @@ namespace ClientGUI
 
             string extraCommandLine = ClientConfiguration.Instance.ExtraExeCommandLineParameters;
 
-            SafePath.DeleteFileIfExists(ProgramConstants.GamePath, "DTA.LOG");
-            SafePath.DeleteFileIfExists(ProgramConstants.GamePath, "TI.LOG");
-            SafePath.DeleteFileIfExists(ProgramConstants.GamePath, "TS.LOG");
+            //SafePath.DeleteFileIfExists(ProgramConstants.GamePath, "DTA.LOG");
+            //SafePath.DeleteFileIfExists(ProgramConstants.GamePath, "TI.LOG");
+            //SafePath.DeleteFileIfExists(ProgramConstants.GamePath, "TS.LOG");
 
             GameProcessStarting?.Invoke();
 
-            if (UserINISettings.Instance.WindowedMode && UseQres && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                Logger.Log("Windowed mode is enabled - using QRes.");
-                Process QResProcess = new Process();
-                QResProcess.StartInfo.FileName = ProgramConstants.QRES_EXECUTABLE;
+            //if (UserINISettings.Instance.WindowedMode && UseQres && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            //{
+            //    Logger.Log("Windowed mode is enabled - using QRes.");
+            //    Process QResProcess = new Process();
+            //    QResProcess.StartInfo.FileName = ProgramConstants.QRES_EXECUTABLE;
 
-                if (!string.IsNullOrEmpty(extraCommandLine))
-                    QResProcess.StartInfo.Arguments = "c=16 /R " + "\"" + SafePath.CombineFilePath(ProgramConstants.GamePath, gameExecutableName) + "\" " + additionalExecutableName + "-SPAWN " + extraCommandLine;
-                else
-                    QResProcess.StartInfo.Arguments = "c=16 /R " + "\"" + SafePath.CombineFilePath(ProgramConstants.GamePath, gameExecutableName) + "\" " + additionalExecutableName + "-SPAWN";
-                QResProcess.EnableRaisingEvents = true;
-                // QResProcess.Exited += new EventHandler(Process_Exited); 
+            //    if (!string.IsNullOrEmpty(extraCommandLine))
+            //        QResProcess.StartInfo.Arguments = "c=16 /R " + "\"" + SafePath.CombineFilePath(ProgramConstants.GamePath, gameExecutableName) + "\" " + additionalExecutableName + "-SPAWN " + extraCommandLine;
+            //    else
+            //        QResProcess.StartInfo.Arguments = "c=16 /R " + "\"" + SafePath.CombineFilePath(ProgramConstants.GamePath, gameExecutableName) + "\" " + additionalExecutableName + "-SPAWN";
+            //    QResProcess.EnableRaisingEvents = true;
+            //    // QResProcess.Exited += new EventHandler(Process_Exited); 
 
-                Logger.Log("启动命令: " + QResProcess.StartInfo.FileName);
-                Logger.Log("启动参数: " + QResProcess.StartInfo.Arguments);
-                try
-                {
-                    QResProcess.Start();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log("Error launching QRes: " + ex.Message);
-                    XNAMessageBox.Show(windowManager, "Error launching game", "Error launching " + ProgramConstants.QRES_EXECUTABLE + ". Please check that your anti-virus isn't blocking the CnCNet Client. " +
-                        "You can also try running the client as an administrator." + Environment.NewLine + Environment.NewLine + "You are unable to participate in this match." +
-                        Environment.NewLine + Environment.NewLine + "Returned error: " + ex.Message);
-                    Process_Exited(QResProcess, EventArgs.Empty);
-                    return;
-                }
+            //    Logger.Log("启动命令: " + QResProcess.StartInfo.FileName);
+            //    Logger.Log("启动参数: " + QResProcess.StartInfo.Arguments);
+            //    try
+            //    {
+            //        QResProcess.Start();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Logger.Log("Error launching QRes: " + ex.Message);
+            //        XNAMessageBox.Show(windowManager, "Error launching game", "Error launching " + ProgramConstants.QRES_EXECUTABLE + ". Please check that your anti-virus isn't blocking the CnCNet Client. " +
+            //            "You can also try running the client as an administrator." + Environment.NewLine + Environment.NewLine + "You are unable to participate in this match." +
+            //            Environment.NewLine + Environment.NewLine + "Returned error: " + ex.Message);
+            //        Process_Exited(QResProcess, EventArgs.Empty);
+            //        return;
+            //    }
 
-                if (Environment.ProcessorCount > 1 && SingleCoreAffinity)
-                    QResProcess.ProcessorAffinity = (IntPtr)2;
-            }
-            else
-            {
+            //    if (Environment.ProcessorCount > 1 && SingleCoreAffinity)
+            //        QResProcess.ProcessorAffinity = (IntPtr)2;
+            //}
+           // else
+            //{
                 string arguments;
 
                 if (!string.IsNullOrWhiteSpace(extraCommandLine))
@@ -257,7 +263,7 @@ namespace ClientGUI
                     return;
                 }  
 
-            }
+          //  }
 
             GameProcessStarted?.Invoke();
 

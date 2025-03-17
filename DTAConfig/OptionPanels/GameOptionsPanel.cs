@@ -250,7 +250,7 @@ namespace DTAConfig.OptionPanels
         /// <param name="TF"></param>
         private void Multinuclear(bool TF) { 
 
-        string ddrawPath = Path.Combine(ProgramConstants.GamePath, "Resources\\Render",UserINISettings.Instance.Renderer.Value, "ddraw.ini");
+        string ddrawPath = Path.Combine(ProgramConstants.GamePath, "Resources\\Render",UserINISettings.Instance.Renderer.Value, UserINISettings.Instance.Renderer.Value + ".ini");
             if (File.Exists(ddrawPath)) {
 
                 var iniFile = new Rampastring.Tools.IniFile(ddrawPath);

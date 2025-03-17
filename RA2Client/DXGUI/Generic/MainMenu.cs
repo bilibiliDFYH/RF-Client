@@ -850,28 +850,34 @@ namespace Ra2Client.DXGUI.Generic
 
         private void 清理根目录()
         {
-            List<string> whitelist = [
-                "cncnet5.dll", 
-                "gamemd-spawn.exe", 
-                "LiteExt.dll", 
-                "RA2MD.ini", 
-                "Reunion.deps.json", 
-                "Reunion.dll", 
-                "Reunion.dll.config", 
-                "Reunion.exe", 
+            
+                List<string> whitelist = [
+                    "cncnet5.dll",
+                "gamemd-spawn.exe",
+                "LiteExt.dll",
+                "RA2MD.ini",
+                "Reunion.deps.json",
+                "Reunion.dll",
+                "Reunion.dll.config",
+                "Reunion.exe",
                 "Reunion.runtimeconfig.json",
                 "qres.dat",
                 "qres32.dll",
                 "KeyBoardMD.ini"
-                ];
-
-            foreach (string file in Directory.GetFiles(ProgramConstants.GamePath))
+                    ];
+            try
             {
-                if (whitelist.Contains(Path.GetFileName(file))) continue;
-                if((Path.GetExtension(file) == ".map" || Path.GetExtension(file) == ".yrm" || Path.GetExtension(file) == ".mpr") && FunExtensions.是否为多人图(file)) continue;
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-
+                foreach (string file in Directory.GetFiles(ProgramConstants.GamePath))
+                {
+                    if (whitelist.Contains(Path.GetFileName(file))) continue;
+                    if ((Path.GetExtension(file) == ".map" || Path.GetExtension(file) == ".yrm" || Path.GetExtension(file) == ".mpr") && FunExtensions.是否为多人图(file)) continue;
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("清理根目录失败: " + ex.Message);
             }
         }
         
@@ -1203,7 +1209,14 @@ namespace Ra2Client.DXGUI.Generic
 
         private void lblWebsite_LeftClick(object sender, EventArgs e)
         {
-            ProcessLauncher.StartShellProcess("www.yra2.com");
+            try
+            {
+                ProcessLauncher.StartShellProcess("www.yra2.com");
+            }
+            catch(Exception ex)
+            {
+                XNAMessageBox.Show(WindowManager, "错误", ex.ToString());
+            }
         }
 
         private void ForceUpdate()

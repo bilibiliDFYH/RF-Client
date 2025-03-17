@@ -74,7 +74,7 @@ namespace DTAConfig
         /// </summary>
         public string ConfigFileName { get; private set; }
 
-        private string ddrawDLLPath;
+        public string ddrawDLLPath;
         private string resConfigFileName;
         private List<string> filesToCopy = new List<string>();
         private List<OSVersion> disallowedOSList = new List<OSVersion>();
@@ -123,7 +123,7 @@ namespace DTAConfig
 
             filesToCopy = section.GetStringValue("AdditionalFiles", string.Empty).Split(
                 new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
+              
             string[] disallowedOSs = section.GetStringValue("DisallowedOperatingSystems", string.Empty).Split(
                 new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 

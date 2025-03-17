@@ -136,6 +136,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected XNAClientButton btnPickRandomMap;
         protected XNAClientButton btnLoadMaps;
+        protected XNAClientButton btnDownLoad;
         protected XNAClientButton btnRandomMap;
 
 
@@ -159,8 +160,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected XNAClientDropDown ddGameModeMapFilter;
         protected XNALabel lblGameModeSelect;
         private XNAContextMenu ModMenu; //mod选择器右击菜单
-        //游戏模式介绍
-        protected XNALabel lblModeText;
 
         private 生成随机地图窗口 randomMap;
 
@@ -348,10 +347,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnLoadMaps = new XNAClientButton(WindowManager);
             //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
-            btnLoadMaps.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
-            btnLoadMaps.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
             btnLoadMaps.Text = "导入地图";
-            btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 35, btnLaunchGame.Width - 20, btnLaunchGame.Height);
+            btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 33, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
             btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
             AddChild(btnLoadMaps);
 
@@ -395,7 +392,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 ddGameModeMapFilter.AddItem(CreateGameFilterItem(gm.UIName.L10N("UI:GameMode:" + gm.Name), new GameModeMapFilter(GetGameModeMaps(gm))));
 
             lblGameModeSelect = FindChild<XNALabel>(nameof(lblGameModeSelect));
-            // lblModeText = FindChild<XNALabel>(nameof(lblModeText));
+            // btnDownLoad = FindChild<XNALabel>(nameof(btnDownLoad));
 
             InitBtnMapSort();
 
@@ -429,10 +426,18 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             ddPeople.SelectedIndex = 0;
             ddPeople.SelectedIndexChanged += DdPeople_SelectedIndexChanged;
 
-            lblModeText = new XNALabel(WindowManager);
-            lblModeText.Name = nameof(lblModeText);
-            lblModeText.ClientRectangle = new Rectangle(btnLoadMaps.X + 120, btnLoadMaps.Y + 5 , 0, 0);
-            AddChild(lblModeText);
+            btnDownLoad = new XNAClientButton(WindowManager)
+            {
+                Name = nameof(btnDownLoad),
+                IdleTexture = AssetLoader.LoadTexture("133pxtab.png"),
+                HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png"),
+                Text = "下载地图",
+                ClientRectangle = new Rectangle(btnLoadMaps.Right + 10, btnLoadMaps.Y, btnLoadMaps.Width, btnLoadMaps.Height)
+            };
+            btnDownLoad.LeftClick += BtnDownLoad_LeftClick;
+
+
+            AddChild(btnDownLoad);
 
             randomMap = new 生成随机地图窗口(WindowManager, MapLoader);
             // randomMap.ClientRectangle = new Rectangle(200, 100, 800, 500);
@@ -442,14 +447,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnRandomMap = new XNAClientButton(WindowManager);
             //  btnRandomMap = FindChild<XNAClientButton>(nameof(btnRandomMap));
-            btnRandomMap.IdleTexture = AssetLoader.LoadTexture("133pxtab.png");
-            btnRandomMap.HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png");
             btnRandomMap.Text = "Generate map".L10N("UI:Main:RanMap");
             btnRandomMap.Disable();
             btnRandomMap.ClientRectangle = new Rectangle(btnLaunchGame.X + 150, btnLaunchGame.Y, btnLaunchGame.Width, btnLaunchGame.Height);
             btnRandomMap.LeftClick += (sender, s) => randomMap.Enable();
             AddChild(btnRandomMap);
-            CheckBoxes.ForEach(chk => chk.CheckedChanged += ChkBox_CheckedChanged);
+            CheckBoxes.ForEach(chk => { chk.CheckedChanged += ChkBox_CheckedChanged;
+          
+            });
             DropDowns.ForEach(dd => dd.SelectedIndexChanged += Dropdown_SelectedIndexChanged);
             //RenderImage.RenderImagesAsync() += () => RenderImage.RenderImagesAsync();
 
@@ -462,6 +467,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             InitializeGameOptionPresetUI();
 
             CmbGame_SelectedChanged(cmbGame, null);
+        }
+
+        private void BtnDownLoad_LeftClick(object sender, EventArgs e)
+        {
+            _modManager.打开创意工坊(1);
         }
 
         private void BtnLoadMaps_LeftClick(object sender, EventArgs e)
@@ -1001,13 +1011,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (GameModeMap != null)
             {
                 if (ddGameModeMapFilter.SelectedIndex == 0)
-                    lblModeText.Text = "收藏的地图";
+                    ddGameModeMapFilter.SetToolTipText("收藏的地图");
                 else
-                    lblModeText.Text = GameModeMaps.GameModes[ddGameModeMapFilter.SelectedIndex-1].modeText.L10N("UI:ModeText:" + GameModeMap.GameMode.Name);
+                    ddGameModeMapFilter.SetToolTipText(GameModeMaps.GameModes[ddGameModeMapFilter.SelectedIndex - 1].modeText.L10N("UI:ModeText:" + GameModeMap.GameMode.Name));
             }
             else
             {
-                lblModeText.Text = string.Empty;
+                ddGameModeMapFilter.SetToolTipText(string.Empty);
             }
 
         }
@@ -2782,7 +2792,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <param name="gameModeMap">The new game mode map.</param>
         protected virtual void ChangeMap(GameModeMap gameModeMap)
         {
-            CmbGame_SelectedChanged(null, null);
+            
 
             GameModeMap = gameModeMap;
 
@@ -2812,6 +2822,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (var checkBox in CheckBoxes)
                 checkBox.AllowChecking = true;
 
+            CmbGame_SelectedChanged(null, null);
             // We could either pass the CheckBoxes and DropDowns of this class
             // to the Map and GameMode instances and let them apply their forced
             // options, or we could do it in this class with helper functions.

@@ -222,9 +222,14 @@ public class ModManager : XNAWindow
 
     private void BtnDownload_LeftClick(object sender, EventArgs e)
     {
+        打开创意工坊(3 - DDModAI.SelectedIndex);
+    }
+
+    public void 打开创意工坊(int selectIndex)
+    {
         optionsWindow.Open();
         optionsWindow.tabControl.SelectedTab = 5;
-        optionsWindow.componentsPanel.comboBoxtypes.SelectedIndex = 3 - DDModAI.SelectedIndex;
+        optionsWindow.componentsPanel.comboBoxtypes.SelectedIndex = selectIndex;
         Disable();
         Detach();
     }
@@ -666,7 +671,10 @@ public class ModManager : XNAWindow
             var 任务目标 = csf?.GetValueOrDefault(missionINI.GetValue(mapName, "LSLoadBriefing", string.Empty))?.ConvertValuesToSimplified() ?? ""; //任务目标
 
             if (默认战役名称.ContainsKey(csfName) && (默认战役名称[csfName] == 任务名称 || $"第{count}关" == 任务名称))
-                任务名称 = 任务地点.Split('-')[0].TrimEnd();
+            {
+                if(任务地点 != string.Empty)
+                    任务名称 = 任务地点.Split('-')[0].TrimEnd();
+            }
 
             if (任务简报.Trim().Contains(任务目标.Trim()))
                 任务简报 = string.Empty;
@@ -715,7 +723,7 @@ public class ModManager : XNAWindow
             .Where(file => !Path.GetFileName(file).ToLower().StartsWith("ls") && !Path.GetFileName(file).ToLower().StartsWith("gls"))
             .ToArray();
 
-        var mixs = Directory.GetFiles(path, $"expand{md}*.mix")
+        var mixs = Directory.GetFiles(path, $"expand*.mix")
             .ToArray();
 
         var inis = Directory.GetFiles(path, $"*.ini")
@@ -891,7 +899,7 @@ public class ModManager : XNAWindow
                         else
                             Countries += country + ',';
                     }
-                    Countries = Countries.TrimEnd(',');
+                    Countries = Countries.TrimEnd(',').ConvertValuesToSimplified();
                 }
 
             }
@@ -1155,23 +1163,25 @@ public class ModManager : XNAWindow
 
     public void DelMissionPack(MissionPack missionPack)
     {
-        var iniFile = new IniFile(missionPack.FileName);
-        if (iniFile.GetSection("MissionPack").Keys.Count == 1)
-            File.Delete(missionPack.FileName);
-        else
+        if (File.Exists(Path.Combine(ProgramConstants.GamePath, missionPack.FileName)))
         {
-            iniFile.RemoveKey("MissionPack", missionPack.ID);
-            foreach (var fore in iniFile.GetSections())
+            var iniFile = new IniFile(missionPack.FileName);
+            if (iniFile.GetSection("MissionPack").Keys.Count == 1)
+                File.Delete(missionPack.FileName);
+            else
             {
-                if (iniFile.GetValue(fore, "MissionPack", string.Empty) == missionPack.ID)
+                iniFile.RemoveKey("MissionPack", missionPack.ID);
+                foreach (var fore in iniFile.GetSections())
                 {
-                    iniFile.RemoveKey("Battles", fore);
-                    iniFile.RemoveSection(fore);
+                    if (iniFile.GetValue(fore, "MissionPack", string.Empty) == missionPack.ID)
+                    {
+                        iniFile.RemoveKey("Battles", fore);
+                        iniFile.RemoveSection(fore);
+                    }
                 }
+                iniFile.WriteIniFile();
             }
-            iniFile.WriteIniFile();
         }
-
 
         if (!string.IsNullOrEmpty(missionPack.DefaultMod))
         {

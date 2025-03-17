@@ -42,13 +42,13 @@ namespace ClientGUI
             if (key == "ToolTip")
             {
                 CreateToolTip();
-                ToolTip.Text = value.Replace("@", Environment.NewLine);
+                SetToolTipText(value.Replace("@", Environment.NewLine));
                 return;
             }
             if (key == "$ToolTip")
             {
                 CreateToolTip();
-                ToolTip.Text = string.Empty.L10N("UI:Main:" + value).Replace("@", Environment.NewLine);
+                SetToolTipText(value.Replace("@", Environment.NewLine));
                 return;
             }
             base.ParseControlINIAttribute(iniFile, key, value);

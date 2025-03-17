@@ -80,7 +80,7 @@ namespace Localization.Tools
         static Dictionary<string, string> ReadCSF(Stream csfStream)
         {
             try
-            {
+           {
                 var nameStrMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                 using (var csfFile = new BinaryReader(csfStream))
@@ -90,45 +90,54 @@ namespace Localization.Tools
 
                     for (int i = 0; i < numLabels; i++)
                     {
-                        byte[] lblBytes = csfFile.ReadBytes(4);
-                        byte[] oneBytes = csfFile.ReadBytes(4);
-                        byte[] uinameLengthBytes = csfFile.ReadBytes(4);
-
-                        string lbl = Encoding.ASCII.GetString(lblBytes);
-                        int one = BitConverter.ToInt32(oneBytes);
-                        int uinameLength = BitConverter.ToInt32(uinameLengthBytes);
-
-                        if (lbl != " LBL" || one != 1)
+                        try
                         {
-                            if (nameStrMap.Count > 0)
-                                continue;
-                            else
-                                throw new InvalidDataException("Invalid label format");
+                            byte[] lblBytes = csfFile.ReadBytes(4);
+                            byte[] oneBytes = csfFile.ReadBytes(4);
+                            byte[] uinameLengthBytes = csfFile.ReadBytes(4);
+
+                            string lbl = Encoding.ASCII.GetString(lblBytes);
+                            int one = BitConverter.ToInt32(oneBytes);
+                            int uinameLength = BitConverter.ToInt32(uinameLengthBytes);
+
+                            if (lbl != " LBL" || one != 1)
+                            {
+                                if (nameStrMap.Count > 0)
+                                    continue;
+                                else
+                                    throw new InvalidDataException("Invalid label format");
+                            }
+
+                            byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
+                            byte[] rtsIdBytes = csfFile.ReadBytes(4);
+                            string uiName = Encoding.UTF8.GetString(uiNameBytes).TrimEnd('\0');
+                            string rtsId = Encoding.ASCII.GetString(rtsIdBytes);
+
+                            uint rtsLen = csfFile.ReadUInt32() * 2;
+                            byte[] contentRaw = csfFile.ReadBytes((int)rtsLen);
+
+                            if (rtsId != " RTS")
+                            {
+                                uint extraLen = csfFile.ReadUInt32();
+                                byte[] extraRaw = csfFile.ReadBytes((int)extraLen);
+                            }
+
+                            string content = BytesToString(contentRaw);
+                            nameStrMap[uiName] = content;
+
                         }
-
-                        byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
-                        byte[] rtsIdBytes = csfFile.ReadBytes(4);
-                        string uiName = Encoding.UTF8.GetString(uiNameBytes).TrimEnd('\0');
-                        string rtsId = Encoding.ASCII.GetString(rtsIdBytes);
-
-                        uint rtsLen = csfFile.ReadUInt32() * 2;
-                        byte[] contentRaw = csfFile.ReadBytes((int)rtsLen);
-
-                        if (rtsId != " RTS")
+                        catch
                         {
-                            uint extraLen = csfFile.ReadUInt32();
-                            byte[] extraRaw = csfFile.ReadBytes((int)extraLen);
+                            continue;
                         }
-
-                        string content = BytesToString(contentRaw);
-                        nameStrMap[uiName] = content;
                     }
                 }
 
                 return nameStrMap;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
                 return null;
             }
         }

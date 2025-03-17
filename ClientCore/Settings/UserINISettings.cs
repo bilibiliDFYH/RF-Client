@@ -86,6 +86,7 @@ namespace ClientCore
             YRPath = new StringSetting(iniFile, OPTIONS, "YRPath", "YR");
 
             Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer", Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 1 ? "Default" : "CnC_DDraw");
+      
             WindowedMode = new BoolSetting(iniFile, VIDEO, WINDOWED_MODE_KEY, false);
             BorderlessWindowedMode = new BoolSetting(iniFile, VIDEO, "NoWindowFrame", false);
             BorderlessWindowedClient = new BoolSetting(iniFile, VIDEO, "BorderlessWindowedClient", false);
@@ -194,6 +195,7 @@ namespace ClientCore
         public StringSetting Voice { get; private set; }
         public IntSetting DetailLevel { get; private set; }
         public StringSetting Renderer { get; private set; }
+      
         public BoolSetting WindowedMode { get; private set; }
         public BoolSetting BorderlessWindowedMode { get; private set; }
         public BoolSetting BackBufferInVRAM { get; private set; }

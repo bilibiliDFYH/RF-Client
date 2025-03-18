@@ -113,7 +113,9 @@ namespace ClientGUI
                     File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
 
             // 加载渲染插件
-            foreach (var file in Directory.GetFiles(Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value)))
+            var p = Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value);
+            if(Directory.Exists(p))
+            foreach (var file in Directory.GetFiles(p))
             {
                 var targetFileName = Path.Combine(ProgramConstants.游戏目录, "ddraw" + Path.GetExtension(file));
                 FileHelper.CopyFile(file, targetFileName, true);
@@ -391,7 +393,10 @@ namespace ClientGUI
                 try
                 {
                     if (Directory.Exists(ProgramConstants.游戏目录))
-                        FileHelper.ForceDeleteDirectory(ProgramConstants.游戏目录,true);
+                    {
+                        ProgramConstants.清理游戏目录();
+                    }
+                        
 
                     if (!ProgramConstants.判断目录是否为纯净尤复(UserINISettings.Instance.YRPath))
                     {
@@ -405,6 +410,10 @@ namespace ClientGUI
 
                     foreach (var file in ProgramConstants.PureHashes.Keys)
                     {
+                        var newFile = Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file));
+                        if (File.Exists(newFile) && Utilities.CalculateSHA1ForFile(newFile) == ProgramConstants.PureHashes[file])
+                            continue;
+
                         File.Copy(
                             Path.Combine(UserINISettings.Instance.YRPath, Path.GetFileName(file)),
                             Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file))

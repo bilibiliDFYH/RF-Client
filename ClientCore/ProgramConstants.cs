@@ -84,6 +84,17 @@ namespace ClientCore
         { "BINKW32.DLL","613f81f82e12131e86ae60dd318941f40db2200f" }
     };
 
+        public static void 清理游戏目录()
+        {
+            foreach (var file in Directory.GetFiles(游戏目录))
+            {
+                if (!PureHashes.ContainsKey(Path.GetFileName(file)))
+                {
+                    File.Delete(file);
+                }
+            }
+        }
+
         public static bool 判断目录是否为纯净尤复(string path)
         {
             if (!Directory.Exists(path))
@@ -186,5 +197,7 @@ namespace ClientCore
             }
 
         }
+
+
     }
 }

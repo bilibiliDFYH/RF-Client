@@ -138,7 +138,7 @@ public class NetWorkINISettings
         string jsonContent = JsonSerializer.Serialize(obj);
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserINISettings.Instance.Token.Value);
-
+        client.Timeout = new TimeSpan(30 * TimeSpan.TicksPerSecond);
         // 发送 POST 请求并获取响应
         HttpResponseMessage response;
         try
@@ -182,6 +182,7 @@ public class NetWorkINISettings
         
         using var client = new HttpClient();
 
+        client.Timeout = new TimeSpan(30 * TimeSpan.TicksPerSecond);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserINISettings.Instance.Token.Value);
         
         HttpResponseMessage response;
@@ -232,7 +233,7 @@ public class NetWorkINISettings
             // 发送 GET 请求并获取响应
             HttpResponseMessage response;
 
-            client.Timeout = new TimeSpan(10 * TimeSpan.TicksPerSecond);
+            client.Timeout = new TimeSpan(30 * TimeSpan.TicksPerSecond);
             response = await client.GetAsync($"{Address}{url}").ConfigureAwait(false);
         
             // 读取响应内容

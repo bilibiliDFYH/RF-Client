@@ -71,7 +71,7 @@ namespace Localization.Tools
             //    throw new InvalidDataException("Label count and string count are unequal"); // 如果不相等，抛出异常
             //}
 
-            return (int)numLabels;
+            return (int)numStrings; //5236 5237
         }
 
         // 读取 CSF 文件并返回一个字典
@@ -107,15 +107,20 @@ namespace Localization.Tools
                             int one = BitConverter.ToInt32(oneBytes);
                             int uinameLength = BitConverter.ToInt32(uinameLengthBytes);
 
+                            //if (lbl != " LBL" || one != 1)
+                            //{ //VOX:iseaatc
+                            //    if (nameStrMap.Count > 0)
+                            //        continue;
+                            //    else
+                            //        throw new InvalidDataException("Invalid label format");
+                            //}
                             if (lbl != " LBL" || one != 1)
                             {
-                                if (nameStrMap.Count > 0)
-                                    continue;
-                                else
-                                    throw new InvalidDataException("Invalid label format");
+                                Console.Write("");
+                                
                             }
 
-                            byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
+                                byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
                             byte[] rtsIdBytes = csfFile.ReadBytes(4);
 
                             string uiName = Encoding.UTF8.GetString(uiNameBytes).TrimEnd('\0');
@@ -147,9 +152,14 @@ namespace Localization.Tools
                             if (rtsId == "WRTS")
                                 wRTS.Add(uiName);
 
+                            if (uiName == "VOX:iyursee") //732
+                                Console.Write("");
+
                             string content = BytesToString(contentRaw);
                             
                             nameStrMap[uiName] = content;
+                            if (lbl != " LBL" || one != 1) 
+                                csfFile.ReadBytes(16);
 
                         }
                         catch(Exception ex)

@@ -1009,7 +1009,7 @@ public class IniFile : IIniFile
                 if (c == '\n')
                 {
                     GB18030 = false;
-                    var currentLine = stringBuilder.ToString().TrimEnd('\r').TrimEnd('\n');
+                    var currentLine = stringBuilder.ToString().TrimEnd('\n').TrimEnd('\r');
                     if (currentLine.Contains('�'))
                     {
                         // 将 StringBuilder 转换为字节数组后再用 GB18030 解码

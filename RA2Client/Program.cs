@@ -1,5 +1,6 @@
 ﻿using ClientCore;
 using ClientGUI;
+using Localization.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,6 +41,9 @@ namespace Ra2Client
         static void Main(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
+
+            //var csf = new CSF("E:\\Documents\\My_File\\RF-Client\\Bin\\Run\\ra2md.csf").GetCsfDictionary();
+            //CSF.WriteCSF(csf, "E:\\Documents\\My_File\\RF-Client\\Bin\\Run\\ra2md.csf");
 
             bool noAudio = false;
             bool multipleInstanceMode = false;

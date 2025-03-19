@@ -134,12 +134,18 @@ namespace Ra2Client.DXGUI
             wm.Initialize(content, ProgramConstants.GetBaseResourcePath());
 
             IMEHandler imeHandler = IMEHandler.Create(this);
-            wm.IMEHandler = imeHandler;
 
-            wm.WindowSizeChangedByUser += (sender, e) =>
+            if (UserINISettings.Instance.IMEEnabled.Value)
             {
-                imeHandler.SetIMETextInputRectangle(wm);
-            };
+                wm.IMEHandler = imeHandler;
+
+
+
+                wm.WindowSizeChangedByUser += (sender, e) =>
+                {
+                    imeHandler.SetIMETextInputRectangle(wm);
+                };
+            }
             WindowManager.标题改变 += ChangeTiTle;
          //   ClientConfiguration.标题改变 += ChangeTiTle;
 

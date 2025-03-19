@@ -84,7 +84,7 @@ namespace ClientCore
             DetailLevel = new IntSetting(iniFile, OPTIONS, "DetailLevel", 2);
             Game = new StringSetting(iniFile, OPTIONS, "Game", "SkirmishLobby");
             YRPath = new StringSetting(iniFile, OPTIONS, "YRPath", "YR");
-
+            IMEEnabled = new BoolSetting(iniFile, OPTIONS, "IMEEnabled", true);
             Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer", Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 1 ? "Default" : "CnC_DDraw");
       
             WindowedMode = new BoolSetting(iniFile, VIDEO, WINDOWED_MODE_KEY, false);
@@ -329,7 +329,7 @@ namespace ClientCore
         public BoolSetting SimplifiedCSF { get; private set; }
         
         public BoolSetting ForceEnableGameOptions { get; private set; }
-
+        public BoolSetting IMEEnabled { get; private set; }
 
         public Action 重新加载地图和任务包 { get; set; }
         public BoolSetting 第一次下载扩展 { get; set; }

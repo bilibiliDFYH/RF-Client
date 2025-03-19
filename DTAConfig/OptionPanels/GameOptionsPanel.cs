@@ -33,7 +33,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientCheckBox chkScrollCoasting;
         private XNAClientCheckBox chkTooltips;
         private XNAClientCheckBox chkShowHiddenObjects;
-        private XNAClientCheckBox chkStartCap;
+        private XNAClientCheckBox chkIMEEnable;
         private XNAClientCheckBox chkMultinuclear;
         private XNAClientCheckBox chkForceEnableGameOptions;
 
@@ -92,11 +92,11 @@ namespace DTAConfig.OptionPanels
             lblGameMod.ClientRectangle = new Rectangle(250, chkScrollCoasting.Y, 0, 0);
             lblGameMod.Text = "Mod:".L10N("UI:DTAConfig:Mod");
 
-            chkStartCap = new XNAClientCheckBox(WindowManager);
-            chkStartCap.Name = "chkStartCap";
-            chkStartCap.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkScrollCoasting.Y, 150, 20);
-            chkStartCap.Text = "启动时是否检查任务包";
-            chkStartCap.Visible = false;
+            chkIMEEnable = new XNAClientCheckBox(WindowManager);
+            chkIMEEnable.Name = "chkIMEEnable";
+            chkIMEEnable.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkScrollCoasting.Y, 150, 20);
+            chkIMEEnable.Text = "客户端启用输入法";
+            //chkIMEEnable.Visible = false;
 
             chkTargetLines = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "UnitActionLines");
             chkTargetLines.Name = "chkTargetLines";
@@ -220,6 +220,7 @@ namespace DTAConfig.OptionPanels
             AddChild(trbScrollRate);
             AddChild(chkScrollCoasting);
             AddChild(chkTargetLines);
+            AddChild(chkIMEEnable);
             AddChild(chkMultinuclear);
             AddChild(chkRenderPreviewImage);
             AddChild(chkSimplifiedCSF);
@@ -298,7 +299,7 @@ namespace DTAConfig.OptionPanels
                 lblScrollRateValue.Text = scrollRate.ToString();
             }
 
-            //chkStartCap.Checked = UserINISettings.Instance.StartCap;
+            chkIMEEnable.Checked = UserINISettings.Instance.IMEEnabled.Value;
             chkMultinuclear.Checked = UserINISettings.Instance.Multinuclear;
             chkRenderPreviewImage.Checked = UserINISettings.Instance.RenderPreviewImage;
             chkSimplifiedCSF.Checked = UserINISettings.Instance.SimplifiedCSF;
@@ -333,7 +334,7 @@ namespace DTAConfig.OptionPanels
             else
                 XNAMessageBox.Show(WindowManager, "错误", r);
 
-            //if (chkStartCap.SelectedIndex != IniSettings.GameModSelect) {
+            //if (chkIMEEnable.SelectedIndex != IniSettings.GameModSelect) {
             //    restartRequired = true;
 
             //    List<string> deleteFile = new List<string>();
@@ -341,9 +342,12 @@ namespace DTAConfig.OptionPanels
             //        deleteFile.Add(Path.GetFileName(file));
 
             //    FileHelper.DelFiles(deleteFile);
-            //    FileHelper.CopyDirectory(UserINISettings.Instance.GameModPath.Value.Split(',')[chkStartCap.SelectedIndex],"./");
-
-            //IniSettings.StartCap.Value = chkStartCap.Checked;
+            //    FileHelper.CopyDirectory(UserINISettings.Instance.GameModPath.Value.Split(',')[chkIMEEnable.SelectedIndex],"./");
+            if (IniSettings.IMEEnabled.Value != chkIMEEnable.Checked)
+            {
+                restartRequired = true;
+                IniSettings.IMEEnabled.Value = chkIMEEnable.Checked;
+            }
             IniSettings.Multinuclear.Value = chkMultinuclear.Checked;
             IniSettings.RenderPreviewImage.Value = chkRenderPreviewImage.Checked;
             IniSettings.SimplifiedCSF.Value = chkSimplifiedCSF.Checked;

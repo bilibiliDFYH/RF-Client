@@ -32,14 +32,14 @@ public class ModManager : XNAWindow
 
     //public XNADropDown AI;
 
-    public XNADropDown DDModAI;
-    public XNAListBox ListBoxModAi;
+    private XNADropDown DDModAI;
+    private XNAListBox ListBoxModAi;
     private XNAMultiColumnListBox _mcListBoxInfo;
     private ToolTip _tooltip;
     private XNAClientButton _btnReturn;
-    public XNAClientButton BtnNew;
-    public XNAClientButton BtnDownload;
-    public XNAClientButton BtnDel;
+    private XNAClientButton BtnNew;
+    private XNAClientButton BtnDownload;
+    private XNAClientButton BtnDel;
 
     private XNAContextMenu _modMenu;
     public Action 触发刷新;

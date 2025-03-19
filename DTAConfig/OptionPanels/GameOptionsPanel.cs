@@ -194,7 +194,7 @@ namespace DTAConfig.OptionPanels
                     return;
                var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, modManager);
                 
-                modManager.DDModAI.SelectedIndex = 0;
+                //modManager.DDModAI.SelectedIndex = 0;
                 modManager.Enable();
                 modManager.EnabledChanged += (_,_) =>
                 {
@@ -250,7 +250,7 @@ namespace DTAConfig.OptionPanels
         /// <param name="TF"></param>
         private void Multinuclear(bool TF) { 
 
-        string ddrawPath = Path.Combine(ProgramConstants.GamePath, "Resources\\Render",UserINISettings.Instance.Renderer.Value, UserINISettings.Instance.Renderer.Value + ".ini");
+        string ddrawPath = Path.Combine(ProgramConstants.GamePath, "Resources\\Render",UserINISettings.Instance.Renderer.Value, "ddraw.ini");
             if (File.Exists(ddrawPath)) {
 
                 var iniFile = new Rampastring.Tools.IniFile(ddrawPath);

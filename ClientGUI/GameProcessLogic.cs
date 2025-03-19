@@ -31,8 +31,6 @@ namespace ClientGUI
 
         private static string gameExecutableName;
 
-        public static Dictionary<string, Dictionary<string, string>> FileHash = [];
-        public static Dictionary<string, string> FilePaths = [];
         private static string[] oldSaves;
 
         private static Mod mod;
@@ -369,21 +367,22 @@ namespace ClientGUI
 
                 if (oldGame != newGame || oldMission != newMission) return true;
 
-                if (FilePaths.Count == 0) return true;
-
-                foreach (var fileType in FilePaths)
+                var newGameFiles = Directory.GetFiles(newGame);
+                foreach (var newGameFile in newGameFiles)
                 {
-                    if (!FileHash.TryGetValue(fileType.Key, out var value)) return true;
-                    if (string.IsNullOrEmpty(fileType.Value) || !Directory.Exists(fileType.Value)) continue;
-                    foreach (var file in Directory.GetFiles(fileType.Value))
-                    {
-                        //if (Path.GetExtension(file) == ".ini") continue;
-                        if (!value.TryGetValue(file, out var hash)) return true;
+                    var fileName = Path.GetFileName(newGameFile);
+                    var gameFile = Path.Combine(ProgramConstants.游戏目录, fileName);
 
-                        var newHash = file.ComputeHash();
-                        if (hash != newHash) return true;
+                    // 如果目标文件存在并且修改时间一致，跳过
+                    if (File.Exists(gameFile) && File.GetLastWriteTime(newGameFile) == File.GetLastWriteTime(gameFile))
+                    {
+                        continue;
                     }
+
+                    // 如果目标文件不存在或修改时间不一致，进行复制
+                    return true;
                 }
+
 
                 return false;
             }
@@ -411,16 +410,17 @@ namespace ClientGUI
                     foreach (var file in ProgramConstants.PureHashes.Keys)
                     {
                         var newFile = Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file));
-                        if (File.Exists(newFile) && Utilities.CalculateSHA1ForFile(newFile) == ProgramConstants.PureHashes[file])
+                        var sourceFile = Path.Combine(UserINISettings.Instance.YRPath, Path.GetFileName(file));
+
+                        // 检查目标文件是否存在，并且源文件比目标文件更新
+                        if (File.Exists(newFile) && File.GetLastWriteTime(newFile) >= File.GetLastWriteTime(sourceFile))
                             continue;
 
-                        File.Copy(
-                            Path.Combine(UserINISettings.Instance.YRPath, Path.GetFileName(file)),
-                            Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file))
-                            , true);
+                        // 如果源文件更新或目标文件不存在，进行复制
+                        File.Copy(sourceFile, newFile, true);
                     }
 
-                    if(Directory.Exists("TX"))
+                    if (Directory.Exists("TX"))
                         FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
                     if(Directory.Exists("zh"))
                         FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
@@ -467,24 +467,6 @@ namespace ClientGUI
                         //{
                         //    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
                         //}
-                    }
-
-                    FilePaths["Game"] = newGame;
-                    FilePaths["Mission"] = newMission; 
-
-                    foreach (var keyValue in FilePaths)
-                    {
-                        if (!FileHash.ContainsKey(keyValue.Key))
-                            FileHash.Add(keyValue.Key, []);
-
-                        if (string.IsNullOrEmpty(keyValue.Value) || !Directory.Exists(keyValue.Value)) continue;
-
-                        foreach (var fileName in Directory.GetFiles(keyValue.Value)) 
-                        {
-                            //if (Path.GetExtension(fileName) == ".ini") continue;
-
-                            FileHash[keyValue.Key][fileName] = fileName.ComputeHash();
-                        }
                     }
 
                     File.Copy("LiteExt.dll", Path.Combine(ProgramConstants.游戏目录, "LiteExt.dll"), true);

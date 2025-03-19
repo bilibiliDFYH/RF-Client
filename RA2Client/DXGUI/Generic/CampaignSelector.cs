@@ -812,14 +812,14 @@ namespace Ra2Client.DXGUI.Generic
                 return;
             var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, modManager);
 
-            modManager.DDModAI.SelectedIndex = 0;
+            //modManager.DDModAI.SelectedIndex = 0;
             modManager.Enable();
             modManager.EnabledChanged += (_, _) =>
             {
                 DarkeningPanel.RemoveControl(dp, WindowManager, modManager);
             };
 
-            _modManager.DDModAI.SelectedIndex = index;
+            //_modManager.DDModAI.SelectedIndex = index;
 
         }
 

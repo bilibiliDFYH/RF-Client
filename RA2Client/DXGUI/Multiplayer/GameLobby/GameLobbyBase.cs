@@ -588,7 +588,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, modManager);
 
-            modManager.DDModAI.SelectedIndex = 0;
+           // modManager.DDModAI.SelectedIndex = 0;
             modManager.Enable();
             modManager.EnabledChanged += (_, _) =>
             {

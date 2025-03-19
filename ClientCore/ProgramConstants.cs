@@ -186,7 +186,18 @@ namespace ClientCore
         {
             try
             {
-                FileHelper.ForceDeleteDirectory(游戏目录);
+                foreach (var file in Directory.GetFiles(游戏目录))
+                {
+                    File.Delete(file);
+                }
+
+                foreach (var dir in Directory.GetDirectories(游戏目录))
+                {
+                    Directory.Delete(dir, true);
+                }
+
+                File.Delete("spawn.ini");
+                File.Delete("spawnmap.ini");
 
                 return true;
             }
@@ -195,7 +206,6 @@ namespace ClientCore
                 Logger.Log(ex.Message);
                 return false;
             }
-
         }
 
 

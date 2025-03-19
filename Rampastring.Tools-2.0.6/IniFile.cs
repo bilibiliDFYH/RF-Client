@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using System.Text;
+using System.Linq;
 
 namespace Rampastring.Tools;
 
@@ -774,9 +775,19 @@ public class IniFile : IIniFile
         if (fileInfo.Exists)
             fileInfo.Delete();
 
-        using var stream = fileInfo.OpenWrite();
+        
 
-        return WriteIniStream(stream);
+        if (GB18030s.Count == 0)
+        {
+            using var stream = fileInfo.OpenWrite();
+            return WriteIniStream(stream);
+        }
+        else
+        {
+            using BinaryWriter sw = new BinaryWriter(File.Open(filePath, FileMode.Create));
+
+            return WriteIniStream(sw,Encoding.UTF8);
+        }
     }
 
     public IniFile WriteIniFile(string filePath, Encoding encoding)
@@ -786,9 +797,20 @@ public class IniFile : IIniFile
         if (fileInfo.Exists)
             fileInfo.Delete();
 
-        using var stream = fileInfo.OpenWrite();
+        if (GB18030s.Count == 0)
+        {
+            using var stream = fileInfo.OpenWrite();
 
-        return WriteIniStream(stream, encoding);
+            return WriteIniStream(stream, encoding);
+        }
+        else
+        {
+            using BinaryWriter sw = new BinaryWriter(File.Open(filePath, FileMode.Create));
+
+            return WriteIniStream(sw, encoding);
+        }
+
+
     }
 
     /// <summary>
@@ -801,6 +823,36 @@ public class IniFile : IIniFile
 
     }
 
+    public IniFile WriteIniStream(BinaryWriter bw,Encoding encoding)
+    {
+        if (otherChar.Count > 0)
+        {
+            bw.BaseStream.Write(otherChar.ToArray(), 0, otherChar.Count);
+        }
+
+        foreach (IniSection section in Sections)
+        {
+            WriteEncodedString(bw, "[", encoding);
+            WriteEncodedString(bw, section.SectionName, encoding);
+            WriteEncodedString(bw, "]\n", encoding);
+
+
+            foreach (var kvp in section.Keys)
+            {
+                WriteEncodedString(bw, kvp.Key, encoding);
+                WriteEncodedString(bw, "=", encoding);
+                WriteEncodedString(bw, kvp.Value, encoding);
+                WriteEncodedString(bw, "\n", encoding);
+            }
+
+            WriteEncodedString(bw, "\n", encoding);
+        }
+
+        WriteEncodedString(bw, "\n", encoding);
+        return this;
+    }
+
+
     /// <summary>
     /// Writes the INI file to a specified stream.
     /// </summary>
@@ -808,32 +860,57 @@ public class IniFile : IIniFile
     /// <param name="encoding">The encoding of the INI file. Default for UTF-8.</param>
     public IniFile WriteIniStream(Stream stream, Encoding encoding)
     {
-        using StreamWriter sw = new StreamWriter(stream, encoding);
+        
+  
 
-        if(otherChar.Count > 0)
-        {
-            sw.BaseStream.Write(otherChar.ToArray(), 0, otherChar.Count);
+            using StreamWriter sw = new StreamWriter(stream, encoding);
 
-        }
-
-        if (!string.IsNullOrWhiteSpace(Comment))
-        {
-            sw.WriteLine("; " + Comment);
-            sw.WriteLine();
-        }
-
-        foreach (IniSection section in Sections)
-        {
-            sw.Write("[" + section.SectionName + "]\r\n");
-            foreach (var kvp in section.Keys)
+            if (otherChar.Count > 0)
             {
-                sw.Write(kvp.Key + "=" + kvp.Value + "\r\n");
+                sw.BaseStream.Write(otherChar.ToArray(), 0, otherChar.Count);
             }
-            sw.Write("\r\n");
-        }
 
-        sw.Write("\r\n");
+            if (!string.IsNullOrWhiteSpace(Comment))
+            {
+                sw.WriteLine("; " + Comment);
+                sw.WriteLine();
+            }
+
+            foreach (IniSection section in Sections)
+            {
+                sw.Write('[');
+                sw.Write(section.SectionName);
+                sw.Write(']');
+                sw.Write('\n');
+
+                foreach (var kvp in section.Keys)
+                {
+                    sw.Write(kvp.Key);
+                    sw.Write('=');
+                    sw.Write(kvp.Value);
+                    sw.Write('\n');
+                }
+
+                sw.Write('\n');
+            }
+
+            sw.Write('\n');
+        
         return this;
+    }
+
+    private void WriteEncodedString(BinaryWriter sw, string text,Encoding encoding)
+    {
+        if (GB18030s.Contains(text))
+        {
+             byte[] gb18030Bytes = Encoding.GetEncoding("GB18030").GetBytes(text);
+            sw.Write(gb18030Bytes);
+        }
+        else
+        {
+            byte[] gb18030Bytes = encoding.GetBytes(text);
+            sw.Write(gb18030Bytes);
+        }
     }
 
     protected virtual void ApplyBaseIni()
@@ -894,6 +971,8 @@ public class IniFile : IIniFile
         }
     }
 
+    List<string> GB18030s = [];
+
     private List<byte> otherChar = [];
     public void ParseCharIniFile(Stream stream)
     {
@@ -915,19 +994,30 @@ public class IniFile : IIniFile
         }
 
         int i = 0;
-
+        int lineStartPos = 0;
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        bool GB18030 = false;
+        GB18030s.Clear();
         while (position < bytes.Length)
         {
             // 尝试解析当前字符
             if (TryReadUtf8Char(bytes, ref position, out int l,out char c))
             {
                 stringBuilder.Append(c);
-
+                
                 // 检测换行符（支持 \n 和 \r\n）
                 if (c == '\n')
                 {
-                    var currentLine = stringBuilder.ToString().TrimEnd('\n').TrimEnd('\r');
+                    GB18030 = false;
+                    var currentLine = stringBuilder.ToString().TrimEnd('\r').TrimEnd('\n');
+                    if (currentLine.Contains('�'))
+                    {
+                        // 将 StringBuilder 转换为字节数组后再用 GB18030 解码
+                        currentLine = Encoding.GetEncoding("GB18030").GetString(bytes[lineStartPos..position]).TrimEnd('\0');
+                        GB18030 = true;
 
+                    }
+                    lineStartPos = position;
 
                     stringBuilder.Clear();
 
@@ -951,7 +1041,7 @@ public class IniFile : IIniFile
                         {
                             string sectionName = currentLine.Substring(1, sectionNameEndIndex - 1);
                             int index = Sections.FindIndex(c => c.SectionName == sectionName);
-
+                            
                             if (index > -1)
                             {
                                 currentSectionId = index;
@@ -963,7 +1053,8 @@ public class IniFile : IIniFile
                             }
                             else
                                 currentSectionId = -1;
-
+                            if (GB18030)
+                                GB18030s.Add(sectionName);
                             continue;
                         }
                     }
@@ -980,19 +1071,20 @@ public class IniFile : IIniFile
 
                     if (equalsIndex == -1)
                     {
+                        
                         Sections[currentSectionId].AddOrReplaceKey(currentLine.Trim(), string.Empty);
+                        if (GB18030)
+                            GB18030s.Add(currentLine.Trim());
                     }
                     else
                     {
                         string value = currentLine.Substring(equalsIndex + 1).Trim();
 
-                        //if (value == TextBlockBeginIdentifier)
-                        //{
-                        //    value = ReadTextBlock(reader);
-                        //}
-
+                        
                         Sections[currentSectionId].AddOrReplaceKey(currentLine.Substring(0, equalsIndex).Trim(),
                             value);
+                        if (GB18030)
+                            GB18030s.Add(value);
 
                     }
                     
@@ -1001,7 +1093,6 @@ public class IniFile : IIniFile
                 else
                 {
                     i += l;
-                    Console.Write("");
                    // otherChar.AddRange(b);
                 }
             }
@@ -1019,6 +1110,10 @@ public class IniFile : IIniFile
           //  ParseLine(currentLine.ToString());
       //  }
 
+    }
+    static bool IsValidText(string text)
+    {
+        return text.All(c => char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c));
     }
 
     private IniFile ParseIniFile(Stream stream, Encoding encoding = null)

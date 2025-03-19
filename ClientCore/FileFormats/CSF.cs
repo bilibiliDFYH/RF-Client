@@ -27,6 +27,9 @@ namespace Localization.Tools
             return File.Exists(csfPath) ? ReadCSF(csfPath) : null;
         }
 
+        static List<string> keys = [];
+        static List<string> wRTS = [];
+
         // 读取 CSF 文件头部信息的方法
         static Tuple<byte[], uint, uint, uint, uint, uint> ReadHeader(BinaryReader csfFile)
         {
@@ -81,12 +84,16 @@ namespace Localization.Tools
         {
             try
            {
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
                 var nameStrMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                 using (var csfFile = new BinaryReader(csfStream))
                 {
                     Tuple<byte[], uint, uint, uint, uint, uint> header = ReadHeader(csfFile);
                     int numLabels = CheckHeader(header);
+
+                    keys.Clear();
+                    wRTS.Clear();
 
                     for (int i = 0; i < numLabels; i++)
                     {
@@ -110,7 +117,22 @@ namespace Localization.Tools
 
                             byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
                             byte[] rtsIdBytes = csfFile.ReadBytes(4);
+
                             string uiName = Encoding.UTF8.GetString(uiNameBytes).TrimEnd('\0');
+                            if (uiName.Contains('�') || !IsValidText(uiName))
+                            {
+                                uiName = Encoding.GetEncoding("GB18030").GetString(uiNameBytes).TrimEnd('\0');
+                                keys.Add(uiName);
+                            }
+                            //if (uiName.Contains("ALL:all12"))
+                            //    Console.Write("");
+                            //if (uiName.Contains("ALL:"))
+                            //{
+                            //    var uiName2 = Encoding.GetEncoding("GB18030").GetString(uiNameBytes).TrimEnd('\0');
+                            //    Console.Write(uiName2);
+                            //}
+
+
                             string rtsId = Encoding.ASCII.GetString(rtsIdBytes);
 
                             uint rtsLen = csfFile.ReadUInt32() * 2;
@@ -122,11 +144,15 @@ namespace Localization.Tools
                                 byte[] extraRaw = csfFile.ReadBytes((int)extraLen);
                             }
 
+                            if (rtsId == "WRTS")
+                                wRTS.Add(uiName);
+
                             string content = BytesToString(contentRaw);
+                            
                             nameStrMap[uiName] = content;
 
                         }
-                        catch
+                        catch(Exception ex)
                         {
                             continue;
                         }
@@ -150,6 +176,10 @@ namespace Localization.Tools
             }
         }
 
+        static bool IsValidText(string text)
+        {
+            return text.All(c => char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c));
+        }
 
         // 将字节数组转换为字符串
         static string BytesToString(byte[] content)
@@ -198,17 +228,46 @@ namespace Localization.Tools
                 foreach (var item in csfDictionary)
                 {
                     string uiName = item.Key;
+
                     string content = item.Value;
 
                     csfFile.Write(Encoding.ASCII.GetBytes(" LBL")); // 标签前缀
                     csfFile.Write((uint)1);
-                    csfFile.Write((uint)uiName.Length); // UI 名称长度
-                    csfFile.Write(Encoding.UTF8.GetBytes(uiName)); // UI 名称
-                    csfFile.Write(Encoding.ASCII.GetBytes(" RTS")); // 内容前缀
-
-                    byte[] contentBytes = StringToBytes(content); // 将字符串转换为字节数组
-                    csfFile.Write((uint)contentBytes.Length / 2); // 写入内容长度
-                    csfFile.Write(contentBytes); // 写入内容
+                    //csfFile.Write((uint)uiName.Length); // UI 名称长度
+                    if(keys.Contains(uiName))
+                    {
+                        var s = Encoding.GetEncoding("GB18030").GetBytes(uiName);
+                        csfFile.Write((uint)s.Length);
+                        csfFile.Write(s); // UI 名称
+                    }
+                    else
+                    {
+                        csfFile.Write((uint)uiName.Length);
+                        csfFile.Write(Encoding.UTF8.GetBytes(uiName)); // UI 名称
+                    }
+                    // csfFile.Write(Encoding.UTF8.GetBytes(uiName)); // UI 名称
+                    if (wRTS.Contains(uiName))
+                    {
+                        csfFile.Write(Encoding.ASCII.GetBytes("WRTS")); // 内容前缀
+                        byte[] contentBytes = StringToBytes(content); // 将字符串转换为字节数组
+                        csfFile.Write((uint)contentBytes.Length / 2); // 写入内容长度
+                        csfFile.Write(contentBytes); // 写入内容
+                        
+                        var s = uiName.Split(':')[1] + 'c';
+                        byte[] sBytes = Encoding.ASCII.GetBytes(s);  // 将字符串转换为字节数组
+                        uint length = (uint)sBytes.Length;  // 获取字符串的长度
+                        csfFile.Write(BitConverter.GetBytes(length));  // 写入 4 字节的长度
+                        csfFile.Write(sBytes);  // 写入字符串的字节
+                   
+                    }
+                    else
+                    {
+                        csfFile.Write(Encoding.ASCII.GetBytes(" RTS")); // 内容前缀
+                        byte[] contentBytes = StringToBytes(content); // 将字符串转换为字节数组
+                        csfFile.Write((uint)contentBytes.Length / 2); // 写入内容长度
+                        csfFile.Write(contentBytes); // 写入内容
+                    }
+                    
                 }
             }
         }

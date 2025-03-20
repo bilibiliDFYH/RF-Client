@@ -24,25 +24,25 @@ namespace ClientCore
         public static List<string> 需要渲染的地图列表 = [];
         public static async Task<bool> RenderOneImageAsync(string mapPath)
        {
-        //    if(!File.Exists(mapPath)) return false;
-        //    var mapName = Path.GetFileNameWithoutExtension(mapPath);
+            if (!File.Exists(mapPath)) return false;
+            var mapName = Path.GetFileNameWithoutExtension(mapPath);
 
-        //    var engine = new RenderEngine();
-        //    RenderSettings settings = new RenderSettings()
-        //    {
-        //        OutputFile = Path.GetFileNameWithoutExtension(mapPath),
-        //        InputFile = mapPath,
-        //        MixFilesDirectory = "E:\\Documents\\file\\RF-Client\\Bin\\YR",
-        //        Engine = EngineType.YurisRevenge,
-        //        ThumbnailConfig = "+(1280,768)",
-        //       // SavePNGThumbnails = true,
-        //      //  Backup = true,
-        //        SaveJPEG = true
-        //    };
-        //    if (engine.ConfigureFromArgs(settings))
-        //    {
-        //        var result = engine.Execute();
-        //    }
+            var engine = new RenderEngine();
+            RenderSettings settings = new RenderSettings()
+            {
+                OutputFile = Path.GetFileNameWithoutExtension(mapPath),
+                InputFile = mapPath,
+                MixFilesDirectory = "E:\\Documents\\file\\RF-Client\\Bin\\YR",
+                Engine = EngineType.YurisRevenge,
+                ThumbnailConfig = "+(1280,768)",
+                // SavePNGThumbnails = true,
+                //  Backup = true,
+                SaveJPEG = true
+            };
+            if (engine.ConfigureFromArgs(settings))
+            {
+                var result = engine.Execute();
+            }
 
             return true;
             //try

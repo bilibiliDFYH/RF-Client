@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -15,9 +16,11 @@ namespace Reunion
         private const string Resources = "Resources";
         private const string Binaries = "Binaries";
 
-        private static string sharedPath64 = @"C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App";
+        private static string dotnetPath = @"C:\Program Files\dotnet";
 
-        private static string dotnet = @"C:\Program Files\dotnet\dotnet.exe";
+        private static string sharedPath64 = $@"shared\Microsoft.WindowsDesktop.App";
+
+        private static string dotnet = $@"dotnet.exe";
 
         private static string[] Args;
         static void Main(string[] args)
@@ -35,7 +38,7 @@ namespace Reunion
                 //    run32Bit = true;
                 var dotnetHost = CheckAndRetrieveDotNetHost();
 
-                if(dotnetHost == null)
+                if (dotnetHost == null)
                 {
                     MessageBox.Show($"缺少 NET 6 组件 ，请下载对应计算机位数的 NET 6 组件", "错误");
                     return;
@@ -75,6 +78,7 @@ namespace Reunion
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     Verb = "runas",
+                    WorkingDirectory = Environment.CurrentDirectory // 指定运行目录
                 });
             }
             catch (Exception ex)
@@ -99,15 +103,22 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-          
-            var r = FindDotNet6InPath(sharedPath64);
+            var p = Path.Combine(dotnetPath, sharedPath64);
+            var dp = Path.Combine(dotnetPath, dotnet);
+            if (!Directory.Exists(p))
+            {
+                p = Path.Combine(dotnetPath,"x64",sharedPath64);
+                dp = Path.Combine(dotnetPath,"x64",dotnet);
+            }
+
+            var r = FindDotNet6InPath(p);
             if(r == null)
             {
                 return null;
             }
             else
             {
-                return dotnet;
+                return dp;
             }
 
            

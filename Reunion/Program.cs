@@ -126,24 +126,26 @@ namespace Reunion
 
         private static string FindDotNet6InPath(string path)
         {
-            // 检查指定路径是否存在
             if (Directory.Exists(path))
             {
-                // 获取该目录下所有文件夹
                 var directories = Directory.GetDirectories(path);
 
                 foreach (var dir in directories)
                 {
                     var folderName = Path.GetFileName(dir);
 
-                    // 如果文件夹名以 "6" 开头，返回该文件夹路径
-                    if (folderName.StartsWith(DotNetMajorVersion.ToString()))
+                    // 解析版本号
+                    if (Version.TryParse(folderName, out var version))
                     {
-                        return dir;
+                        // 版本号必须 >= 6.0.2
+                        if (version.Major == 6 && (version.Minor > 0 || version.Build >= 2))
+                        {
+                            return dir;
+                        }
                     }
                 }
             }
-            return null; // 未找到以 6 开头的文件夹
+            return null; // 未找到符合条件的文件夹
         }
     }
 }

@@ -1,11 +1,15 @@
 ﻿using ClientCore;
 using ClientGUI;
+using CNCMaps.Engine;
+using CNCMaps.Shared;
+using DTAConfig.OptionPanels;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
+using System.Threading.Tasks;
 /* !! We cannot use references to other projects or non-framework assemblies in this class, assembly loading events not hooked up yet !! */
 
 namespace Ra2Client
@@ -37,9 +41,11 @@ namespace Ra2Client
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
+
+           await RenderImage.RenderOneImageAsync("E:\\Desktop\\新建文件夹 (2)\\2peaks.map");
 
             bool noAudio = false;
             bool multipleInstanceMode = false;

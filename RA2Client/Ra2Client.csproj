@@ -59,5 +59,6 @@
        <ProjectReference Include="..\DTAConfig\DTAConfig.csproj" />
        <ProjectReference Include="..\Localization\Localization.csproj" />
        <ProjectReference Include="..\RandomMapGenerator\RandomMapGenerator.csproj" />
+       <ProjectReference Include="..\Render\CNCMaps.Engine\CNCMaps.Engine.csproj" />
   </ItemGroup>
 </Project>

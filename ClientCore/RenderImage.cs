@@ -1,4 +1,6 @@
 ﻿
+using CNCMaps.Engine;
+using CNCMaps.Shared;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using System;
@@ -21,63 +23,82 @@ namespace ClientCore
 
         public static List<string> 需要渲染的地图列表 = [];
         public static async Task<bool> RenderOneImageAsync(string mapPath)
-        {
-            if(!File.Exists(mapPath)) return false;
+       {
+        //    if(!File.Exists(mapPath)) return false;
+        //    var mapName = Path.GetFileNameWithoutExtension(mapPath);
 
-            try
-            {
-                string mapName = Path.GetFileNameWithoutExtension(mapPath);
-                string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
-                string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
-                string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
-                 Console.WriteLine(strCmdText);
-                using Process process = new Process();
-                process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
-                process.StartInfo.Arguments = strCmdText;
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.CreateNoWindow = true;
-                WindowManager.progress.Report($"正在渲染预览图{mapName}...");
+        //    var engine = new RenderEngine();
+        //    RenderSettings settings = new RenderSettings()
+        //    {
+        //        OutputFile = Path.GetFileNameWithoutExtension(mapPath),
+        //        InputFile = mapPath,
+        //        MixFilesDirectory = "E:\\Documents\\file\\RF-Client\\Bin\\YR",
+        //        Engine = EngineType.YurisRevenge,
+        //        ThumbnailConfig = "+(1280,768)",
+        //       // SavePNGThumbnails = true,
+        //      //  Backup = true,
+        //        SaveJPEG = true
+        //    };
+        //    if (engine.ConfigureFromArgs(settings))
+        //    {
+        //        var result = engine.Execute();
+        //    }
 
-                Console.WriteLine(strCmdText);
-                Console.WriteLine(strCmdText);
+            return true;
+            //try
+            //{
+            //    string mapName = Path.GetFileNameWithoutExtension(mapPath);
+            //    string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
+            //    string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
+            //    string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
+            //     Console.WriteLine(strCmdText);
+            //    using Process process = new Process();
+            //    process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
+            //    process.StartInfo.Arguments = strCmdText;
+            //    process.StartInfo.UseShellExecute = false;
+            //    process.StartInfo.CreateNoWindow = true;
+            //    WindowManager.progress.Report($"正在渲染预览图{mapName}...");
 
-                // 异步执行渲染单张图片的逻辑
-                await Task.Run(() =>
-                {
-                    
-                    process.Start();
-                    process.WaitForExit();
-                    process.Close();
+            //    Console.WriteLine(strCmdText);
+            //    Console.WriteLine(strCmdText);
 
-                    if (File.Exists(inputPath))
-                    {
-                        try
-                        {
-                            File.Move(inputPath, outputPath, true);
-                        }
-                        catch {
-                           
-                        }
-                    }
-                    
-                    // 渲染成功，增加计数并触发事件
-                    
-                    Interlocked.Increment(ref RenderCount);
-                    RenderCompleted?.Invoke(null, EventArgs.Empty);
-                });
+            //    // 异步执行渲染单张图片的逻辑
+            //    await Task.Run(() =>
+            //    {
 
-                if (File.Exists(outputPath))
-                    return true;
-                return false;
-            }
-            catch (Exception ex)
-            {
-                // 渲染出错，记录异常并触发事件
-                Logger.Log($"Error rendering image {mapPath}: {ex.Message}");
-                Interlocked.Increment(ref RenderCount);
-                RenderCompleted?.Invoke(null, EventArgs.Empty);
-                return false;
-            }
+            //        process.Start();
+            //        process.WaitForExit();
+            //        process.Close();
+
+            //        if (File.Exists(inputPath))
+            //        {
+            //            try
+            //            {
+            //                File.Move(inputPath, outputPath, true);
+            //            }
+            //            catch {
+
+            //            }
+            //        }
+
+            //        // 渲染成功，增加计数并触发事件
+
+            //        Interlocked.Increment(ref RenderCount);
+            //        RenderCompleted?.Invoke(null, EventArgs.Empty);
+            //    });
+
+            //    if (File.Exists(outputPath))
+            //        return true;
+            //    return false;
+            //}
+            //catch (Exception ex)
+            //{
+            //    // 渲染出错，记录异常并触发事件
+            //    Logger.Log($"Error rendering image {mapPath}: {ex.Message}");
+            //    Interlocked.Increment(ref RenderCount);
+            //    RenderCompleted?.Invoke(null, EventArgs.Empty);
+            //    return false;
+            //}
         }
 
         static readonly List<Task> tasks = [];

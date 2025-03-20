@@ -1022,8 +1022,17 @@ public class IniFile : IIniFile
                     stringBuilder.Clear();
 
                     int commentStartIndex = currentLine.IndexOf(';');
-                    if (commentStartIndex > -1)
-                        currentLine = currentLine.Substring(0, commentStartIndex).TrimEnd();
+                    int hashIndex = currentLine.IndexOf('#');
+
+                    int minIndex = (commentStartIndex > -1 && hashIndex > -1)
+                        ? Math.Min(commentStartIndex, hashIndex) // 两者都找到，取最小值
+                        : Math.Max(commentStartIndex, hashIndex); // 取有效的索引（如果有一个是 -1，不影响结果）
+
+                    if (minIndex == -1) // 只有当 `;` 和 `#` 都不存在时，才检查 `//`
+                        minIndex = currentLine.IndexOf("//");
+
+                    if (minIndex > -1)
+                        currentLine = currentLine.Substring(0, minIndex).TrimEnd();
 
                     if (string.IsNullOrWhiteSpace(currentLine))
                     {
@@ -1131,8 +1140,17 @@ public class IniFile : IIniFile
             currentLine = reader.ReadLine();
 
             int commentStartIndex = currentLine.IndexOf(';');
-            if (commentStartIndex > -1)
-                currentLine = currentLine.Substring(0, commentStartIndex).TrimEnd();
+            int hashIndex = currentLine.IndexOf('#');
+
+            int minIndex = (commentStartIndex > -1 && hashIndex > -1)
+                ? Math.Min(commentStartIndex, hashIndex) // 两者都找到，取最小值
+                : Math.Max(commentStartIndex, hashIndex); // 取有效的索引（如果有一个是 -1，不影响结果）
+
+            if (minIndex == -1) // 只有当 `;` 和 `#` 都不存在时，才检查 `//`
+                minIndex = currentLine.IndexOf("//");
+
+            if (minIndex > -1)
+                currentLine = currentLine.Substring(0, minIndex).TrimEnd();
 
             if (string.IsNullOrWhiteSpace(currentLine))
                 continue;

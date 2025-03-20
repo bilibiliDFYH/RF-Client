@@ -3,7 +3,7 @@
     <TargetFramework>net6.0-windows7.0</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyTitle>CNCMaps.FileFormats</AssemblyTitle>
+	  <UseWindowsForms>True</UseWindowsForms>
     <Product>CNCMaps.FileFormats</Product>
     <Copyright>Copyright ©  2013</Copyright>
 	  <OutputPath>..\..\Bin\Resources\Binaries</OutputPath>

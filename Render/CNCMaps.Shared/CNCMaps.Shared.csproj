@@ -3,7 +3,7 @@
 	  <TargetFramework>net6.0-windows7.0</TargetFramework>
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
+	  <UseWindowsForms>True</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <AssemblyVersion>2.4.2</AssemblyVersion>
     <FileVersion>2.4.2</FileVersion>

@@ -23,6 +23,7 @@ using System.Diagnostics.Eventing.Reader;
 using ClientCore.Settings;
 using SharpDX.Direct2D1;
 using TsfSharp;
+using System.Threading;
 
 namespace DTAConfig.OptionPanels;
 
@@ -1459,6 +1460,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
     private void BtnZip_LeftClick(object sender, EventArgs e)
     {
+       
         using OpenFileDialog fileDialog = new OpenFileDialog();
         fileDialog.Filter = "压缩包 (*.zip;*.7z;*.rar)|*.zip;*.7z;*.rar";
         fileDialog.Title = "选择压缩包";

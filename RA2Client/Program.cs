@@ -41,11 +41,11 @@ namespace Ra2Client
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static async Task Main(string[] args)
+        static void  Main(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
 
-           await RenderImage.RenderOneImageAsync("E:\\Desktop\\新建文件夹 (2)\\2peaks.map");
+          // await RenderImage.RenderOneImageAsync("E:\\Desktop\\新建文件夹 (2)\\2peaks.map");
 
             bool noAudio = false;
             bool multipleInstanceMode = false;

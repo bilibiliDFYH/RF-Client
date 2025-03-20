@@ -6,6 +6,7 @@
     <AssemblyTitle>CNCMaps.FileFormats</AssemblyTitle>
     <Product>CNCMaps.FileFormats</Product>
     <Copyright>Copyright ©  2013</Copyright>
+	  <OutputPath>..\..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -15,12 +16,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
+    <OutputPath>..\..\Bin\Resources\Binaries</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
+    <OutputPath>..\..\Bin\Resources\Binaries</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>

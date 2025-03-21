@@ -45,7 +45,7 @@ namespace Ra2Client
         {
             CDebugView.SetDebugName("Ra2Client");
 
-          // await RenderImage.RenderOneImageAsync("E:\\Desktop\\新建文件夹 (2)\\2peaks.map");
+           //RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
 
             bool noAudio = false;
             bool multipleInstanceMode = false;

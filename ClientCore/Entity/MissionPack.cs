@@ -66,11 +66,12 @@ public class MissionPack : InfoBaseClass
         //  Author = iniFile.GetValue(ID, "Author", string.Empty);
         BuildOffAlly = iniFile.GetValue(ID, nameof(BuildOffAlly), false);
         
-            if(UserINISettings.Instance.RenderPreviewImage.Value)
+            if(Directory.Exists(FilePath)&&UserINISettings.Instance.RenderPreviewImage.Value)
         foreach(var map in Directory.GetFiles(FilePath,"*.map"))
         {
-            var png = Path.GetFileNameWithoutExtension(map) + ".png";
-            if(File.Exists(Path.Combine(FilePath, png))) continue;
+                var png = Path.GetFileNameWithoutExtension(map) + ".png";
+                var jpg = Path.GetFileNameWithoutExtension(map) + ".jpg";
+                if (File.Exists(Path.Combine(FilePath, png)) || File.Exists(Path.Combine(FilePath, jpg))) continue;
                 RenderImage.需要渲染的地图列表.Add(map);
 
         }
@@ -99,10 +100,10 @@ public class MissionPack : InfoBaseClass
             }
         }
 
-        Task.Run(() =>
-        {
-            _ = RenderImage.RenderImagesAsync();
-        });
+        //Task.Run(() =>
+        //{
+            RenderImage.RenderImages();
+        //});
     }
 
     public bool BuildOffAlly { get; set; }

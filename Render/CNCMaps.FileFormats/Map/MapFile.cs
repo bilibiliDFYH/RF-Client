@@ -12,7 +12,9 @@ namespace CNCMaps.FileFormats.Map {
 	public class MapFile : IniFile {
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-		public Rectangle FullSize { get; private set; }
+		public bool isGood = true;
+
+        public Rectangle FullSize { get; private set; }
 		public Rectangle LocalSize { get; private set; }
 
 		public TileLayer Tiles;
@@ -51,7 +53,10 @@ namespace CNCMaps.FileFormats.Map {
 
 			Logger.Info("Reading map");
 			Logger.Debug("Reading tiles");
-			ReadTiles();
+			if (!ReadTiles()) {
+				isGood = false;
+
+                return; }
 
 			Logger.Debug("Reading map overlay");
 			ReadOverlay();
@@ -84,9 +89,18 @@ namespace CNCMaps.FileFormats.Map {
 		}
 
 		/// <summary>Reads the tiles. </summary>
-		private void ReadTiles() {
+		private bool ReadTiles() {
 			var mapSection = GetSection("IsoMapPack5");
-			byte[] lzoData = Convert.FromBase64String(mapSection.ConcatenatedValues());
+			byte[] lzoData;
+
+            try
+			{
+			  lzoData = Convert.FromBase64String(mapSection.ConcatenatedValues());
+			}
+			catch
+			{
+				return false;
+			}
 			int cells = (FullSize.Width * 2 - 1) * FullSize.Height;
 			int lzoPackSize = cells * 11 + 4; // last 4 bytes contains a lzo pack header saying no more data is left
 
@@ -141,6 +155,7 @@ namespace CNCMaps.FileFormats.Map {
 			}
 
 			Logger.Debug("Read {0} tiles", numtiles);
+			return true;
 		}
 
 		/// <summary>Reads the terrain. </summary>
@@ -201,7 +216,14 @@ namespace CNCMaps.FileFormats.Map {
 				Logger.Debug("OverlayDataPack section unavailable in {0}, overlay will be unavailable", Path.GetFileName(FileName));
 				return;
 			}
-			format80Data = Convert.FromBase64String(overlayDataSection.ConcatenatedValues());
+			try
+			{
+				format80Data = Convert.FromBase64String(overlayDataSection.ConcatenatedValues());
+			}
+			catch
+			{
+				return;
+			}
 			var overlayDataPack = new byte[1 << 18];
 			Format5.DecodeInto(format80Data, overlayDataPack, 80);
 

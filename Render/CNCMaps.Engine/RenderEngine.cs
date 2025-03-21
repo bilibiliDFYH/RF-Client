@@ -66,6 +66,7 @@ namespace CNCMaps.Engine {
 					vmapFile = new VirtualFile(mapStream, Path.GetFileName(_settings.InputFile), true);
 				}
 				var mapFile = new MapFile(vmapFile, Path.GetFileName(_settings.InputFile));
+				if (!mapFile.isGood) return EngineResult.LoadTilesFailed;
 
 				ModConfig modConfig = null;
 				if (!string.IsNullOrEmpty(_settings.ModConfig)) {

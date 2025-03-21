@@ -7,7 +7,7 @@ using System.IO;
 using System.Globalization;
 using System.Text;
 using System.Linq;
-
+using Localization.Tools;
 namespace Rampastring.Tools;
 
 /// <summary>
@@ -973,7 +973,7 @@ public class IniFile : IIniFile
 
     List<string> GB18030s = [];
 
-    private List<byte> otherChar = [];
+    public List<byte> otherChar = [];
     public void ParseCharIniFile(Stream stream)
     {
         // 读取所有字节（假设流可定位）
@@ -1010,7 +1010,7 @@ public class IniFile : IIniFile
                 {
                     GB18030 = false;
                     var currentLine = stringBuilder.ToString().TrimEnd('\r').TrimEnd('\n');
-                    if (currentLine.Contains('�'))
+                    if (bytes[lineStartPos..position].IsValidGb18030())
                     {
                         // 将 StringBuilder 转换为字节数组后再用 GB18030 解码
                         currentLine = Encoding.GetEncoding("GB18030").GetString(bytes[lineStartPos..position]).TrimEnd('\0');

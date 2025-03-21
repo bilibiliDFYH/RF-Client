@@ -188,11 +188,11 @@ namespace CNCMaps.FileFormats {
 			public int ParseLine(string line) {
 				// ignore comments
 				if (line[0] == ';') return 0;
-				string key;
+				//string key;
 				int pos = line.IndexOf("=", StringComparison.Ordinal);
 				if (pos != -1) {
-					key = line.Substring(0, pos);
-					string value = line.Substring(pos + 1);
+					var key = line[..pos];
+					string value = line[(pos + 1)..];
 					FixLine(ref key);
 					FixLine(ref value);
 					SetValue(key, value, false);
@@ -214,22 +214,28 @@ namespace CNCMaps.FileFormats {
 				}
 			}
 
-			public static void FixLine(ref string line) {
-				int start = 0;
+            public static void FixLine(ref string line)
+            {
+                int start = 0;
+                while (start < line.Length && (line[start] == ' ' || line[start] == '\t'))
+                    start++;
 
-				while (start < line.Length && (line[start] == ' ' || line[start] == '\t'))
-					start++;
+                int end = line.IndexOf(';', start);
+                if (end == -1) end = line.Length;
 
-				int end = line.IndexOf(';', start);
-				if (end == -1) end = line.Length;
+                while (end > start && (line[end - 1] == ' ' || line[end - 1] == '\t'))
+                    end--;
 
-				while (end > 1 && (line[end - 1] == ' ' || line[end - 1] == '\t'))
-					end--;
+                if (start >= end)
+                { // 确保不会传递负数给 Substring
+                    line = "";
+                    return;
+                }
 
-				line = line.Substring(start, Math.Max(end - start, 0));
-			}
+                line = line.Substring(start, end - start);
+            }
 
-			public static string FixLine(string line) {
+            public static string FixLine(string line) {
 				string copy = line;
 				FixLine(ref copy);
 				return copy;

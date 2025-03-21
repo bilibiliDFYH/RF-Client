@@ -259,7 +259,6 @@ namespace ClientGUI
                     gameProcess.Start();
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
-                    RenderImage.RenderImagesAsync();
                 }
                 catch (Exception ex)
                 {
@@ -510,6 +509,8 @@ namespace ClientGUI
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
             FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Debug"), "Debug");
             获取新的存档();
+
+            RenderImage.RenderImages();
         }
 
     }

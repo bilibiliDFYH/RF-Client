@@ -119,21 +119,21 @@ namespace Localization.Tools
                             byte[] rtsIdBytes = csfFile.ReadBytes(4);
 
                             string uiName = Encoding.UTF8.GetString(uiNameBytes).TrimEnd('\0');
-                            if (uiName.Contains('�') || !IsValidText(uiName))
+                            if (uiNameBytes.IsValidGb18030())
                             {
                                 uiName = Encoding.GetEncoding("GB18030").GetString(uiNameBytes).TrimEnd('\0');
                                 keys.Add(uiName);
                             }
-                            //if (uiName.Contains("ALL:all12"))
-                            //    Console.Write("");
-                            //if (uiName.Contains("ALL:"))
-                            //{
-                            //    var uiName2 = Encoding.GetEncoding("GB18030").GetString(uiNameBytes).TrimEnd('\0');
-                            //    Console.Write(uiName2);
-                            //}
+                                //if (uiName.Contains("ALL:all12"))
+                                //    Console.Write("");
+                                //if (uiName.Contains("ALL:"))
+                                //{
+                                //    var uiName2 = Encoding.GetEncoding("GB18030").GetString(uiNameBytes).TrimEnd('\0');
+                                //    Console.Write(uiName2);
+                                //}
 
 
-                            string rtsId = Encoding.ASCII.GetString(rtsIdBytes);
+                                string rtsId = Encoding.ASCII.GetString(rtsIdBytes);
 
                             uint rtsLen = csfFile.ReadUInt32() * 2;
                             byte[] contentRaw = csfFile.ReadBytes((int)rtsLen);
@@ -176,9 +176,49 @@ namespace Localization.Tools
             }
         }
 
-        static bool IsValidText(string text)
+        static bool IsUtf8(byte[] bytes)
         {
-            return text.All(c => char.IsLetterOrDigit(c) || char.IsPunctuation(c) || char.IsWhiteSpace(c));
+            int i = 0;
+            while (i < bytes.Length)
+            {
+                if ((bytes[i] & 0x80) == 0) // 0xxxxxxx, 1字节
+                {
+                    i++;
+                    continue;
+                }
+
+                if ((bytes[i] & 0xE0) == 0xC0) // 110xxxxx 10xxxxxx, 2字节
+                {
+                    if (i + 1 >= bytes.Length || (bytes[i + 1] & 0xC0) != 0x80)
+                        return false;
+                    i += 2;
+                    continue;
+                }
+
+                if ((bytes[i] & 0xF0) == 0xE0) // 1110xxxx 10xxxxxx 10xxxxxx, 3字节
+                {
+                    if (i + 2 >= bytes.Length ||
+                        (bytes[i + 1] & 0xC0) != 0x80 ||
+                        (bytes[i + 2] & 0xC0) != 0x80)
+                        return false;
+                    i += 3;
+                    continue;
+                }
+
+                if ((bytes[i] & 0xF8) == 0xF0) // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx, 4字节
+                {
+                    if (i + 3 >= bytes.Length ||
+                        (bytes[i + 1] & 0xC0) != 0x80 ||
+                        (bytes[i + 2] & 0xC0) != 0x80 ||
+                        (bytes[i + 3] & 0xC0) != 0x80)
+                        return false;
+                    i += 4;
+                    continue;
+                }
+
+                return false; // 其他情况不是 UTF-8
+            }
+            return true;
         }
 
         // 将字节数组转换为字符串

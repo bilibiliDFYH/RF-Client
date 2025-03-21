@@ -1206,7 +1206,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
-        RenderImage.RenderImagesAsync();
+        RenderImage.RenderImages();
     }
 
     public void DelMod(Mod mod)
@@ -1239,7 +1239,7 @@ public class ModManager : XNAWindow
 
         ReLoad();
         触发刷新?.Invoke();
-        RenderImage.RenderImagesAsync();
+        RenderImage.RenderImages();
     }
 
     private void BtnReturn_LeftClick(object sender, EventArgs e)

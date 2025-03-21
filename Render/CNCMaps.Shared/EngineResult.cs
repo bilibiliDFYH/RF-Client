@@ -5,6 +5,7 @@ namespace CNCMaps.Shared {
 		Exception,
 		LoadTheaterFailed,
 		LoadRulesFailed,
-	}
+        LoadTilesFailed
+    }
 
 }

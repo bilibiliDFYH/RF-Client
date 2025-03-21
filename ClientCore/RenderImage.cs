@@ -22,10 +22,14 @@ namespace ClientCore
         public static ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
         public static List<string> 需要渲染的地图列表 = [];
-        public static async Task<bool> RenderOneImageAsync(string mapPath)
-       {
+        public static bool RenderOneImage(string mapPath)
+        {
             if (!File.Exists(mapPath)) return false;
             var mapName = Path.GetFileNameWithoutExtension(mapPath);
+
+            var ini = new IniFile(mapPath);
+            if (ini.otherChar.Count != 0) return false;
+
 
             var engine = new RenderEngine();
             RenderSettings settings = new RenderSettings()
@@ -44,126 +48,111 @@ namespace ClientCore
                 var result = engine.Execute();
             }
 
-            return true;
-            //try
+
+            //string mapName = Path.GetFileNameWithoutExtension(mapPath);
+            //string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
+            //string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
+            //string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
+
+            //using Process process = new Process();
+            //process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
+            //process.StartInfo.Arguments = strCmdText;
+            //process.StartInfo.UseShellExecute = false;
+            //process.StartInfo.CreateNoWindow = true;
+            //WindowManager.progress.Report($"正在渲染预览图{mapName}...");
+
+            //Console.WriteLine(strCmdText);
+
+
+            //process.Start();
+            //process.WaitForExit();
+            //process.Close();
+
+            //if (File.Exists(inputPath))
             //{
-            //    string mapName = Path.GetFileNameWithoutExtension(mapPath);
-            //    string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
-            //    string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
-            //    string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
-            //     Console.WriteLine(strCmdText);
-            //    using Process process = new Process();
-            //    process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
-            //    process.StartInfo.Arguments = strCmdText;
-            //    process.StartInfo.UseShellExecute = false;
-            //    process.StartInfo.CreateNoWindow = true;
-            //    WindowManager.progress.Report($"正在渲染预览图{mapName}...");
-
-            //    Console.WriteLine(strCmdText);
-            //    Console.WriteLine(strCmdText);
-
-            //    // 异步执行渲染单张图片的逻辑
-            //    await Task.Run(() =>
+            //    try
+            //    {
+            //        File.Move(inputPath, outputPath, true);
+            //    }
+            //    catch
             //    {
 
-            //        process.Start();
-            //        process.WaitForExit();
-            //        process.Close();
-
-            //        if (File.Exists(inputPath))
-            //        {
-            //            try
-            //            {
-            //                File.Move(inputPath, outputPath, true);
-            //            }
-            //            catch {
-
-            //            }
-            //        }
-
-            //        // 渲染成功，增加计数并触发事件
-
-            //        Interlocked.Increment(ref RenderCount);
-            //        RenderCompleted?.Invoke(null, EventArgs.Empty);
-            //    });
-
-            //    if (File.Exists(outputPath))
-            //        return true;
-            //    return false;
+            //    }
             //}
-            //catch (Exception ex)
-            //{
-            //    // 渲染出错，记录异常并触发事件
-            //    Logger.Log($"Error rendering image {mapPath}: {ex.Message}");
-            //    Interlocked.Increment(ref RenderCount);
-            //    RenderCompleted?.Invoke(null, EventArgs.Empty);
-            //    return false;
-            //}
+
+            //// 渲染成功，增加计数并触发事件
+
+            //Interlocked.Increment(ref RenderCount);
+            //RenderCompleted?.Invoke(null, EventArgs.Empty);
+
+
+
+
+            return true;
         }
 
-        static readonly List<Task> tasks = [];
         // 渲染多张图片的方法
-        public static async Task RenderImagesAsync()
+        public static async void RenderImages()
         {
-            if(需要渲染的地图列表.Count == 0) return;
+           
+            if (需要渲染的地图列表.Count == 0) return;
 
-            cts = new CancellationTokenSource();
-            pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
-
+            IsCancelled = false; // 先清除取消标志
             RenderCount = 0;
-            tasks.Clear();
 
             try
             {
-                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-
-                foreach (var map in 需要渲染的地图列表)
+                
+                _ = Task.Run(() =>
                 {
-                    if (cts.Token.IsCancellationRequested)
-                        break;
-
-                    pauseEvent.Wait(); // 等待继续信号
-
-                    try
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+                    foreach (var map in 需要渲染的地图列表)
                     {
-                        // 渲染任务
-                        await RenderOneImageAsync(map);
-                        Interlocked.Increment(ref RenderCount);
-                        TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Console.WriteLine("渲染任务已取消");
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"渲染异常: {ex.Message}");
-                    }
-                }
+                        if (IsCancelled)
+                        {
+                            Console.WriteLine("渲染任务已取消");
+                            break;
+                        }
 
-                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
-                WindowManager.progress.Report(""); // 更新进度
+                        try
+                        {
+                            // 渲染任务
+                            WindowManager.Report($"正在渲染地图:{map}");
+                            RenderOneImage(map);
+                            Interlocked.Increment(ref RenderCount);
+                            TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"渲染异常: {ex.Message}");
+                        }
+                    }
+
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
+                    WindowManager.progress.Report(""); // 更新进度
+                });
+                
+
+                
             }
-            catch (OperationCanceledException)
+            catch (Exception ex)
             {
-                Console.WriteLine("所有渲染任务已取消");
-            }
-            catch (AggregateException ex)
-            {
-                Console.WriteLine($"并行任务发生异常: {ex.Flatten().Message}");
+                Console.WriteLine($"渲染过程中发生异常: {ex.Message}");
             }
         }
 
-        public static async Task RenderPreviewImageAsync(string[] mapFiles)
+        public static bool IsCancelled = false;
+        public static Task RenderPreviewImageAsync(string[] mapFiles)
         {
 
-            if (mapFiles.Length == 0) return;
-
-            if (!UserINISettings.Instance.RenderPreviewImage.Value) return;
+            if (mapFiles.Length == 0)
+                return Task.CompletedTask;
+            if (!UserINISettings.Instance.RenderPreviewImage.Value)
+                return Task.CompletedTask;
             需要渲染的地图列表.InsertRange(0, mapFiles);
             CancelRendering();
-            _ = RenderImagesAsync();
+            RenderImages();
+            return Task.CompletedTask;
         }
         public static void PauseRendering()
         {
@@ -173,8 +162,7 @@ namespace ClientCore
         public static void ResumeRendering() => pauseEvent.Set(); // 继续
 
         public static void CancelRendering() {
-            cts.Cancel();// 取消任务
-            Task.WhenAll(tasks).Wait(); // 等待所有任务完成
+            IsCancelled = true;
         }
         
     }

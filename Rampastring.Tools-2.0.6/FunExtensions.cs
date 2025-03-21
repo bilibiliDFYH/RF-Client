@@ -42,6 +42,43 @@ namespace Localization.Tools
             return mh.Success;
         }
 
+        public static bool IsValidGb18030(this byte[] bytes)
+        {
+            int i = 0;
+            while (i < bytes.Length)
+            {
+                byte b = bytes[i];
+
+                if (b <= 0x7F) // 单字节 ASCII
+                {
+                    i++;
+                }
+                else if (b >= 0x81 && b <= 0xFE) // 可能是 2 字节或 4 字节字符
+                {
+                    if (i + 1 < bytes.Length && bytes[i + 1] >= 0x40 && bytes[i + 1] <= 0xFE) // 2 字节 GBK
+                    {
+                        i += 2;
+                    }
+                    else if (i + 3 < bytes.Length &&
+                             bytes[i + 1] >= 0x30 && bytes[i + 1] <= 0x39 &&
+                             bytes[i + 2] >= 0x81 && bytes[i + 2] <= 0xFE &&
+                             bytes[i + 3] >= 0x30 && bytes[i + 3] <= 0x39) // 4 字节 GB18030 扩展字符
+                    {
+                        i += 4;
+                    }
+                    else
+                    {
+                        return false; // 不符合 GB18030 规则
+                    }
+                }
+                else
+                {
+                    return false; // 非法字节
+                }
+            }
+            return true;
+        }
+
         /// <summary>
         /// 将字典中的繁体中文值转换为简体中文
         /// </summary>

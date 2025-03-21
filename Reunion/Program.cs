@@ -40,7 +40,7 @@ namespace Reunion
 
                 if (dotnetHost == null)
                 {
-                    MessageBox.Show($"缺少 NET 6 组件 ，请下载对应计算机位数的 NET 6 组件", "错误");
+                    MessageBox.Show($"检测到缺少.NET6环境，请到重聚未来官网下载对应计算机位数的.NET6运行库", "错误");
                     return;
                 }
 

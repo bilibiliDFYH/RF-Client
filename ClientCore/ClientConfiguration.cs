@@ -240,15 +240,6 @@ namespace ClientCore
 
         public string[] GetThemeInfoFromIndex(int themeIndex) => clientDefinitionsIni.GetStringValue("Themes", themeIndex.ToString(), ",").Split(',');
 
-//        public string ReunionApiHost =>
-//            clientDefinitionsIni.GetStringValue(SETTINGS, "ReunionApiHost",
-//#if DEBUG
-//                "http://localhost:5000/"
-//#else
-//                "https://api.yra2.com/"
-//#endif
-//                );
-
         /// <summary>
         /// Returns the directory path for a theme, or null if the specified
         /// theme name doesn't exist.
@@ -384,6 +375,12 @@ namespace ClientCore
         public IEnumerable<string> SupplementalMapFileExtensions
             => clientDefinitionsIni.GetStringValue(SETTINGS, "SupplementalMapFileExtensions", null)?
                 .Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+                
+        /// <summary>
+        /// This prevents users from joining games that are incompatible/on a different game version than the current user.
+        /// Default: false
+        /// </summary>
+        public bool DisallowJoiningIncompatibleGames => clientDefinitionsIni.GetBooleanValue(SETTINGS, nameof(DisallowJoiningIncompatibleGames), false);
 
 #endregion
 

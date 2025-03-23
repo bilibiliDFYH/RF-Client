@@ -1249,7 +1249,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 ListMaps();
                 ChangeMap(GameModeMap);
 
-                _ = RenderImage.RenderImagesAsync();
+                RenderImage.RenderImages();
             }
             catch (Exception ex)
             {

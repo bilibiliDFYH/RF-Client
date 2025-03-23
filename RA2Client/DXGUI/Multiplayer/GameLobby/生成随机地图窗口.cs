@@ -262,7 +262,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     随机地图生成.RunOptions(option);
 
-                    RenderImage.RenderOneImageAsync($"Maps/Multi/Custom/随机地图.map").GetAwaiter().GetResult();
+                    RenderImage.RenderOneImage($"Maps/Multi/Custom/随机地图.map");
                 }
                 catch (Exception ex)
                 {

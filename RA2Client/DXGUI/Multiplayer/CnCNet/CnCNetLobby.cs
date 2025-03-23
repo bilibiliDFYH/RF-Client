@@ -805,14 +805,17 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         {
             if (hg.Game.InternalName.ToUpper() != localGameID.ToUpper())
                 return string.Format("The selected game is for {0}!".L10N("UI:Main:GameIsOfPurpose"), gameCollection.GetGameNameFromInternalName(hg.Game.InternalName));
+                
+            if (hg.Incompatible && ClientConfiguration.Instance.DisallowJoiningIncompatibleGames)
+                return "Cannot join game. The host is on a different game version than you.".L10N("UI:Main:DisallowJoiningIncompatibleGames");
 
             if (hg.Locked)
                 return "The selected game is locked!".L10N("UI:Main:GameLocked");
 
-            //判断游戏版本是否一致
-           // if (!CheckGameCompatible(hg.GameVersion,Updater.GameVersion))
-           if(hg.GameVersion != Updater.GameVersion)
-                return $"您的版本({Updater.GameVersion})与房主的版本({hg.GameVersion})不兼容！";
+            // 判断游戏版本是否一致
+            // if (!CheckGameCompatible(hg.GameVersion,Updater.GameVersion))
+            // if(hg.GameVersion != Updater.GameVersion)
+            //     return $"您的版本({Updater.GameVersion})与房主的版本({hg.GameVersion})不兼容！";
 
             if (hg.IsLoadedGame && !hg.Players.Contains(ProgramConstants.PLAYERNAME))
                 return "You do not exist in the saved game!".L10N("UI:Main:NotInSavedGame");

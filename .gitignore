@@ -32,3 +32,6 @@
 *.log
 /RandomMapGenerator/obj
 /RandomMapGenerator/bin
+/Render/CNCMaps.Engine/obj
+/Render/CNCMaps.FileFormats/obj
+/Render/CNCMaps.Shared/obj

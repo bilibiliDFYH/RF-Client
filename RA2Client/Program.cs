@@ -1,12 +1,15 @@
 ﻿using ClientCore;
 using ClientGUI;
-using Localization.Tools;
+using CNCMaps.Engine;
+using CNCMaps.Shared;
+using DTAConfig.OptionPanels;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
+using System.Threading.Tasks;
 /* !! We cannot use references to other projects or non-framework assemblies in this class, assembly loading events not hooked up yet !! */
 
 namespace Ra2Client
@@ -38,12 +41,11 @@ namespace Ra2Client
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        static void  Main(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
 
-            //var csf = new CSF("E:\\Documents\\My_File\\RF-Client\\Bin\\Run\\ra2md.csf").GetCsfDictionary();
-            //CSF.WriteCSF(csf, "E:\\Documents\\My_File\\RF-Client\\Bin\\Run\\ra2md.csf");
+           //RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
 
             bool noAudio = false;
             bool multipleInstanceMode = false;

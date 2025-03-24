@@ -110,7 +110,7 @@ namespace Ra2Client
 
             if (ClientConfiguration.Instance.CreateSavedGamesDirectory)
             {
-                DirectoryInfo savedGamesFolder = SafePath.GetDirectory(ProgramConstants.GamePath, "Saved Games");
+                DirectoryInfo savedGamesFolder = SafePath.GetDirectory(SavedGameManager.GetSaveGameDirectoryPath(), "Saved Games");
 
                 if (!savedGamesFolder.Exists)
                 {
@@ -125,10 +125,10 @@ namespace Ra2Client
                 }
             }
 
-            FinalSunSettings.WriteFinalSunIni();
+          //  FinalSunSettings.WriteFinalSunIni();
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                WriteInstallPathToRegistry();
+            //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            //    WriteInstallPathToRegistry();
 
             ClientConfiguration.Instance.RefreshSettings();
 
@@ -191,9 +191,7 @@ namespace Ra2Client
             // 删除完成后，删除 "del" 文件本身
             File.Delete("del");
 
-#if DEBUG
             ProgramConstants.清理缓存();
-#endif
         }
 
         /// <summary>

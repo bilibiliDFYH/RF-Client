@@ -60,9 +60,9 @@ namespace ClientCore
             return false;
         }
 
-        private static string GetSaveGameDirectoryPath()
+        public static string GetSaveGameDirectoryPath()
         {
-            return SafePath.CombineDirectoryPath(ProgramConstants.GamePath, SAVED_GAMES_DIRECTORY);
+            return SafePath.CombineDirectoryPath(ProgramConstants.游戏目录, SAVED_GAMES_DIRECTORY);
         }
 
         /// <summary>

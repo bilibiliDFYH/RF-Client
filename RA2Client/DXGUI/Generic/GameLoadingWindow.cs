@@ -128,7 +128,7 @@ namespace Ra2Client.DXGUI.Generic
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
             Logger.Log("Loading saved game " + sg.FileName);
 
-            var saveIni = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
+            var saveIni = new IniFile(Path.Combine(SavedGameManager.GetSaveGameDirectoryPath(), "Save.ini"));
 
             var newGame = saveIni.GetValue(sg.FileName, "Game", string.Empty);
             var newMission = saveIni.GetValue(sg.FileName, "Mission", string.Empty);

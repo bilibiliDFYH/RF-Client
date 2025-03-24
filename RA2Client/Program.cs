@@ -3,6 +3,7 @@ using ClientGUI;
 using CNCMaps.Engine;
 using CNCMaps.Shared;
 using DTAConfig.OptionPanels;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,7 +45,8 @@ namespace Ra2Client
         static void  Main(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
-
+            var ini = new IniFile("E:\\Downloads\\黎明之花欧盟篇—自由之翼正式版\\all01umd.map");
+            ini.WriteIniFile("E:\\Downloads\\黎明之花欧盟篇—自由之翼正式版\\map.map");
            //RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
 
             bool noAudio = false;

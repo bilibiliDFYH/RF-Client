@@ -35,6 +35,8 @@ namespace ClientGUI
 
         private static Mod mod;
 
+        private static int DebugCount = 0;
+
         /// <summary>
         /// Starts the main game process.  
         /// </summary>
@@ -47,10 +49,17 @@ namespace ClientGUI
 #endif
                 //RenderImage.CancelRendering();
                 var settings = iniFile.GetSection("Settings");
-                string r = 加载模组文件(settings);
 
                 mod = Mod.Mods.Find(m => m.FilePath == settings.GetValue("Game", string.Empty));
+                if (mod == null)
+                {
+                    XNAMessageBox.Show(windowManager, "错误", $"模组文件已丢失：{settings.GetValue("Game", string.Empty)}");
+                    return;
+                }
 
+            string r = 加载模组文件(settings);
+
+                
 
                 if (r != string.Empty)
                 {
@@ -81,12 +90,6 @@ namespace ClientGUI
                     WindowManager.progress.Report("正在加载音乐");
                     加载音乐(ProgramConstants.游戏目录);
                 }
-
-                if(Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Saved Games")))
-                {
-                    FileHelper.ForceDeleteDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
-                }
-                FileHelper.CopyDirectory("Saved Games", Path.Combine(ProgramConstants.游戏目录, "Saved Games"));
 
                 var ra2md = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
 
@@ -254,6 +257,7 @@ namespace ClientGUI
                 Logger.Log("启动参数: " + gameProcess.StartInfo.Arguments);
 
 
+                DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Count();
                 try
                 {
                     gameProcess.Start();
@@ -312,7 +316,7 @@ namespace ClientGUI
             if (oldSaves.Length < newSaves.Length)
             {
 
-                var iniFile = new IniFile($"{ProgramConstants.GamePath}Saved Games/Save.ini");
+                var iniFile = new IniFile(Path.Combine(SavedGameManager.GetSaveGameDirectoryPath(), "Save.ini"));
                 var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath, "spawn.ini"));
                 var game = spawn.GetValue("Settings", "Game", string.Empty);
 
@@ -506,11 +510,12 @@ namespace ClientGUI
             var RA2MD = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
             if (File.Exists(RA2MD))
                 File.Copy(RA2MD, "RA2MD.ini", true);
-            FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Saved Games"),"Saved Games");
-            FileHelper.CopyDirectory(Path.Combine(ProgramConstants.游戏目录, "Debug"), "Debug");
             获取新的存档();
-
-            RenderImage.RenderImages();
+            if (DebugCount < Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录, "Debug")).Length)
+            {
+                ProgramConstants.清理缓存();
+            }
+                RenderImage.RenderImages();
         }
 
     }

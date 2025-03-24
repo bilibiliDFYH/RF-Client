@@ -460,11 +460,11 @@ namespace Ra2Client.Domain.Multiplayer
               
                     actualSize = section.GetValueOrSetDefault("Size", () => GetMapIni(BaseFilePath).GetStringValue("Map", "Size", "0,0,0,0")).Split(',');
 
-                    //Task.Run(() =>
-                    //{
-                    //    Money = section.GetValueOrSetDefault("ResourcesNum", () => GetMoney(new IniFile($"{BaseFilePath}")));
-                    //}
-                    //);
+                    Task.Run(() =>
+                    {
+                        Money = section.GetValueOrSetDefault("ResourcesNum", () => GetMoney(new IniFile($"{BaseFilePath}")));
+                    }
+                    );
 
                 }
                 else

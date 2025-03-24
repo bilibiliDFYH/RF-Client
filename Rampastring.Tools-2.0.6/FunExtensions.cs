@@ -42,6 +42,23 @@ namespace Localization.Tools
             return mh.Success;
         }
 
+        public static bool IsUtf8Encoded(this byte[] bytes)
+        {
+            if (bytes == null || bytes.Length == 0)
+                return false;
+
+            try
+            {
+                Encoding utf8 = Encoding.UTF8;
+                utf8.GetString(bytes); // 尝试解码
+                return true;
+            }
+            catch (DecoderFallbackException)
+            {
+                return false; // 发生解码异常，说明不是有效的 UTF-8
+            }
+        }
+
         public static bool IsValidGb18030(this byte[] bytes)
         {
             int i = 0;

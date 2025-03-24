@@ -861,8 +861,6 @@ public class IniFile : IIniFile
     public IniFile WriteIniStream(Stream stream, Encoding encoding)
     {
         
-  
-
             using StreamWriter sw = new StreamWriter(stream, encoding);
 
             if (otherChar.Count > 0)
@@ -877,7 +875,7 @@ public class IniFile : IIniFile
             }
 
             foreach (IniSection section in Sections)
-            {
+            {   
                 sw.Write('[');
                 sw.Write(section.SectionName);
                 sw.Write(']');
@@ -1013,7 +1011,7 @@ public class IniFile : IIniFile
                     if (bytes[lineStartPos..position].IsValidGb18030())
                     {
                         // 将 StringBuilder 转换为字节数组后再用 GB18030 解码
-                        currentLine = Encoding.GetEncoding("GB18030").GetString(bytes[lineStartPos..position]).TrimEnd('\0');
+                        currentLine = Encoding.GetEncoding("GB18030").GetString(bytes[lineStartPos..position]).TrimEnd('\0').TrimEnd('\r').TrimEnd('\n');
                         GB18030 = true;
 
                     }

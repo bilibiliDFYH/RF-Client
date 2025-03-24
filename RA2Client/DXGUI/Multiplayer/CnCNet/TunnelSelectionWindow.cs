@@ -1,5 +1,6 @@
 ﻿using System;
 using ClientGUI;
+using Ra2Client.Domain;
 using Ra2Client.Domain.Multiplayer.CnCNet;
 using Localization;
 using Rampastring.XNAUI;
@@ -23,6 +24,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         private TunnelListBox lbTunnelList;
         private XNALabel lblDescription;
         private XNAClientButton btnApply;
+        private XNAClientDropDown ddTunnelServer;
 
         private string originalTunnelAddress;
 
@@ -42,6 +44,20 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblDescription.X = UIDesignConstants.EMPTY_SPACE_SIDES + UIDesignConstants.CONTROL_HORIZONTAL_MARGIN;
             lblDescription.Y = UIDesignConstants.EMPTY_SPACE_TOP + UIDesignConstants.CONTROL_VERTICAL_MARGIN;
             AddChild(lblDescription);
+
+            ddTunnelServer = new XNAClientDropDown(WindowManager);
+            ddTunnelServer.Name = nameof(ddTunnelServer);
+            ddTunnelServer.X = UIDesignConstants.EMPTY_SPACE_SIDES + UIDesignConstants.CONTROL_HORIZONTAL_MARGIN + 317;
+            ddTunnelServer.Y = UIDesignConstants.EMPTY_SPACE_TOP + UIDesignConstants.CONTROL_VERTICAL_MARGIN;
+            ddTunnelServer.Width = 150;
+            ddTunnelServer.Height = 21;
+            foreach (var server in MainClientConstants.TunnelServerUrls.Keys)
+            {
+                ddTunnelServer.AddItem(server);
+            }
+            ddTunnelServer.SelectedIndex = 0; // 默认选择仅显示重聚未来官方服务器
+            ddTunnelServer.SelectedIndexChanged += DdTunnelServer_SelectedIndexChanged;
+            AddChild(ddTunnelServer);
 
             lbTunnelList = new TunnelListBox(WindowManager, tunnelHandler);
             lbTunnelList.Name = nameof(lbTunnelList);
@@ -74,6 +90,13 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             btnCancel.X = Width - btnCancel.Width - UIDesignConstants.EMPTY_SPACE_SIDES - UIDesignConstants.CONTROL_HORIZONTAL_MARGIN;
 
             base.Initialize();
+        }
+
+        private void DdTunnelServer_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedServer = ddTunnelServer.SelectedItem.Text;
+            MainClientConstants.CurrentTunnelServerUrl = MainClientConstants.TunnelServerUrls[selectedServer];
+            tunnelHandler.RequestImmediateRefresh();
         }
 
         private void BtnApply_LeftClick(object sender, EventArgs e)

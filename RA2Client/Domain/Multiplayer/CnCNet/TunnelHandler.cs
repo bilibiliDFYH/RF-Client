@@ -76,25 +76,37 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
         private void ConnectionManager_Disconnected(object sender, EventArgs e) => Enabled = false;
         private List<CnCNetTunnel> tunnels2 = new List<CnCNetTunnel>();
+
+        private bool hasNewTunnelList = false;
+        private bool immediateRefreshRequested = false;
+        private DateTime lastTunnelRefreshTime = DateTime.MinValue;
+
+        public void RequestImmediateRefresh()
+        {
+            immediateRefreshRequested = true;
+        }
+
         private void RefreshTunnelsAsync()
         {
             List<CnCNetTunnel> tunnels = [
-                CnCNetTunnel.Parse("127.6.6.6:50000;China;CN;名称里带Reunion的都是重聚官服;0;0;1;0;0;0;2;0"),
-                CnCNetTunnel.Parse("127.8.8.8:50000;China;CN;不要选这里的这两个, 服务器无效;0;0;1;0;0;0;2;0"),
+                //CnCNetTunnel.Parse("127.6.6.6:50000;China;CN;名称里带Reunion的都是重聚官服;0;0;1;0;0;0;2;0"),
+                //CnCNetTunnel.Parse("127.8.8.8:50000;China;CN;不要选这里的这两个, 服务器无效;0;0;1;0;0;0;2;0"),
                 ];
 
 
             Task.Factory.StartNew(() =>
             {
                 WindowManager.progress.Report("获取联机服务器列表...");
-                tunnels2 = RefreshTunnels();
+                var newTunnels = RefreshTunnels();
+                if (newTunnels.Count > 0 && !newTunnels.SequenceEqual(tunnels2))
+                {
+                    tunnels2 = newTunnels;
+                    hasNewTunnelList = true;
+                }
                 tunnels.AddRange(tunnels2);
                 wm.AddCallback(new Action<List<CnCNetTunnel>>(HandleRefreshedTunnels), tunnels);
-                WindowManager.progress.Report(string.Empty );
+                WindowManager.progress.Report(string.Empty);
             });
-            
-
-            wm.AddCallback(new Action<List<CnCNetTunnel>>(HandleRefreshedTunnels), tunnels);
         }
 
         private void HandleRefreshedTunnels(List<CnCNetTunnel> tunnels)
@@ -159,7 +171,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         /// Downloads and parses the list of CnCNet tunnels.
         /// </summary>
         /// <returns>A list of tunnel servers.</returns>
-        private List<CnCNetTunnel> RefreshTunnels()
+        public List<CnCNetTunnel> RefreshTunnels()
         {
             FileInfo tunnelCacheFile = SafePath.GetFile(ProgramConstants.ClientUserFilesPath, "tunnel_cache");
 
@@ -173,7 +185,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             try
             {
-                data = client.DownloadData(MainClientConstants.CNCNET_TUNNEL_LIST_URL);
+                data = client.DownloadData(MainClientConstants.CurrentTunnelServerUrl);
             }
             catch (Exception ex)
             {
@@ -181,7 +193,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 Logger.Log("Retrying.");
                 try
                 {
-                    data = client.DownloadData(MainClientConstants.CNCNET_TUNNEL_LIST_URL);
+                    data = client.DownloadData(MainClientConstants.CurrentTunnelServerUrl);
                 }
                 catch
                 {
@@ -251,7 +263,13 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
         public override void Update(GameTime gameTime)
         {
-            if (timeSinceTunnelRefresh > TimeSpan.FromSeconds(CURRENT_TUNNEL_PING_INTERVAL))
+            if (immediateRefreshRequested)
+            {
+                immediateRefreshRequested = false;
+                lastTunnelRefreshTime = DateTime.Now;
+                RefreshTunnelsAsync();
+            }
+            else if (timeSinceTunnelRefresh > TimeSpan.FromSeconds(CURRENT_TUNNEL_PING_INTERVAL))
             {
                 if (skipCount % CYCLES_PER_TUNNEL_LIST_REFRESH == 0)
                 {

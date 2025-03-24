@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
+using Ra2Client.Domain;
 
 
 namespace Ra2Client.DXGUI.Multiplayer.CnCNet
@@ -40,7 +41,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
         private XNALabel lblTunnelServer;
         private TunnelListBox lbTunnelList;
-
+        private XNAClientDropDown ddTunnelServer;
 
         private XNAClientButton btnCreateGame;
         private XNAClientButton btnCancel;
@@ -141,6 +142,19 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblTunnelServer.Enabled = false;
             lblTunnelServer.Visible = false;
 
+            ddTunnelServer = new XNAClientDropDown(WindowManager);
+            ddTunnelServer.Name = nameof(ddTunnelServer);
+            ddTunnelServer.ClientRectangle = new Rectangle(tbGameName.X, ddSkillLevel.Bottom + 60,
+                tbGameName.Width, 21);
+            foreach (var server in MainClientConstants.TunnelServerUrls.Keys)
+            {
+                ddTunnelServer.AddItem(server);
+            }
+            ddTunnelServer.SelectedIndex = 0; // 默认选择仅显示重聚未来官方服务器
+            ddTunnelServer.SelectedIndexChanged += DdTunnelServer_SelectedIndexChanged;
+            ddTunnelServer.Enabled = false;
+            ddTunnelServer.Visible = false;
+
             lbTunnelList.X = UIDesignConstants.EMPTY_SPACE_SIDES +
                 UIDesignConstants.CONTROL_HORIZONTAL_MARGIN;
             lbTunnelList.Y = lblTunnelServer.Bottom + UIDesignConstants.CONTROL_VERTICAL_MARGIN;
@@ -184,6 +198,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             AddChild(btnDisplayAdvancedOptions);
             AddChild(lblTunnelServer);
             AddChild(lbTunnelList);
+            AddChild(ddTunnelServer);
 
             AddChild(btnCreateGame);
             if (!ClientConfiguration.Instance.DisableMultiplayerGameLoading)
@@ -217,7 +232,12 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             }
         }
 
-
+        private void DdTunnelServer_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string selectedServer = ddTunnelServer.SelectedItem.Text;
+            MainClientConstants.CurrentTunnelServerUrl = MainClientConstants.TunnelServerUrls[selectedServer];
+            tunnelHandler.RequestImmediateRefresh();
+        }
 
         private void LbTunnelList_ListRefreshed(object sender, EventArgs e)
         {
@@ -337,6 +357,9 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblTunnelServer.Enable();
             lbTunnelList.Enable();
             btnDisplayAdvancedOptions.Disable();
+
+            ddTunnelServer.Enable();
+            ddTunnelServer.Visible = true;
 
             SetAttributesFromIni();
 

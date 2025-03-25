@@ -875,7 +875,7 @@ public class IniFile : IIniFile
             }
 
             foreach (IniSection section in Sections)
-            {   
+            {
                 sw.Write('[');
                 sw.Write(section.SectionName);
                 sw.Write(']');

@@ -6,6 +6,7 @@ using System.Text;
 using Rampastring.Tools;
 using Localization;
 using Rampastring.XNAUI;
+using System.Linq;
 
 namespace ClientCore
 {
@@ -100,22 +101,24 @@ namespace ClientCore
             if (!Directory.Exists(path))
                 return false;
 
+            // 获取当前目录下的所有文件，并转换为 HashSet 加快查找
+            var existingFiles = new HashSet<string>(Directory.GetFiles(path).Select(Path.GetFileName));
+
+            // 先检查所有应该存在的文件是否都存在
             foreach (var fileName in PureHashes.Keys)
             {
-                if (!File.Exists(Path.Combine(path, fileName)))
+                if (!existingFiles.Contains(fileName))
                     return false;
             }
 
-            foreach (var fileName in Directory.GetFiles(path))
+            // 计算 SHA1 并进行比对
+            foreach (var fileName in PureHashes.Keys)
             {
-                var name = Path.GetFileName(fileName);
+                string fullPath = Path.Combine(path, fileName);
+                string fileHash = Utilities.CalculateSHA1ForFile(fullPath);
 
-                if (PureHashes.ContainsKey(name))
-                {
-                    var fileHash = Utilities.CalculateSHA1ForFile(fileName);
-                    if (fileHash != PureHashes[name])
-                        return false;
-                }
+                if (fileHash != PureHashes[fileName])
+                    return false;
             }
 
             return true;

@@ -7,11 +7,13 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using ClientCore;
 using ClientCore.INIProcessing;
+using CNCMaps.FileFormats;
 using DTAConfig.Entity;
 using Localization.Tools;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using SharpDX.XAudio2;
+using IniFile = Rampastring.Tools.IniFile;
 
 namespace ClientGUI
 {
@@ -48,80 +50,9 @@ namespace ClientGUI
             {
 #endif
                 //RenderImage.CancelRendering();
-                var settings = iniFile.GetSection("Settings");
 
-                mod = Mod.Mods.Find(m => m.FilePath == settings.GetValue("Game", string.Empty));
-                if (mod == null)
-                {
-                    XNAMessageBox.Show(windowManager, "错误", $"模组文件已丢失：{settings.GetValue("Game", string.Empty)}");
-                    return;
-                }
-
-            string r = 加载模组文件(settings);
-
+            if (!加载模组文件(windowManager, iniFile)) return;
                 
-
-                if (r != string.Empty)
-                {
-                    if (r == "尤复目录必须为纯净尤复目录")
-                    {
-                        var guideWindow = new YRPathWindow(windowManager);
-                        guideWindow.Show();
-                    }
-                    else
-                        XNAMessageBox.Show(windowManager, "错误", r);
-                    return;
-                }
-
-            if (settings.KeyExists("CampaignID") && settings.GetValue("chkSatellite", false))
-            {
-                FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
-            }
-            else
-            {
-                File.Delete(Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
-            }
-
-            spawnerSettingsFile.Delete();
-                iniFile.WriteIniFile(spawnerSettingsFile.FullName);
-
-                if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")) && !File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.ini")))
-                {
-                    WindowManager.progress.Report("正在加载音乐");
-                    加载音乐(ProgramConstants.游戏目录);
-                }
-
-                var ra2md = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
-
-
-                if (File.Exists(ra2md))
-                {
-                    var ra2mdIni = new IniFile(ra2md);
-                    IniFile.ConsolidateIniFiles(ra2mdIni, new IniFile("RA2MD.ini"));
-                    ra2mdIni.WriteIniFile();
-                }
-                else
-                {
-                    File.Copy("RA2MD.ini", ra2md, true);
-                }
-
-                File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
-
-                var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
-                if (File.Exists(keyboardMD))
-                    File.Copy("KeyboardMD.ini", Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini"), true);
-                if (File.Exists("spawnmap.ini"))
-                    File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
-
-            // 加载渲染插件
-            var p = Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value);
-            if(Directory.Exists(p))
-            foreach (var file in Directory.GetFiles(p))
-            {
-                var targetFileName = Path.Combine(ProgramConstants.游戏目录, "ddraw" + Path.GetExtension(file));
-                FileHelper.CopyFile(file, targetFileName, true);
-            }
-
 #if !DEBUG
             }
             catch(Exception ex)
@@ -285,7 +216,7 @@ namespace ClientGUI
         private static void 加载音乐(string modPath)
         {
             Mix.PackToMix($"{ProgramConstants.GamePath}Resources/thememd/", Path.Combine(ProgramConstants.游戏目录, "thememd.mix"));
-            File.Copy($"{ProgramConstants.GamePath}Resources/thememd/thememd.ini", Path.Combine(ProgramConstants.游戏目录, "thememd.ini"),true);
+            FileHelper.CopyFile($"{ProgramConstants.GamePath}Resources/thememd/thememd.ini", Path.Combine(ProgramConstants.游戏目录, "thememd.ini"),true);
             var csfPath = Path.Combine(modPath, "ra2md.csf");
             if (File.Exists(csfPath))
             {
@@ -336,162 +267,173 @@ namespace ClientGUI
                 iniFile.WriteIniFile();
             }
         }
-        public static string 加载模组文件(IniSection newSection)
-        {
+        public static bool 加载模组文件(WindowManager windowManager, IniFile iniFile) { 
+
+            var newSection = iniFile.GetSection("Settings");
+
+            mod = Mod.Mods.Find(m => m.FilePath == newSection.GetValue("Game", string.Empty));
+            if (mod == null)
+            {
+                XNAMessageBox.Show(windowManager, "错误", $"模组文件已丢失：{newSection.GetValue("Game", string.Empty)}");
+                return false;
+            }
+
+            if (!ProgramConstants.判断目录是否为纯净尤复(UserINISettings.Instance.YRPath))
+            {
+                var guideWindow = new YRPathWindow(windowManager);
+                guideWindow.Show();
+                return false;
+            }
+            ;
 
             FileHelper.KillGameMdProcesses();
             string newGame = newSection.GetValue("Game", string.Empty);
             string newMission = newSection.GetValue("Mission", string.Empty);
 
-
-            var oldSettings = new IniFile(spawnerSettingsFile.FullName);
-
-            var oldSection = oldSettings.GetSection("Settings");
-
-
-            string oldGame = string.Empty;
-            string oldMission = string.Empty;
-
-
-            if (oldSection != null)
-            {
-                oldGame = oldSection.GetValue("Game", string.Empty);
-                oldMission = oldSection.GetValue("Mission", string.Empty);
-            }
-
-
-            bool 是否修改()
-            {
-                if (!Directory.Exists(ProgramConstants.游戏目录)) return true;
-
-                if (!oldSettings.SectionExists("Settings")) return true;
-                
-
-
-                if (oldGame != newGame || oldMission != newMission) return true;
-
-                var newGameFiles = Directory.GetFiles(newGame);
-                foreach (var newGameFile in newGameFiles)
+          
+            try
+            {   List<string> 所有需要复制的文件 = [];
+                    
+                void 添加需要复制的文件夹(string folderPath)
                 {
-                    var fileName = Path.GetFileName(newGameFile);
-                    var gameFile = Path.Combine(ProgramConstants.游戏目录, fileName);
-
-                    // 如果目标文件存在并且修改时间一致，跳过
-                    if (File.Exists(gameFile) && File.GetLastWriteTime(newGameFile) == File.GetLastWriteTime(gameFile))
-                    {
-                        continue;
-                    }
-
-                    // 如果目标文件不存在或修改时间不一致，进行复制
-                    return true;
+                    if (!Directory.Exists(folderPath)) return;
+                    Directory.GetFiles(folderPath).ToList().ForEach(所有需要复制的文件.Add);
                 }
 
-
-                return false;
-            }
-
-            if (是否修改())
-            {
-                try
-                {
-                    if (Directory.Exists(ProgramConstants.游戏目录))
-                    {
-                        ProgramConstants.清理游戏目录();
-                    }
-                        
-
-                    if (!ProgramConstants.判断目录是否为纯净尤复(UserINISettings.Instance.YRPath))
-                    {
-                        return "尤复目录必须为纯净尤复目录";
-                    }
-
+                if(!Directory.Exists(ProgramConstants.游戏目录))
                     Directory.CreateDirectory(ProgramConstants.游戏目录);
 
                     WindowManager.progress.Report("正在加载游戏文件");
 
-
-                    foreach (var file in ProgramConstants.PureHashes.Keys)
+                foreach (var file in ProgramConstants.PureHashes.Keys)
                     {
                         var newFile = Path.Combine(ProgramConstants.游戏目录, Path.GetFileName(file));
                         var sourceFile = Path.Combine(UserINISettings.Instance.YRPath, Path.GetFileName(file));
 
-                        // 检查目标文件是否存在，并且源文件比目标文件更新
-                        if (File.Exists(newFile) && File.GetLastWriteTime(newFile) >= File.GetLastWriteTime(sourceFile))
-                            continue;
-
-                        // 如果源文件更新或目标文件不存在，进行复制
-                        File.Copy(sourceFile, newFile, true);
-                    }
-
-                    if (Directory.Exists("TX"))
-                        FileHelper.CopyDirectory("TX", ProgramConstants.游戏目录);
-                    if(Directory.Exists("zh"))
-                        FileHelper.CopyDirectory("zh", ProgramConstants.游戏目录);
-
-
-                    FileHelper.CopyFile("gamemd-spawn.exe", Path.Combine(ProgramConstants.游戏目录, "gamemd-spawn.exe"), true);
-                    FileHelper.CopyFile("cncnet5.dll", Path.Combine(ProgramConstants.游戏目录, "cncnet5.dll"), true);
-                    // 加载模组
-                    FileHelper.CopyDirectory(newGame, ProgramConstants.游戏目录,killProcesses:true);
-
-                    void 复制CSF(string path,string tag,List<string> excludes)
-                    {
-                        var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
-                        foreach (var csf in csfs)
-                        {
-                            var tagCsf = Path.GetFileName(csf).ToLower();
-                            if (tagCsf == "ra2.csf")
-                            {
-                                tagCsf = "ra2md.csf";
-                            }
-                            if (path.Contains(tag) && UserINISettings.Instance.SimplifiedCSF.Value)
-                                CSF.将繁体的CSF转化为简体CSF(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
-                            else
-                                File.Copy(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf), true);
-                        }
-                        FileHelper.CopyDirectory(path, ProgramConstants.游戏目录, excludes);
-                    }
-
-                    复制CSF(newGame, "Mod&AI", [".csf"]);
-
-                    // 加载任务
-                    if (newMission != newGame && newMission != string.Empty)
-                    {
-                        复制CSF(newMission, "Maps\\CP", [".map", ".csf"]); //地图文件也不复制在后面处理
-                       
-                    }
-
-                    // 加载战役图
-                    if (newSection.KeyExists("CampaignID"))
-                    {
-                        var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
-                        FileHelper.CopyDirectory(战役临时目录, ProgramConstants.游戏目录);
-                        //if (newSection.GetValue("chkSatellite",false))
-                        //{
-                        //    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
-                        //}
-                    }
-
-                    File.Copy("LiteExt.dll", Path.Combine(ProgramConstants.游戏目录, "LiteExt.dll"), true);
-                    File.Copy("qres.dat", Path.Combine(ProgramConstants.游戏目录, "qres.dat"), true);
-                    File.Copy("qres32.dll", Path.Combine(ProgramConstants.游戏目录, "qres32.dll"), true);
-
-                    WindowManager.progress.Report("正在加载语音");
-                    FileHelper.CopyDirectory($"Resources/Voice/{UserINISettings.Instance.Voice.Value}", ProgramConstants.游戏目录);
-
-                    return string.Empty;
+                    所有需要复制的文件.Add(sourceFile);
                 }
 
-                catch (FileLockedException ex)
+                添加需要复制的文件夹("TX");
+                添加需要复制的文件夹("zh");
+                所有需要复制的文件.Add("gamemd-spawn.exe");
+                所有需要复制的文件.Add("cncnet5.dll");
+                添加需要复制的文件夹(newGame);
+                if(newMission != newGame && newMission != string.Empty)
+                    添加需要复制的文件夹(newMission);
+
+                if (newSection.KeyExists("CampaignID"))
                 {
-                    //  XNAMessageBox.Show(windowManager, "错误", ex.Message);
-                    Logger.Log(ex.Message);
-                    return ex.Message;
+                    添加需要复制的文件夹(SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\"));
                 }
 
+                所有需要复制的文件.Add("LiteExt.dll");
+                所有需要复制的文件.Add("qres.dat");
+                所有需要复制的文件.Add("qres32.dll");
+                添加需要复制的文件夹($"Resources/Voice/{UserINISettings.Instance.Voice.Value}");
+
+                所有需要复制的文件.Add("spawn.ini");
+
+                var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
+                if (File.Exists(keyboardMD))
+                    所有需要复制的文件.Add(keyboardMD);
+
+                if (File.Exists("spawnmap.ini"))
+                    所有需要复制的文件.Add("spawnmap.ini");
+
+                复制文件(所有需要复制的文件);
+
+                复制CSF(newGame);
+                if (newMission != newGame && newMission != string.Empty)
+                    复制CSF(newMission);
+
+                if (newSection.KeyExists("CampaignID") && newSection.GetValue("chkSatellite", false))
+                {
+                    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), "shroud.shp");
+                }
+                else
+                {
+                    File.Delete(Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
+                }
+
+                spawnerSettingsFile.Delete();
+                iniFile.WriteIniFile(spawnerSettingsFile.FullName);
+
+                if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")) && !File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.ini")))
+                {
+                    WindowManager.progress.Report("正在加载音乐");
+                    加载音乐(ProgramConstants.游戏目录);
+                }
+
+                var ra2md = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
+
+
+                if (File.Exists(ra2md))
+                {
+                    var ra2mdIni = new IniFile(ra2md);
+                    IniFile.ConsolidateIniFiles(ra2mdIni, new IniFile("RA2MD.ini"));
+                    ra2mdIni.WriteIniFile();
+                }
+                else
+                {
+                    FileHelper.CopyFile("RA2MD.ini", ra2md);
+                }
+
+                // 加载渲染插件
+                var p = Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value);
+                if (Directory.Exists(p))
+                    foreach (var file in Directory.GetFiles(p))
+                    {
+                        var targetFileName = Path.Combine(ProgramConstants.游戏目录, "ddraw" + Path.GetExtension(file));
+                        FileHelper.CopyFile(file, targetFileName);
+                    }
+
+                return true;
             }
-            return string.Empty;
+
+            catch (FileLockedException ex)
+            {
+                //  XNAMessageBox.Show(windowManager, "错误", ex.Message);
+                Logger.Log(ex.Message);
+                return false;
+            }
+
         }
+
+        private static void 复制文件(List<string> 所有需要复制的文件)
+        {
+            Dictionary<string, string> 文件字典 = [];
+
+            // 只保留最后一个相同文件名的路径
+            foreach (var filePath in 所有需要复制的文件)
+            {
+                string fileName = Path.GetFileName(filePath);
+                文件字典[fileName] = filePath; // 若文件名重复，后来的会覆盖前面的
+            }
+
+            var 去重后的文件列表 = 文件字典.Values.ToList();
+            去重后的文件列表.ForEach(file =>
+            {
+                FileHelper.CopyFile(file,Path.Combine( ProgramConstants.游戏目录,Path.GetFileName(file)));
+            });
+        }
+
+        private static void 复制CSF(string path)
+        {
+            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
+            foreach (var csf in csfs)
+            {
+                var tagCsf = Path.GetFileName(csf).ToLower();
+                if (tagCsf == "ra2.csf")
+                {
+                    tagCsf = "ra2md.csf";
+                }
+                if (UserINISettings.Instance.SimplifiedCSF.Value)
+                    CSF.将繁体的CSF转化为简体CSF(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
+                else
+                    FileHelper.CopyFile(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
+            }
+        }
+
         private static void Process_Exited(object sender, EventArgs e)
         {
             Process proc = (Process)sender;

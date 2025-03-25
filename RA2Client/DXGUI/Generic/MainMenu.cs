@@ -147,10 +147,11 @@ namespace Ra2Client.DXGUI.Generic
             btnConfirm.LeftClick += (sender, e) =>
             {
                 var mod = ddMod.SelectedItem.Tag as Mod; //这里应该改成玩家选择
-                var section = new IniSection("Settings");
-                section.AddKey("Game", mod.FilePath);
+                var iniFile = new IniFile();
+                iniFile.AddSection("Settings");
+                iniFile.SetValue("Settings","Game", mod.FilePath);
 
-                GameProcessLogic.加载模组文件(section);
+                GameProcessLogic.加载模组文件(WindowManager, iniFile);
 
                 LaunchMapEditor();
 
@@ -1075,6 +1076,7 @@ namespace Ra2Client.DXGUI.Generic
                 }
             }
             //Verification_File();
+            检查路径长度是否过长();
             CheckHostName();
             CheckForbiddenFiles();
             CheckPrivacyNotification();
@@ -1099,6 +1101,14 @@ namespace Ra2Client.DXGUI.Generic
             //}
 
             WindowManager.progress.Report(string.Empty);
+        }
+
+        private void 检查路径长度是否过长()
+        {
+            if(ProgramConstants.GamePath.Length > 100)
+            {
+                XNAMessageBox.Show(WindowManager,"提示",$"你的安装路径:\n{ProgramConstants.GamePath}\n有点长了，进游戏可能会弹窗，如果出现弹窗请更换更短的路径安装");
+            }
         }
 
         private void CheckYRPath()
@@ -1371,12 +1381,12 @@ namespace Ra2Client.DXGUI.Generic
         private void BtnLan_LeftClick(object sender, EventArgs e)
         {
 
-            if (OptionsWindow.UseSkin)
-            {
-                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "警告", "联机时禁止使用皮肤，请将皮肤还原成默认", XNAMessageBoxButtons.OK);
-                messageBox.Show();
-                return;
-            }
+            //if (OptionsWindow.UseSkin)
+            //{
+            //    XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "警告", "联机时禁止使用皮肤，请将皮肤还原成默认", XNAMessageBoxButtons.OK);
+            //    messageBox.Show();
+            //    return;
+            //}
 
             lanLobby.Open();
 

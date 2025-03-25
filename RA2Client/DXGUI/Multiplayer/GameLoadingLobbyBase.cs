@@ -202,13 +202,13 @@ namespace Ra2Client.DXGUI.Multiplayer
 
             WindowManager.CenterControlOnScreen(this);
 
-            if (SavedGameManager.AreSavedGamesAvailable())
-            {
-                fsw = new FileSystemWatcher(SafePath.CombineDirectoryPath(ProgramConstants.GamePath, "Saved Games"), "*.NET");
-                fsw.EnableRaisingEvents = false;
-                fsw.Created += fsw_Created;
-                fsw.Changed += fsw_Created;
-            }
+            //if (SavedGameManager.AreSavedGamesAvailable())
+            //{
+            //    fsw = new FileSystemWatcher(SafePath.CombineDirectoryPath(ProgramConstants.GamePath, "Saved Games"), "*.NET");
+            //    fsw.EnableRaisingEvents = false;
+            //    fsw.Created += fsw_Created;
+            //    fsw.Changed += fsw_Created;
+            //}
         }
 
         /// <summary>

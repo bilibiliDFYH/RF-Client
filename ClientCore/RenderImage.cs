@@ -121,6 +121,7 @@ namespace ClientCore
                             RenderOneImage(map);
                             Interlocked.Increment(ref RenderCount);
                             TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
+                            WindowManager.Report("");
                         }
                         catch (Exception ex)
                         {

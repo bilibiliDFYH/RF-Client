@@ -259,8 +259,8 @@ namespace DTAConfig.OptionPanels
 #if RELEASE
                 All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1??[];
 #else
-                All_components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
-                //All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
+                //All_components = (await NetWorkINISettings.Get<List<Component>>("component/getUnAuditComponent")).Item1??[];
+                All_components = (await NetWorkINISettings.Get<List<Component>>("component/getAuditComponent")).Item1 ?? [];
 #endif
 
                 if (All_components.Count > 0)
@@ -378,13 +378,12 @@ namespace DTAConfig.OptionPanels
             if (null == _curComponent)
                 return;
 
-            if(null != progressBar)
-            {
-                mainButton.Visible = false;
-                progressBar.Visible = true;
-                lbstatus.Visible = true;
-                lbprogress.Visible = true;
-            }
+            
+            mainButton.Visible = false;
+            progressBar.Visible = true;
+            lbstatus.Visible = true;
+            lbprogress.Visible = true;
+            
 
           
             string strLocPath = string.Empty;
@@ -423,13 +422,12 @@ namespace DTAConfig.OptionPanels
                 catch (Exception ex)
             {
                 Logger.Log(ex.Message);
-                if (null != progressBar)
-                {
-                    mainButton.Visible = true;
-                    progressBar.Visible = false;
-                    lbstatus.Visible = false;
-                    lbprogress.Visible = false;
-                }
+                
+                mainButton.Visible = true;
+                progressBar.Visible = false;
+                lbstatus.Visible = false;
+                lbprogress.Visible = false;
+                
                 RefreshInstallButtonStatus(CompList.SelectedIndex);
             }
 
@@ -445,13 +443,12 @@ namespace DTAConfig.OptionPanels
                     if (_curComponent.hash != strfilehash)
                     {
                         XNAMessageBox.Show(WindowManager, "错误", $"文件可能被破坏，请重新下载");
-                        if (null != progressBar)
-                        {
+                        
                             mainButton.Visible = true;
                             progressBar.Visible = false;
                             lbstatus.Visible = false;
                             lbprogress.Visible = false;
-                        }
+                        
                         RefreshInstallButtonStatus(CompList.SelectedIndex);
                         return;
                     }
@@ -490,13 +487,12 @@ namespace DTAConfig.OptionPanels
             else
                 mainButton.Text = "安装";
 
-            if (null != progressBar)
-            {
+            
                 mainButton.Visible = true;
                 progressBar.Visible = false;
                 lbstatus.Visible = false;
                 lbprogress.Visible = false;
-            }
+            
             RefreshInstallButtonStatus(CompList.SelectedIndex);
         }
 

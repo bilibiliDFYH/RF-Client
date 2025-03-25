@@ -367,8 +367,8 @@ public class ModManager : XNAWindow
             var extension = Path.GetExtension(file);
 
             // 排除特定文件
-            if (!needRecursion && (extension == ".png" || extension == ".jpg" || extension == ".pdb"))
-                continue;
+            //if (!needRecursion && (extension == ".png" || extension == ".jpg" || extension == ".pdb"))
+            //    continue;
 
             // 检查文件哈希值并决定是否复制
             if (ProgramConstants.PureHashes.ContainsKey(fileName) &&
@@ -398,27 +398,13 @@ public class ModManager : XNAWindow
             }
     }
 
-    private  void 整合任务包文件(string startPath,string MissionPackPath, MissionPack missionPack, bool covCsf, bool deepImport = false)
+    private  void 整合任务包文件(string startPath,string MissionPackPath, MissionPack missionPack, bool deepImport = false)
     {
         var tagerPath = Path.Combine(startPath, missionPack.FilePath);
         if (!Directory.Exists(tagerPath))
             Directory.CreateDirectory(tagerPath);
 
         CopyFiles(MissionPackPath, tagerPath, deepImport);
-
-        foreach (var csf in Directory.GetFiles(MissionPackPath, "*.csf"))
-        {
-            var tagCsf = Path.GetFileName(csf);
-            if (csf == "ra2.csf")
-            {
-                tagCsf = "ra2md.csf";
-            }
-            if (covCsf)
-                CSF.将繁体的CSF转化为简体CSF(Path.Combine(MissionPackPath, csf), Path.Combine(tagerPath, tagCsf));
-            else
-                File.Copy(Path.Combine(MissionPackPath, csf), Path.Combine(tagerPath, tagCsf), true);
-        }
-
     }
 
     void 查找并解压压缩包(string zip)
@@ -537,7 +523,7 @@ public class ModManager : XNAWindow
         else 
         {
             missionPack.FilePath = $"Maps\\CP\\{id}";
-            整合任务包文件(startPath,missionPath, missionPack, UserINISettings.Instance.SimplifiedCSF.Value);
+            整合任务包文件(startPath,missionPath, missionPack);
         }
 
         missionPack.Create();

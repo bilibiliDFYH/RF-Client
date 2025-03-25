@@ -10,30 +10,49 @@ namespace ClientCore
 {
     public static class FileHelper
     {
-        public static void CopyFile(string sourceFilePath, string saveFilePath, bool killProcesses = false)
-        {
-            if (File.Exists(sourceFilePath))
-            {
-                // 如果需要解除进程占用，先调用 KillProcessUsingFile
-                if (killProcesses)
-                {
-                    KillProcessUsingFile(sourceFilePath);
-                }
+        //public static void CopyFile(string sourceFilePath, string saveFilePath, bool killProcesses = false)
+        //{
+        //    if (File.Exists(sourceFilePath))
+        //    {
+        //        // 如果需要解除进程占用，先调用 KillProcessUsingFile
+        //        if (killProcesses)
+        //        {
+        //            KillProcessUsingFile(sourceFilePath);
+        //        }
 
-                // 复制文件
-                try
-                {
-                    File.Copy(sourceFilePath, saveFilePath, true);
-                    Console.WriteLine($"File copied successfully from {sourceFilePath} to {saveFilePath}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error copying file: {ex.Message}");
-                }
-            }
-            else
+        //        // 复制文件
+        //        try
+        //        {
+        //            File.Copy(sourceFilePath, saveFilePath, true);
+        //            Console.WriteLine($"File copied successfully from {sourceFilePath} to {saveFilePath}");
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Error copying file: {ex.Message}");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"Source file does not exist: {sourceFilePath}");
+        //    }
+        //}
+
+        public static void CopyFile(string filePath1, string filePath2,bool needCheck = true)
+        {
+            if (!File.Exists(filePath1)) return;
+            
+            if(!File.Exists(filePath2) || !needCheck)
             {
-                Console.WriteLine($"Source file does not exist: {sourceFilePath}");
+                File.Copy(filePath1, filePath2, true);
+                return;
+            }
+
+            DateTime lastWriteTime1 = File.GetLastWriteTime(filePath1);
+            DateTime lastWriteTime2 = File.GetLastWriteTime(filePath2);
+
+            if (lastWriteTime1 != lastWriteTime2)
+            {
+                File.Copy(filePath1, filePath2, true);
             }
         }
 

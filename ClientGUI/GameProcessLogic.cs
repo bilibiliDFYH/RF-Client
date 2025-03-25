@@ -33,8 +33,6 @@ namespace ClientGUI
 
         private static string gameExecutableName;
 
-        private static string[] oldSaves;
-
         private static Mod mod;
 
         private static int DebugCount = 0;
@@ -61,7 +59,6 @@ namespace ClientGUI
                 return;
             }
 #endif
-            oldSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
 
             WindowManager.progress.Report("正在唤起游戏");
 
@@ -242,30 +239,34 @@ namespace ClientGUI
         }
         private static void 获取新的存档()
         {
-            var newSaves = Directory.GetFiles($"{ProgramConstants.GamePath}Saved Games");
+            var newSaves = Directory.GetFiles(ProgramConstants.存档目录);
+            if (newSaves.Length == 0) return;
 
-            if (oldSaves.Length < newSaves.Length)
+            var iniFile = new IniFile(Path.Combine(ProgramConstants.存档目录, "Save.ini"));
+            var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath, "spawn.ini"));
+            var game = spawn.GetValue("Settings", "Game", string.Empty);
+
+            var mission = spawn.GetValue("Settings", "Mission", string.Empty);
+
+
+            var missionSavePath = Path.Combine(ProgramConstants.存档目录, mission);
+            if (!Directory.Exists(missionSavePath))
+                Directory.CreateDirectory(missionSavePath);
+
+            foreach (var item in newSaves)
             {
-
-                var iniFile = new IniFile(Path.Combine(SavedGameManager.GetSaveGameDirectoryPath(), "Save.ini"));
-                var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath, "spawn.ini"));
-                var game = spawn.GetValue("Settings", "Game", string.Empty);
-
-                var mission = spawn.GetValue("Settings", "Mission", string.Empty);
-
-               // var ra2Mode = spawn.GetValue("Settings", "RA2Mode", false);
-                // 找到在 newSaves 中但不在 oldSaves 中的文件
-                var addedFiles = newSaves.Where(newFile => !oldSaves.Contains(newFile)).ToArray();
-
-                foreach (var fileFullPath in addedFiles)
-                {
-                    string fileName = Path.GetFileName(fileFullPath);
-
-                    iniFile.SetValue(fileName, "Game", game);
-                    iniFile.SetValue(fileName, "Mission", mission);
-                }
-                iniFile.WriteIniFile();
+                File.Copy(item,Path.Combine(missionSavePath,Path.GetFileName(item)), true);
             }
+
+            foreach (var fileFullPath in newSaves)
+            {
+                string sectionName = Path.GetFileName(fileFullPath) + '-' + mission;
+
+                iniFile.SetValue(sectionName, "Game", game);
+                iniFile.SetValue(sectionName, "Mission", mission);
+            }
+            iniFile.WriteIniFile();
+            
         }
         public static bool 加载模组文件(WindowManager windowManager, IniFile iniFile) { 
 
@@ -348,7 +349,7 @@ namespace ClientGUI
 
                 if (newSection.KeyExists("CampaignID") && newSection.GetValue("chkSatellite", false))
                 {
-                    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), "shroud.shp");
+                    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
                 }
                 else
                 {

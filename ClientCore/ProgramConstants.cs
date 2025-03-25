@@ -21,6 +21,8 @@ namespace ClientCore
 
         public static readonly string 游戏目录 = Path.Combine(SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName), "Run");
 
+        public static readonly string 存档目录 = Path.Combine(SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName), "Run\\Saved Games");
+
         public static readonly List<int> Version_24H2 = [26100, 26120];
 
         public static string CUR_SERVER_URL = "";

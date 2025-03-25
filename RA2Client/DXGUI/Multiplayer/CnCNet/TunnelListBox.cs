@@ -157,8 +157,24 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             ListRefreshed?.Invoke(this, EventArgs.Empty);
         }
 
+        private readonly object tunnelLock = new object();
+
         private void TunnelHandler_TunnelPinged(int tunnelIndex)
         {
+           lock (tunnelLock)
+           {
+               if (tunnelHandler?.Tunnels == null)
+               {
+                 Logger.Log("隧道列表未初始化");
+                 return;
+               }
+
+            if (tunnelIndex < 0 || tunnelIndex >= tunnelHandler.Tunnels.Count)
+            {
+                Logger.Log($"无效的隧道索引: {tunnelIndex}，当前隧道数量: {tunnelHandler.Tunnels.Count}");
+                return;
+            }
+
             XNAListBoxItem lbItem = GetItem(2, tunnelIndex);
             CnCNetTunnel tunnel = tunnelHandler.Tunnels[tunnelIndex];
 
@@ -179,11 +195,16 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                     SelectedIndex = tunnelIndex;
                 }
             }
+
+            int safeIndex = tunnelIndex;
             Task.Run(() =>
             {
-                SelectedIndex = GetMinms();
+                lock (tunnelLock)
+                {
+                    SelectedIndex = GetMinms();
+                }
             });
-            
+          }
         }
 
         private int GetTunnelRating(CnCNetTunnel tunnel)

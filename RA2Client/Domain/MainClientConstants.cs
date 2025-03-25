@@ -1,4 +1,5 @@
 ﻿using ClientCore;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Ra2Client.Domain
@@ -6,7 +7,16 @@ namespace Ra2Client.Domain
     public static class MainClientConstants
     {
         //public const string CNCNET_TUNNEL_LIST_URL = "http://cncnet.org/master-list";
-        public const string CNCNET_TUNNEL_LIST_URL = "http://tunnel.yra2.com";
+
+        public static readonly Dictionary<string, string> TunnelServerUrls = new Dictionary<string, string>
+    {
+        { "仅重聚官方自建", "http://tunnel.ru2023.top/my" },
+        { "仅中国内地", "http://tunnel.ru2023.top/cn" },
+        { "仅中国内地+港澳台", "http://tunnel.ru2023.top/zh" },
+        { "原服务器列表", "http://tunnel.ru2023.top/list" }
+    };
+
+        public static string CurrentTunnelServerUrl = TunnelServerUrls["仅重聚官方自建"];
 
         public static string GAME_NAME_LONG = "Red Alert 2 Reunion the Future Client";
         public static string GAME_NAME_SHORT = "Reunion";

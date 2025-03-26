@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -40,6 +39,11 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private static readonly object locker = new object();
 
         private const string MAPDB_URL = "http://mapdb.cncnet.org/upload";
+
+        private static readonly HttpClient httpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(10)
+        };
 
         /// <summary>
         /// Adds a map into the CnCNet map upload queue.

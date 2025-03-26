@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using ClientCore;
 
 namespace Ra2Client.Domain.Multiplayer.CnCNet
@@ -17,10 +19,12 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
         private static string cncnetLiveStatusIdentifier;
 
+        private static readonly HttpClient httpClient = new HttpClient();
+
         public static void InitializeService(CancellationTokenSource cts)
         {
             cncnetLiveStatusIdentifier = ClientConfiguration.Instance.CnCNetLiveStatusIdentifier;
-            PlayerCount = GetCnCNetPlayerCount();
+            PlayerCount = GetCnCNetPlayerCount().Result;
 
             CnCNetGameCountUpdated?.Invoke(null, new PlayerCountEventArgs(PlayerCount));
             ThreadPool.QueueUserWorkItem(new WaitCallback(RunService), cts);
@@ -39,50 +43,48 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 }
                 else
                 {
-                    CnCNetGameCountUpdated?.Invoke(null, new PlayerCountEventArgs(GetCnCNetPlayerCount()));
+                    CnCNetGameCountUpdated?.Invoke(null, new PlayerCountEventArgs(GetCnCNetPlayerCount().Result));
                 }
             }
         }
 
-        private static int GetCnCNetPlayerCount()
+        //private static async Task<int> GetCnCNetPlayerCount()
+        //{
+        //    try
+        //    {
+        //        HttpResponseMessage response = await httpClient.GetAsync("http://api.cncnet.org/status");
+        //        response.EnsureSuccessStatusCode();
+
+        //        string info = await response.Content.ReadAsStringAsync();
+
+        //        info = info.Replace("{", String.Empty);
+        //        info = info.Replace("}", String.Empty);
+        //        info = info.Replace("\"", String.Empty);
+        //        string[] values = info.Split(new char[] { ',' });
+
+        //        int numGames = -1;
+
+        //        foreach (string value in values)
+        //        {
+        //            if (value.Contains(cncnetLiveStatusIdentifier))
+        //            {
+        //                numGames = Convert.ToInt32(value.Substring(cncnetLiveStatusIdentifier.Length + 1));
+        //                return numGames;
+        //            }
+        //        }
+
+        //        return numGames;
+        //    }
+        //    catch
+        //    {
+        //        return -1;
+        //    }
+        //}
+
+        // 如果不需要和API交互，可以直接返回-1
+        private static Task<int> GetCnCNetPlayerCount()
         {
-            try
-            {
-                //WebClient client = new WebClient();
-
-                //Stream data = client.OpenRead("http://api.cncnet.org/status");
-
-                //string info = string.Empty;
-
-                //using (StreamReader reader = new StreamReader(data))
-                //{
-                //    info = reader.ReadToEnd();
-                //}
-
-                //info = info.Replace("{", String.Empty);
-                //info = info.Replace("}", String.Empty);
-                //info = info.Replace("\"", String.Empty);
-                //string[] values = info.Split(new char[] { ',' });
-
-                //int numGames = -1;
-
-                //foreach (string value in values)
-                //{
-                //    if (value.Contains(cncnetLiveStatusIdentifier))
-                //    {
-                //        numGames = Convert.ToInt32(value.Substring(cncnetLiveStatusIdentifier.Length + 1));
-                //        return numGames;
-                //    }
-                //}
-
-                //return numGames;
-                //不统计人数
-                return -1;
-            }
-            catch
-            {
-                return -1;
-            }
+            return Task.FromResult(-1);
         }
     }
 

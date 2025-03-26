@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using ClientCore;
@@ -30,6 +31,8 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private const uint CYCLES_PER_TUNNEL_LIST_REFRESH = 6;
 
         private const int SUPPORTED_TUNNEL_VERSION = 2;
+
+        private static readonly HttpClient httpClient = new HttpClient();
 
         public TunnelHandler(WindowManager wm, CnCNetManager connectionManager) : base(wm.Game)
         {
@@ -94,10 +97,10 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 ];
 
 
-            Task.Factory.StartNew(() =>
+            Task.Factory.StartNew(async () =>
             {
                 WindowManager.progress.Report("获取联机服务器列表...");
-                var newTunnels = RefreshTunnels();
+                var newTunnels = await RefreshTunnels();
                 if (newTunnels.Count > 0 && !newTunnels.SequenceEqual(tunnels2))
                 {
                     tunnels2 = newTunnels;
@@ -120,8 +123,8 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             for (int i = 0; i < Tunnels.Count; i++)
             {
-            //    if (Tunnels[i].Official || Tunnels[i].Recommended)
-                    pingTasks[i] = PingListTunnelAsync(i);
+                //    if (Tunnels[i].Official || Tunnels[i].Recommended)
+                pingTasks[i] = PingListTunnelAsync(i);
             }
 
             if (CurrentTunnel != null)
@@ -171,21 +174,67 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         /// Downloads and parses the list of CnCNet tunnels.
         /// </summary>
         /// <returns>A list of tunnel servers.</returns>
-        public List<CnCNetTunnel> RefreshTunnels()
+        public async Task<List<CnCNetTunnel>> RefreshTunnels()
         {
             FileInfo tunnelCacheFile = SafePath.GetFile(ProgramConstants.ClientUserFilesPath, "tunnel_cache");
 
             List<CnCNetTunnel> returnValue = new List<CnCNetTunnel>();
 
-            WebClient client = new WebClient();
-
-            byte[] data;
-
             Logger.Log("Fetching tunnel server info.");
 
             try
             {
-                data = client.DownloadData(MainClientConstants.CurrentTunnelServerUrl);
+                HttpResponseMessage response = await httpClient.GetAsync(MainClientConstants.CurrentTunnelServerUrl);
+                response.EnsureSuccessStatusCode();
+                byte[] data = await response.Content.ReadAsByteArrayAsync();
+
+                string convertedData = Encoding.Default.GetString(data);
+
+                string[] serverList = convertedData.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                // skip first header item ("address;country;countrycode;name;password;clients;maxclients;official;latitude;longitude;version;distance")
+                foreach (string serverInfo in serverList.Skip(1))
+                {
+                    try
+                    {
+                        CnCNetTunnel tunnel = CnCNetTunnel.Parse(serverInfo);
+
+                        if (tunnel == null)
+                            continue;
+
+                        if (tunnel.RequiresPassword)
+                            continue;
+
+                        if (tunnel.Version != SUPPORTED_TUNNEL_VERSION)
+                            continue;
+
+                        returnValue.Add(tunnel);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log("Caught an exception when parsing a tunnel server: " + ex.Message);
+                    }
+                }
+
+                if (returnValue.Count > 0)
+                {
+                    try
+                    {
+                        if (tunnelCacheFile.Exists)
+                            tunnelCacheFile.Delete();
+
+                        DirectoryInfo clientDirectoryInfo = SafePath.GetDirectory(ProgramConstants.ClientUserFilesPath);
+
+                        if (!clientDirectoryInfo.Exists)
+                            clientDirectoryInfo.Create();
+
+                        File.WriteAllBytes(tunnelCacheFile.FullName, data);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log("Refreshing tunnel cache file failed! Returned error: " + ex.Message);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -193,7 +242,57 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 Logger.Log("Retrying.");
                 try
                 {
-                    data = client.DownloadData(MainClientConstants.CurrentTunnelServerUrl);
+                    HttpResponseMessage response = await httpClient.GetAsync(MainClientConstants.CurrentTunnelServerUrl);
+                    response.EnsureSuccessStatusCode();
+                    byte[] data = await response.Content.ReadAsByteArrayAsync();
+
+                    string convertedData = Encoding.Default.GetString(data);
+
+                    string[] serverList = convertedData.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    // skip first header item ("address;country;countrycode;name;password;clients;maxclients;official;latitude;longitude;version;distance")
+                    foreach (string serverInfo in serverList.Skip(1))
+                    {
+                        try
+                        {
+                            CnCNetTunnel tunnel = CnCNetTunnel.Parse(serverInfo);
+
+                            if (tunnel == null)
+                                continue;
+
+                            if (tunnel.RequiresPassword)
+                                continue;
+
+                            if (tunnel.Version != SUPPORTED_TUNNEL_VERSION)
+                                continue;
+
+                            returnValue.Add(tunnel);
+                        }
+                        catch (Exception parseEx)
+                        {
+                            Logger.Log("Caught an exception when parsing a tunnel server: " + parseEx.Message);
+                        }
+                    }
+
+                    if (returnValue.Count > 0)
+                    {
+                        try
+                        {
+                            if (tunnelCacheFile.Exists)
+                                tunnelCacheFile.Delete();
+
+                            DirectoryInfo clientDirectoryInfo = SafePath.GetDirectory(ProgramConstants.ClientUserFilesPath);
+
+                            if (!clientDirectoryInfo.Exists)
+                                clientDirectoryInfo.Create();
+
+                            File.WriteAllBytes(tunnelCacheFile.FullName, data);
+                        }
+                        catch (Exception cacheEx)
+                        {
+                            Logger.Log("Refreshing tunnel cache file failed! Returned error: " + cacheEx.Message);
+                        }
+                    }
                 }
                 catch
                 {
@@ -205,56 +304,36 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     else
                     {
                         Logger.Log("Fetching tunnel server list failed. Using cached tunnel data.");
-                        data = File.ReadAllBytes(tunnelCacheFile.FullName);
+                        byte[] data = File.ReadAllBytes(tunnelCacheFile.FullName);
+
+                        string convertedData = Encoding.Default.GetString(data);
+
+                        string[] serverList = convertedData.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                        // skip first header item ("address;country;countrycode;name;password;clients;maxclients;official;latitude;longitude;version;distance")
+                        foreach (string serverInfo in serverList.Skip(1))
+                        {
+                            try
+                            {
+                                CnCNetTunnel tunnel = CnCNetTunnel.Parse(serverInfo);
+
+                                if (tunnel == null)
+                                    continue;
+
+                                if (tunnel.RequiresPassword)
+                                    continue;
+
+                                if (tunnel.Version != SUPPORTED_TUNNEL_VERSION)
+                                    continue;
+
+                                returnValue.Add(tunnel);
+                            }
+                            catch (Exception parseEx)
+                            {
+                                Logger.Log("Caught an exception when parsing a tunnel server: " + parseEx.Message);
+                            }
+                        }
                     }
-                }
-            }
-
-            string convertedData = Encoding.Default.GetString(data);
-
-            string[] serverList = convertedData.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-            // skip first header item ("address;country;countrycode;name;password;clients;maxclients;official;latitude;longitude;version;distance")
-            foreach (string serverInfo in serverList.Skip(1))
-            {
-                try
-                {
-                    CnCNetTunnel tunnel = CnCNetTunnel.Parse(serverInfo);
-
-                    if (tunnel == null)
-                        continue;
-
-                    if (tunnel.RequiresPassword)
-                        continue;
-
-                    if (tunnel.Version != SUPPORTED_TUNNEL_VERSION)
-                        continue;
-
-                    returnValue.Add(tunnel);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log("Caught an exception when parsing a tunnel server: " + ex.Message);
-                }
-            }
-
-            if (returnValue.Count > 0)
-            {
-                try
-                {
-                    if (tunnelCacheFile.Exists)
-                        tunnelCacheFile.Delete();
-
-                    DirectoryInfo clientDirectoryInfo = SafePath.GetDirectory(ProgramConstants.ClientUserFilesPath);
-
-                    if (!clientDirectoryInfo.Exists)
-                        clientDirectoryInfo.Create();
-
-                    File.WriteAllBytes(tunnelCacheFile.FullName, data);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log("Refreshing tunnel cache file failed! Returned error: " + ex.Message);
                 }
             }
 

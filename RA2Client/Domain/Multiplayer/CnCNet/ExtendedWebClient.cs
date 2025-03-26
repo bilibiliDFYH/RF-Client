@@ -1,25 +1,28 @@
 ﻿using System;
-using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Ra2Client.Domain.Multiplayer.CnCNet
 {
     /// <summary>
     /// A web client that supports customizing the timeout of the request.
     /// </summary>
-    class ExtendedWebClient : WebClient
+    class ExtendedHttpClient
     {
-        public ExtendedWebClient(int timeout)
+        private readonly HttpClient httpClient;
+
+        public ExtendedHttpClient(int timeout)
         {
-            this.timeout = timeout;
+            var handler = new HttpClientHandler();
+            httpClient = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
         }
 
-        private int timeout;
-
-        protected override WebRequest GetWebRequest(Uri address)
+        public async Task<string> GetStringAsync(Uri address)
         {
-            WebRequest webRequest = base.GetWebRequest(address);
-            webRequest.Timeout = timeout;
-            return webRequest;
+            return await httpClient.GetStringAsync(address);
         }
     }
 }

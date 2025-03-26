@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Rampastring.Tools;
 
 namespace Ra2Client.Domain.Multiplayer.CnCNet
@@ -18,6 +20,18 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private const int REQUEST_TIMEOUT = 10000; // In milliseconds
         private const int PING_TIMEOUT = 1000;
 
+        public class ExtendedWebClient : HttpClient
+        {
+            public ExtendedWebClient(int timeout)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout);
+            }
+
+            public async Task<string> DownloadStringAsync(string requestUri)
+            {
+                return await GetStringAsync(requestUri);
+            }
+        }
         public CnCNetTunnel() { }
 
         /// <summary>
@@ -119,7 +133,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
                 using (var client = new ExtendedWebClient(REQUEST_TIMEOUT))
                 {
-                    string data = client.DownloadString(addressString);
+                    string data = client.DownloadStringAsync(addressString).Result;
 
                     data = data.Replace("[", String.Empty);
                     data = data.Replace("]", String.Empty);

@@ -6,8 +6,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using ClientCore;
 using Rampastring.Tools;
 
@@ -78,8 +81,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             Logger.Log("MapSharer: Starting upload of " + map.BaseFilePath);
 
-            bool success = false;
-            string message = MapUpload(MAPDB_URL, map, myGameId, out success);
+            var (message, success) = MapUpload(MAPDB_URL, map, myGameId).Result;
 
             if (success)
             {
@@ -118,7 +120,8 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             }
         }
 
-        private static string MapUpload(string _URL, Map map, string gameName, out bool success)
+
+        private static async Task<(string, bool)> MapUpload(string _URL, Map map, string gameName)
         {
             ServicePointManager.Expect100Continue = false;
 
@@ -138,23 +141,11 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             }
             catch { }
 
-            // Upload the file to the URI. 
-            // The 'UploadFile(uriString,fileName)' method implicitly uses HTTP POST method. 
-
             try
             {
                 using (FileStream stream = zipFile.Open(FileMode.Open))
                 {
                     List<FileToUpload> files = new List<FileToUpload>();
-                    //{
-                    //    new FileToUpload
-                    //    {
-                    //        Name = "file",
-                    //        Filename = Path.GetFileName(zipFile),
-                    //        ContentType = "mapZip",
-                    //        Stream = stream
-                    //    };
-                    //};
 
                     FileToUpload file = new FileToUpload()
                     {
@@ -167,30 +158,51 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     files.Add(file);
 
                     NameValueCollection values = new NameValueCollection
-                {
-                    { "game", gameName.ToLower() },
-                };
+            {
+                { "game", gameName.ToLower() },
+            };
 
-                    byte[] responseArray = UploadFiles(_URL, files, values);
+                    byte[] responseArray = await UploadFiles(_URL, files, values);
                     string response = Encoding.UTF8.GetString(responseArray);
 
                     if (!response.Contains("Upload succeeded!"))
                     {
-                        success = false;
-                        return response;
+                        return (response, false);
                     }
                     Logger.Log("MapSharer: Upload response: " + response);
 
-                    //MessageBox.Show((response));
-
-                    success = true;
-                    return String.Empty;
+                    return (String.Empty, true);
                 }
             }
             catch (Exception ex)
             {
-                success = false;
-                return ex.Message;
+                return (ex.Message, false);
+            }
+        }
+
+
+        private static async Task<byte[]> UploadFiles(string address, List<FileToUpload> files, NameValueCollection values)
+        {
+            using (var client = new HttpClient())
+            {
+                using (var content = new MultipartFormDataContent())
+                {
+                    foreach (string name in values.Keys)
+                    {
+                        content.Add(new StringContent(values[name]), name);
+                    }
+
+                    foreach (FileToUpload file in files)
+                    {
+                        var fileContent = new StreamContent(file.Stream);
+                        fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                        content.Add(fileContent, file.Name, file.Filename);
+                    }
+
+                    var response = await client.PostAsync(address, content);
+                    response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadAsByteArrayAsync();
+                }
             }
         }
 
@@ -201,66 +213,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
             {
                 output.Write(buffer, 0, read);
-            }
-        }
-
-        private static byte[] UploadFiles(string address, List<FileToUpload> files, NameValueCollection values)
-        {
-            WebRequest request = WebRequest.Create(address);
-            request.Method = "POST";
-            string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x", NumberFormatInfo.InvariantInfo);
-            request.ContentType = "multipart/form-data; boundary=" + boundary;
-            boundary = "--" + boundary;
-
-            using (Stream requestStream = request.GetRequestStream())
-            {
-                // Write the values
-                foreach (string name in values.Keys)
-                {
-                    byte[] buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
-                    requestStream.Write(buffer, 0, buffer.Length);
-
-                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"{1}{1}", name, Environment.NewLine));
-                    requestStream.Write(buffer, 0, buffer.Length);
-
-                    buffer = Encoding.UTF8.GetBytes(values[name] + Environment.NewLine);
-                    requestStream.Write(buffer, 0, buffer.Length);
-                }
-
-                // Write the files
-                foreach (FileToUpload file in files)
-                {
-                    var buffer = Encoding.ASCII.GetBytes(boundary + Environment.NewLine);
-                    requestStream.Write(buffer, 0, buffer.Length);
-
-                    buffer = Encoding.UTF8.GetBytes(string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"{2}", file.Name, file.Filename, Environment.NewLine));
-                    requestStream.Write(buffer, 0, buffer.Length);
-
-                    buffer = Encoding.ASCII.GetBytes(string.Format("Content-Type: {0}{1}{1}", file.ContentType, Environment.NewLine));
-                    requestStream.Write(buffer, 0, buffer.Length);
-
-                    CopyStream(file.Stream, requestStream);
-
-                    buffer = Encoding.ASCII.GetBytes(Environment.NewLine);
-                    requestStream.Write(buffer, 0, buffer.Length);
-                }
-
-                byte[] boundaryBuffer = Encoding.ASCII.GetBytes(boundary + "--");
-                requestStream.Write(boundaryBuffer, 0, boundaryBuffer.Length);
-            }
-
-            using (WebResponse response = request.GetResponse())
-            {
-                using (Stream responseStream = response.GetResponseStream())
-                {
-                    using (MemoryStream stream = new MemoryStream())
-                    {
-
-                        CopyStream(responseStream, stream);
-
-                        return stream.ToArray();
-                    }
-                }
             }
         }
 
@@ -317,8 +269,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             Logger.Log("MapSharer: Preparing to download map " + sha1 + " with name: " + mapName);
 
-            bool success;
-
             try
             {
                 Logger.Log("MapSharer: MapDownloadStarted");
@@ -329,11 +279,11 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 Logger.Log("MapSharer: ERROR " + ex.Message);
             }
 
-            string mapPath = DownloadMain(sha1, myGameId, mapName, out success);
+            var (mapPath, downloadSuccess) = DownloadMain(sha1, myGameId, mapName).Result;
 
             lock (locker)
             {
-                if (success)
+                if (downloadSuccess)
                 {
                     Logger.Log("MapSharer: Download_Notice of map " + sha1 + " completed succesfully.");
                     MapDownloadComplete?.Invoke(null, new SHA1EventArgs(sha1, mapName));
@@ -360,10 +310,12 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             }
         }
 
+
+
         public static string GetMapFileName(string sha1, string mapName)
             => mapName + "_" + sha1;
 
-        private static string DownloadMain(string sha1, string myGame, string mapName, out bool success)
+        private static async Task<(string, bool)> DownloadMain(string sha1, string myGame, string mapName)
         {
             string customMapsDirectory = SafePath.CombineDirectoryPath(ProgramConstants.GamePath, "Maps", "Custom");
 
@@ -378,46 +330,34 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             destinationFile.Delete();
             newFile.Delete();
 
-            using (TWebClient webClient = new TWebClient())
+            try
             {
-                webClient.Proxy = null;
-
-                try
+                using (var client = new HttpClient())
                 {
                     Logger.Log("MapSharer: Downloading URL: " + "http://mapdb.cncnet.org/" + myGame + "/" + sha1 + ".zip");
-                    webClient.DownloadFile("http://mapdb.cncnet.org/" + myGame + "/" + sha1 + ".zip", destinationFile.FullName);
+                    var response = await client.GetAsync("http://mapdb.cncnet.org/" + myGame + "/" + sha1 + ".zip");
+                    response.EnsureSuccessStatusCode();
+                    var data = await response.Content.ReadAsByteArrayAsync();
+                    await File.WriteAllBytesAsync(destinationFile.FullName, data);
                 }
-                catch (Exception ex)
-                {
-                    /*                    if (ex.message.Contains("404"))
-                                        {
-                                            string messageToSend = "NOTICE " + ChannelName + " " + CTCPChar1 + CTCPChar2 + "READY 1" + CTCPChar2;
-                                            CnCNetData.ConnectionBridge.SendMessage(messageToSend);
-                                        }
-                                        else
-                                        {
-                                            //GlobalVars.WriteLogfile(ex.StackTrace.ToString(), DateTime.Now.ToString("hh:mm:ss") + " DownloadMap: " + ex.message + _DestFile);
-                                            MessageBox.Show("Download_Notice failed:" + _DestFile);
-                                        }*/
-                    success = false;
-                    return ex.Message;
-                }
+            }
+            catch (Exception ex)
+            {
+                return (ex.Message, false);
             }
 
             destinationFile.Refresh();
 
             if (!destinationFile.Exists)
             {
-                success = false;
-                return null;
+                return (null, false);
             }
 
             string extractedFile = ExtractZipFile(destinationFile.FullName, customMapsDirectory);
 
             if (String.IsNullOrEmpty(extractedFile))
             {
-                success = false;
-                return null;
+                return (null, false);
             }
 
             // We can safely assume that there will not be a duplicate file due to deleting it
@@ -426,9 +366,9 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             destinationFile.Delete();
 
-            success = true;
-            return extractedFile;
+            return (extractedFile, true);
         }
+
 
         class FileToUpload
         {
@@ -441,23 +381,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             public string Filename { get; set; }
             public string ContentType { get; set; }
             public Stream Stream { get; set; }
-        }
-
-        class TWebClient : WebClient
-        {
-            private int Timeout = 10000;
-
-            public TWebClient()
-            {
-                this.Proxy = null;
-            }
-
-            protected override WebRequest GetWebRequest(Uri address)
-            {
-                var webRequest = base.GetWebRequest(address);
-                webRequest.Timeout = Timeout;
-                return webRequest;
-            }
         }
     }
 }

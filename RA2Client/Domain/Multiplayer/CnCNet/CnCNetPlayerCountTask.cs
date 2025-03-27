@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using ClientCore;
+using ClientCore.Settings;
 
 namespace Ra2Client.Domain.Multiplayer.CnCNet
 {
@@ -24,7 +25,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         public static void InitializeService(CancellationTokenSource cts)
         {
             cncnetLiveStatusIdentifier = ClientConfiguration.Instance.CnCNetLiveStatusIdentifier;
-            PlayerCount = GetCnCNetPlayerCount().Result;
+            PlayerCount = GetCnCNetPlayerCount();
 
             CnCNetGameCountUpdated?.Invoke(null, new PlayerCountEventArgs(PlayerCount));
             ThreadPool.QueueUserWorkItem(new WaitCallback(RunService), cts);
@@ -43,7 +44,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 }
                 else
                 {
-                    CnCNetGameCountUpdated?.Invoke(null, new PlayerCountEventArgs(GetCnCNetPlayerCount().Result));
+                    CnCNetGameCountUpdated?.Invoke(null, new PlayerCountEventArgs(GetCnCNetPlayerCount()));
                 }
             }
         }
@@ -82,9 +83,9 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         //}
 
         // 如果不需要和API交互，可以直接返回-1
-        private static Task<int> GetCnCNetPlayerCount()
+        private static int GetCnCNetPlayerCount()
         {
-            return Task.FromResult(-1);
+            return NetWorkINISettings.Get<int>("ChatRoom/getPeopleCount").GetAwaiter().GetResult().Item1;
         }
     }
 

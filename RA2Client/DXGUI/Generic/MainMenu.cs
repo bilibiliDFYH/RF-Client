@@ -251,7 +251,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private MainMenuDarkeningPanel innerPanel;
 
-        private XNALabel lblCnCNetPlayerCount;
         private XNALinkLabel lblUpdateStatus;
         private XNALinkLabel lblWebsite;
 
@@ -267,6 +266,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private readonly DiscordHandler discordHandler;
 
+        private XNALabel lblPlayerCount;
         private readonly TopBar topBar;
         private readonly CnCNetGameLoadingLobby cnCNetGameLoadingLobby;
         private readonly CnCNetGameLobby cnCNetGameLobby;
@@ -336,6 +336,8 @@ namespace Ra2Client.DXGUI.Generic
             ClientRectangle = new Rectangle(0, 0, BackgroundTexture.Width, BackgroundTexture.Height);
 
             WindowManager.CenterControlOnScreen(this);
+
+            
 
             btnNewCampaign = new XNAClientButton(WindowManager);
             btnNewCampaign.Name = nameof(btnNewCampaign);
@@ -442,9 +444,11 @@ namespace Ra2Client.DXGUI.Generic
             lblCnCNetStatus.Text = "DTA players on CnCNet:".L10N("UI:Main:CnCNetOnlinePlayersCountText");
             lblCnCNetStatus.ClientRectangle = new Rectangle(12, 9, 0, 0);
 
-            lblCnCNetPlayerCount = new XNALabel(WindowManager);
-            lblCnCNetPlayerCount.Name = nameof(lblCnCNetPlayerCount);
-            lblCnCNetPlayerCount.Text = "-";
+            lblPlayerCount = new XNALabel(WindowManager);
+            lblPlayerCount.Name = "lblPlayerCount";
+            lblPlayerCount.Text = "联机在线玩家: N/A";
+            lblPlayerCount.ClientRectangle = new Rectangle(1000, 9, 0, 0);
+
 
             lblannouncement = new XNATextBlock(WindowManager);
             lblannouncement.Name = nameof(lblannouncement);
@@ -466,9 +470,11 @@ namespace Ra2Client.DXGUI.Generic
             lblWebsite = new XNALinkLabel(WindowManager);
             lblWebsite.Name = nameof(lblWebsite);
             lblWebsite.LeftClick += lblWebsite_LeftClick;
-          //  lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
+
+            //  lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
 
             AddChild(picDynamicbg);
+            AddChild(lblPlayerCount);
             AddChild(lblannouncement);
             AddChild(btnNewCampaign);
             AddChild(btnLoadGame);
@@ -482,7 +488,6 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(btnExtras);
             AddChild(btnExit);
             AddChild(lblCnCNetStatus);
-            AddChild(lblCnCNetPlayerCount);
             
             //var (R, G, B) = FunExtensions.ConvertHSVToRGB(25, 255, 255);
             //Console.WriteLine($"RGB: ({R}, {G}, {B})");
@@ -530,10 +535,15 @@ namespace Ra2Client.DXGUI.Generic
                 Math.Max(WindowManager.RenderResolutionX, Width),
                 Math.Max(WindowManager.RenderResolutionY, Height));
 
+          
             CnCNetPlayerCountTask.CnCNetGameCountUpdated += CnCNetInfoController_CnCNetGameCountUpdated;
             cncnetPlayerCountCancellationSource = new CancellationTokenSource();
-            CnCNetPlayerCountTask.InitializeService(cncnetPlayerCountCancellationSource);
-
+            Task.Run(() =>
+            {
+                CnCNetPlayerCountTask.InitializeService(cncnetPlayerCountCancellationSource);
+            });
+            
+          
             WindowManager.GameClosing += WindowManager_GameClosing;
 
             innerPanel.CampaignSelector.Exited += CampaignSelector_Exited;
@@ -568,7 +578,7 @@ namespace Ra2Client.DXGUI.Generic
 
         }
 
-        
+
         private void SetToolTip()
         {
             var lblUpdateStatus2 = new XNALabel(WindowManager)
@@ -1004,9 +1014,9 @@ namespace Ra2Client.DXGUI.Generic
             lock (locker)
             {
                 if (e.PlayerCount == -1)
-                    lblCnCNetPlayerCount.Text = "N/A".L10N("UI:Main:N/A");
+                    lblPlayerCount.Text = "当前在线玩家: N/A";
                 else
-                    lblCnCNetPlayerCount.Text = e.PlayerCount.ToString();
+                    lblPlayerCount.Text = $"当前在线玩家: {CnCNetPlayerCountTask.PlayerCount}";
             }
         }
 

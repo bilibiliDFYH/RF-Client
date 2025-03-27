@@ -95,7 +95,7 @@ namespace DTAConfig.OptionPanels
             chkIMEEnable = new XNAClientCheckBox(WindowManager);
             chkIMEEnable.Name = "chkIMEEnable";
             chkIMEEnable.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkScrollCoasting.Y, 150, 20);
-            chkIMEEnable.Text = "客户端启用输入法";
+            chkIMEEnable.Text = "客户端启用输入法(Win11推荐使用Rime输入法+雾淞字库)";
             //chkIMEEnable.Visible = false;
 
             chkTargetLines = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "UnitActionLines");

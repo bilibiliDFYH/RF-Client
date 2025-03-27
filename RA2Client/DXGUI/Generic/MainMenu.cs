@@ -638,7 +638,7 @@ namespace Ra2Client.DXGUI.Generic
                         // 设置新值
                         sessionManagerKey.SetValue(valueName, newValues, RegistryValueKind.MultiString);
 
-                        XNAMessageBox.Show(WindowManager, "信息", "我们注意到游戏渲染插件可能无法被正确调用，已经修复了，但这需要你重启计算机才能生效.\n如果不重启电脑直接游玩,你可能会遇到 无法设置渲染模式,按ESC或者点击右上角按钮卡住,游戏运行不流畅  等问题.");
+                        XNAMessageBox.Show(WindowManager, "提示信息", "我们注意到游戏渲染插件可能无法被正确调用，已为您自动修复，但这些更改需要您重启计算机才能生效.\n若不重启电脑直接启动,你可能会遇到 无法设置渲染模式,按ESC或者点击右上角按钮卡住,游戏黑屏卡顿 等问题.");
                     }
                     else
                     {
@@ -765,7 +765,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             else
             {
-                var ini = new IniFile(ProgramConstants.GamePath + "Resources/FinalAlert2SP/FinalAlert.ini", Encoding.GetEncoding("GBK"));
+                var ini = new IniFile(ProgramConstants.GamePath + "Resources/FinalAlert2SP/FinalAlert.ini", Encoding.GetEncoding("UTF-8"));
                 ini.SetStringValue("TS", "Exe", Path.Combine(ProgramConstants.游戏目录, "gamemd.exe").Replace('/', '\\')); //地编路径必须是\，这里写两个是因为有一个是转义符
                 ini.WriteIniFile();
                 Logger.Log("写入地编游戏路径");

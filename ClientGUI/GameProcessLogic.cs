@@ -246,10 +246,10 @@ namespace ClientGUI
             var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath, "spawn.ini"));
             var game = spawn.GetValue("Settings", "Game", string.Empty);
 
-            var mission = spawn.GetValue("Settings", "Mission", string.Empty);
+            var mission = spawn.GetValue("Settings", "Mission", "Other");
 
 
-            var missionSavePath = Path.Combine(ProgramConstants.存档目录, mission);
+            var missionSavePath = Path.Combine(ProgramConstants.存档目录, Path.GetFileName(mission));
             if (!Directory.Exists(missionSavePath))
                 Directory.CreateDirectory(missionSavePath);
 

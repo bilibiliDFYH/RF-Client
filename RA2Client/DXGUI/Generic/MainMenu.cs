@@ -1117,7 +1117,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if(ProgramConstants.GamePath.Length > 100)
             {
-                XNAMessageBox.Show(WindowManager,"提示",$"您的安装路径:\n{ProgramConstants.GamePath}\n有点长了，进游戏可能会弹窗，如果出现弹窗请更换更短的路径安装");
+                XNAMessageBox.Show(WindowManager,"提示",$"您的安装路径:\n{ProgramConstants.GamePath}\n似乎过长，进入游戏可能会导致弹窗，若多次出现弹窗请更换为更短的路径重新安装");
             }
         }
 

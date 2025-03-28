@@ -308,6 +308,12 @@ namespace Ra2Client
                     }
                 }
             }
+            // 防止通过域网络管理的计算机出现域信任问题导致无法启动(Linq可能会在日志中写入: Sequence contains no matching element)
+            catch (System.ComponentModel.Win32Exception ex)
+            {
+                Logger.Log($"Failed to translate to SIDs. Error: {ex.Message}");
+                return isInRoleWithAccess;
+            }
             catch (UnauthorizedAccessException)
             {
                 return false;

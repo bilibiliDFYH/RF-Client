@@ -733,6 +733,15 @@ namespace Ra2Client.Online
                         case 475: // Returned when attempting to join a key-locked channel either without a key or with the wrong key
                             connectionManager.OnIncorrectChannelPassword(parameters[1]);
                             break;
+                        //case 375: // Start of MOTD (After being enabled, it is more in line with RFC specifications, but it is obviously redundant in CnCNet)
+                        //    connectionManager.OnGenericServerMessageReceived("Message of the Day -");
+                        //    break;
+                        case 372: // MOTD content
+                            connectionManager.OnGenericServerMessageReceived(parameters[1]);
+                            break;
+                        //case 376: // End of MOTD (After being enabled, it is more in line with RFC specifications, but it is obviously redundant in CnCNet)
+                        //    connectionManager.OnGenericServerMessageReceived("End of Message of the Day");
+                        //    break;
                     }
 
                     return;

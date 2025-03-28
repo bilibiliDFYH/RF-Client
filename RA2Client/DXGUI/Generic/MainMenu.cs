@@ -124,7 +124,7 @@ namespace Ra2Client.DXGUI.Generic
             var label = new XNALabel(WindowManager)
             {
                 ClientRectangle = new Rectangle(20, 10, 0, 0),
-                Text = "你想用哪个模组的地编?"
+                Text = "您想使用哪个模组的地编?"
             };
 
 
@@ -446,7 +446,7 @@ namespace Ra2Client.DXGUI.Generic
 
             lblPlayerCount = new XNALabel(WindowManager);
             lblPlayerCount.Name = "lblPlayerCount";
-            lblPlayerCount.Text = "联机在线玩家: N/A";
+            lblPlayerCount.Text = "联机大厅玩家数: N/A";
             lblPlayerCount.ClientRectangle = new Rectangle(1000, 9, 0, 0);
 
 
@@ -648,7 +648,7 @@ namespace Ra2Client.DXGUI.Generic
                         // 设置新值
                         sessionManagerKey.SetValue(valueName, newValues, RegistryValueKind.MultiString);
 
-                        XNAMessageBox.Show(WindowManager, "提示信息", "我们注意到游戏渲染插件可能无法被正确调用，已为您自动修复，但这些更改需要您重启计算机才能生效.\n若不重启电脑直接启动,你可能会遇到 无法设置渲染模式,按ESC或者点击右上角按钮卡住,游戏黑屏卡顿 等问题.");
+                        XNAMessageBox.Show(WindowManager, "提示信息", "我们注意到游戏渲染插件可能无法被正确调用，已为您自动修复，但这些更改需要您重启计算机才能生效.\n若不重启电脑直接启动,您可能会遇到 无法设置渲染模式,按ESC或者点击右上角按钮卡住,游戏黑屏卡顿 等问题.");
                     }
                     else
                     {
@@ -1117,7 +1117,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if(ProgramConstants.GamePath.Length > 100)
             {
-                XNAMessageBox.Show(WindowManager,"提示",$"你的安装路径:\n{ProgramConstants.GamePath}\n有点长了，进游戏可能会弹窗，如果出现弹窗请更换更短的路径安装");
+                XNAMessageBox.Show(WindowManager,"提示",$"您的安装路径:\n{ProgramConstants.GamePath}\n似乎过长，进入游戏可能会导致弹窗，若多次出现弹窗请更换为更短的路径重新安装");
             }
         }
 
@@ -1139,7 +1139,7 @@ namespace Ra2Client.DXGUI.Generic
                 string hostName = Environment.MachineName;
                 if (!regex.IsMatch(hostName))
                 {
-                    XNAMessageBox.Show(WindowManager, "警告", "你的电脑名称似乎有点复杂，这可能导致无法游玩红警。如果进入游戏反复出现英文弹窗，请更改你的电脑名称。");
+                    XNAMessageBox.Show(WindowManager, "警告", "您的电脑名称似乎有些复杂，这可能导致无法正常运行游戏。若进入游戏反复出现英文弹窗，请更改您的电脑名称。");
                 }
             }
             catch (Exception ex)

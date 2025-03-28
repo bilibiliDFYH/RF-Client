@@ -332,14 +332,16 @@ namespace ClientGUI
                 所有需要复制的文件.Add("qres32.dll");
                 添加需要复制的文件夹($"Resources/Voice/{UserINISettings.Instance.Voice.Value}");
 
-                所有需要复制的文件.Add("spawn.ini");
+                
 
                 var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
                 if (File.Exists(keyboardMD))
                     所有需要复制的文件.Add(keyboardMD);
 
-                if (File.Exists("spawnmap.ini"))
-                    所有需要复制的文件.Add("spawnmap.ini");
+                if (newSection.KeyExists("CampaignID") && newSection.GetValue("chkSatellite", false))
+                {
+                    所有需要复制的文件.Add(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"));
+                }
 
                 复制文件(所有需要复制的文件);
 
@@ -347,16 +349,9 @@ namespace ClientGUI
                 if (newMission != newGame && newMission != string.Empty)
                     复制CSF(newMission);
 
-                if (newSection.KeyExists("CampaignID") && newSection.GetValue("chkSatellite", false))
-                {
-                    FileHelper.CopyFile(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"), Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
-                }
-                else
-                {
-                    File.Delete(Path.Combine(ProgramConstants.游戏目录, "shroud.shp"));
-                }
+                
 
-                spawnerSettingsFile.Delete();
+                
                 iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 
                 if (!File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.mix")) && !File.Exists(Path.Combine(ProgramConstants.游戏目录, "thememd.ini")))
@@ -376,8 +371,12 @@ namespace ClientGUI
                 }
                 else
                 {
-                    FileHelper.CopyFile("RA2MD.ini", ra2md);
+                    File.Copy("RA2MD.ini", ra2md,true);
                 }
+
+                File.Copy("spawn.ini", Path.Combine(ProgramConstants.游戏目录, "spawn.ini"), true);
+                if (File.Exists("spawnmap.ini"))
+                    File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
 
                 // 加载渲染插件
                 var p = Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value);
@@ -385,7 +384,7 @@ namespace ClientGUI
                     foreach (var file in Directory.GetFiles(p))
                     {
                         var targetFileName = Path.Combine(ProgramConstants.游戏目录, "ddraw" + Path.GetExtension(file));
-                        FileHelper.CopyFile(file, targetFileName);
+                        File.Copy(file, targetFileName,true);
                     }
 
                 return true;
@@ -412,6 +411,9 @@ namespace ClientGUI
             }
 
             var 去重后的文件列表 = 文件字典.Values.ToList();
+
+            ProgramConstants.清理游戏目录(去重后的文件列表);
+
             去重后的文件列表.ForEach(file =>
             {
                 FileHelper.CopyFile(file,Path.Combine( ProgramConstants.游戏目录,Path.GetFileName(file)));

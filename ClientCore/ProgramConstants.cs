@@ -87,11 +87,11 @@ namespace ClientCore
         { "BINKW32.DLL","613f81f82e12131e86ae60dd318941f40db2200f" }
     };
 
-        public static void 清理游戏目录()
+        public static void 清理游戏目录(List<string> excludeFiles)
         {
             foreach (var file in Directory.GetFiles(游戏目录))
             {
-                if (!PureHashes.ContainsKey(Path.GetFileName(file)))
+                if (!excludeFiles.Contains(Path.GetFileName(file)))
                 {
                     File.Delete(file);
                 }

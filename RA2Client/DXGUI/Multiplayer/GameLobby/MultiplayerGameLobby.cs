@@ -186,15 +186,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             sndGetReadySound = new EnhancedSoundEffect("getready.wav", 0.0, 0.0, ClientConfiguration.Instance.SoundGameLobbyGetReadyCooldown);
             sndReturnSound = new EnhancedSoundEffect("return.wav", 0.0, 0.0, ClientConfiguration.Instance.SoundGameLobbyReturnCooldown);
 
-            if (SavedGameManager.AreSavedGamesAvailable())
-            {
-                fsw = new FileSystemWatcher(SafePath.CombineDirectoryPath(ProgramConstants.GamePath, "Saved Games"), "*.NET");
-                fsw.Created += fsw_Created;
-                fsw.Changed += fsw_Created;
-                fsw.EnableRaisingEvents = false;
-            }
-            else
-                Logger.Log("MultiplayerGameLobby: Saved games are not available!");
+            //if (SavedGameManager.AreSavedGamesAvailable())
+            //{
+            //    fsw = new FileSystemWatcher(SafePath.CombineDirectoryPath(ProgramConstants.GamePath, "Saved Games"), "*.NET");
+            //    fsw.Created += fsw_Created;
+            //    fsw.Changed += fsw_Created;
+            //    fsw.EnableRaisingEvents = false;
+            //}
+            //else
+            //    Logger.Log("MultiplayerGameLobby: Saved games are not available!");
 
             btnRandomMap.ClientRectangle = new Rectangle(btnLockGame.Right  + 200, btnLockGame.Y, btnLockGame.Width, btnLockGame.Height);
 

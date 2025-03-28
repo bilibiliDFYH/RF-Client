@@ -108,22 +108,22 @@ namespace Ra2Client
                 }
             }
 
-            if (ClientConfiguration.Instance.CreateSavedGamesDirectory)
-            {
-                DirectoryInfo savedGamesFolder = SafePath.GetDirectory(SavedGameManager.GetSaveGameDirectoryPath(), "Saved Games");
+            //if (ClientConfiguration.Instance.CreateSavedGamesDirectory)
+            //{
+            //    DirectoryInfo savedGamesFolder = SafePath.GetDirectory(SavedGameManager.GetSaveGameDirectoryPath(), "Saved Games");
 
-                if (!savedGamesFolder.Exists)
-                {
-                    Logger.Log("Saved Games directory does not exist - attempting to create one.");
-                    try
-                    {
-                        savedGamesFolder.Create();
-                    }
-                    catch
-                    {
-                    }
-                }
-            }
+            //    if (!savedGamesFolder.Exists)
+            //    {
+            //        Logger.Log("Saved Games directory does not exist - attempting to create one.");
+            //        try
+            //        {
+            //            savedGamesFolder.Create();
+            //        }
+            //        catch
+            //        {
+            //        }
+            //    }
+            //}
 
           //  FinalSunSettings.WriteFinalSunIni();
 

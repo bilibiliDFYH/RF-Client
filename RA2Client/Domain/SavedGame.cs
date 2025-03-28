@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using ClientCore;
+using DTAConfig.Entity;
 using OpenMcdf;
 using Rampastring.Tools;
 
@@ -13,13 +14,20 @@ namespace Ra2Client.Domain
     {
         const string SAVED_GAME_PATH = "Saved Games/";
 
-        public SavedGame(string fileName)
+        public SavedGame(string fileName,string game,string mission)
         {
+            Game = game;
+            Mission = mission;
             FileName = fileName;
         }
-
+        public string FilePath { get; set; }
         public string FileName { get; private set; }
         public string GUIName { get; private set; }
+
+        public string Mission { get; private set; }
+
+        public string Game { get; private set; }
+
         public DateTime LastModified { get; private set; }
 
         /// <summary>
@@ -54,7 +62,7 @@ namespace Ra2Client.Domain
         {
             try
             {
-                FileInfo savedGameFileInfo = SafePath.GetFile(ProgramConstants.GamePath, SAVED_GAME_PATH, FileName);
+                FileInfo savedGameFileInfo = FilePath;
 
                 //if (savedGameFileInfo.Exists == false)
                 //{

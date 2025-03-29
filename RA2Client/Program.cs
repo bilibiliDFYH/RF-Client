@@ -6,19 +6,23 @@ using DTAConfig.OptionPanels;
 using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using Timer = System.Timers.Timer;
 /* !! We cannot use references to other projects or non-framework assemblies in this class, assembly loading events not hooked up yet !! */
 
 namespace Ra2Client
 {
     static class Program
     {
-
         static Program()
         {
             /* We have different binaries depending on build platform, but for simplicity
@@ -28,7 +32,7 @@ namespace Ra2Client
 
             string startupPath = new FileInfo(Assembly.GetEntryAssembly().Location).Directory.Parent.Parent.FullName + Path.DirectorySeparatorChar;
 
-            COMMON_LIBRARY_PATH = Path.Combine(startupPath, "Resources","Binaries") + Path.DirectorySeparatorChar;
+            COMMON_LIBRARY_PATH = Path.Combine(startupPath, "Resources", "Binaries") + Path.DirectorySeparatorChar;
 
             SPECIFIC_LIBRARY_PATH = Path.Combine(startupPath, "Resources", "Binaries") + Path.DirectorySeparatorChar;
 
@@ -38,12 +42,20 @@ namespace Ra2Client
 
         private static string COMMON_LIBRARY_PATH;
         private static string SPECIFIC_LIBRARY_PATH;
+        private static readonly string MajorVerifyUrl = "https://www.yra2.com/verify/launcher.txt"; // 替换为实际的云端文件URL
+        private static readonly string MinorVerifyUrl = "https://www.ru2023.top/verify/launcher.txt"; // 备用的云端文件URL
+        private static Timer checkVersionTimer;
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void  Main(string[] args)
+        static void Main(string[] args)
+        {
+            Run(args).GetAwaiter().GetResult();
+        }
+
+        private static async Task Run(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
             //System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -77,10 +89,29 @@ namespace Ra2Client
                 }
             }
 
-            if(!Directory.Exists("Resources/Dynamicbg"))
+            if (!Directory.Exists("Resources/Dynamicbg"))
                 ProgramConstants.SkipLogo = true;
 
             var parameters = new StartupParams(noAudio, multipleInstanceMode, unknownStartupParams);
+
+            // 检查后台是否有 .NET Host 进程
+            var dotnetHostProcesses = Process.GetProcessesByName("dotnet");
+            if (dotnetHostProcesses.Length > 1)
+            {
+                MessageBox.Show("您可能正在运行多个同版本的客户端,请在任务管理器手动结束额外进程.", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            bool canStart = await CheckVersionFromCloud();
+            if (!canStart)
+            {
+                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Environment.Exit(1);
+            }
+
+            checkVersionTimer = new Timer(1 * 60 * 1000);
+            checkVersionTimer.Elapsed += async (sender, e) => await OnTimedEvent();
+            checkVersionTimer.AutoReset = true;
+            checkVersionTimer.Enabled = true;
 
             if (multipleInstanceMode)
             {
@@ -120,6 +151,48 @@ namespace Ra2Client
             {
                 if (hasHandle)
                     mutex.ReleaseMutex();
+            }
+        }
+
+        private static async Task<bool> CheckVersionFromCloud()
+        {
+            try
+            {
+                using HttpClient client = new HttpClient();
+                string content = await client.GetStringAsync(MajorVerifyUrl);
+                return ParseVersionContent(content);
+            }
+            catch (Exception MajorEx)
+            {
+                Logger.Log("Failed to check version from Major Server. " + MajorEx.Message);
+                try
+                {
+                    using HttpClient client = new HttpClient();
+                    string content = await client.GetStringAsync(MinorVerifyUrl);
+                    return ParseVersionContent(content);
+                }
+                catch (Exception MinorEx)
+                {
+                    Logger.Log("Failed to check version from Minor Server. " + MinorEx.Message);
+                }
+            }
+            return true;
+        }
+
+        private static bool ParseVersionContent(string content)
+        {
+            string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
+            return lines.Any(line => line.Trim() == currentVersion);
+        }
+
+        private static async Task OnTimedEvent()
+        {
+            bool canStart = await CheckVersionFromCloud();
+            if (!canStart)
+            {
+                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Environment.Exit(1);
             }
         }
 

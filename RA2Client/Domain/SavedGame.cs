@@ -62,7 +62,7 @@ namespace Ra2Client.Domain
         {
             try
             {
-                FileInfo savedGameFileInfo = FilePath;
+                FileInfo savedGameFileInfo = new FileInfo(FilePath);
 
                 //if (savedGameFileInfo.Exists == false)
                 //{

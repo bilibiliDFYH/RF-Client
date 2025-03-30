@@ -116,9 +116,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 false, DownloadMapByIdCommand));
         }
 
-        private void HandleMapDownload(object sender, EventArgs e)
+        private async void HandleMapDownload(object sender, EventArgs e)
         {
-
             var s = (sender as string).Split(";");
             if (s.Length != 2) return;
 
@@ -132,8 +131,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             try
             {
-                using var webClient = new WebClient();
-                
+                using var httpClient = new HttpClient();
 
                 string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
                 if (!Directory.Exists(strTmp))
@@ -142,24 +140,26 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (File.Exists(strLocPath))
                     File.Delete(strLocPath);
 
-                var task = Task.Run(async () =>
+                var response = await httpClient.GetAsync(baseUrl);
+                response.EnsureSuccessStatusCode();
+
+                using (var fs = new FileStream(strLocPath, FileMode.CreateNew))
                 {
-                    await webClient.DownloadFileTaskAsync(new Uri(baseUrl), strLocPath);
-                    刷新地图列表();
-                    //MapLoader.AgainLoadMaps();
+                    await response.Content.CopyToAsync(fs);
+                }
 
-                    GameModeMap = GameModeMaps.Find(gmm => gmm.Map.SHA1 == sha);
-                    ChangeMap(GameModeMap);
-                });
+                刷新地图列表();
+                //MapLoader.AgainLoadMaps();
 
-                task.Wait();
-
+                GameModeMap = GameModeMaps.Find(gmm => gmm.Map.SHA1 == sha);
+                ChangeMap(GameModeMap);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
         }
+
 
         private XNAMessageBox 请求传输地图确认框;
 
@@ -1157,7 +1157,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             sb.Append(ProtocolVersion);
             sb.Append(RandomSeed);
             sb.Append(Convert.ToInt32(RemoveStartingLocations));
-            sb.Append(Map.Name);
+            sb.Append(Map?.Name ?? string.Empty);
 
             channel.SendCTCPMessage(sb.ToString(), QueuedMessageType.GAME_SETTINGS_MESSAGE, 11);
         }

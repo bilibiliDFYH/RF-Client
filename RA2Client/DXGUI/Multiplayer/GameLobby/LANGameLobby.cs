@@ -663,7 +663,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             base.GameProcessExited();
 
-            SendMessageToHost(RETURN_COMMAND);
+            if (client != null && client.Connected)
+            {
+                SendMessageToHost(PLAYER_QUIT_COMMAND);
+            }
 
             if (IsHost)
             {
@@ -680,6 +683,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
             }
         }
+
 
         private void ReturnNotification(string sender)
         {

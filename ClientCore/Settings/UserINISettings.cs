@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using ClientCore.Entity;
 using ClientCore.Enums;
 using ClientCore.Settings;
@@ -89,6 +90,9 @@ namespace ClientCore
       
             WindowedMode = new BoolSetting(iniFile, VIDEO, WINDOWED_MODE_KEY, false);
             BorderlessWindowedMode = new BoolSetting(iniFile, VIDEO, "NoWindowFrame", false);
+            CustonIngameResolution = new BoolSetting(iniFile, VIDEO, "CustonIngameResolution", false);
+            ClientResolutionX = new IntSetting(iniFile, VIDEO, "ClientResolutionX", Screen.PrimaryScreen.Bounds.Width);
+            ClientResolutionY = new IntSetting(iniFile, VIDEO, "ClientResolutionY", Screen.PrimaryScreen.Bounds.Height);
             BorderlessWindowedClient = new BoolSetting(iniFile, VIDEO, "BorderlessWindowedClient", false);
             ClientFPS = new IntSetting(iniFile, VIDEO, "ClientFPS", 60);
             DisplayToggleableExtraTextures = new BoolSetting(iniFile, VIDEO, "DisplayToggleableExtraTextures", true);
@@ -198,6 +202,7 @@ namespace ClientCore
       
         public BoolSetting WindowedMode { get; private set; }
         public BoolSetting BorderlessWindowedMode { get; private set; }
+        public BoolSetting CustonIngameResolution { get; private set; }
         public BoolSetting BackBufferInVRAM { get; private set; }
         public IntSetting ClientResolutionX { get; set; }
         public IntSetting ClientResolutionY { get; set; }

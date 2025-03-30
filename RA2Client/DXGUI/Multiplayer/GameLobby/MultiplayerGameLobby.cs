@@ -257,8 +257,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (fsw != null)
                 fsw.EnableRaisingEvents = false;
 
-            PlayerInfo pInfo = Players.Find(p => p.Name == ProgramConstants.PLAYERNAME);
-            pInfo.IsInGame = false;
+            if (Players != null)
+            {
+                PlayerInfo pInfo = Players.Find(p => p.Name == ProgramConstants.PLAYERNAME);
+                if (pInfo != null)
+                {
+                    pInfo.IsInGame = false;
+                }
+            }
 
             base.GameProcessExited();
 

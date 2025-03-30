@@ -42,8 +42,8 @@ namespace Ra2Client
 
         private static string COMMON_LIBRARY_PATH;
         private static string SPECIFIC_LIBRARY_PATH;
-        private static readonly string MajorVerifyUrl = "https://www.yra2.com/verify/launcher.txt";
-        private static readonly string MinorVerifyUrl = "https://www.ru2023.top/verify/launcher.txt";
+        private static readonly string MajorVerifyUrl = "https://www.ru2023.top/verify/launcher.txt";
+        private static readonly string MinorVerifyUrl = "https://www.yra2.com/verify/launcher.txt";
         private static Timer checkVersionTimer;
 
         /// <summary>
@@ -66,6 +66,7 @@ namespace Ra2Client
 
             bool noAudio = false;
             bool multipleInstanceMode = false;
+            bool isRestartProcess = true;
             List<string> unknownStartupParams = new List<string>();
 
             for (int arg = 0; arg < args.Length; arg++)
@@ -82,6 +83,9 @@ namespace Ra2Client
                         break;
                     case "-NOLOGO":
                         ProgramConstants.SkipLogo = true;
+                        break;
+                    case "-RESTART": //防止客户端因需要重启以应用新的设置时被进程检测误判为启动了多个客户端而弹出警告
+                        isRestartProcess = true;
                         break;
                     default:
                         unknownStartupParams.Add(argument);
@@ -104,7 +108,7 @@ namespace Ra2Client
             bool canStart = await CheckVersion();
             if (!canStart)
             {
-                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
                 Environment.Exit(1);
             }
 
@@ -192,7 +196,7 @@ namespace Ra2Client
             bool canStart = await CheckVersion();
             if (!canStart)
             {
-                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
                 Environment.Exit(1);
             }
         }

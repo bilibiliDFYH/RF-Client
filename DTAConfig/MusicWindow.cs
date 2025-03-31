@@ -140,7 +140,7 @@ namespace DTAConfig
 
             var music = listBox.SelectedItem.Tag as Music;
 
-            var box = new XNAMessageBox(WindowManager, "信息", $"你确定要删除音乐 {music.CName} 吗？",XNAMessageBoxButtons.YesNo);
+            var box = new XNAMessageBox(WindowManager, "信息", $"您确定要删除音乐 {music.CName} 吗？",XNAMessageBoxButtons.YesNo);
             box.YesClickedAction += (_) =>
             {
                 try

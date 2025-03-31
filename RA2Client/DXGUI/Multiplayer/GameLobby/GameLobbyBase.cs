@@ -1197,7 +1197,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
 
             var messageBox = XNAMessageBox.ShowYesNoDialog(WindowManager, "Delete Confirmation".L10N("UI:Main:DeleteMapConfirmTitle"),
-                $"你确定要删除地图{Map.Name}吗,对应的文件为{Map.BaseFilePath}");
+                $"您确定要删除地图{Map.Name}吗,对应的文件为{Map.BaseFilePath}");
             messageBox.YesClickedAction = DeleteSelectedMap;
         }
 

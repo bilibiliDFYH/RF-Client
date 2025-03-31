@@ -80,7 +80,6 @@ public static class Renderer
                 if (!SafePath.GetFile(searchPath, FormattableString.Invariant($"{sfName}.xnb")).Exists)
                     break;
 
-
                 contentManager.RootDirectory = newRootDirectory;
 
                 fonts.Add(contentManager.Load<SpriteFont>(sfName));
@@ -88,7 +87,6 @@ public static class Renderer
         }
 
         contentManager.RootDirectory = originalContentRoot;
-
     }
 
 
@@ -146,9 +144,9 @@ public static class Renderer
         return TextParseReturnValue.FixText(fonts[fontIndex], width, text);
     }
 
-    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true)
+    public static List<string> GetFixedTextLines(string text, int fontIndex, int width, bool splitWords = true, bool keepBlankLines = false)
     {
-        return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords);
+        return TextParseReturnValue.GetFixedTextLines(fonts[fontIndex], width, text, splitWords, keepBlankLines);
     }
 
     /// <summary>
@@ -208,6 +206,15 @@ public static class Renderer
     public static void PushRenderTarget(RenderTarget2D renderTarget) => RenderTargetStack.PushRenderTarget(renderTarget,
         new SpriteBatchSettings(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, null));
 
+    public static void PushRenderTargets(RenderTarget2D renderTarget, RenderTarget2D renderTarget2) =>
+        RenderTargetStack.PushRenderTargets(CurrentSettings, renderTarget, renderTarget2);
+
+    public static void PushRenderTargets(RenderTarget2D renderTarget, RenderTarget2D renderTarget2, RenderTarget2D renderTarget3) =>
+        RenderTargetStack.PushRenderTargets(CurrentSettings, renderTarget, renderTarget2, renderTarget3);
+
+    public static void PushRenderTargets(RenderTarget2D renderTarget, RenderTarget2D renderTarget2, RenderTarget2D renderTarget3, RenderTarget2D renderTarget4) => 
+        RenderTargetStack.PushRenderTargets(CurrentSettings, renderTarget, renderTarget2, renderTarget3, renderTarget4);
+
     public static void PushRenderTarget(RenderTarget2D renderTarget, SpriteBatchSettings settings) => RenderTargetStack.PushRenderTarget(renderTarget, settings);
 
     public static void PopRenderTarget() => RenderTargetStack.PopRenderTarget();
@@ -242,7 +249,7 @@ public static class Renderer
         settingStack.Clear();
     }
 
-    #region Rendering code
+#region Rendering code
 
     public static void DrawTexture(Texture2D texture, Rectangle rectangle, Color color)
     {
@@ -379,5 +386,5 @@ public static class Renderer
             null, color, (float)Math.Atan2(line.Y, line.X), new Vector2(0, 0), SpriteEffects.None, depth);
     }
 
-    #endregion
+#endregion
 }

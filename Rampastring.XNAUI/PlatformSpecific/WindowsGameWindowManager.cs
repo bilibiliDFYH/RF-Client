@@ -5,6 +5,8 @@ using Rampastring.Tools;
 using System.Drawing;
 using System.Windows.Forms;
 
+using Microsoft.Xna.Framework.Graphics;
+
 
 namespace Rampastring.XNAUI.PlatformSpecific;
 
@@ -18,7 +20,6 @@ internal class WindowsGameWindowManager : IGameWindowManager
         this.game = game;
 
         game.Window.ClientSizeChanged += GameForm_ClientSizeChanged;
-
 
         gameForm = (Form)Control.FromHandle(game.Window.Handle);
 

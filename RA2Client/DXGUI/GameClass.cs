@@ -130,7 +130,7 @@ namespace Ra2Client.DXGUI
 
 
 
-            WindowManager wm = new WindowManager(this, graphics);
+            WindowManager wm = new(this, graphics);
             wm.Initialize(content, ProgramConstants.GetBaseResourcePath());
 
             IMEHandler imeHandler = IMEHandler.Create(this);
@@ -139,13 +139,12 @@ namespace Ra2Client.DXGUI
             {
                 wm.IMEHandler = imeHandler;
 
-
-
                 wm.WindowSizeChangedByUser += (sender, e) =>
                 {
                     imeHandler.SetIMETextInputRectangle(wm);
                 };
             }
+
             WindowManager.标题改变 += ChangeTiTle;
          //   ClientConfiguration.标题改变 += ChangeTiTle;
 

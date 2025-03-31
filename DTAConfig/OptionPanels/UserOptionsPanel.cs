@@ -1274,7 +1274,7 @@ namespace DTAConfig.OptionPanels
                 return;
             }
 
-            var messageBox = new XNAMessageBox(WindowManager, "确认", "你确定要修改密码吗?", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "确认", "您确定要修改密码吗?", XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
                 btnLogin.Enabled = false;
@@ -1303,7 +1303,7 @@ namespace DTAConfig.OptionPanels
 
         private void 修改信息(object sender, EventArgs e)
         {
-            var messageBox = new XNAMessageBox(WindowManager, "确认", "你确定要修改吗?",XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "确认", "您确定要修改吗?",XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) => {
                 var user = UserINISettings.Instance.User;
                 user.side = ddSide.SelectedIndex;

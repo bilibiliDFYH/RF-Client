@@ -105,7 +105,7 @@ namespace DTAConfig.OptionPanels
             };
 
             取消按钮.LeftClick += (_, _) => {
-                var messageBox = new XNAMessageBox(WindowManager, "提示", "你确定要放弃作答吗?", XNAMessageBoxButtons.YesNo);
+                var messageBox = new XNAMessageBox(WindowManager, "提示", "您确定要放弃作答吗?", XNAMessageBoxButtons.YesNo);
                 messageBox.YesClickedAction += (_) => {
                     index = questionBanks.Count;
                     判断答题结束(); 
@@ -196,7 +196,7 @@ namespace DTAConfig.OptionPanels
             if (lblScore.Text == "60" && 取消按钮.Text == "我不想做了")
             {
                 取消按钮.Text = "交卷";
-                XNAMessageBox.Show(WindowManager, "通过", "你已经通过考试,可以随时交卷,或者继续答题获取更高分数.");
+                XNAMessageBox.Show(WindowManager, "通过", "您已经通过考试,可以随时交卷,或者继续答题获取更高分数.");
                 return false;
             }
             return false;

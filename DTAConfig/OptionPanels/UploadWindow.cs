@@ -641,7 +641,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", "你选择的文件夹中无法构成任务包");
+                        XNAMessageBox.Show(WindowManager, "错误", "您选择的文件夹无法构成任务包");
                     }
                     // 显示文件数在按钮上
 

@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -102,11 +103,10 @@ namespace ClientCore
 
             try
             {
-                
                 _ = Task.Run(() =>
                 {
                     TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-                    foreach (var map in 需要渲染的地图列表)
+                    foreach (var map in 需要渲染的地图列表.ToList())
                     {
                         if (IsCancelled)
                         {

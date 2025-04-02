@@ -51,6 +51,36 @@ public static class AssetLoader
         contentManager = content;
     }
 
+    public static Texture2D Base64ToTexture(string base64String)
+    {
+        try
+        {
+            // 移除 Base64 前缀（如果存在）
+            if (base64String.StartsWith("data:image"))
+            {
+                int commaIndex = base64String.IndexOf(",");
+                if (commaIndex > 0)
+                {
+                    base64String = base64String.Substring(commaIndex + 1);
+                }
+            }
+
+            // 解码 Base64
+            byte[] imageData = Convert.FromBase64String(base64String);
+
+            // 加载到 Texture2D
+            using (MemoryStream ms = new MemoryStream(imageData))
+            {
+                return Texture2D.FromStream(graphicsDevice, ms);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Base64 转换失败: " + ex.Message);
+            return null;
+        }
+    }
+
     /// <summary>
     /// Loads a texture with the specific name. If the texture isn't found from any
     /// asset search path, returns a dummy texture.

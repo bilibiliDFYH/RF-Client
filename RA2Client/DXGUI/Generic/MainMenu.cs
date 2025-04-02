@@ -38,6 +38,8 @@ using DTAConfig.Entity;
 using Microsoft.Extensions.FileSystemGlobbing;
 using OpenRA.Mods.Cnc.FileSystem;
 using System.Timers;
+using NLog;
+using Logger = Rampastring.Tools.Logger;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -573,8 +575,8 @@ namespace Ra2Client.DXGUI.Generic
             //ini.SetValue("MissionPack", "[汉化]国外尤里任务—冰与火", "[汉化]国外尤里任务—冰与火");
             //ini.WriteIniFile();
 
-            var csf = new CSF("Run\\ra2md.csf").GetCsfDictionary();
-            Logger.Log("");
+            //var csf = new CSF("Run\\ra2md.csf").GetCsfDictionary();
+            //Logger.Log("");
 
         }
 
@@ -1383,6 +1385,8 @@ namespace Ra2Client.DXGUI.Generic
             if (UserINISettings.Instance.StopMusicOnMenu)
                 MusicOff();
 
+           // var w = 地图库.GetInstance(WindowManager);
+         
         }
 
         private void BtnLoadGame_LeftClick(object sender, EventArgs e)

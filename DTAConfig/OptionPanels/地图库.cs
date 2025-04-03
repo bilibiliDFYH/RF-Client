@@ -15,8 +15,41 @@ namespace DTAConfig.OptionPanels
    public class 地图库 : XNAWindow
     {
         private static 地图库 _instance;
-
+        private XNASuggestionTextBox searchBox;
+        private XNADropDown ddType;
+        private XNAMultiColumnListBox mapPanel;
+        private string[] types;
         private static readonly object _lock = new();
+        private int _当前页数 = 1;
+        private int _总页数 = 1;
+        private XNALabel lblPage;
+
+        public int 当前页数
+        {
+            get => _当前页数;
+            set
+            {
+                if (_当前页数 != value)
+                {
+                    _当前页数 = value;
+                    lblPage.Text = $"{_当前页数} / {_总页数}";
+                }
+            }
+        }
+
+        public int 总页数
+        {
+            get => _总页数;
+            set
+            {
+                if (_总页数 != value)
+                {
+                    _总页数 = value;
+                    lblPage.Text = $"{_当前页数} / {_总页数}";
+                }
+            }
+        }
+
 
         // 私有构造函数，防止外部实例化
         private 地图库(WindowManager windowManager) : base(windowManager)
@@ -52,48 +85,135 @@ namespace DTAConfig.OptionPanels
             };
 
             // 搜索框
-            var searchBox = new XNASuggestionTextBox(WindowManager)
+            searchBox = new XNASuggestionTextBox(WindowManager)
             {
-                ClientRectangle = new Rectangle(50, 60, 200, 30),
+                ClientRectangle = new Rectangle(50, 60, 200, 25),
                 Suggestion = "搜索地图名..."
             };
 
-            // 刷新按钮
-            //var refreshButton = new XNAButton(WindowManager)
-            //{
-            //    Text = "刷新",
-            //    ClientRectangle = new Rectangle(270, 60, 100, 30)
-            //};
-         //   refreshButton.OnClick += (sender, args) => { LoadMapList(); };
+            var btnSearch = new XNAClientButton(WindowManager)
+            {
+                Text = "搜索",
+                ClientRectangle = new Rectangle(260, 60, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT)
+            };
+            btnSearch.LeftClick += (sender, args) => { Reload(); };
+
+            ddType = new XNADropDown(WindowManager)
+            {
+                ClientRectangle = new Rectangle(380, 60, 150, 25),
+                Text = "地图类型"
+            };  
 
             // 地图列表容器
-            var mapPanel = new XNAMultiColumnListBox(WindowManager)
+            mapPanel = new XNAMultiColumnListBox(WindowManager)
             {
-                ClientRectangle = new Rectangle(50, 110, 900, 520),
+                ClientRectangle = new Rectangle(50, 100, 900, 540),
           //      BackgroundColor = Color.Black * 0.5f // 半透明背景
             };
 
-            mapPanel.LineHeight = 100;
-            mapPanel.AddColumn("预览图", 160);
-            mapPanel.AddColumn("地图名", 100);
-            mapPanel.AddColumn("作者", 100);
+            mapPanel.LineHeight = 120;
+            mapPanel.AddColumn("预览图", 200);
+            mapPanel.AddColumn("地图名", 120);
+            mapPanel.AddColumn("作者", 120);
             mapPanel.AddColumn("地图类型", 100);
             mapPanel.AddColumn("下载次数", 100);
             mapPanel.AddColumn("评分", 100);
             mapPanel.AddColumn("介绍", 160);
-            mapPanel.AddColumn("下载", 100);
+     //       mapPanel.AddColumn("下载", 100);
 
-            var types = NetWorkINISettings.Get<string>("dict/getValue?section=map&key=type").Result.Item1.Split(',');
+            types = NetWorkINISettings.Get<string>("dict/getValue?section=map&key=type").Result.Item1.Split(',');
 
-            var r = NetWorkINISettings.Get<Page<Maps>>("map/getRelMapsByPage?search=&types=&maxPlayers=&pageNum=1&pageSize=1").Result;
+            ddType.AddItem("所有");
+            foreach (var type in types)
+            {
+                ddType.AddItem(type);
+            }
+            ddType.SelectedIndexChanged += DdType_SelectedIndexChanged;
+            ddType.SelectedIndex = 0;
 
+            var btnLeft = new XNAButton(WindowManager)
+            {
+                ClientRectangle = new Rectangle(mapPanel.X, mapPanel.Bottom + 10, 20, 20),
+                HoverTexture = AssetLoader.LoadTexture("left.png"),
+                IdleTexture = AssetLoader.LoadTexture("left.png"),
+            };
+            btnLeft.LeftClick += BtnLeft_LeftClick;
+
+            lblPage = new XNALabel(WindowManager)
+            {
+                Text = "0 / 0",
+                ClientRectangle = new Rectangle(btnLeft.Right + 10, btnLeft.Y, 0, 0)
+            };
+
+            var btnRight = new XNAButton(WindowManager)
+            {
+                ClientRectangle = new Rectangle(btnLeft.Right + 60, btnLeft.Y, 20, 20),
+                HoverTexture = AssetLoader.LoadTexture("right.png"),
+                IdleTexture = AssetLoader.LoadTexture("right.png"),
+            };
+            btnRight.LeftClick += BtnRight_LeftClick;
+
+            // 关闭按钮
+            var closeButton = new XNAClientButton(WindowManager)
+            {
+                Text = "关闭",
+                X = 820,
+                Y = 655,
+            //    ClientRectangle = new Rectangle(870, 620, 120, 40)
+            };
+            closeButton.LeftClick += (sender, args) => { Disable(); };
+
+            // 添加控件
+            AddChild(titleLabel);
+            AddChild(searchBox);
+         //   AddChild(refreshButton);
+            AddChild(mapPanel);
+            //AddChild(detailButton);
+            AddChild(closeButton);
+            AddChild(btnSearch);
+            AddChild(ddType);
+            AddChild(btnLeft);
+            AddChild(btnRight);
+            AddChild(lblPage);
+
+            base.Initialize();
+
+           // Reload();
+        }
+
+        private void BtnRight_LeftClick(object sender, EventArgs e)
+        {
+            if (当前页数 > 1)
+                当前页数--;
+
+        }
+
+        private void BtnLeft_LeftClick(object sender, EventArgs e)
+        {
+            if(当前页数 < 总页数)
+            当前页数++;
+        }
+
+        private void DdType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Reload();
+        }
+
+        private async void Reload()
+        {
+            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={searchBox.Text.Trim()}&types={ddType.SelectedIndex - 2}&maxPlayers=&pageNum={当前页数}&pageSize=10");
+
+            总页数 = (int)r.Item1.total;
+
+            mapPanel.ClearItems();
             r.Item1.records.ForEach(map =>
             {
-                
                 List<XNAListBoxItem> items = [];
-                var item = new XNAListBoxItem();
-                item.Texture = AssetLoader.Base64ToTexture(map.base64);
-               
+                var item = new XNAListBoxItem
+                {
+                    Texture = AssetLoader.Base64ToTexture(map.base64)
+                };
+
                 items.Add(item);
                 items.Add(new XNAListBoxItem(map.name));
                 items.Add(new XNAListBoxItem(map.author));
@@ -101,48 +221,10 @@ namespace DTAConfig.OptionPanels
                 items.Add(new XNAListBoxItem(map.downCount.ToString()));
                 items.Add(new XNAListBoxItem(map.score.ToString()));
                 items.Add(new XNAListBoxItem(map.description));
-                items.Add(new XNAListBoxItem(map.description));
+
                 mapPanel.AddItem(items);
             });
-
-            
-            // 添加示例地图项
-            //for (int i = 0; i < 5; i++)
-            //{
-            //    var mapItem = CreateMapItem($"地图 {i + 1}", "作者X", i);
-            //    mapItem.ClientRectangle = new Rectangle(10, 10 + i * 100, 880, 90);
-            //    mapPanel.AddChild(mapItem);
-            //}
-
-            // 详情按钮
-            var detailButton = new XNAButton(WindowManager)
-            {
-                Text = "查看详情",
-                ClientRectangle = new Rectangle(730, 640, 120, 40)
-            };
-         //   detailButton.OnClick += (sender, args) => { ShowMapDetails(); };
-
-            // 关闭按钮
-            var closeButton = new XNAClientButton(WindowManager)
-            {
-                Text = "关闭",
-                X = 870,
-                Y = 640,
-            //    ClientRectangle = new Rectangle(870, 620, 120, 40)
-            };
-        //    closeButton.OnClick += (sender, args) => { Close(); };
-
-            // 添加控件
-            AddChild(titleLabel);
-            AddChild(searchBox);
-         //   AddChild(refreshButton);
-            AddChild(mapPanel);
-            AddChild(detailButton);
-            AddChild(closeButton);
-
-            base.Initialize();
         }
-
 
     }
 }

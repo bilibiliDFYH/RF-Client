@@ -152,7 +152,11 @@ namespace ClientCore
             Difficulty = new IntSetting(iniFile, OPTIONS, "Difficulty", 1);
             ScrollDelay = new IntSetting(iniFile, OPTIONS, "ScrollDelay", 4);
             GameSpeed = new IntSetting(iniFile, OPTIONS, "GameSpeed", 1);
-            RenderPreviewImage = new BoolSetting(iniFile, OPTIONS, "RenderPreviewImage", true);
+
+            RenderPreviewImage = new BoolSetting(iniFile, OPTIONS, "RenderPreviewImage", false);
+            //临时禁用
+            RenderPreviewImage.Value = false;
+
             SimplifiedCSF = new BoolSetting(iniFile, OPTIONS, "SimplifiedCSF", true);
             ForceEnableGameOptions = new BoolSetting(iniFile, OPTIONS, "ForceEnableGameOptions", true);
             PreloadMapPreviews = new BoolSetting(iniFile, VIDEO, "PreloadMapPreviews", false);

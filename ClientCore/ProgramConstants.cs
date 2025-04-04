@@ -196,10 +196,10 @@ namespace ClientCore
                     File.Delete(file);
                 }
 
-                foreach (var dir in Directory.GetDirectories(游戏目录))
-                {
-                    Directory.Delete(dir, true);
-                }
+                //foreach (var dir in Directory.GetDirectories(游戏目录))
+                //{
+                //    Directory.Delete(dir, true);
+                //}
 
                 File.Delete("spawn.ini");
                 File.Delete("spawnmap.ini");

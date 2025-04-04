@@ -12,7 +12,7 @@ namespace Ra2Client.Domain
     /// </summary>
     public class SavedGame
     {
-        const string SAVED_GAME_PATH = "Saved Games/";
+        
 
         public SavedGame(string fileName,string game,string mission)
         {

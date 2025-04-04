@@ -1007,11 +1007,11 @@ public class IniFile : IIniFile
                 if (c == '\n')
                 {
                     GB18030 = false;
-                    var currentLine = stringBuilder.ToString().TrimEnd('\r').TrimEnd('\n');
+                    var currentLine = stringBuilder.ToString().TrimEnd('\n').TrimEnd('\r');
                     if (bytes[lineStartPos..position].IsValidGb18030())
                     {
                         // 将 StringBuilder 转换为字节数组后再用 GB18030 解码
-                        currentLine = Encoding.GetEncoding("GB18030").GetString(bytes[lineStartPos..position]).TrimEnd('\0').TrimEnd('\r').TrimEnd('\n');
+                        currentLine = Encoding.GetEncoding("GB18030").GetString(bytes[lineStartPos..position]).TrimEnd('\0').TrimEnd('\n').TrimEnd('\r');
                         GB18030 = true;
 
                     }

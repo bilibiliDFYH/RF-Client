@@ -239,31 +239,32 @@ namespace ClientGUI
         }
         private static void 获取新的存档()
         {
-            var newSaves = Directory.GetFiles(ProgramConstants.存档目录);
+            var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav");
             if (newSaves.Length == 0) return;
 
             var iniFile = new IniFile(Path.Combine(ProgramConstants.存档目录, "Save.ini"));
             var spawn = new IniFile(Path.Combine(ProgramConstants.GamePath, "spawn.ini"));
             var game = spawn.GetValue("Settings", "Game", string.Empty);
 
-            var mission = spawn.GetValue("Settings", "Mission", "Other");
+            var mission = spawn.GetValue<string>("Settings", "Mission", null);
+            //if (mission != null)
+            //    mission = Path.GetFileName(mission);
 
-
-            var missionSavePath = Path.Combine(ProgramConstants.存档目录, Path.GetFileName(mission));
+            var missionSavePath = Path.Combine(ProgramConstants.存档目录, Path.GetFileName(mission ?? "Other"));
             if (!Directory.Exists(missionSavePath))
                 Directory.CreateDirectory(missionSavePath);
 
             foreach (var item in newSaves)
             {
-                File.Copy(item,Path.Combine(missionSavePath,Path.GetFileName(item)), true);
+                File.Move(item,Path.Combine(missionSavePath,Path.GetFileName(item)), true);
             }
 
             foreach (var fileFullPath in newSaves)
             {
-                string sectionName = Path.GetFileName(fileFullPath) + '-' + mission;
+                string sectionName = Path.GetFileName(fileFullPath) + '-' + Path.GetFileName(mission ?? "Other");
 
                 iniFile.SetValue(sectionName, "Game", game);
-                iniFile.SetValue(sectionName, "Mission", mission);
+                iniFile.SetValue(sectionName, "Mission", mission ?? string.Empty);
             }
             iniFile.WriteIniFile();
             

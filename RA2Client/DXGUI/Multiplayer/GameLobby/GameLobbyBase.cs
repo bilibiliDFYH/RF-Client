@@ -2302,6 +2302,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             ManipulateStartingLocations(mapIni, houseInfos);
 
+            
             mapIni.WriteIniFile(spawnMapIniFile.FullName, Encoding.GetEncoding("Big5"));
 
             //if (chkExtension.Checked)

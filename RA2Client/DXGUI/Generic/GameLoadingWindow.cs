@@ -23,7 +23,7 @@ namespace Ra2Client.DXGUI.Generic
     /// </summary>
     public class GameLoadingWindow : XNAWindow
     {
-        private const string SAVED_GAMES_DIRECTORY = "Saved Games";
+      
 
         public GameLoadingWindow(WindowManager windowManager, DiscordHandler discordHandler) : base(windowManager)
         {
@@ -175,12 +175,16 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
+            File.Copy(sg.FilePath,Path.Combine(ProgramConstants.´æµµÄ¿Â¼,sg.FileName),true);
+
             GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
         }
 
 
         private void BtnDelete_LeftClick(object sender, EventArgs e)
         {
+            
+
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
             var msgBox = new XNAMessageBox(WindowManager, "É¾³ýÈ·ÈÏ".L10N("UI:Main:DeleteConfirmationTitle"),
                 string.Format("ÒÔÏÂ±£´æµÄÓÎÏ·½«±»ÓÀ¾ÃÉ¾³ý:" + Environment.NewLine +
@@ -202,6 +206,9 @@ namespace Ra2Client.DXGUI.Generic
 
             Logger.Log("É¾³ý´æµµÎÄ¼þ" + sg.FilePath);
             SafePath.DeleteFileIfExists(sg.FilePath);
+            var saveIni = new IniFile(Path.Combine(ProgramConstants.´æµµÄ¿Â¼, "Save.ini"));
+            saveIni.RemoveSection($"{sg.FileName}-{Path.GetFileName(Path.GetDirectoryName(sg.FilePath))}");
+            saveIni.WriteIniFile();
             ListSaves();
         }
 
@@ -221,10 +228,11 @@ namespace Ra2Client.DXGUI.Generic
             savedGames.Clear();
             lbSaveGameList.ClearItems();
             lbSaveGameList.SelectedIndex = -1;
+            if (!Directory.Exists(ProgramConstants.´æµµÄ¿Â¼)) return;
 
-            var saveIni = new IniFile(ProgramConstants.´æµµÄ¿Â¼, "Save.ini");
+            var saveIni = new IniFile(Path.Combine(ProgramConstants.´æµµÄ¿Â¼, "Save.ini"));
 
-            foreach (var d in Directory.GetDirectories(ProgramConstants.ÓÎÏ·Ä¿Â¼))
+            foreach (var d in Directory.GetDirectories(ProgramConstants.´æµµÄ¿Â¼))
             {
                 DirectoryInfo savedGamesDirectoryInfo = SafePath.GetDirectory(d);
 
@@ -240,31 +248,12 @@ namespace Ra2Client.DXGUI.Generic
 
                 foreach (FileInfo file in files)
                 {
-                    var game = saveIni.GetValue($"{d}-{Path.GetFileName(file.FullName)}", "Game", string.Empty);
-                    var mission = saveIni.GetValue(d, "Mission", string.Empty);
+                    var sectionName = $"{Path.GetFileName(file.FullName)}-{Path.GetFileName(d)}";
+                    var game = saveIni.GetValue(sectionName, "Game", string.Empty);
+                    var mission = saveIni.GetValue(sectionName, "Mission", string.Empty);
                     ParseSaveGame(file.FullName,game,mission);
                 }
             }
-
-           
-
-            //DirectoryInfo gamepath = SafePath.GetDirectory(ProgramConstants.ÓÎÏ·Ä¿Â¼);
-
-
-
-            //if (!gamepath.Exists)
-            //{
-            //    Logger.Log("Saved Games directory not found!");
-            //    return;
-            //}
-
-            //files = gamepath.EnumerateFiles("*.SAV", SearchOption.TopDirectoryOnly);
-
-
-            //foreach (FileInfo file in files)
-            //{
-            //    ParseSaveGame(file.FullName);
-            //}
 
             savedGames = savedGames.OrderBy(sg => sg.LastModified.Ticks).ToList();
             savedGames.Reverse();

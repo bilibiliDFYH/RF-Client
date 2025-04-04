@@ -52,10 +52,11 @@ namespace Ra2Client
         [STAThread]
         static void Main(string[] args)
         {
-            Run(args).GetAwaiter().GetResult();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Run(args);
         }
 
-        private static async Task Run(string[] args)
+        private static void Run(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
             //System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -105,12 +106,12 @@ namespace Ra2Client
                 MessageBox.Show("您可能正在运行多个同版本的客户端,请在任务管理器手动结束额外进程.", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
-            bool canStart = await CheckVersion();
-            if (!canStart)
-            {
-                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-                Environment.Exit(1);
-            }
+            //bool canStart =  CheckVersion();
+            //if (!canStart)
+            //{
+            //    MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+            //    Environment.Exit(1);
+            //}
 
             checkVersionTimer = new Timer(1 * 60 * 1000);
             checkVersionTimer.Elapsed += async (sender, e) => await ReCheckVer();

@@ -67,7 +67,7 @@ namespace Ra2Client
 
             bool noAudio = false;
             bool multipleInstanceMode = false;
-            bool isRestartProcess = true;
+            //bool isRestartProcess = true;
             List<string> unknownStartupParams = new List<string>();
 
             for (int arg = 0; arg < args.Length; arg++)
@@ -85,9 +85,9 @@ namespace Ra2Client
                     case "-NOLOGO":
                         ProgramConstants.SkipLogo = true;
                         break;
-                    case "-RESTART": //防止客户端因需要重启以应用新的设置时被进程检测误判为启动了多个客户端而弹出警告
-                        isRestartProcess = true;
-                        break;
+                    //case "-RESTART": //防止客户端因需要重启以应用新的设置时被进程检测误判为启动了多个客户端而弹出警告
+                    //    isRestartProcess = true;
+                    //    break;
                     default:
                         unknownStartupParams.Add(argument);
                         break;
@@ -100,11 +100,11 @@ namespace Ra2Client
             var parameters = new StartupParams(noAudio, multipleInstanceMode, unknownStartupParams);
 
             // 检查后台是否有额外的 .NET Host 进程
-            var dotnetHostProcesses = Process.GetProcessesByName("dotnet");
-            if (dotnetHostProcesses.Length > 1)
-            {
-                MessageBox.Show("您可能正在运行多个同版本的客户端,请在任务管理器手动结束额外进程.", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            //var dotnetHostProcesses = Process.GetProcessesByName("dotnet");
+            //if (dotnetHostProcesses.Length > 1)
+            //{
+            //    MessageBox.Show("您可能正在运行多个同版本的客户端,请在任务管理器手动结束额外进程.", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //}
 
             //bool canStart =  CheckVersion();
             //if (!canStart)

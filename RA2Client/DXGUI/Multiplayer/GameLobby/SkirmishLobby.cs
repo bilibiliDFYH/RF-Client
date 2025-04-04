@@ -136,6 +136,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return "The selected map can only be played on CnCNet and LAN.".L10N("UI:Main:MapMultiplayerOnly");
             }
 
+            if (Map.MaxPlayers < 1)
+            {
+                return "这图有问题，客户端认为没有出生点。";
+            }
+
             if (totalPlayerCount < Map.MinPlayers)
             {
                 return String.Format("The selected map cannot be played with less than {0} players.".L10N("UI:Main:MapInsufficientPlayers"),

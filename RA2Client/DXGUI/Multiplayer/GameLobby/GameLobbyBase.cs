@@ -448,6 +448,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             btnRandomMap = new XNAClientButton(WindowManager);
             //  btnRandomMap = FindChild<XNAClientButton>(nameof(btnRandomMap));
             btnRandomMap.Text = "Generate map".L10N("UI:Main:RanMap");
+            btnRandomMap.Enabled = false;
             btnRandomMap.Disable();
             btnRandomMap.ClientRectangle = new Rectangle(btnLaunchGame.X + 150, btnLaunchGame.Y, btnLaunchGame.Width, btnLaunchGame.Height);
             btnRandomMap.LeftClick += (sender, s) => randomMap.Enable();
@@ -1127,7 +1128,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
                 else
                 {
-
+                    rankItem.Selectable = (gameModeMap.Map?.MaxPlayers > 0) == true;
                     rankItem.Texture = RankTextures[GetDefaultMapRankIndex(gameModeMap) + 1];
                 }
 
@@ -1137,6 +1138,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     mapNameText += $" - {gameModeMap.GameMode.UIName}";
 
                 mapNameItem.Text = Renderer.GetSafeString(mapNameText, lbGameModeMapList.FontIndex);
+                mapNameItem.Selectable = (gameModeMap.Map?.MaxPlayers > 0) == true;
 
                 if ((gameModeMap.Map?.MultiplayerOnly ?? false || gameModeMap.GameMode.MultiplayerOnly) && !isMultiplayer)
                     mapNameItem.TextColor = UISettings.ActiveSettings.DisabledItemColor;

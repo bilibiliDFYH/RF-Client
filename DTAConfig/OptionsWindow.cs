@@ -257,8 +257,10 @@ namespace DTAConfig
 
             bool restartRequired = false;
 
+#if !DEBUG
             try
             {
+#endif
                 foreach (var panel in optionsPanels)
                 {
                     //if (!panel.Selectable) //跳过禁用选项卡参数 By 彼得兔 2024/09/30
@@ -267,14 +269,16 @@ namespace DTAConfig
                 }
                 UserINISettings.Instance.SaveSettings();
                 ProgramConstants.清理缓存();
+#if !DEBUG
             }
+
             catch (Exception ex)
             {
                 Logger.Log("Saving settings failed! Error message: " + ex.Message);
                 XNAMessageBox.Show(WindowManager, "Saving Settings Failed".L10N("UI:DTAConfig:SaveSettingFailTitle"),
                     "Saving settings failed! Error message:".L10N("UI:DTAConfig:SaveSettingFailText") + " " + ex.Message);
             }
-
+#endif
             Disable();
 
             if (restartRequired)

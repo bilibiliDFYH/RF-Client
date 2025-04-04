@@ -767,6 +767,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             }
 
+            if (Map.MaxPlayers < 1)
+            {
+                AddNotice("这图有问题，客户端认为没有出生点。");
+                return;
+            }
+
             List<int> occupiedColorIds = new List<int>();
             foreach (PlayerInfo player in Players)
             {

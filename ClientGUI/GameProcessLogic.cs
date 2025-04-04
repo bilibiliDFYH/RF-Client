@@ -184,8 +184,8 @@ namespace ClientGUI
                 Logger.Log("启动可执行文件: " + gameProcess.StartInfo.FileName);
                 Logger.Log("启动参数: " + gameProcess.StartInfo.Arguments);
 
-
-                DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Count();
+                if(Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")))
+                    DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Length;
                 try
                 {
                     gameProcess.Start();
@@ -239,6 +239,7 @@ namespace ClientGUI
         }
         private static void 获取新的存档()
         {
+            if (!Directory.Exists(ProgramConstants.存档目录)) return;
             var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav");
             if (newSaves.Length == 0) return;
 
@@ -349,9 +350,6 @@ namespace ClientGUI
                 复制CSF(newGame);
                 if (newMission != newGame && newMission != string.Empty)
                     复制CSF(newMission);
-
-                
-
                 
                 iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 

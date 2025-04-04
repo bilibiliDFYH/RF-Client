@@ -422,7 +422,7 @@ public class XNADropDown : XNAControl
 
         if (Cursor.ScrollWheelValue > 0)
         {
-            if (SelectedIndex < 1)
+            if (SelectedIndex < 1 || SelectedIndex > Items.Count - 1)
                 return;
 
             if (Items[SelectedIndex - 1].Selectable)

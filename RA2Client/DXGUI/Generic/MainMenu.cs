@@ -949,11 +949,18 @@ namespace Ra2Client.DXGUI.Generic
                     //"Client/custom_art_yr.ini",
                     "Client/CampaignSetting.ini",
                     "Resources/missioninfo.ini",
-                    "Resources/rules.json",
+                //    "Resources/rules.json",
+                    "Run\\Save Games\\Save.ini"
             ];
 
             foreach (string filePath in filesToCreate)
             {
+                string directoryPath = Path.GetDirectoryName(filePath); // 获取文件所在的目录
+                if (!string.IsNullOrEmpty(directoryPath) && !Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath); // 先创建目录
+                }
+
                 if (!File.Exists(filePath))
                 {
                     File.Create(filePath).Close(); // 创建并关闭文件

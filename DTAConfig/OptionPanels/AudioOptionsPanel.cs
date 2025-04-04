@@ -293,7 +293,12 @@ namespace DTAConfig.OptionPanels
             chkMainMenuMusic.Checked = IniSettings.PlayMainMenuMusic;
             chkStopMusicOnMenu.Checked = IniSettings.StopMusicOnMenu;
 
-            ddVoice.SelectedIndex = ddVoice.Items.FindIndex(item => item.Text == UserINISettings.Instance.Voice.Value);
+            var i = ddVoice.Items.FindIndex(item => item.Text == UserINISettings.Instance.Voice.Value);
+            if(i >= 0)
+                ddVoice.SelectedIndex = i;
+            else
+                ddVoice.SelectedIndex = 0;
+
         }
 
         public override bool Save()

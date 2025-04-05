@@ -40,11 +40,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
         private const string MAPDB_URL = "http://mapdb.cncnet.org/upload";
 
-        private static readonly HttpClient httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(10)
-        };
-
         /// <summary>
         /// Adds a map into the CnCNet map upload queue.
         /// </summary>

@@ -20,18 +20,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private const int REQUEST_TIMEOUT = 10000; // In milliseconds
         private const int PING_TIMEOUT = 1000;
 
-        public class ExtendedWebClient : HttpClient
-        {
-            public ExtendedWebClient(int timeout)
-            {
-                Timeout = TimeSpan.FromMilliseconds(timeout);
-            }
-
-            public async Task<string> DownloadStringAsync(string requestUri)
-            {
-                return await GetStringAsync(requestUri);
-            }
-        }
         public CnCNetTunnel() { }
 
         /// <summary>
@@ -50,25 +38,25 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 string[] parts = str.Split(';');
 
                 string address = parts[0];
-                string host; 
-                int port; 
-  
-                if (address.Count(c => c == ':') > 1) 
-                { 
+                string host;
+                int port;
+
+                if (address.Count(c => c == ':') > 1)
+                {
                     // IPv6 address 
-                    int lastColonIndex = address.LastIndexOf(':'); 
-                    host = "[" + address.Substring(0, lastColonIndex) + "]"; 
-                    port = int.Parse(address.Substring(lastColonIndex + 1)); 
-                } 
-                else 
-                { 
+                    int lastColonIndex = address.LastIndexOf(':');
+                    host = "[" + address.Substring(0, lastColonIndex) + "]";
+                    port = int.Parse(address.Substring(lastColonIndex + 1));
+                }
+                else
+                {
                     // IPv4 address or hostname 
-                    string[] detailedAddress = address.Split(':'); 
-                    host = detailedAddress[0]; 
-                    port = int.Parse(detailedAddress[1]); 
-                } 
-  
-                tunnel.Address = host; 
+                    string[] detailedAddress = address.Split(':');
+                    host = detailedAddress[0];
+                    port = int.Parse(detailedAddress[1]);
+                }
+
+                tunnel.Address = host;
                 tunnel.Port = port;
                 tunnel.Country = parts[1];
                 tunnel.CountryCode = parts[2];
@@ -131,9 +119,9 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 string addressString = $"http://{Address}:{Port}/request?clients={playerCount}";
                 Logger.Log($"Downloading from {addressString}");
 
-                using (var client = new ExtendedWebClient(REQUEST_TIMEOUT))
+                using (var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(REQUEST_TIMEOUT) })
                 {
-                    string data = client.DownloadStringAsync(addressString).Result;
+                    string data = client.GetStringAsync(new Uri(addressString)).Result;
 
                     data = data.Replace("[", String.Empty);
                     data = data.Replace("]", String.Empty);

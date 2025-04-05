@@ -67,7 +67,6 @@ namespace Ra2Client
 
             bool noAudio = false;
             bool multipleInstanceMode = false;
-            //bool isRestartProcess = true;
             List<string> unknownStartupParams = new List<string>();
 
             for (int arg = 0; arg < args.Length; arg++)
@@ -85,9 +84,6 @@ namespace Ra2Client
                     case "-NOLOGO":
                         ProgramConstants.SkipLogo = true;
                         break;
-                    //case "-RESTART": //防止客户端因需要重启以应用新的设置时被进程检测误判为启动了多个客户端而弹出警告
-                    //    isRestartProcess = true;
-                    //    break;
                     default:
                         unknownStartupParams.Add(argument);
                         break;
@@ -99,19 +95,26 @@ namespace Ra2Client
 
             var parameters = new StartupParams(noAudio, multipleInstanceMode, unknownStartupParams);
 
-            // 检查后台是否有额外的 .NET Host 进程
-            //var dotnetHostProcesses = Process.GetProcessesByName("dotnet");
-            //if (dotnetHostProcesses.Length > 1)
-            //{
-            //    MessageBox.Show("您可能正在运行多个同版本的客户端,请在任务管理器手动结束额外进程.", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //}
+            bool canStart = CheckVersion().Result;
+            if (!canStart)
+            {
+                string content = new HttpClient().GetStringAsync(MajorVerifyUrl).Result;
+                string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                Version minVersion = new Version(lines.First().Trim());
+                Version maxVersion = new Version(lines.Last().Trim());
+                string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
+                Version current = new Version(currentVersion);
 
-            //bool canStart =  CheckVersion();
-            //if (!canStart)
-            //{
-            //    MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-            //    Environment.Exit(1);
-            //}
+                if (current < minVersion)
+                {
+                    MessageBox.Show("检测到铁幕装置已离线, 当前版本已停止维护!\n请到重聚未来官网 www.yra2.com 更新最新客户端", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
+                else if (current > maxVersion)
+                {
+                    MessageBox.Show("检测到超时空坐标受到干扰, 当前版本暂未开放!\n请到重聚未来官网 www.yra2.com 获取更多信息", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
+                Environment.Exit(1);
+            }
 
             checkVersionTimer = new Timer(1 * 60 * 1000);
             checkVersionTimer.Elapsed += async (sender, e) => await ReCheckVer();
@@ -188,8 +191,24 @@ namespace Ra2Client
         private static bool ParseVersionContent(string content)
         {
             string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length == 0)
+                return true;
+
             string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
-            return lines.Any(line => line.Trim() == currentVersion);
+            Version current = new Version(currentVersion);
+            Version minVersion = new Version(lines.First().Trim());
+            Version maxVersion = new Version(lines.Last().Trim());
+
+            if (current < minVersion)
+            {
+                return false;
+            }
+            else if (current > maxVersion)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static async Task ReCheckVer()
@@ -197,7 +216,21 @@ namespace Ra2Client
             bool canStart = await CheckVersion();
             if (!canStart)
             {
-                MessageBox.Show("当前版本已停止维护,请到重聚未来官网 www.yra2.com 更新最新客户端.", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                string content = await new HttpClient().GetStringAsync(MajorVerifyUrl);
+                string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                Version minVersion = new Version(lines.First().Trim());
+                Version maxVersion = new Version(lines.Last().Trim());
+                string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
+                Version current = new Version(currentVersion);
+
+                if (current < minVersion)
+                {
+                    MessageBox.Show("检测到铁幕装置已离线, 当前版本已停止维护!\n请到重聚未来官网 www.yra2.com 更新最新客户端", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
+                else if (current > maxVersion)
+                {
+                    MessageBox.Show("检测到超时空坐标受到干扰, 当前版本暂未开放!\n请到重聚未来官网 www.yra2.com 获取更多信息", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
                 Environment.Exit(1);
             }
         }

@@ -769,7 +769,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (Map.MaxPlayers < 1)
             {
-                AddNotice("这图有问题，客户端认为没有出生点。");
+                AddNotice("这张地图疑似有问题,客户端认为没有玩家出生点.");
                 return;
             }
 

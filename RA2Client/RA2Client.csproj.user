@@ -3,9 +3,4 @@
   <PropertyGroup>
     <_LastSelectedProfileId>E:\Documents\My_File\Clone\Ra2Client\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Update="Domain\Multiplayer\CnCNet\ExtendedWebClient.cs">
-      <SubType>Component</SubType>
-    </Compile>
-  </ItemGroup>
 </Project>

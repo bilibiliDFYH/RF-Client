@@ -11,6 +11,8 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
     {
         private readonly HttpClient httpClient;
 
+        public ExtendedHttpClient() : this(timeout: 10000) { }
+
         public ExtendedHttpClient(int timeout)
         {
             var handler = new HttpClientHandler();

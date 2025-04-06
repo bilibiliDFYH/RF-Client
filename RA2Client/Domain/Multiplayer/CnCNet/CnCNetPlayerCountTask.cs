@@ -82,7 +82,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         //    }
         //}
 
-        // 如果不需要和API交互，可以直接返回-1
         private static int GetCnCNetPlayerCount()
         {
             return NetWorkINISettings.Get<int>("ChatRoom/getPeopleCount").GetAwaiter().GetResult().Item1;

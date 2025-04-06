@@ -44,7 +44,7 @@ namespace Ra2Client
         private static string SPECIFIC_LIBRARY_PATH;
         private static readonly string MajorVerifyUrl = "https://www.ru2023.top/verify/launcher.txt";
         private static readonly string MinorVerifyUrl = "https://www.yra2.com/verify/launcher.txt";
-        private static Timer checkVersionTimer;
+      //  private static Timer checkVersionTimer;
 
         /// <summary>
         /// The main entry point for the application.
@@ -113,10 +113,10 @@ namespace Ra2Client
             //    Environment.Exit(1);
             //}
 
-            checkVersionTimer = new Timer(1 * 60 * 1000);
-            checkVersionTimer.Elapsed += async (sender, e) => await ReCheckVer();
-            checkVersionTimer.AutoReset = true;
-            checkVersionTimer.Enabled = true;
+            //checkVersionTimer = new Timer(1 * 60 * 1000);
+            //checkVersionTimer.Elapsed += async (sender, e) => await ReCheckVer();
+            //checkVersionTimer.AutoReset = true;
+            //checkVersionTimer.Enabled = true;
 
             if (multipleInstanceMode)
             {

@@ -110,7 +110,10 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Initialize()
         {
-            BackgroundTexture = AssetLoader.LoadTexture("missionselectorbg.png");
+            if (!Directory.Exists(Path.Combine(ProgramConstants.存档目录)))
+                Directory.CreateDirectory(Path.Combine(ProgramConstants.存档目录));
+
+                BackgroundTexture = AssetLoader.LoadTexture("missionselectorbg.png");
             ClientRectangle = new Rectangle(0, 0, DefaultWidth, DefaultHeight);
             BorderColor = UISettings.ActiveSettings.PanelBorderColor;
 

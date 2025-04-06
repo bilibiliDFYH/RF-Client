@@ -297,11 +297,13 @@ namespace ClientGUI
             try
             {   List<string> 所有需要复制的文件 = [];
                     
-                void 添加需要复制的文件夹(string folderPath)
-                {
-                    if (!Directory.Exists(folderPath)) return;
-                    Directory.GetFiles(folderPath).ToList().ForEach(所有需要复制的文件.Add);
-                }
+                //void 所有需要复制的文件.Add(string folderPath)
+                //{
+                //    if (!Directory.Exists(folderPath)) return;
+                //    Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)
+                //      .ToList()
+                //      .ForEach(所有需要复制的文件.Add);
+                //}
 
                 if(!Directory.Exists(ProgramConstants.游戏目录))
                     Directory.CreateDirectory(ProgramConstants.游戏目录);
@@ -316,23 +318,23 @@ namespace ClientGUI
                     所有需要复制的文件.Add(sourceFile);
                 }
 
-                添加需要复制的文件夹("TX");
-                添加需要复制的文件夹("zh");
+                所有需要复制的文件.Add("TX");
+                所有需要复制的文件.Add("zh");
                 所有需要复制的文件.Add("gamemd-spawn.exe");
                 所有需要复制的文件.Add("cncnet5.dll");
-                添加需要复制的文件夹(newGame);
+                所有需要复制的文件.Add(newGame);
                 if(newMission != newGame && newMission != string.Empty)
-                    添加需要复制的文件夹(newMission);
+                    所有需要复制的文件.Add(newMission);
 
                 if (newSection.KeyExists("CampaignID"))
                 {
-                    添加需要复制的文件夹(SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\"));
+                    所有需要复制的文件.Add(SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\"));
                 }
 
                 所有需要复制的文件.Add("LiteExt.dll");
                 所有需要复制的文件.Add("qres.dat");
                 所有需要复制的文件.Add("qres32.dll");
-                添加需要复制的文件夹($"Resources/Voice/{UserINISettings.Instance.Voice.Value}");
+                所有需要复制的文件.Add($"Resources/Voice/{UserINISettings.Instance.Voice.Value}");
 
                 
 
@@ -402,21 +404,38 @@ namespace ClientGUI
         {
             Dictionary<string, string> 文件字典 = [];
 
-            // 只保留最后一个相同文件名的路径
-            foreach (var filePath in 所有需要复制的文件)
+            foreach (var path in 所有需要复制的文件)
             {
-                string fileName = Path.GetFileName(filePath);
-                文件字典[fileName] = filePath; // 若文件名重复，后来的会覆盖前面的
+                if (File.Exists(path))
+                {
+                    // 文件：使用文件名作为 key，保留最后一个相同文件名的路径
+                    string fileName = Path.GetFileName(path);
+                    文件字典[fileName] = path;
+                }
+                else if (Directory.Exists(path))
+                {
+                    // 文件夹：递归获取其中的所有文件，加入字典
+                    var filesInDir = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+                    foreach (var file in filesInDir)
+                    {
+                        string relativePath = Path.GetRelativePath(path, file);
+                        string targetPath = relativePath;
+                        文件字典[targetPath] = file;
+                    }
+                }
             }
 
-            var 去重后的文件列表 = 文件字典.Values.ToList();
+            var 去重后的文件列表 = 文件字典.ToList();
 
-            ProgramConstants.清理游戏目录(去重后的文件列表);
+            // 清理之前目标目录中已有的目标路径文件
+            ProgramConstants.清理游戏目录(去重后的文件列表.Select(kv => Path.Combine(ProgramConstants.游戏目录, kv.Key)).ToList());
 
-            去重后的文件列表.ForEach(file =>
+            foreach (var kv in 去重后的文件列表)
             {
-                FileHelper.CopyFile(file,Path.Combine( ProgramConstants.游戏目录,Path.GetFileName(file)));
-            });
+                string targetPath = Path.Combine(ProgramConstants.游戏目录, kv.Key);
+                Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+                FileHelper.CopyFile(kv.Value, targetPath);
+            }
         }
 
         private static void 复制CSF(string path)
@@ -455,7 +474,8 @@ namespace ClientGUI
             if (File.Exists(RA2MD))
                 File.Copy(RA2MD, "RA2MD.ini", true);
             获取新的存档();
-            if (DebugCount < Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录, "Debug")).Length)
+
+            if ( Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")) && DebugCount < Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录, "Debug")).Length)
             {
                 ProgramConstants.清理缓存();
             }

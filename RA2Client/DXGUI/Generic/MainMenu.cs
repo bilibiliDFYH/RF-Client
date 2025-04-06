@@ -950,7 +950,7 @@ namespace Ra2Client.DXGUI.Generic
                     "Client/CampaignSetting.ini",
                     "Resources/missioninfo.ini",
                 //    "Resources/rules.json",
-                    "Run\\Save Games\\Save.ini"
+                    
             ];
 
             foreach (string filePath in filesToCreate)

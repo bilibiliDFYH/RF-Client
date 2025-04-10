@@ -477,11 +477,7 @@ namespace ClientGUI
             if (File.Exists(RA2MD))
                 File.Copy(RA2MD, "RA2MD.ini", true);
             获取新的存档();
-<<<<<<< HEAD
-
-=======
             
->>>>>>> 1f80f1a (更新翻译(1/2))
             if ( Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")) && DebugCount < Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录, "Debug")).Length)
             {
                 ProgramConstants.清理缓存();

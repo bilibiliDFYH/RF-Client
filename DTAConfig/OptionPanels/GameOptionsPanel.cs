@@ -127,11 +127,7 @@ namespace DTAConfig.OptionPanels
             chkRenderPreviewImage = new XNAClientCheckBox(WindowManager);
             chkRenderPreviewImage.Name = "chkRenderPreviewImage";
             chkRenderPreviewImage.ClientRectangle = new Rectangle(chkMultinuclear.X, chkShowHiddenObjects.Y, 150, 20);
-<<<<<<< HEAD
-            chkRenderPreviewImage.Text = "导入新地图时在后台渲染全息预览图(暂时无效)";
-=======
             chkRenderPreviewImage.Text = "Render holographic preview in the background when importing a new map".L10N("UI:DTAConfig:RenderHolographicPreview");
->>>>>>> 8c00645 (更新翻译(1/2))
              
             chkTooltips = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ToolTips");
             chkTooltips.Name = "chkTooltips";

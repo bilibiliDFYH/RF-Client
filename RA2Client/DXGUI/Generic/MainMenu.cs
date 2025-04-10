@@ -949,12 +949,7 @@ namespace Ra2Client.DXGUI.Generic
                     //"Client/custom_art_yr.ini",
                     "Client/CampaignSetting.ini",
                     "Resources/missioninfo.ini",
-<<<<<<< HEAD
-                //    "Resources/rules.json",
-                    
-=======
                     //"Resources/rules.json",
->>>>>>> 1f80f1a (更新翻译(1/2))
             ];
 
             foreach (string filePath in filesToCreate)

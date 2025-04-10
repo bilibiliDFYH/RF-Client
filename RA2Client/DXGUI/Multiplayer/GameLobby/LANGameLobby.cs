@@ -752,8 +752,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             sb.Append(GameMode?.UIName ?? string.Empty);
             sb.Append(0); // LoadedGameID
             var sbPlayers = new StringBuilder();
-            Players.ForEach(p => sbPlayers.Append(p.Name + ","));
-            sbPlayers.Remove(sbPlayers.Length - 1, 1);
+            if (Players.Count > 0)
+            {
+                Players.ForEach(p => sbPlayers.Append(p.Name + ","));
+                if (sbPlayers.Length > 0)
+                sbPlayers.Length--;
+            }
             sb.Append(sbPlayers.ToString());
             sb.Append(Convert.ToInt32(Locked));
             sb.Append(0); // IsLoadedGame

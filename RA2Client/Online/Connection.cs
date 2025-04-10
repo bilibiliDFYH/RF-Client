@@ -37,33 +37,18 @@ namespace Ra2Client.Online
         IConnectionManager connectionManager;
 
         /// <summary>
-        /// The list of CnCNet / GameSurge / Reunion IRC servers to connect to.
+        /// The list of Reunion IRC servers to connect to.
         /// </summary>
         private static readonly IList<Server> Servers = new List<Server>
         {
-            //new Server("Burstfire.UK.EU.GameSurge.net", "GameSurge London, UK", new int[3] { 6667, 6668, 7000 }),
-            //new Server("ColoCrossing.IL.US.GameSurge.net", "GameSurge Chicago, IL", new int[5] { 6660, 6666, 6667, 6668, 6669 }),
-            //new Server("Gameservers.NJ.US.GameSurge.net", "GameSurge Newark, NJ", new int[7] { 6665, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("Krypt.CA.US.GameSurge.net", "GameSurge Santa Ana, CA", new int[4] { 6666, 6667, 6668, 6669 }),
-            //new Server("NuclearFallout.WA.US.GameSurge.net", "GameSurge Seattle, WA", new int[2] { 6667, 5960 }),
-            //new Server("Portlane.SE.EU.GameSurge.net", "GameSurge Stockholm, Sweden", new int[5] { 6660, 6666, 6667, 6668, 6669 }),
-            //new Server("Prothid.NY.US.GameSurge.Net", "GameSurge NYC, NY", new int[7] { 5960, 6660, 6666, 6667, 6668, 6669, 6697 }),
-            //new Server("TAL.DE.EU.GameSurge.net", "GameSurge Wuppertal, Germany", new int[5] { 6660, 6666, 6667, 6668, 6669 }),
-            //new Server("208.167.237.120", "GameSurge IP 208.167.237.120", new int[7] {  6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("192.223.27.109", "GameSurge IP 192.223.27.109", new int[7] {  6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("108.174.48.100", "GameSurge IP 108.174.48.100", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("208.146.35.105", "GameSurge IP 208.146.35.105", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("195.8.250.180", "GameSurge IP 195.8.250.180", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("91.217.189.76", "GameSurge IP 91.217.189.76", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("195.68.206.250", "GameSurge IP 195.68.206.250", new int[7] { 6660, 6666, 6667, 6668, 6669, 7000, 8080 }),
-            //new Server("irc.gamesurge.net", "GameSurge", new int[1] { 6667 })
-
-            //---------------分割线上半部分为CnCNet官方的默认(GameSurge)IRC节点，下半部分为Reunion的自建IRC节点---------------//
-
-            new Server("a-root.ad.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点1，仅可用于重聚未来客户端 
-            new Server("b-root.wt.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点2，仅可用于重聚未来客户端
-            new Server("c-root.vb.cn.ru2023.top", "Reunion China", new int[1] { 6697 }), //RF自用节点3，仅可用于重聚未来客户端
-            new Server("d-root.bt.cn.ru2023.top", "Reunion China", new int[1] { 6697 })  //RF自用节点4，仅可用于重聚未来客户端
+            new Server("a-root.ad.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
+            new Server("b-root.wt.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
+            new Server("c-root.vb.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
+            new Server("d-root.bt.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
+            new Server("a6-root.ctzn.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 }),
+            new Server("b6-root.cths.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 }),
+            //最后这个节点有问题,不能正确检测用户IP,不对外开放
+            //new Server("c6-root.ctgg.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 })
         }.AsReadOnly();
 
         bool _isConnected = false;
@@ -189,8 +174,18 @@ namespace Ra2Client.Online
                 {
                     for (int i = 0; i < server.Ports.Length; i++)
                     {
-                        TcpClient client = new TcpClient(AddressFamily.InterNetwork);
-                        var result = client.BeginConnect(server.Host, server.Ports[i], null, null);
+                        TcpClient client;
+                        IAsyncResult result;
+                        if (IPAddress.TryParse(server.Host, out IPAddress ipAddress))
+                        {
+                            client = new TcpClient(ipAddress.AddressFamily);
+                            result = client.BeginConnect(ipAddress, server.Ports[i], null, null);
+                        }
+                        else
+                        {
+                            client = new TcpClient();
+                            result = client.BeginConnect(server.Host, server.Ports[i], null, null);
+                        }
                         bool success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3), false);
 
                         Logger.Log("Attempting connection to " + server.Host + ":" + server.Ports[i]);
@@ -224,7 +219,7 @@ namespace Ra2Client.Online
                             Logger.Log("TLS authentication failed: " + ex.Message);
                             continue; // Try the next server
                         }
-                        sslStream.ReadTimeout = 1000;
+                        sslStream.ReadTimeout = 3000;
 
                         currentConnectedServerIP = server.Host;
                         HandleComm();
@@ -392,7 +387,7 @@ namespace Ra2Client.Online
                     {
                         // If hostNameOrAddress is an IP address, this address is returned without querying the DNS server.
                         IEnumerable<IPAddress> serverIPAddresses = Dns.GetHostAddresses(serverHostnameOrIPAddress)
-                                                                      .Where(IPAddress => IPAddress.AddressFamily == AddressFamily.InterNetwork);
+                                                                      .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork || ip.AddressFamily == AddressFamily.InterNetworkV6);
 
                         Logger.Log($"DNS resolved {serverName} ({serverHostnameOrIPAddress}): " +
                             $"{string.Join(", ", serverIPAddresses.Select(item => item.ToString()))}");

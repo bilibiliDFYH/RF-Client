@@ -12,6 +12,7 @@ using ClientGUI;
 using HtmlAgilityPack;
 using IniParser;
 using IniParser.Model;
+using Localization;
 using Localization.Tools;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
@@ -91,7 +92,7 @@ namespace DTAConfig.OptionPanels
                 labeltypes = new XNALabel(WindowManager);
                 labeltypes.Name = nameof(labeltypes);
                 labeltypes.ClientRectangle = new Rectangle(20, 10, 0, 0);
-                labeltypes.Text = "筛选";
+                labeltypes.Text = "Filter".L10N("UI:DTAConfig:Filter");
                 AddChild(labeltypes);
 
                 comboBoxtypes = new XNAClientDropDown(WindowManager);
@@ -104,7 +105,7 @@ namespace DTAConfig.OptionPanels
 
                 var lblSearch = new XNALabel(WindowManager)
                 {
-                    Text = "搜索",
+                    Text = "Search".L10N("UI:DTAConfig:Search"),
                     ClientRectangle = new Rectangle(comboBoxtypes.Right + 80, labeltypes.Y,0,0)
                 };
                 AddChild(lblSearch);
@@ -122,12 +123,12 @@ namespace DTAConfig.OptionPanels
                 CompList.LineHeight = 30;
                 CompList.FontIndex = 1;
 
-                CompList.AddColumn("序号", 60)
-                    .AddColumn("组件", CompList.Width - 420)
-                    .AddColumn("类型", 110)
-                    .AddColumn("作者", 90)
-                    .AddColumn("版本", 70)
-                    .AddColumn("状态", 90);
+                CompList.AddColumn("Serial number".L10N("UI:DTAConfig:Serialnumber"), 60)
+                    .AddColumn("Component".L10N("UI:DTAConfig:Component"), CompList.Width - 420)
+                    .AddColumn("Type".L10N("UI:DTAConfig:Type"), 110)
+                    .AddColumn("Author".L10N("UI:DTAConfig:Author"), 90)
+                    .AddColumn("Version".L10N("UI:DTAConfig:Version"), 70)
+                    .AddColumn("Status".L10N("UI:DTAConfig:Status"), 90);
                 AddChild(CompList);
 
                 var _menu = new XNAContextMenu(WindowManager);
@@ -136,12 +137,12 @@ namespace DTAConfig.OptionPanels
 
                 _menu.AddItem(new XNAContextMenuItem
                 {
-                    Text = "刷新",
+                    Text = "Refresh".L10N("UI:DTAConfig:Refresh"),
                     SelectAction = () => {
                         InitialComponets();
                     }
                 });
-                _menu.AddItem("查看介绍",查看介绍,null,判断是否有介绍);
+                _menu.AddItem("Check out the introduction".L10N("UI:DTAConfig:Checkouttheintroduction"),查看介绍,null,判断是否有介绍);
 
                 AddChild(_menu);
 
@@ -247,7 +248,7 @@ namespace DTAConfig.OptionPanels
         private void InitialComponets()
         {
             comboBoxtypes.Items.Clear();
-            comboBoxtypes.AddItem("全部");
+            comboBoxtypes.AddItem("All".L10N("UI:DTAConfig:All"));
             Task.Run(async () => {
                 var Types = (await NetWorkINISettings.Get<string>("dict/getValue?section=component&key=type")).Item1?.Split(",") ?? [];
                 foreach (var item in Types) comboBoxtypes.AddItem(item);
@@ -303,21 +304,21 @@ namespace DTAConfig.OptionPanels
         /// <returns></returns>
         private StateItem CheckComponentStatus(Component comp)
         {
-            StateItem state = new StateItem { Code = -1, Text = "不可用", TextColor = Color.Red };
+            StateItem state = new StateItem { Code = -1, Text = "Not available".L10N("UI:DTAConfig:Notavailable"), TextColor = Color.Red };
             string strid = comp.hash;
             if (string.IsNullOrEmpty(strid))
                 return state;
 
-            state = new StateItem { Code = 0, Text = "未安装", TextColor = Color.Orange };
+            state = new StateItem { Code = 0, Text = "Not installed".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
             var parser = new FileIniDataParser();
             foreach (SectionData locSec in _locIniData.Sections)
             {
                 if (strid == locSec.SectionName)
                 {
-                    state = new StateItem { Code = 1, Text = "已安装", TextColor = Color.Green };
+                    state = new StateItem { Code = 1, Text = "Installed".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
                     if (CheckVersionNew(locSec.Keys["version"], comp.version))
                     {
-                        state = new StateItem { Code = 2, Text = "可更新", TextColor = Color.AliceBlue };
+                        state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
                     }
                     break;
                 }
@@ -363,11 +364,11 @@ namespace DTAConfig.OptionPanels
             {
                 mainButton.Visible = true;
                 if (0 == item.Code)
-                    mainButton.Text = "安装";
+                    mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
                 else if (1 == item.Code)
-                    mainButton.Text = "卸载";
+                    mainButton.Text = "Uninstall".L10N("UI:DTAConfig:Uninstall");
                 else
-                    mainButton.Text = "更新";
+                    mainButton.Text = "Update".L10N("UI:DTAConfig:Update");
             }
             else
                 mainButton.Visible = false;
@@ -388,7 +389,7 @@ namespace DTAConfig.OptionPanels
           
             string strLocPath = string.Empty;
 
-            lbstatus.Text = "正在下载";
+            lbstatus.Text = "Downloading...".L10N("UI:DTAConfig:Downloading");
 
             try
             {
@@ -407,7 +408,7 @@ namespace DTAConfig.OptionPanels
 
                 if (string.IsNullOrEmpty(strDownPath))
                 {
-                    XNAMessageBox.Show(WindowManager, "提示", $"组件包链接获取失败:{message}");
+                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Failed to get the component package link:{message}".L10N("UI:DTAConfig:FailedGetComponentLink"));
                     return;
                 }
                 string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
@@ -442,7 +443,7 @@ namespace DTAConfig.OptionPanels
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", $"文件可能被破坏，请重新下载");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
                         
                             mainButton.Visible = true;
                             progressBar.Visible = false;
@@ -453,7 +454,7 @@ namespace DTAConfig.OptionPanels
                         return;
                     }
                 }
-                lbstatus.Text = "正在解压";
+                lbstatus.Text = "Unzipping...".L10N("UI:DTAConfig:Unzipping");
                 //安装组件包
                 await Task.Run(() =>
                 {
@@ -482,10 +483,10 @@ namespace DTAConfig.OptionPanels
                         Logger.Log(ex.ToString());
                     }
                 });
-                mainButton.Text = "卸载";
+                mainButton.Text = "Uninstall".L10N("UI:DTAConfig:Uninstall");
             }
             else
-                mainButton.Text = "安装";
+                mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
 
             
                 mainButton.Visible = true;
@@ -516,28 +517,28 @@ namespace DTAConfig.OptionPanels
         {
             if (UserINISettings.Instance.第一次下载扩展.Value)
             {
-                XNAMessageBox.Show(WindowManager, "提示", "这里的扩展未能全部详细测试,若游玩过程遇到问题\n\n请不要联系原作者,\n\n先反馈重聚制作组,由我们详细测试复现后会反馈原作者,\n感谢大家理解和配合.");
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "If you encounter problems during the game, please do not contact the original author directly, and give priority to the Reunion production team, and we will give feedback to the original author after detailed testing and verification, thank you for your understanding and cooperation".L10N("UI:DTAConfig:FirstDownloadComponentTips"));
                 UserINISettings.Instance.第一次下载扩展.Value = false;
                 UserINISettings.Instance.SaveSettings();
                 return;
             }
             XNAClientButton button = (XNAClientButton)sender;
-            if (button.Text == "安装")
+            if (button.Text == "Install".L10N("UI:DTAConfig:Install"))
             {
-                string strMsg = string.Format("您确认安装 [{0}:{1}] 吗？文件大小：{2}", _curComponent.typeName, _curComponent.name, GetsizeString(_curComponent.size));
-                var msgBox = XNAMessageBox.ShowYesNoDialog(WindowManager, "提示", strMsg);
+                string strMsg = string.Format("Do you confirm the installation of [{0}:{1}]? File size: {2}".L10N("UI:DTAConfig:InstallComponentTips"), _curComponent.typeName, _curComponent.name, GetsizeString(_curComponent.size));
+                var msgBox = XNAMessageBox.ShowYesNoDialog(WindowManager, "Tips".L10N("UI:Main:Tips"), strMsg);
                 msgBox.NoClickedAction += MsgBox_InstallNoClicked;
                 msgBox.YesClickedAction += MsgBox_InstallYesClicked;
             }
-            else if (button.Text == "卸载")
+            else if (button.Text == "Uninstall".L10N("UI:DTAConfig:Uninstall"))
             {
                 UnInstall();
                 RefreshInstallButtonStatus(CompList.SelectedIndex);
             }
             else
             {
-                string strMsg = string.Format("您确认升级 [{0}:{1}] 吗？文件大小：{2}", _curComponent.typeName, _curComponent.name, GetsizeString(_curComponent.size));
-                var msgBox = XNAMessageBox.ShowYesNoDialog(WindowManager, "提示", strMsg);
+                string strMsg = string.Format("Do you confirm the upgrade [{0}:{1}]? File size: {2}".L10N("UI:DTAConfig:UpgradeComponentTips"), _curComponent.typeName, _curComponent.name, GetsizeString(_curComponent.size));
+                var msgBox = XNAMessageBox.ShowYesNoDialog(WindowManager, "Tips".L10N("UI:Main:Tips"), strMsg);
                 msgBox.NoClickedAction += MsgBox_InstallNoClicked;
                 msgBox.YesClickedAction += MsgBox_InstallYesClicked;
             }

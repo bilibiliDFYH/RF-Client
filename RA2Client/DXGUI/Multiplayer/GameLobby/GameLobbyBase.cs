@@ -1102,11 +1102,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             var maps = GetSortedGameModeMaps();
 
             maps = [.. maps.OrderBy(o => o.Map?.MaxPlayers)];
+            
+            bool gameModeMapChanged = false;
 
             for (int i = 0; i < maps.Count; i++)
             {
-
-
                 var gameModeMap = maps[i];
 
                 if (tbMapSearch.Text != tbMapSearch.Suggestion)
@@ -1152,9 +1152,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 lbGameModeMapList.AddItem(mapInfoArray);
 
                 if (gameModeMap == GameModeMap)
+                {
                     mapIndex = i - skippedMapsCount;
+                    gameModeMapChanged = false;
+                }
             }
-
 
             //    foreach (XNAListBoxItem[] mapInfoArray in maplist)
             //    {

@@ -331,7 +331,7 @@ namespace DTAConfig.OptionPanels
             btnQuit = new XNAClientButton(WindowManager);
             btnQuit.Name = nameof(btnQuit);
             btnQuit.ClientRectangle = new Rectangle(705, 618, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT);
-            btnQuit.Text = "跳转编辑用户窗口".L10N("Client:Main:跳转编辑用户窗口");
+            btnQuit.Text = "Jump to the edit user window".L10N("UI:Main:JumpEditUserWindow");
             btnQuit.LeftClick += btnQuit_LeftClick;
             AddChild(btnQuit);
 
@@ -573,8 +573,8 @@ namespace DTAConfig.OptionPanels
                             trb_input1.ButtonTexture = buttonTextures[7];
                             trb_input2.ButtonTexture = buttonTextures[7];
                             trb_input3.ButtonTexture = buttonTextures[7];
-                            XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game Over".L10N("UI:Main:Game Over"),
-                                $"游戏结束，请再接再厉。\n剩余格子：{(Rows * Columns - MineCount - _uncoveredCount)}", XNAMessageBoxButtons.OK);
+                            XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game Over".L10N("UI:Main:GameOver"),
+                                $"Game over, keep up the good work. \nRemaining Grids: {(Rows * Columns - MineCount - _uncoveredCount)}".L10N("UI:Main:GameOverTips"), XNAMessageBoxButtons.OK);
                             messageBox.Show();
                         }
                         else if (_victory)
@@ -593,8 +593,8 @@ namespace DTAConfig.OptionPanels
                             trb_input3.ButtonTexture = buttonTextures[7];
                             //string elapsedTimeString = _elapsedTime.ToString(@"hh\:mm\:ss");
                             string elapsedTimeString = $"{(int)_elapsedTime.TotalHours} 时 {(int)_elapsedTime.TotalMinutes % 60} 分 {_elapsedTime.Seconds} 秒";
-                            XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game victory".L10N("UI:Main:Game victory"),
-                                $"恭喜，你赢了。\n行数：{Rows}，列数：{Columns}，地雷数：{MineCount}，\n耗费时间：{elapsedTimeString}", XNAMessageBoxButtons.OK);
+                            XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game Victory".L10N("UI:Main:GameVictory"),
+                                $"Congratulations, you've won. \nNumber of rows: {Rows}, Number of columns: {Columns}, Number of mines: {MineCount}, \nTime elapsed: {elapsedTimeString}".L10N("UI:Main:GameVictoryTips"), XNAMessageBoxButtons.OK);
                             messageBox.Show();
                         }
                     }
@@ -779,8 +779,8 @@ namespace DTAConfig.OptionPanels
             sureWindows = true;
             if (!firstClick && !_gameOver && !_victory)
             {
-                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game in progress".L10N("UI:Main:QuitWindows"),
-                    "Game in progress. Confirm quir?".L10N("UI:Main:Confirm 跳转编辑用户窗口"), XNAMessageBoxButtons.YesNo);
+                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Exit the Game Confirm".L10N("UI:Main:QuitWindow"),
+                    "The game is ongoing. Confirm your exit?".L10N("UI:Main:QuitWindowTips"), XNAMessageBoxButtons.YesNo);
                 messageBox.Show();
                 messageBox.YesClickedAction += Quit_YesClicked;
                 messageBox.NoClickedAction += Result_NoClicked;
@@ -814,9 +814,9 @@ namespace DTAConfig.OptionPanels
             }
             else
             {
-                Console.WriteLine("这一局还没完呢！");
-                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game in progress".L10N("UI:Main:Result"),
-                    "Game in progress. Confirm reset?".L10N("UI:Main:Confirm reset"), XNAMessageBoxButtons.YesNo);
+                Console.WriteLine("这一局还没有完成呢!");
+                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Resume Confirm".L10N("UI:Main:ResetWindow"),
+                    "The game is ongoing. Confirm to start over?".L10N("UI:Main:ResetWindowTips"), XNAMessageBoxButtons.YesNo);
                 messageBox.Show();
                 messageBox.YesClickedAction += Result_YesClicked;
                 messageBox.NoClickedAction += Result_NoClicked;
@@ -825,7 +825,7 @@ namespace DTAConfig.OptionPanels
 
         private void Result_YesClicked(XNAMessageBox messageBox)
         {
-            Console.WriteLine("重开！");
+            Console.WriteLine("重新开始!");
             sureWindows = false;
             InitializeGame();
         }
@@ -877,7 +877,7 @@ namespace DTAConfig.OptionPanels
 
             // 重置按钮样式
             _btnresult.HoverTexture = buttonTextures[0];  // 加载背景纹理
-            _btnresult.IdleTexture = buttonTextures[0]; // 加载背景纹理
+            _btnresult.IdleTexture = buttonTextures[0];   // 加载背景纹理
 
             //重置所有格子
             //初始化的时候清空一次
@@ -887,9 +887,9 @@ namespace DTAConfig.OptionPanels
                 for (int y = 0; y < Rows; y++)
                 {
                     _tiles[x, y].State = TileState.Covered; //揭开、标记的、带标记的收起
-                    _tiles[x, y].HasMine = false;//移除所有的雷
-                    _tiles[x, y].NeighborMines = 0; //重置格子上的计数
-                                                    //以上三条把所有变化的格子重置了
+                    _tiles[x, y].HasMine = false;           //移除所有的雷
+                    _tiles[x, y].NeighborMines = 0;         //重置格子上的计数
+                                                            //以上三条把所有变化的格子重置了
                 }
             }
 

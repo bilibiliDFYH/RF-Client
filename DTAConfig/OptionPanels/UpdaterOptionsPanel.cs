@@ -77,13 +77,13 @@ namespace DTAConfig.OptionPanels
             lblBeta = new XNALabel(WindowManager);
             lblBeta.Name = "lblBeta";
             lblBeta.ClientRectangle = new Rectangle(chkAutoCheck.X, chkAutoCheck.Y + 40, 60, 20);
-            lblBeta.Text = "更新通道";
+            lblBeta.Text = "Update Channel".L10N("UI:DTAConfig:UpdateChannel");
 
             ddBeta = new XNADropDown(WindowManager);
             ddBeta.Name = "ddBeta";
             ddBeta.ClientRectangle = new Rectangle(lblBeta.X + 80, lblBeta.Y,100,30);
-            ddBeta.AddItem("稳定发行版");
-            ddBeta.AddItem("预览体验版");
+            ddBeta.AddItem("Stable".L10N("UI:DTAConfig:UpdateChannelStable"));
+            ddBeta.AddItem("Insiders".L10N("UI:DTAConfig:UpdateChannelInsiders"));
             ddBeta.SelectedIndexChanged += DdBeta_SelectedIndexChanged;
 
             AddChild(lblDescription);

@@ -3,6 +3,7 @@ using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
 using DTAConfig.Entity;
+using Localization;
 using Localization.Tools;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
@@ -73,7 +74,7 @@ namespace DTAConfig.OptionPanels
             //第一行
             var lblName = new XNALabel(WindowManager)
             {
-                Text = "组件名称:",
+                Text = "Component Name:".L10N("UI:DTAConfig:ComponentName"),
                 ClientRectangle = new Rectangle(20, 90, 0, 0)
 
             };
@@ -88,7 +89,7 @@ namespace DTAConfig.OptionPanels
             //第二行
             var lblGameOptions = new XNALabel(WindowManager)
             {
-                Text = "Tag:",
+                Text = "Tag:".L10N("UI:DTAConfig:ComponentTag"),
                 ClientRectangle = new Rectangle(lblName.X, lblName.Y + 40, 0, 0)
             };
             AddChild(lblGameOptions);
@@ -103,7 +104,7 @@ namespace DTAConfig.OptionPanels
             //第三行
             var lblAuthor = new XNALabel(WindowManager)
             {
-                Text = "作者:",
+                Text = "作者:".L10N("UI:DTAConfig:ComponentAuthor"),
                 ClientRectangle = new Rectangle(lblName.X, lblGameOptions.Y + 40, 0, 0)
             };
             AddChild(lblAuthor);
@@ -116,7 +117,7 @@ namespace DTAConfig.OptionPanels
 
             var lblVersion = new XNALabel(WindowManager)
             {
-                Text = "版本：",
+                Text = "版本：".L10N("UI:DTAConfig:ComponentVersion"),
                 ClientRectangle = new Rectangle(300, lblAuthor.Y, 0, 0),
             };
             AddChild(lblVersion);
@@ -130,7 +131,7 @@ namespace DTAConfig.OptionPanels
             //第四行
             var lblDescription = new XNALabel(WindowManager)
             {
-                Text = "介绍:",
+                Text = "介绍:".L10N("UI:DTAConfig:ComponentIntroduction"),
                 ClientRectangle = new Rectangle(lblName.X, lblVersion.Y + 40, 0, 0)
             };
             AddChild(lblDescription);
@@ -145,7 +146,7 @@ namespace DTAConfig.OptionPanels
             //第五行
             btnSelect = new XNAClientButton(WindowManager)
             {
-                Text = "点击选择以上传:",
+                Text = "Click Select to upload:".L10N("UI:DTAConfig:UploadComponent"),
                 X = _ctbTags.X,
                 Y = 260,
                 Width = _ctbGameOptions.Width,
@@ -157,7 +158,7 @@ namespace DTAConfig.OptionPanels
 
             btnSelectOther = new XNAClientButton(WindowManager)
             {
-                Text = "点击选择以上传附带的文件(如CSF等):",
+                Text = "Click Select to upload the attached files (e.g. CSF, etc.):".L10N("UI:DTAConfig:UploadComponentAttach"),
                 X = _ctbTags.X,
                 Y = btnSelect.Y + 40,
                 Width = _ctbGameOptions.Width,
@@ -169,7 +170,7 @@ namespace DTAConfig.OptionPanels
 
             var btnUpload = new XNAClientButton(WindowManager)
             {
-                Text = "上传",
+                Text = "Upload".L10N("UI:DTAConfig:ButtonUpload"),
                 ClientRectangle = new Rectangle(150, 360, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
             };
             
@@ -177,7 +178,7 @@ namespace DTAConfig.OptionPanels
 
             var btnCancel = new XNAClientButton(WindowManager)
             {
-                Text = "取消",
+                Text = "Cancel".L10N("UI:DTAConfig:ButtonCancel"),
                 ClientRectangle = new Rectangle(310, 360, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
             };
             AddChild(btnCancel);
@@ -314,7 +315,7 @@ namespace DTAConfig.OptionPanels
             var error = Check(false);
             if (error != null)
             {
-                XNAMessageBox.Show(WindowManager, "错误", error);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), error);
                 return;
             }
 
@@ -330,7 +331,7 @@ namespace DTAConfig.OptionPanels
                         { new StringContent(tabControl.SelectedTab.ToString(), encoding: null),"type"},
                         { new StringContent(_ctbVersion.Text, encoding: null),"version"},
                         { new StringContent(UserINISettings.Instance.User.id.ToString(), encoding: null),"uploadUser"},
-                   //     { fileContent, "file", Path.GetFileName(path) }
+                        // { fileContent, "file", Path.GetFileName(path) }
                     };
 
             if (path != string.Empty)
@@ -338,7 +339,7 @@ namespace DTAConfig.OptionPanels
 
                 if (double.Parse(new FileInfo(path).Length.ToFileSizeString(1)) > 5)
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", "地图不能超过5MB");
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The map file size cannot exceed 5MB".L10N("UI:DTAConfig:MapSizeExceed"));
                     return;
                 }
 
@@ -350,7 +351,7 @@ namespace DTAConfig.OptionPanels
 
                 if (r != true)
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", msg);
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                     return;
                 }
             }
@@ -360,11 +361,11 @@ namespace DTAConfig.OptionPanels
 
                 if (r != true)
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", msg);
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                     return;
                 }
             }
-            XNAMessageBox.Show(WindowManager, "信息", " 修改成功！");
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Modification successful!".L10N("UI:DTAConfig:ModificationSuccessful"));
             Uploaded = true;
             Disable();
 
@@ -376,7 +377,7 @@ namespace DTAConfig.OptionPanels
             var error = Check();
             if (error != null)
             {
-                XNAMessageBox.Show(WindowManager, "错误", error);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), error);
                 return;
             }
 
@@ -384,13 +385,13 @@ namespace DTAConfig.OptionPanels
 
             if(path.Length == 0)
             {
-               // XNAMessageBox.Show(WindowManager, "错误", "请选择正确的文件");
+                // XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "请选择正确的文件");
                 return;
             }
 
             if(double.Parse(new FileInfo(path).Length.ToFileSizeString(1)) > 20)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "压缩包不能超过20MB");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The file size of the archive cannot exceed 20MB".L10N("UI:DTAConfig:ArchiveSizeExceed"));
                 return;
             }
 
@@ -400,7 +401,7 @@ namespace DTAConfig.OptionPanels
             var componentDTO = new MultipartFormDataContent
                     {
                         { new StringContent(_ctbName.Text, encoding: null), "name" },
-              //          { new StringContent(apply, encoding: null), "apply" },
+                        // { new StringContent(apply, encoding: null), "apply" },
                         { new StringContent(_ctbAuthor.Text, encoding: null),"author"},
                         { new StringContent(_ctbTags.Text, encoding: null),"description"},
                         { new StringContent(_ctbGameOptions.Text, encoding: null),"tags"},
@@ -414,7 +415,7 @@ namespace DTAConfig.OptionPanels
 
             if (r != true)
             {
-                XNAMessageBox.Show(WindowManager, "错误", msg);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                 WindowManager.Report();
                 return;
             }
@@ -426,7 +427,7 @@ namespace DTAConfig.OptionPanels
             {
                 Logger.Log($"文件{path}删除失败:{ex.Message}");
             }
-            XNAMessageBox.Show(WindowManager, "信息", "上传成功！");
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Upload successful!".L10N("UI:DTAConfig:UploadSuccessful"));
             Uploaded = true;
             Disable(); 
             WindowManager.Report();
@@ -511,7 +512,7 @@ namespace DTAConfig.OptionPanels
                     var tagerPath = Path.Combine(ProgramConstants.GamePath, "Tmp", Path.GetFileNameWithoutExtension(misssionPackPath));
                     if (!SevenZip.ExtractWith7Zip(misssionPackPath, tagerPath))
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", "解压压缩包失败,请手动解压后用文件夹上传");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "If the unzip package fails, please manually decompress it and upload it to a folder".L10N("UI:DTAConfig:UnzipPackageFailed"));
                         return string.Empty;
                     }
                     misssionPackPath = tagerPath;
@@ -530,7 +531,7 @@ namespace DTAConfig.OptionPanels
 
                 if(modManager.导入具体任务包(true,true, misssionPackPath, false,Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}")) == null)
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", "未找到任务包文件");
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The campaign package file was not found".L10N("UI:DTAConfig:CampaignPackageFileNotFound"));
                     return string.Empty;
                 }
 
@@ -641,7 +642,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", "您选择的文件夹无法构成任务包");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The folder you select does not constitute a campaign pack".L10N("UI:DTAConfig:ConstituteCampaignPackError"));
                     }
                     // 显示文件数在按钮上
 
@@ -702,7 +703,7 @@ namespace DTAConfig.OptionPanels
         {
             if( _ctbName.Text.Length == 0)
             {
-                return "请填写名称。";
+                return "Please fill in the name".L10N("UI:DTAConfig:FillName");
             }
 
             //if (!File.Exists(btnSelect.Text) && upLoad)

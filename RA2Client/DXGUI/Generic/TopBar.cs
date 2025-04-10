@@ -202,7 +202,7 @@ namespace Ra2Client.DXGUI.Generic
             btnModManager = new XNAClientButton(WindowManager);
             btnModManager.Name = "btnModManager";
             btnModManager.ClientRectangle = new Rectangle(btnOptions.X - 172, 9, UIDesignConstants.BUTTON_WIDTH_160, 23);
-            btnModManager.Text = "模组管理器 (F11)";
+            btnModManager.Text = "ModManager (F11)".L10N("UI:Main:ModManagerF11");
             btnModManager.LeftClick += BtnModManager_LeftClick;
 
             //minesweeperGameWindow = new MinesweeperGame(WindowManager);
@@ -248,7 +248,7 @@ namespace Ra2Client.DXGUI.Generic
             lblConnectionStatus = new XNALabel(WindowManager);
             lblConnectionStatus.Name = "lblConnectionStatus";
             lblConnectionStatus.FontIndex = 1;
-            lblConnectionStatus.Text = "CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline");
+            lblConnectionStatus.Text = "CnCNet Status: OFFLINE".L10N("UI:Main:StatusOffline");
 
             AddChild(btnMainButton);
             AddChild(btnCnCNetLobby);
@@ -341,29 +341,29 @@ namespace Ra2Client.DXGUI.Generic
         private void ConnectionManager_ConnectionLost(object sender, Online.EventArguments.ConnectionLostEventArgs e)
         {
             if (!lanMode)
-                ConnectionEvent("CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet Status: OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         private void ConnectionManager_ConnectAttemptFailed(object sender, EventArgs e)
         {
             if (!lanMode)
-                ConnectionEvent("CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet Status: OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         private void ConnectionManager_AttemptedServerChanged(object sender, Online.EventArguments.AttemptedServerEventArgs e)
         {
-            ConnectionEvent("CnCNet连接状态:" + "CONNECTING...".L10N("UI:Main:StatusConnecting"));
+            ConnectionEvent("CnCNet Status: CONNECTING...".L10N("UI:Main:StatusConnecting"));
             BringDown();
         }
 
         private void ConnectionManager_WelcomeMessageReceived(object sender, Online.EventArguments.ServerMessageEventArgs e)
-            => ConnectionEvent("CnCNet连接状态:" + "CONNECTED".L10N("UI:Main:StatusConnected"));
+            => ConnectionEvent("CnCNet Status: CONNECTED".L10N("UI:Main:StatusConnected"));
 
         private void ConnectionManager_Disconnected(object sender, EventArgs e)
         {
             btnLogout.AllowClick = false;
             if (!lanMode)
-                ConnectionEvent("CnCNet连接状态:" + "OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet Status: OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         private void ConnectionEvent(string text)
@@ -398,7 +398,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (OptionsWindow.UseSkin)
             {
-                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "警告", "联机时禁止使用皮肤，请将皮肤还原成默认", XNAMessageBoxButtons.OK);
+                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "警告", "联机时禁止使用皮肤，请将皮肤还原为默认", XNAMessageBoxButtons.OK);
                 messageBox.Show();
                 return;
             }
@@ -571,10 +571,10 @@ namespace Ra2Client.DXGUI.Generic
             if (lanMode)
 
 
-                ConnectionEvent("LAN MODE".L10N("UI:Main:StatusLanMode"));
+                ConnectionEvent("CnCNet Status: LAN MODE".L10N("UI:Main:StatusLanMode"));
 
             else
-                ConnectionEvent("OFFLINE".L10N("UI:Main:StatusOffline"));
+                ConnectionEvent("CnCNet Status: OFFLINE".L10N("UI:Main:StatusOffline"));
         }
 
         public override void Update(GameTime gameTime)

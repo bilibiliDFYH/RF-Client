@@ -108,7 +108,7 @@ namespace Ra2Client
 
             if (!canStart)
             {
-                MessageBox.Show("当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新最新客户端以获得后续的技术支持", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新最新客户端以获得后续的技术支持", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
             }
 
             if (multipleInstanceMode)

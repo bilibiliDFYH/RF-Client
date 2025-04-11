@@ -87,6 +87,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 new StringCommandHandler(MAP_SHARING_FAIL_MESSAGE, HandleMapTransferFailMessage),
                 new StringCommandHandler(MAP_SHARING_DOWNLOAD_REQUEST, HandleMapDownloadRequest),
                 new NoParamCommandHandler(MAP_SHARING_DISABLED_MESSAGE, HandleMapSharingBlockedMessage),
+                new NoParamCommandHandler("STRTD", GameStartedNotification),
                 new NoParamCommandHandler("RETURN", ReturnNotification),
                 new IntCommandHandler("TNLPNG", HandleTunnelPing),
                 new StringCommandHandler("FHSH", FileHashNotification),
@@ -1467,8 +1468,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 Logger.Log("Game files modified during client session!");
                 channel.SendCTCPMessage(CHEAT_DETECTED_MESSAGE, QueuedMessageType.INSTANT_MESSAGE, 0);
-             //   HandleCheatDetectedMessage(ProgramConstants.PLAYERNAME);
+                // HandleCheatDetectedMessage(ProgramConstants.PLAYERNAME);
             }
+            
+            channel.SendCTCPMessage("STRTD", QueuedMessageType.SYSTEM_MESSAGE, 20);
 
             base.StartGame();
         }
@@ -1583,6 +1586,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (IsHost)
                 channel.SendCTCPMessage("INGM " + playerIndex, QueuedMessageType.GAME_NOTIFICATION_MESSAGE, 0);
+        }
+        
+        private void GameStartedNotification(string sender)
+        {
+            PlayerInfo pInfo = Players.Find(p => p.Name == sender);
+
+            if (pInfo != null)
+                pInfo.IsInGame = true;
+
+            CopyPlayerDataToUI();
         }
 
         private void ReturnNotification(string sender)

@@ -1,6 +1,4 @@
 ﻿
-using CNCMaps.Engine;
-using CNCMaps.Shared;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using System;
@@ -25,66 +23,66 @@ namespace ClientCore
         public static List<string> 需要渲染的地图列表 = [];
         public static bool RenderOneImage(string mapPath)
         {
-            if (!File.Exists(mapPath)) return false;
-            var mapName = Path.GetFileNameWithoutExtension(mapPath);
+            //if (!File.Exists(mapPath)) return false;
+            //var mapName = Path.GetFileNameWithoutExtension(mapPath);
 
-            var ini = new IniFile(mapPath);
-            if (ini.otherChar.Count != 0) return false;
-
-
-            var engine = new RenderEngine();
-            RenderSettings settings = new RenderSettings()
-            {
-                OutputFile = Path.GetFileNameWithoutExtension(mapPath),
-                InputFile = mapPath,
-                MixFilesDirectory = "E:\\Documents\\file\\RF-Client\\Bin\\YR",
-                Engine = EngineType.YurisRevenge,
-                ThumbnailConfig = "+(1280,768)",
-                // SavePNGThumbnails = true,
-                //  Backup = true,
-                SaveJPEG = true
-            };
-            if (engine.ConfigureFromArgs(settings))
-            {
-                var result = engine.Execute();
-            }
+            //var ini = new IniFile(mapPath);
+            //if (ini.otherChar.Count != 0) return false;
 
 
-            //string mapName = Path.GetFileNameWithoutExtension(mapPath);
-            //string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
-            //string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
-            //string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
-
-            //using Process process = new Process();
-            //process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
-            //process.StartInfo.Arguments = strCmdText;
-            //process.StartInfo.UseShellExecute = false;
-            //process.StartInfo.CreateNoWindow = true;
-            //WindowManager.progress.Report($"正在渲染预览图{mapName}...");
-
-            //Console.WriteLine(strCmdText);
-
-
-            //process.Start();
-            //process.WaitForExit();
-            //process.Close();
-
-            //if (File.Exists(inputPath))
+            //var engine = new RenderEngine();
+            //RenderSettings settings = new RenderSettings()
             //{
-            //    try
-            //    {
-            //        File.Move(inputPath, outputPath, true);
-            //    }
-            //    catch
-            //    {
-
-            //    }
+            //    OutputFile = Path.GetFileNameWithoutExtension(mapPath),
+            //    InputFile = mapPath,
+            //    MixFilesDirectory = "E:\\Documents\\file\\RF-Client\\Bin\\YR",
+            //    Engine = EngineType.YurisRevenge,
+            //    ThumbnailConfig = "+(1280,768)",
+            //    // SavePNGThumbnails = true,
+            //    //  Backup = true,
+            //    SaveJPEG = true
+            //};
+            //if (engine.ConfigureFromArgs(settings))
+            //{
+            //    var result = engine.Execute();
             //}
 
-            //// 渲染成功，增加计数并触发事件
 
-            //Interlocked.Increment(ref RenderCount);
-            //RenderCompleted?.Invoke(null, EventArgs.Empty);
+            string mapName = Path.GetFileNameWithoutExtension(mapPath);
+            string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
+            string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
+            string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
+
+            using Process process = new Process();
+            process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
+            process.StartInfo.Arguments = strCmdText;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            WindowManager.progress.Report($"正在渲染预览图{mapName}...");
+
+            Console.WriteLine(strCmdText);
+
+
+            process.Start();
+            process.WaitForExit();
+            process.Close();
+
+            if (File.Exists(inputPath))
+            {
+                try
+                {
+                    File.Move(inputPath, outputPath, true);
+                }
+                catch
+                {
+
+                }
+            }
+
+            // 渲染成功，增加计数并触发事件
+
+            Interlocked.Increment(ref RenderCount);
+            RenderCompleted?.Invoke(null, EventArgs.Empty);
 
 
 

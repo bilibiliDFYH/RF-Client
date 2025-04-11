@@ -60,4 +60,9 @@
        <ProjectReference Include="..\Localization\Localization.csproj" />
        <ProjectReference Include="..\RandomMapGenerator\RandomMapGenerator.csproj" />
   </ItemGroup>
+    <ItemGroup>
+      <Reference Include="CNCMaps.FileFormats">
+        <HintPath>..\Render\CNCMaps.FileFormats.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>

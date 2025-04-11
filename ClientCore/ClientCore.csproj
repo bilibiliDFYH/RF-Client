@@ -70,6 +70,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Localization\Localization.csproj" />
     <ProjectReference Include="..\Rampastring.XNAUI\Rampastring.XNAUI.csproj" />
-    <ProjectReference Include="..\Render\CNCMaps.Engine\CNCMaps.Engine.csproj" />
   </ItemGroup>
 </Project>

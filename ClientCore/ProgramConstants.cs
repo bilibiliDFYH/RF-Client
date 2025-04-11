@@ -93,7 +93,25 @@ namespace ClientCore
             {
                 if (!excludeFiles.Contains(Path.GetFileName(file)))
                 {
-                    File.Delete(file);
+                    try
+                    {
+                        // 获取文件的当前属性
+                        FileAttributes attributes = File.GetAttributes(file);
+
+                        // 如果文件是只读的，去除只读属性
+                        if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                        {
+                            File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
+                        }
+
+                        // 删除文件
+                        File.Delete(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        // 处理异常，如文件被其他进程占用等
+                        Console.WriteLine($"无法删除文件 {file}: {ex.Message}");
+                    }
                 }
             }
         }

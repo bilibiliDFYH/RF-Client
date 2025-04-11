@@ -573,7 +573,7 @@ namespace Ra2Client.DXGUI.Generic
             base.OnSelectedChanged();
 
         }
-        IniFile infoini = null;
+     //   IniFile infoini = null;
 
         private void 显示任务包TxT文件列表(string mpPath)
         {
@@ -591,88 +591,88 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        /// <summary>
-        /// 异步获取任务信息
-        /// </summary>
-        /// <param name="modChange"> 是否忽视缓存 </param>
-        private void GetMissionInfo(bool modChange)
-        {
+        ///// <summary>
+        ///// 异步获取任务信息
+        ///// </summary>
+        ///// <param name="modChange"> 是否忽视缓存 </param>
+        //private void GetMissionInfo(bool modChange)
+        //{
             
-            if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
+        //    if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
-            _lbxInforBox.Clear();
+        //    _lbxInforBox.Clear();
 
-            try
-            {
-                Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
+        //    try
+        //    {
+        //        Mission mission = _screenMissions[_lbxCampaignList.SelectedIndex];
 
-                if (_cmbGame.SelectedItem == null || _cmbGame.SelectedItem.Tag is not Mod mod)
-                    return;
+        //        if (_cmbGame.SelectedItem == null || _cmbGame.SelectedItem.Tag is not Mod mod)
+        //            return;
 
-                string missionInfo = string.Empty;
-                if (!modChange)
-                    missionInfo = mission.MissionInfo;
-                Rulesmd rulesmd = null;
-                if (mod.rules != string.Empty)
-                    rulesmd = new(mod.rules, mod.ID);
+        //        string missionInfo = string.Empty;
+        //        if (!modChange)
+        //            missionInfo = mission.MissionInfo;
+        //        Rulesmd rulesmd = null;
+        //        if (mod.rules != string.Empty)
+        //            rulesmd = new(mod.rules, mod.ID);
 
-                if (string.IsNullOrEmpty(missionInfo) || modChange) // 如果不在内存中
-                {
-                    infoini ??= new IniFile(Path.Combine(ProgramConstants.GamePath, "Resources/missioninfo.ini"));
-                    if (!modChange)
-                    {
+        //        if (string.IsNullOrEmpty(missionInfo) || modChange) // 如果不在内存中
+        //        {
+        //            infoini ??= new IniFile(Path.Combine(ProgramConstants.GamePath, "Resources/missioninfo.ini"));
+        //            if (!modChange)
+        //            {
 
-                        if (infoini.GetSection(mission.SectionName) != null)
-                        {
-                            missionInfo = infoini.GetValue(mission.SectionName, "info", string.Empty);
-                        }
-                        else { missionInfo = string.Empty; }
-                    }
-                    if (string.IsNullOrEmpty(missionInfo) && rulesmd != null || modChange) // 如果不在缓存中
-                    {
-                        //解析
-                        string mapPath = Path.Combine(mission.Path, mission.Scenario);
-                        var iniFile = new IniFile(mapPath);
+        //                if (infoini.GetSection(mission.SectionName) != null)
+        //                {
+        //                    missionInfo = infoini.GetValue(mission.SectionName, "info", string.Empty);
+        //                }
+        //                else { missionInfo = string.Empty; }
+        //            }
+        //            if (string.IsNullOrEmpty(missionInfo) && rulesmd != null || modChange) // 如果不在缓存中
+        //            {
+        //                //解析
+        //                string mapPath = Path.Combine(mission.Path, mission.Scenario);
+        //                var iniFile = new IniFile(mapPath);
 
-                        var csfPath = Path.Combine(ProgramConstants.GamePath, mission.Path, "ra2md.csf");
-                        if (!File.Exists(csfPath))
-                            csfPath = Path.Combine(ProgramConstants.GamePath, mod.FilePath, "ra2md.csf");
-                        Dictionary<string, string> csf = new CSF(csfPath).GetCsfDictionary();
+        //                var csfPath = Path.Combine(ProgramConstants.GamePath, mission.Path, "ra2md.csf");
+        //                if (!File.Exists(csfPath))
+        //                    csfPath = Path.Combine(ProgramConstants.GamePath, mod.FilePath, "ra2md.csf");
+        //                Dictionary<string, string> csf = new CSF(csfPath).GetCsfDictionary();
 
-                        if (csf != null && rulesmd != null) // 若csf解析成功
-                        {
-                            List<string> allSession = iniFile.GetSections();
+        //                if (csf != null && rulesmd != null) // 若csf解析成功
+        //                {
+        //                    List<string> allSession = iniFile.GetSections();
 
-                            foreach (string session in allSession)
-                            {
+        //                    foreach (string session in allSession)
+        //                    {
 
-                                string info = new GameObject(session, csf, iniFile.GetSection(session), rulesmd).GetInfo();
-                                if (!string.IsNullOrEmpty(info))
-                                {
-                                    missionInfo += info + "@";
-                                }
+        //                        string info = new GameObject(session, csf, iniFile.GetSection(session), rulesmd).GetInfo();
+        //                        if (!string.IsNullOrEmpty(info))
+        //                        {
+        //                            missionInfo += info + "@";
+        //                        }
 
-                            }
-                        }
+        //                    }
+        //                }
 
-                        infoini.SetValue(mission.SectionName, "info", missionInfo);
-                        infoini.WriteIniFile();
-                    }
-                }
+        //                infoini.SetValue(mission.SectionName, "info", missionInfo);
+        //                infoini.WriteIniFile();
+        //            }
+        //        }
 
-                mission.MissionInfo = missionInfo;
+        //        mission.MissionInfo = missionInfo;
 
-                foreach (string info in missionInfo.Split("@"))
-                {
-                    _lbxInforBox.AddItem(info);
-                }
-            }
-            catch (Exception ex)
-            {
+        //        foreach (string info in missionInfo.Split("@"))
+        //        {
+        //            _lbxInforBox.AddItem(info);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
 
-            }
+        //    }
 
-        }
+        //}
 
         /// <summary>
         /// 保存战役界面配置。

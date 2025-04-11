@@ -1,7 +1,5 @@
 ﻿using ClientCore;
 using ClientGUI;
-using CNCMaps.Engine;
-using CNCMaps.Shared;
 using DTAConfig.OptionPanels;
 using Rampastring.Tools;
 using System;
@@ -59,6 +57,7 @@ namespace Ra2Client
         private static void Run(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
+          //  RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
             //System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             //var ini1 = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\spawnmap.ini");
             //var ini2 = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\Client\\custom_rules_all.ini");

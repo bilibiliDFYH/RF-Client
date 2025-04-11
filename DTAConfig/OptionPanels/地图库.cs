@@ -1,4 +1,5 @@
-﻿using ClientCore.Entity;
+﻿using ClientCore;
+using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
 using Microsoft.Xna.Framework;
@@ -6,6 +7,7 @@ using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -192,6 +194,15 @@ namespace DTAConfig.OptionPanels
         {
             if(当前页数 < 总页数)
             当前页数++;
+        }
+
+        private void 下载地图(int id)
+        {
+            var r =  NetWorkINISettings.Get<Maps>($"map/downMap?id={id}").Result;
+            if(r.Item1 != null)
+            {
+                File.WriteAllText(Path.Combine(ProgramConstants.GamePath, "Maps\\Multi\\WorkShop", $"{r.Item1.name}.map"), r.Item1.file);
+            }
         }
 
         private void DdType_SelectedIndexChanged(object sender, EventArgs e)

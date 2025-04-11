@@ -295,61 +295,70 @@ namespace DTAConfig
         private void ReLoad()
         {
 
-            if(!Directory.Exists($"{ProgramConstants.GamePath}Resources/thememd"))
-                Directory.CreateDirectory($"{ProgramConstants.GamePath}Resources/thememd");
+            try
+            {
 
-            if(Directory.GetFiles($"{ProgramConstants.GamePath}Resources/thememd").Length == 0)
-                Mix.UnPackMix($"{ProgramConstants.GamePath}Resources/thememd/", $"{ProgramConstants.GamePath}thememd.mix");
-            
-            listBox.Clear();
+                if (!Directory.Exists($"{ProgramConstants.GamePath}Resources/thememd"))
+                    Directory.CreateDirectory($"{ProgramConstants.GamePath}Resources/thememd");
 
-            UserINISettings.Instance.MusicNameDictionary = [];
-            var inifile = new IniFile(MusicINI);
-            var csfDictionary = new CSF($"{ProgramConstants.GamePath}ra2md.csf").GetCsfDictionary();
-            var iniSection = inifile.GetSectionValues("Themes");
-            if(iniSection!=null)
-                foreach (var section in iniSection)
-                {
-                    if (!inifile.SectionExists(section)) continue;
+                if (Directory.GetFiles($"{ProgramConstants.GamePath}Resources/thememd").Length == 0)
+                    Mix.UnPackMix($"{ProgramConstants.GamePath}Resources/thememd/", $"{ProgramConstants.GamePath}thememd.mix");
 
-                    var Sound = inifile.GetValue(section, "Sound", section);
+                listBox.Clear();
 
-                    var Path = string.Empty;
-                    var Size = string.Empty;
-                    var Length = inifile.GetValue(section, "Length", string.Empty);
-                    if(string.IsNullOrEmpty(Length))
+                UserINISettings.Instance.MusicNameDictionary = [];
+                var inifile = new IniFile(MusicINI);
+                var csfDictionary = new CSF($"{ProgramConstants.GamePath}ra2md.csf").GetCsfDictionary();
+                var iniSection = inifile.GetSectionValues("Themes");
+                if (iniSection != null)
+                    foreach (var section in iniSection)
                     {
-                        var path = $"{ProgramConstants.GamePath}Resources/thememd/{Sound}.WAV";
-                        if (File.Exists(path))
+                        if (!inifile.SectionExists(section)) continue;
+
+                        var Sound = inifile.GetValue(section, "Sound", section);
+
+                        var Path = string.Empty;
+                        var Size = string.Empty;
+                        var Length = inifile.GetValue(section, "Length", string.Empty);
+                        if (string.IsNullOrEmpty(Length))
                         {
-                            Length = new AudioFileReader(path).TotalTime.ToString();
-                            Size = new FileInfo(path).Length.ToFileSizeString(2) + " MB";
-                    
-                            Path = path;
+                            var path = $"{ProgramConstants.GamePath}Resources/thememd/{Sound}.WAV";
+                            if (File.Exists(path))
+                            {
+                                Length = new AudioFileReader(path).TotalTime.ToString();
+                                Size = new FileInfo(path).Length.ToFileSizeString(2) + " MB";
+
+                                Path = path;
+                            }
                         }
+
+                        var music = new Music()
+                        {
+                            Name = inifile.GetValue(section, "Name", $"THEME:{section}"),
+                            Section = section,
+                            CName = inifile.GetValue(section, "CName", csfDictionary?.TryGetValue($"THEME:{section}", out var value) == true ? value : section),
+                            Sound = inifile.GetValue(section, "Sound", string.Empty),
+                            Normal = inifile.GetValue(section, "Normal", string.Empty),
+                            Length = Length,
+                            Size = Size,
+                            Scenario = inifile.GetValue(section, "Scenario", string.Empty),
+                            Side = inifile.GetValue(section, "Side", string.Empty),
+                            Repeat = inifile.GetValue(section, "Repeat", string.Empty),
+                            Path = Path
+                        };
+
+                        listBox.AddItem(music.CName, tag: music);
+                        UserINISettings.Instance.MusicNameDictionary.Add($"THEME:{section}", music.CName);
                     }
-                    
-                    var music = new Music()
-                    {
-                        Name     = inifile.GetValue(section, "Name"    ,$"THEME:{section}"),
-                        Section  = section,
-                        CName    = inifile.GetValue(section, "CName"   ,csfDictionary?.TryGetValue($"THEME:{section}", out var value) == true ? value : section),
-                        Sound    = inifile.GetValue(section, "Sound"   ,string.Empty),
-                        Normal   = inifile.GetValue(section, "Normal"  ,string.Empty),
-                        Length   = Length,
-                        Size     = Size,
-                        Scenario = inifile.GetValue(section, "Scenario",string.Empty),
-                        Side     = inifile.GetValue(section, "Side"    ,string.Empty),
-                        Repeat   = inifile.GetValue(section, "Repeat"  ,string.Empty),
-                        Path     = Path
-                    };
 
-                    listBox.AddItem(music.CName, tag:music);
-                    UserINISettings.Instance.MusicNameDictionary.Add($"THEME:{section}", music.CName);
-                }
-
-            multiColumnListBox.ClearItems();
-            ListBox_SelectedIndexChanged(null,null);
+                multiColumnListBox.ClearItems();
+                ListBox_SelectedIndexChanged(null, null);
+            }
+            catch(Exception ex)
+            {
+                XNAMessageBox.Show(WindowManager,"错误","载入音乐失败，详情可查看日志");
+                Logger.Log("MusicWindow", $"载入音乐失败：{ex}");
+            }
         }
     }
 }

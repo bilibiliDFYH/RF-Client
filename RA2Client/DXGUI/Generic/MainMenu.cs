@@ -38,7 +38,7 @@ using DTAConfig.Entity;
 using Microsoft.Extensions.FileSystemGlobbing;
 using OpenRA.Mods.Cnc.FileSystem;
 using System.Timers;
-using NLog;
+
 using Logger = Rampastring.Tools.Logger;
 
 namespace Ra2Client.DXGUI.Generic

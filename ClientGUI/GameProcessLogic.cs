@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using ClientCore;
 using ClientCore.INIProcessing;
-using CNCMaps.FileFormats;
 using DTAConfig.Entity;
 using Localization.Tools;
 using Rampastring.Tools;

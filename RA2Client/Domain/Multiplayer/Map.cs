@@ -5,6 +5,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -460,9 +461,25 @@ namespace Ra2Client.Domain.Multiplayer
               
                     actualSize = section.GetValueOrSetDefault("Size", () => GetMapIni(BaseFilePath).GetStringValue("Map", "Size", "0,0,0,0")).Split(',');
 
+                   
+                    
+
                     //Task.Run(() =>
                     //{
-                    //    Money = section.GetValueOrSetDefault("ResourcesNum", () => GetMoney(new IniFile($"{BaseFilePath}")));
+                    //    try
+                    //    {
+                    //        Money = section.GetValueOrSetDefault("ResourcesNum", () =>
+                    //        {
+                    //            var mapStream = File.Open(BaseFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    //            var vmapFile = new VirtualFile(mapStream, Path.GetFileName(BaseFilePath), true);
+                    //            var m = new MapFile(vmapFile, Path.GetFileName(BaseFilePath));
+                    //            return m.GetMoney();
+                    //        });
+                    //    }
+                    //    catch
+                    //    {
+
+                    //    }
                     //}
                     //);
 
@@ -531,134 +548,6 @@ namespace Ra2Client.Domain.Multiplayer
                 PreStartup.LogException(ex);
                 return false;
             }
-        }
-
-        /// <summary>
-        /// 初始化地图信息
-        /// </summary>
-        /// <param name="iniFile">传递ini引用</param>
-        /// <returns>地图信息</returns>
-        private TileLayer ReadTiles(IniFile iniFile)
-        {
-           
-            var FullSize = new Rectangle(int.Parse(actualSize[0]), int.Parse(actualSize[1]), int.Parse(actualSize[2]), int.Parse(actualSize[3]));
-            var Tiles = new TileLayer(FullSize.Width, FullSize.Height);
-            var mapSection = iniFile.GetSection("IsoMapPack5");
-
-            byte[] lzoData = Convert.FromBase64String(mapSection.ConcatenatedValues());
-            int cells = (FullSize.Width * 2 - 1) * FullSize.Height;
-            int lzoPackSize = cells * 11 + 4; // last 4 bytes contains a lzo pack header saying no more data is left
-
-            var isoMapPack = new byte[lzoPackSize];
-
-            // In case, IsoMapPack5 contains less entries than the number of cells, fill up any number greater 
-            // than 511 and filter later.
-            int j = 0;
-            for (int i = 0; i < cells; i++)
-            {
-                isoMapPack[j] = 0x88;
-                isoMapPack[j + 1] = 0x40;
-                isoMapPack[j + 2] = 0x88;
-                isoMapPack[j + 3] = 0x40;
-                j += 11;
-            }
-
-            Format5.DecodeInto(lzoData, isoMapPack);
-
-            // Fill level 0 clear tiles for all array values
-            for (ushort y = 0; y < FullSize.Height; y++)
-            {
-                for (ushort x = 0; x <= FullSize.Width * 2 - 2; x++)
-                {
-                    ushort dx = x;
-                    ushort dy = (ushort)(y * 2 + x % 2);
-                    ushort rx = (ushort)((dx + dy) / 2 + 1);
-                    ushort ry = (ushort)(dy - rx + FullSize.Width + 1);
-                    Tiles[x, y] = new IsoTile(dx, dy, rx, ry, 0, 0, 0, 0);
-                }
-            }
-
-            // Overwrite with actual entries found in IsoMapPack5
-            var mf = new MemoryFile(isoMapPack);
-            int numtiles = 0;
-            for (int i = 0; i < cells; i++)
-            {
-                ushort rx = mf.ReadUInt16();
-                ushort ry = mf.ReadUInt16();
-                int tilenum = mf.ReadInt32();
-                byte subtile = mf.ReadByte();
-                byte z = mf.ReadByte();
-                byte icegrowth = mf.ReadByte();
-
-                if (tilenum >= 65535) tilenum = 0; // Tile 0xFFFF used as empty/clear
-
-                if (rx <= 511 && ry <= 511)
-                {
-                    int dx = rx - ry + FullSize.Width - 1;
-                    int dy = rx + ry - FullSize.Width - 1;
-                    numtiles++;
-                    if (dx >= 0 && dx < 2 * Tiles.Width && dy >= 0 && dy < 2 * Tiles.Height)
-                    {
-                        var tile = new IsoTile((ushort)dx, (ushort)dy, rx, ry, z, tilenum, subtile, icegrowth);
-                        Tiles[(ushort)dx, (ushort)dy / 2] = tile;
-                    }
-                }
-            }
-
-            return Tiles;
-
-        }
-        
-        /// <summary>
-        /// 计算地图资源值
-        /// </summary>
-        /// <param name="iniFile"> 传递ini引用 </param>
-        /// <returns>资源值</returns>
-        private int GetMoney(IniFile iniFile)
-        {
-            try
-            {
-                var Tiles = ReadTiles(iniFile);
-
-                IniSection overlaySection = iniFile.GetSection("OverlayPack");
-                IniSection overlayDataSection = iniFile.GetSection("OverlayDataPack");
-                if (overlaySection == null || overlayDataSection == null) return 0;
-
-                var count = 0;
-
-                byte[] format80Data = Convert.FromBase64String(overlaySection.ConcatenatedValues());
-                var overlayPack = new byte[1 << 18];
-                Format5.DecodeInto(format80Data, overlayPack, 80);
-
-                format80Data = Convert.FromBase64String(overlayDataSection.ConcatenatedValues());
-                var overlayDataPack = new byte[1 << 18];
-                Format5.DecodeInto(format80Data, overlayDataPack, 80);
-
-                var FullSize = new Rectangle(int.Parse(actualSize[0]), int.Parse(actualSize[1]), int.Parse(actualSize[2]), int.Parse(actualSize[3]));
-
-                for (int y = 0; y < FullSize.Height; y++)
-                    for (int x = FullSize.Width * 2 - 2; x >= 0; x--)
-                    {
-                        var t = Tiles[x, y];
-                        if (t == null) continue;
-                        int idx = t.Rx + 512 * t.Ry;
-                        var (overlay_id, overlay_value) = (overlayPack[idx], overlayDataPack[idx]);
-
-                        count += overlay_id switch
-                        {
-                            // TODO 这里的数字可能要根据实际的金矿注册顺序来调整
-                            112 or 102 => 25 * overlay_value,
-                            30 or 27 => 50 * overlay_value,
-                            _ => 0
-                        };
-                    }
-                return count;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-            
         }
 
         /// <summary>

@@ -14,7 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Timer = System.Timers.Timer;
 /* !! We cannot use references to other projects or non-framework assemblies in this class, assembly loading events not hooked up yet !! */
 
 namespace Ra2Client
@@ -42,7 +41,6 @@ namespace Ra2Client
         private static string SPECIFIC_LIBRARY_PATH;
         private static readonly string MajorVerifyUrl = "https://www.ru2023.top/verify/launcher.txt";
         private static readonly string MinorVerifyUrl = "https://www.yra2.com/verify/launcher.txt";
-      //  private static Timer checkVersionTimer;
 
         /// <summary>
         /// The main entry point for the application.
@@ -94,31 +92,23 @@ namespace Ra2Client
 
             var parameters = new StartupParams(noAudio, multipleInstanceMode, unknownStartupParams);
 
-            bool canStart = CheckVersion().Result;
-            if (!canStart)
+            bool canStart = false;
+            var checkVersionTask = Task.Run(async () => await CheckVersion().ConfigureAwait(false));
+            try
             {
-                string content = new HttpClient().GetStringAsync(MajorVerifyUrl).Result;
-                string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                Version minVersion = new Version(lines.First().Trim());
-                Version maxVersion = new Version(lines.Last().Trim());
-                string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
-                Version current = new Version(currentVersion);
-
-                if (current < minVersion)
-                {
-                    MessageBox.Show("检测到铁幕装置已离线, 当前版本已停止维护!\n请到重聚未来官网 www.yra2.com 更新最新客户端", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-                }
-                else if (current > maxVersion)
-                {
-                    MessageBox.Show("检测到超时空坐标受到干扰, 当前版本暂未开放!\n请到重聚未来官网 www.yra2.com 获取更多信息", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-                }
-                Environment.Exit(1);
+                checkVersionTask.GetAwaiter().GetResult();
+                canStart = checkVersionTask.Result;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("版本检查失败: " + ex.Message);
+                canStart = true;
             }
 
-            //checkVersionTimer = new Timer(1 * 60 * 1000);
-            //checkVersionTimer.Elapsed += async (sender, e) => await ReCheckVer();
-            //checkVersionTimer.AutoReset = true;
-            //checkVersionTimer.Enabled = true;
+            if (!canStart)
+            {
+                MessageBox.Show("当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新最新客户端以获得后续的技术支持", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+            }
 
             if (multipleInstanceMode)
             {
@@ -166,7 +156,7 @@ namespace Ra2Client
             try
             {
                 using HttpClient client = new HttpClient();
-                string content = await client.GetStringAsync(MajorVerifyUrl);
+                string content = await client.GetStringAsync(MajorVerifyUrl).ConfigureAwait(false);
                 return ParseVersionContent(content);
             }
             catch (Exception MajorEx)
@@ -175,7 +165,7 @@ namespace Ra2Client
                 try
                 {
                     using HttpClient client = new HttpClient();
-                    string content = await client.GetStringAsync(MinorVerifyUrl);
+                    string content = await client.GetStringAsync(MinorVerifyUrl).ConfigureAwait(false);
                     return ParseVersionContent(content);
                 }
                 catch (Exception MinorEx)
@@ -190,48 +180,21 @@ namespace Ra2Client
         private static bool ParseVersionContent(string content)
         {
             string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
             if (lines.Length == 0)
                 return true;
 
             string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
-            Version current = new Version(currentVersion);
-            Version minVersion = new Version(lines.First().Trim());
-            Version maxVersion = new Version(lines.Last().Trim());
 
-            if (current < minVersion)
+            foreach (string line in lines)
             {
-                return false;
-            }
-            else if (current > maxVersion)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private static async Task ReCheckVer()
-        {
-            bool canStart = await CheckVersion();
-            if (!canStart)
-            {
-                string content = await new HttpClient().GetStringAsync(MajorVerifyUrl);
-                string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                Version minVersion = new Version(lines.First().Trim());
-                Version maxVersion = new Version(lines.Last().Trim());
-                string currentVersion = Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
-                Version current = new Version(currentVersion);
-
-                if (current < minVersion)
+                if (line.Trim().Equals(currentVersion, StringComparison.OrdinalIgnoreCase))
                 {
-                    MessageBox.Show("检测到铁幕装置已离线, 当前版本已停止维护!\n请到重聚未来官网 www.yra2.com 更新最新客户端", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                    return true;
                 }
-                else if (current > maxVersion)
-                {
-                    MessageBox.Show("检测到超时空坐标受到干扰, 当前版本暂未开放!\n请到重聚未来官网 www.yra2.com 获取更多信息", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-                }
-                Environment.Exit(1);
             }
+
+            return false;
         }
 
         private static Assembly DefaultAssemblyLoadContextOnResolving(AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)

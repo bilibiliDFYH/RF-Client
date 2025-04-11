@@ -95,7 +95,7 @@ namespace DTAConfig.OptionPanels
             chkIMEEnable = new XNAClientCheckBox(WindowManager);
             chkIMEEnable.Name = "chkIMEEnable";
             chkIMEEnable.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkScrollCoasting.Y, 150, 20);
-            chkIMEEnable.Text = "客户端启用输入法(推荐使用Rime输入法+雾淞字库)";
+            chkIMEEnable.Text = "The client enables the input method".L10N("UI:DTAConfig:Enableinput");
             //chkIMEEnable.Visible = false;
 
             chkTargetLines = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "UnitActionLines");
@@ -108,13 +108,13 @@ namespace DTAConfig.OptionPanels
             chkMultinuclear = new XNAClientCheckBox(WindowManager);
             chkMultinuclear.Name = "chkMultinuclear";
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
-            chkMultinuclear.Text = "尝试多核运行(24H2以上必须开启,其他Win版本建议关闭)";
+            chkMultinuclear.Text = "Try multi-core running".L10N("UI:DTAConfig:TryMultiCoreRunning");
 
             chkForceEnableGameOptions = new XNAClientCheckBox(WindowManager)
             {
                 Name = nameof(chkForceEnableGameOptions),
                 ClientRectangle = new Rectangle(chkMultinuclear.X, chkMultinuclear.Top - 25, 150, 20),
-                Text = "允许其他Mod使用不推荐的游戏选项"
+                Text = "Third-party mods are allowed to use game options that are not recommended".L10N("UI:DTAConfig:ModsAllowNotRecommendGameOptions")
             };
 
             chkShowHiddenObjects = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ShowHidden");
@@ -127,7 +127,7 @@ namespace DTAConfig.OptionPanels
             chkRenderPreviewImage = new XNAClientCheckBox(WindowManager);
             chkRenderPreviewImage.Name = "chkRenderPreviewImage";
             chkRenderPreviewImage.ClientRectangle = new Rectangle(chkMultinuclear.X, chkShowHiddenObjects.Y, 150, 20);
-            chkRenderPreviewImage.Text = "导入新地图时在后台渲染全息预览图(暂时无效)";
+            chkRenderPreviewImage.Text = "Render holographic preview in the background when importing a new map".L10N("UI:DTAConfig:RenderHolographicPreview");
              
             chkTooltips = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ToolTips");
             chkTooltips.Name = "chkTooltips";
@@ -138,7 +138,7 @@ namespace DTAConfig.OptionPanels
 
             chkSimplifiedCSF = new XNAClientCheckBox(WindowManager);
             chkSimplifiedCSF.Name = "chkSimplifiedCSF";
-            chkSimplifiedCSF.Text = "导入任务包/Mod时默认转换为简体中文".L10N("UI:DTAConfig:SimplifiedCSF");
+            chkSimplifiedCSF.Text = "Convert to Chinese Simplified Chinese by default when importing campaign packs/mods".L10N("UI:DTAConfig:ChineseSimpCSF");
             chkSimplifiedCSF.ClientRectangle = new Rectangle(chkRenderPreviewImage.X, chkTooltips.Y, 150, 20);
 
             var lblPlayerName = new XNALabel(WindowManager);
@@ -151,7 +151,7 @@ namespace DTAConfig.OptionPanels
             var lblStartCommand = new XNALabel(WindowManager);
             lblStartCommand.Name = "lblStartCommand";
             lblStartCommand.ClientRectangle = new Rectangle(chkMultinuclear.X , lblPlayerName.Y, 0, 0);
-            lblStartCommand.Text = "启动命令:".L10N("UI:DTAConfig:StartCommand");
+            lblStartCommand.Text = "Start the command:".L10N("UI:DTAConfig:StartCommand");
 
             tbStartCommand = new XNATextBox(WindowManager);
             tbStartCommand.Name = "tbStartCommand";
@@ -185,7 +185,7 @@ namespace DTAConfig.OptionPanels
             var btnModManager = new XNAClientButton(WindowManager);
             btnModManager.Name = "btnModManager";
             btnModManager.ClientRectangle = new Rectangle(lblPlayerName.X, lblNotice.Bottom + 36, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
-            btnModManager.Text = "模组管理器".L10N("UI:DTAConfig:ModManager");
+            btnModManager.Text = "Mod Manager".L10N("UI:DTAConfig:ModManager");
 
             btnModManager.LeftClick += (_, _) =>
             {
@@ -211,8 +211,8 @@ namespace DTAConfig.OptionPanels
             var btnRecover = new XNAClientButton(WindowManager);
             btnRecover.Name = "btnRecover";
             btnRecover.ClientRectangle = new Rectangle(lblPlayerName.X, lblNotice.Bottom + 108, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
-            btnRecover.Text = "清理游戏文件缓存";
-            btnRecover.SetToolTipText("如果游戏出现问题，可以点击这个按钮尝试修复。");
+            btnRecover.Text = "Clean up the game cache".L10N("UI:DTAConfig:CleanupGameCache");
+            btnRecover.SetToolTipText("If there is a problem with the game, you can click this button to try to fix it.".L10N("UI:DTAConfig:ButtonCleanupGameCache"));
             btnRecover.LeftClick += BtnRecover_LeftClick;
 
             AddChild(lblScrollRate);
@@ -238,9 +238,9 @@ namespace DTAConfig.OptionPanels
       
         private void BtnRecover_LeftClick(object sender, EventArgs e)
         {
-            XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "清理确认", "您确定要清理文件缓存吗？", XNAMessageBoxButtons.YesNo);
+            XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "Cleanup confirmation".L10N("UI:DTAConfig:CleanupConfirmation"), "Are you sure you want to clean up the file cache?".L10N("UI:DTAConfig:CleanupCacheTips"), XNAMessageBoxButtons.YesNo);
             xNAMessageBox.Show();
-            xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"提示", ProgramConstants.清理缓存()?"清理成功！":"清理失败，可能是某个文件被占用了。") ;
+            xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), ProgramConstants.清理缓存()?"Cleanup successful!".L10N("UI:DTAConfig:CleanupSuccessful"):"If the cleanup fails, a file may be occupied".L10N("UI:DTAConfig:CleanupFailed")) ;
         }
 
         
@@ -318,7 +318,7 @@ namespace DTAConfig.OptionPanels
 
             //if (HasChinese(tbPlayerName.Text))
             //{
-            //    XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "出错", "请不要使用中文作为游戏名。", XNAMessageBoxButtons.OK);
+            //    XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "出错", "请不要使用中文作为游戏名", XNAMessageBoxButtons.OK);
             //    messageBox.Show();
             //    return false;
             //}

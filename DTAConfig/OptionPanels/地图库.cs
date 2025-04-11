@@ -2,6 +2,7 @@
 using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
+using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
@@ -110,7 +111,7 @@ namespace DTAConfig.OptionPanels
             mapPanel = new XNAMultiColumnListBox(WindowManager)
             {
                 ClientRectangle = new Rectangle(50, 100, 900, 540),
-          //      BackgroundColor = Color.Black * 0.5f // 半透明背景
+            //    BackgroundColor = Color.Black * 0.5f // 半透明背景
             };
 
             mapPanel.LineHeight = 120;
@@ -121,7 +122,7 @@ namespace DTAConfig.OptionPanels
             mapPanel.AddColumn("下载次数", 100);
             mapPanel.AddColumn("评分", 100);
             mapPanel.AddColumn("介绍", 160);
-     //       mapPanel.AddColumn("下载", 100);
+            // mapPanel.AddColumn("下载", 100);
 
             types = NetWorkINISettings.Get<string>("dict/getValue?section=map&key=type").Result.Item1.Split(',');
 
@@ -168,9 +169,9 @@ namespace DTAConfig.OptionPanels
             // 添加控件
             AddChild(titleLabel);
             AddChild(searchBox);
-         //   AddChild(refreshButton);
+            // AddChild(refreshButton);
             AddChild(mapPanel);
-            //AddChild(detailButton);
+            // AddChild(detailButton);
             AddChild(closeButton);
             AddChild(btnSearch);
             AddChild(ddType);
@@ -180,7 +181,7 @@ namespace DTAConfig.OptionPanels
 
             base.Initialize();
 
-           // Reload();
+            // Reload();
         }
 
         private void BtnRight_LeftClick(object sender, EventArgs e)

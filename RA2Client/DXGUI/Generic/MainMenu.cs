@@ -949,8 +949,7 @@ namespace Ra2Client.DXGUI.Generic
                     //"Client/custom_art_yr.ini",
                     "Client/CampaignSetting.ini",
                     "Resources/missioninfo.ini",
-                //    "Resources/rules.json",
-                    
+                    //"Resources/rules.json",
             ];
 
             foreach (string filePath in filesToCreate)
@@ -1453,7 +1452,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnExit_LeftClick(object sender, EventArgs e)
         {
-            var messageBox = new XNAMessageBox(WindowManager, "退出确认", "确定退出客户端吗？？？", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "退出确认", "您确定要退出了吗QwQ?", XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
                 WindowManager.HideWindow();

@@ -8,6 +8,7 @@ using System.Threading;
 using ClientCore;
 using ClientCore.INIProcessing;
 using DTAConfig.Entity;
+using Localization;
 using Localization.Tools;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
@@ -70,9 +71,11 @@ namespace ClientGUI
                 waitTimes++;
                 if (waitTimes > 10)
                 {
-                    XNAMessageBox.Show(windowManager, "INI preprocessing not complete", "INI preprocessing not complete. Please try " +
+                    XNAMessageBox.Show(windowManager, 
+                        "INI preprocessing not complete".L10N("UI:ClientGUI:INIPreprocessingNotCompleteTitle"),
+                        ("INI preprocessing not complete. Please try " +
                         "launching the game again. If the problem persists, " +
-                        "contact the game or mod authors for support.");
+                        "contact the game or mod authors for support.").L10N("UI:ClientGUI:INIPreprocessingNotCompleteText"));
                     return;
                 }
             }
@@ -473,7 +476,7 @@ namespace ClientGUI
             if (File.Exists(RA2MD))
                 File.Copy(RA2MD, "RA2MD.ini", true);
             获取新的存档();
-
+            
             if ( Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")) && DebugCount < Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录, "Debug")).Length)
             {
                 ProgramConstants.清理缓存();

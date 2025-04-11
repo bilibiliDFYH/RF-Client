@@ -63,12 +63,20 @@ namespace Ra2Client
             FileInfo clientLogFile = SafePath.GetFile(clientUserFilesDirectory.FullName, "client.log");
             ProgramConstants.LogFileName = clientLogFile.FullName;
 
+            if (clientLogFile.Exists)
+            {
+                // Copy client.log file as client_previous.log. Override client_previous.log if it exists.
+                FileInfo clientPrevLogFile = SafePath.GetFile(clientUserFilesDirectory.FullName, "client_previous.log");
+                if (clientPrevLogFile.Exists)
+                    File.Delete(clientPrevLogFile.FullName);
+                File.Move(clientLogFile.FullName, clientPrevLogFile.FullName);
+            }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 CheckPermissions();
 
             Logger.Initialize(clientUserFilesDirectory.FullName, clientLogFile.Name);
             Logger.WriteLogFile = true;
-            clientLogFile.Delete();
 
             MainClientConstants.Initialize();
 
@@ -154,8 +162,8 @@ namespace Ra2Client
 
             // Delete obsolete files from old target project versions
 
-          //  gameDirectory.EnumerateFiles("mainclient.log").SingleOrDefault()?.Delete();
-         //   gameDirectory.EnumerateFiles("aunchupdt.dat").SingleOrDefault()?.Delete();
+            // gameDirectory.EnumerateFiles("mainclient.log").SingleOrDefault()?.Delete();
+            // gameDirectory.EnumerateFiles("aunchupdt.dat").SingleOrDefault()?.Delete();
 
             try
             {

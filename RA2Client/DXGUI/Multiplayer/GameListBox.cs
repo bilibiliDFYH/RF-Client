@@ -22,7 +22,7 @@ namespace Ra2Client.DXGUI.Multiplayer
         private const int ICON_MARGIN = 2;
         private const int FONT_INDEX = 0;
         private const string LOADED_GAME_TEXT = " (Loaded Game)";
-        private string[] SkillLevelIcons;
+        private readonly string[] SkillLevelOptions;
 
         public GameListBox(WindowManager windowManager,
             string localGameIdentifier, Predicate<GenericHostedGame> gameMatchesFilter)
@@ -32,10 +32,10 @@ namespace Ra2Client.DXGUI.Multiplayer
             this.localGameIdentifier = localGameIdentifier;
             GameMatchesFilter = gameMatchesFilter;
 
-            SkillLevelIcons = ClientConfiguration.Instance.SkillLevelOptions.Split(',');
+            SkillLevelOptions = ClientConfiguration.Instance.SkillLevelOptions.Split(',');
         }
 
-        private List<Texture2D> txSkillLevelIcons = new List<Texture2D>();
+        private List<Texture2D?> txSkillLevelIcons = new();
 
         private int loadedGameTextWidth;
 
@@ -195,11 +195,13 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         private void InitSkillLevelIcons()
         {
-            for (int i = 0; i < SkillLevelIcons.Length; i++)
+            for (int i = 0; i < SkillLevelOptions.Length; i++)
             {
-                Texture2D gd = AssetLoader.LoadTexture($"skillLevel{i}.png");
-                if (gd != null)
-                    txSkillLevelIcons.Add(gd);
+                string fileName = $"skillLevel{i}.png";
+
+                txSkillLevelIcons.Add(AssetLoader.AssetExists(fileName)
+                    ? AssetLoader.LoadTexture(fileName)
+                    : null);
             }
         }
 
@@ -351,7 +353,7 @@ namespace Ra2Client.DXGUI.Multiplayer
                 else
                 {
                     Texture2D txSkillLevelIcon = txSkillLevelIcons[hostedGame.SkillLevel];
-                    if (txSkillLevelIcon != null && hostedGame.SkillLevel != 0)
+                    if (txSkillLevelIcon != null)
                     {
                         DrawTexture(txSkillLevelIcon,
                             new Rectangle(Width - txSkillLevelIcon.Width - TextBorderDistance - (scrollBarDrawn ? ScrollBar.Width : 0),

@@ -7,6 +7,7 @@ using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using ToolTip = ClientGUI.ToolTip;
+using Localization;
 using Localization.Tools;
 using System.Linq;
 using DTAConfig.Entity;
@@ -55,7 +56,7 @@ public class ModManager : XNAWindow
 
         var lblTittle = new XNALabel(WindowManager)
         {
-            Text = "模组管理器",
+            Text = "Mod Manager".L10N("UI:DTAConfig:ModManager"),
             FontIndex = 0,
             ClientRectangle = new Rectangle(Width / 2 - 40, 5, 0, 0),
             TextColor = Color.White
@@ -68,7 +69,7 @@ public class ModManager : XNAWindow
             ClientRectangle = new Rectangle(25, 30, 200, 40)
         };
 
-        DDModAI.AddItem(["Mod", "任务包"]);
+        DDModAI.AddItem(["Mod".L10N("UI:DTAConfig:Mod"), "Campaign Pack".L10N("UI:DTAConfig:CampaignPack")]);
 
         AddChild(DDModAI);
 
@@ -78,7 +79,7 @@ public class ModManager : XNAWindow
 
         _modMenu.AddItem(new XNAContextMenuItem
         {
-            Text = "打开文件位置",
+            Text = "Open the file location".L10N("UI:DTAConfig:OpenFileLocation"),
             SelectAction = () => { if (ListBoxModAi.SelectedIndex != -1)
                 {
                     var p = Path.Combine(ProgramConstants.GamePath, ((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).FilePath).Replace("/", "\\");
@@ -89,32 +90,32 @@ public class ModManager : XNAWindow
 
         _modMenu.AddItem(new XNAContextMenuItem
         {
-            Text = "新增",
+            Text = "Add".L10N("UI:DTAConfig:Add"),
             SelectAction = () => BtnNew.OnLeftClick()
         });
         //_modMenu.AddItem(new XNAContextMenuItem
         //{
-        //    Text = "修改",
+        //    Text = "Revise".L10N("UI:DTAConfig:Revise"),
         //    SelectAction = UpdateBase
         //});
         _modMenu.AddItem(new XNAContextMenuItem
         {
-            Text = "删除",
+            Text = "Delete".L10N("UI:DTAConfig:Delete"),
             SelectAction = () => BtnDel.OnLeftClick()
         });
         _modMenu.AddItem(new XNAContextMenuItem
         {
-            Text = "将文件打包为MIX",
+            Text = "Package the file as a Mix".L10N("UI:DTAConfig:PackageFileMix"),
             SelectAction = 将文件打包为MIX
         });
         _modMenu.AddItem(new XNAContextMenuItem
         {
-            Text = "解压MIX",
+            Text = "Unzip Mix".L10N("UI:DTAConfig:UnzipMix"),
             SelectAction = 解压MIX
         });
         _modMenu.AddItem(new XNAContextMenuItem
         {
-            Text = "编辑CSF",
+            Text = "Edit the CSF".L10N("UI:DTAConfig:EditCSF"),
             SelectAction = EditCsf
         });
 
@@ -156,7 +157,7 @@ public class ModManager : XNAWindow
             ClientRectangle = new Rectangle(ListBoxModAi.X + ListBoxModAi.Width + 20, ListBoxModAi.Y, 420, ListBoxModAi.Height),
             LineHeight = 25,
             FontIndex = 2
-        }.AddColumn("属性", 160).AddColumn("信息", 260);
+        }.AddColumn("Attribute".L10N("UI:DTAConfig:Attribute"), 160).AddColumn("Info".L10N("UI:DTAConfig:Info"), 260);
 
         _mcListBoxInfo.SelectedIndexChanged += McListBoxInfoSelectedIndexChanged;
 
@@ -168,12 +169,12 @@ public class ModManager : XNAWindow
 
         _tooltip = new ToolTip(WindowManager, _mcListBoxInfo)
         {
-            Text = "选择可查看详细信息"
+            Text = "Select to view details".L10N("UI:DTAConfig:SelectViewDetails")
         };
 
         _btnReturn = new XNAClientButton(WindowManager)
         {
-            Text = "确定",
+            Text = "Yes".L10N("UI:Main:ButtonYes"),
             ClientRectangle = new Rectangle(280, 340, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         _btnReturn.LeftClick += BtnReturn_LeftClick;
@@ -181,7 +182,7 @@ public class ModManager : XNAWindow
 
         BtnDownload = new XNAClientButton(WindowManager)
         {
-            Text = "下载更多",
+            Text = "Download more".L10N("UI:Main:ButtonDownloadMore"),
             ClientRectangle = new Rectangle(_mcListBoxInfo.X, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         BtnDownload.LeftClick += BtnDownload_LeftClick;
@@ -205,7 +206,7 @@ public class ModManager : XNAWindow
 
         var btnReload = new XNAClientButton(WindowManager)
         {
-            Text = "刷新",
+            Text = "Refresh".L10N("UI:Main:ButtonRefresh"),
             ClientRectangle = new Rectangle(BtnDel.X + 110, DDModAI.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnReload.LeftClick += (_, _) => ReLoad();
@@ -276,9 +277,9 @@ public class ModManager : XNAWindow
             var path = Path.Combine(Dname,Fname);
             if (File.Exists(path))
             {
-                XNAMessageBox.Show(WindowManager, "提示", $"打包成功:{path}");
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"The packaging was successful:{path}".L10N("UI:DTAConfig:PackagingSuccessful"));
             }else
-                XNAMessageBox.Show(WindowManager, "提示", $"打包失败");
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Packaging failed".L10N("UI:DTAConfig:PackagingFailed"));
         }
     }
 
@@ -352,7 +353,7 @@ public class ModManager : XNAWindow
         }
         catch (Exception ex)
         {
-            XNAMessageBox.Show(WindowManager, "错误", $"文件操作失败，原因：{ex}");
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"File operation failed, reason: {ex}".L10N("UI:Main:FileOperationFailed"));
         }
 
         #endregion
@@ -457,8 +458,8 @@ public class ModManager : XNAWindow
             
         if (id == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择尤复任务包或基于原生原版的任务包文件");
-            return "没有找到任务包文件";
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Please select Yuri's Revenge Campaign Pack or the campaign pack file based on the original".L10N("UI:DTAConfig:SelectCampaignPackFile"));
+            return "No campaign package files found".L10N("UI:DTAConfig:CampaignPackageFileNotFound");
         }
 
         刷新并渲染(mapFiles);
@@ -770,8 +771,8 @@ public class ModManager : XNAWindow
 
         if (id == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "错误", "请选择尤复模组,暂不支持原版模组.");
-            return "没有找到合适的模组文件";
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Please select Yuri's Revenge mod, vanilla mods are not supported at this time.".L10N("UI:DTAConfig:SelectModFile"));
+            return "No suitable mod file found".L10N("UI:DTAConfig:ModFileNotFound");
         }
 
         ReLoad();
@@ -970,7 +971,7 @@ public class ModManager : XNAWindow
     /// <param name="mod"></param>
     private void UpdateMod(Mod mod)
     {
-        var infoWindows = new ModInfoWindows(WindowManager, mod, "修改Mod");
+        var infoWindows = new ModInfoWindows(WindowManager, mod, "Modify Mod".L10N("UI:DTAConfig:ModifyMod"));
 
         var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
 
@@ -1019,7 +1020,7 @@ public class ModManager : XNAWindow
 
         if (!Directory.Exists(pack.FilePath))
         {
-            XNAMessageBox.Show(WindowManager, "信息", $"任务包路径{pack.FilePath}不存在！");
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"The campaign package path {pack. FilePath} does not exist!".L10N("UI:DTAConfig:CampaignPackagePathdoesnotexist"));
             return;
         }
 
@@ -1033,7 +1034,7 @@ public class ModManager : XNAWindow
             csfExist = true;
         }
 
-        var infoWindows = new MissionPackInfoWindows(WindowManager, pack, "修改任务包", missionMix, csfExist);
+        var infoWindows = new MissionPackInfoWindows(WindowManager, pack, "Modify Campaign Package".L10N("UI:DTAConfig:ModifyCampaignPackage"), missionMix, csfExist);
         var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
 
         //AddChild(infoWindows);
@@ -1094,7 +1095,7 @@ public class ModManager : XNAWindow
     {
         if (!((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).CanDel)
         {
-            XNAMessageBox.Show(WindowManager, "错误", "系统自带的无法被删除");
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The built-in campaign package cannot be deleted".L10N("UI:DTAConfig:DeleteBuilt-inCampaignPackage"));
             return;
         }
 
@@ -1113,13 +1114,13 @@ public class ModManager : XNAWindow
             {
                 if (missionPack.Mod.Contains(mod.ID))
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", $"这个Mod被任务包 {missionPack.Name} 使用，无法删除，如要删除请删除任务包。");
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"This Mod is used by the campaign pack {missionPack. Name} and cannot be deleted. If you want to delete it, please delete the campaign pack".L10N("UI:DTAConfig:CampaignPackUsedMod"));
                     return;
                 }
             }
 
-            XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
-                "您真的要删除Mod" + ListBoxModAi.SelectedItem.Text + "吗？", XNAMessageBoxButtons.YesNo);
+            XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "Delete Confirmation".L10N("UI:Main:DeleteConfirmation"),
+                "Are you sure you want to delete the Mod".L10N("UI:DTAConfig:ModDeleteConfirmation") + ListBoxModAi.SelectedItem.Text + "?", XNAMessageBoxButtons.YesNo);
             xNAMessageBox.YesClickedAction += (_) => DelMod(mod);
             xNAMessageBox.Show();
         }
@@ -1130,7 +1131,7 @@ public class ModManager : XNAWindow
 
         if (!missionPack.CanDel)
         {
-            XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
+            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "The built-in mod cannot be deleted".L10N("UI:DTAConfig:DeleteBuilt-inMod"));
             return;
         }
         RenderImage.CancelRendering();
@@ -1143,8 +1144,8 @@ public class ModManager : XNAWindow
                 m += inifile.GetValue(s, "Description", s) + Environment.NewLine;
         }
 
-        var xNAMessageBox = new XNAMessageBox(WindowManager, "删除确认",
-            $"您真的要删除任务包{missionPack.Name}吗？它包含以下任务：{Environment.NewLine}{m} ", XNAMessageBoxButtons.YesNo);
+        var xNAMessageBox = new XNAMessageBox(WindowManager, "Delete Confirmation".L10N("UI:Main:DeleteConfirmation"),
+            $"Are you sure you want to delete the campaign pack {missionPack. Name}? It includes the following battles: {Environment.NewLine}{m} ".L10N("UI:DTAConfig:CampaignPackDeleteConfirmation"), XNAMessageBoxButtons.YesNo);
         xNAMessageBox.YesClickedAction += (_) => { DelMissionPack(missionPack); };
         xNAMessageBox.Show();
     }
@@ -1187,7 +1188,7 @@ public class ModManager : XNAWindow
         }
         catch
         {
-            XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Deleting file failed, possibly due to a file being occupied".L10N("UI:DTAConfig:DeleteFileOccupied"));
         }
 
         ReLoad();
@@ -1199,7 +1200,7 @@ public class ModManager : XNAWindow
     {
         if (!mod.CanDel)
         {
-            XNAMessageBox.Show(WindowManager, "提示", "系统自带模组无法删除");
+            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "The built-in mod cannot be deleted".L10N("UI:DTAConfig:DeleteBuilt-inMod"));
             return;
         }
         RenderImage.CancelRendering();
@@ -1220,7 +1221,7 @@ public class ModManager : XNAWindow
         }
         catch
         {
-            XNAMessageBox.Show(WindowManager, "错误", "删除文件失败,可能是某个文件被占用了。");
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Deleting file failed, possibly due to a file being occupied".L10N("UI:DTAConfig:DeleteFileOccupied"));
         }
 
         ReLoad();
@@ -1275,8 +1276,8 @@ public class ModManager : XNAWindow
             case 0:
                 var mod = Mod.Mods.Find(m => m.ID == ((Mod)ListBoxModAi.SelectedItem.Tag).ID);
                 properties = mod.GetProperties();
-                BtnNew.Text = "导入新Mod";
-                BtnDel.Text = "删除Mod";
+                BtnNew.Text = "Import a new Mod".L10N("UI:DTAConfig:ImportNewMod");
+                BtnDel.Text = "Delete Mod".L10N("UI:DTAConfig:DeleteMod");
                 BtnNew.Enable();
                 BtnDel.Enable();
                 break;
@@ -1284,8 +1285,8 @@ public class ModManager : XNAWindow
             case 1:
                 var missionPack = MissionPack.MissionPacks.Find(m => m.ID == ((MissionPack)ListBoxModAi.SelectedItem.Tag).ID);
                 properties = missionPack.GetProperties();
-                BtnNew.Text = "导入任务包";
-                BtnDel.Text = "删除任务包";
+                BtnNew.Text = "Import campaign package".L10N("UI:DTAConfig:ImportCampaignPackage");
+                BtnDel.Text = "Delete campaign package".L10N("UI:DTAConfig:DeleteCampaignPackage");
                 BtnNew.Enable();
                 BtnDel.Enable();
                 break;
@@ -1334,14 +1335,14 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
         var btnFold = new XNAClientButton(windowManager)
         {
-            Text = "从文件夹导入",
+            Text = "Import from folder".L10N("UI:DTAConfig:ImportFromFolder"),
             ClientRectangle = new Rectangle(20, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnFold.LeftClick += BtnFold_LeftClick;
 
         var btnZip = new XNAClientButton(windowManager)
         {
-            Text = "从压缩包导入",
+            Text = "Import from compressed package".L10N("UI:DTAConfig:ImportFromCompressedPackage"),
             ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
             
         };
@@ -1350,21 +1351,21 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
         chkCopyFile = new XNAClientCheckBox(windowManager)
         {
-            Text = "复制模组文件",
+            Text = "Copy Mod file".L10N("UI:DTAConfig:CopyModFile"),
             ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
-        chkCopyFile.SetToolTipText("勾选后重聚客户端将会在本地复制保留文件");
+        chkCopyFile.SetToolTipText("After selecting, the client will copy and retain the file locally".L10N("UI:DTAConfig:ClientRetainFile"));
         chkCopyFile.CheckedChanged += ChkCopyFile_LeftClick;
 
         chkDeepImport = new XNAClientCheckBox(windowManager)
         {
-            Text = "深度导入",
+            Text = "Deep import".L10N("UI:DTAConfig:DeepImport"),
             ClientRectangle = new Rectangle(20, 90, 0, 0),
             Checked = true,
             AllowChecking = false
             
         };
-        chkDeepImport.SetToolTipText("深度复制.若导入后游玩出现问题可勾选此项再次导入,会导致占用空间增大.");
+        chkDeepImport.SetToolTipText("Deep import and deep copy If there are problems with the game after importing, you can check this option to import again, but it will increase the space occupied".L10N("UI:DTAConfig:DeepImportTip"));
 
         lblPath = new XNALabel(windowManager)
         {
@@ -1374,14 +1375,14 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
         btnCancel = new XNAClientButton(windowManager)
         {
-            Text = "取消",
+            Text = "Cancel".L10N("UI:DTAConfig:ButtonCancel"),
             ClientRectangle = new Rectangle(20, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnCancel.LeftClick += BtnCancel_LeftClick;
 
         btnOk = new XNAClientButton(windowManager)
         {
-            Text = "确定",
+            Text = "Yes".L10N("UI:Main:ButtonYes"),
             ClientRectangle = new Rectangle(130, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
 
@@ -1413,7 +1414,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
 
     private void BtnCancel_LeftClick(object sender, EventArgs e)
     {
-        var box = new XNAMessageBox(WindowManager, "提示", "确定退出导入吗?",XNAMessageBoxButtons.YesNo);
+        var box = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), "Are you sure to exit the import?".L10N("UI:DTAConfig:ExitImport"),XNAMessageBoxButtons.YesNo);
         box.YesClickedAction += (_) =>
         {
             Disable();
@@ -1433,7 +1434,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
     {
         if (lblPath.Text == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "提示", "请先点击上方按钮选择目标");
+            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "Please click the button above to select the target first".L10N("UI:DTAConfig:SelectTarget"));
             return;
         }
 
@@ -1484,7 +1485,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             var p = folderDialog.SelectedPath + "\\";
             if (p.Contains(ProgramConstants.GamePath))
             {
-                XNAMessageBox.Show(WindowManager, "错误", "不能导入游戏文件夹内的地图.");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Cannot import maps from the game folder".L10N("UI:DTAConfig:CannotImportGameFolderMaps"));
                 return;
             }
 
@@ -1559,7 +1560,7 @@ public class ModInfoWindows : XNAWindow
 
         var lblModName = new XNALabel(WindowManager)
         {
-            Text = "Mod名称:",
+            Text = "Mod Name:".L10N("UI:DTAConfig:ModName"),
             ClientRectangle = new Rectangle(20, 60, 0, 0)
         };
         AddChild(lblModName);
@@ -1573,7 +1574,7 @@ public class ModInfoWindows : XNAWindow
 
         var lblAuthor = new XNALabel(WindowManager)
         {
-            Text = "Mod作者:",
+            Text = "Mod Author:".L10N("UI:DTAConfig:ModAuthor"),
             ClientRectangle = new Rectangle(lblModName.X, 100, 0, 0)
         };
         AddChild(lblAuthor);
@@ -1586,7 +1587,7 @@ public class ModInfoWindows : XNAWindow
 
         var lblVersion = new XNALabel(WindowManager)
         {
-            Text = "Mod版本:",
+            Text = "Mod Version:".L10N("UI:DTAConfig:ModVersion"),
             ClientRectangle = new Rectangle(300, lblAuthor.Y, 0, 0)
         };
         AddChild(lblVersion);
@@ -1600,7 +1601,7 @@ public class ModInfoWindows : XNAWindow
         //第二行
         var lblDescription = new XNALabel(WindowManager)
         {
-            Text = "Mod介绍:",
+            Text = "Mod Introduction:".L10N("UI:DTAConfig:ModIntroduction"),
             ClientRectangle = new Rectangle(lblModName.X, 140, 0, 0)
         };
         AddChild(lblDescription);
@@ -1613,7 +1614,7 @@ public class ModInfoWindows : XNAWindow
 
         var lblCountries = new XNALabel(WindowManager)
         {
-            Text = "Mod国家:",
+            Text = "Mod Country:".L10N("UI:DTAConfig:ModCountry"),
             ClientRectangle = new Rectangle(lblVersion.X, lblDescription.Y, 0, 0)
         };
         AddChild(lblCountries);
@@ -1627,7 +1628,7 @@ public class ModInfoWindows : XNAWindow
         //第三行
         var lblModPath = new XNALabel(WindowManager)
         {
-            Text = "Mod路径:",
+            Text = "Mod Path:".L10N("UI:DTAConfig:ModPath"),
             ClientRectangle = new Rectangle(lblModName.X, 180, 0, 0),
             Visible = false
         };
@@ -1642,7 +1643,7 @@ public class ModInfoWindows : XNAWindow
 
         _chkMutil = new XNACheckBox(WindowManager)
         {
-            Text = "可在遭遇战中使用",
+            Text = "Can be used in Skirmish".L10N("UI:DTAConfig:SkirmishUsed"),
             ClientRectangle = new Rectangle(lblCountries.X, _ctbModPath.Y, 0, 0),
             Checked = true
         };
@@ -1652,7 +1653,7 @@ public class ModInfoWindows : XNAWindow
         //第四行
         var lblCp = new XNALabel(WindowManager)
         {
-            Text = "兼容战役",
+            Text = "Compatible with campaigns".L10N("UI:DTAConfig:CompatibleCampaigns"),
             ClientRectangle = new Rectangle(lblModName.X, 220, 0, 0)
         };
         AddChild(lblCp);
@@ -1667,7 +1668,7 @@ public class ModInfoWindows : XNAWindow
 
         _chkExtensionOn = new XNACheckBox(WindowManager)
         {
-            Text = "必须启用扩展",
+            Text = "Extension platform must be enabled".L10N("UI:DTAConfig:EnabledExtensionPlatform"),
             ClientRectangle = new Rectangle(_chkMutil.X, _ctbCp.Y, 0, 0),
             Visible = false,
         };
@@ -1675,7 +1676,7 @@ public class ModInfoWindows : XNAWindow
 
         var lblExtension = new XNALabel(WindowManager)
         {
-            Text = "支持的扩展",
+            Text = "Supported extension platforms".L10N("UI:DTAConfig:SupportedExtensionPlatforms"),
             ClientRectangle = new Rectangle(lblCp.X, 260, 0, 0)
         };
         AddChild(lblExtension);
@@ -1688,14 +1689,14 @@ public class ModInfoWindows : XNAWindow
 
         _chkCsf = new XNACheckBox(WindowManager)
         {
-            Text = "转换为简体中文",
+            Text = "Convert to Simplified Chinese".L10N("UI:DTAConfig:ConvertSimplifiedChinese"),
             ClientRectangle = new Rectangle(_chkExtensionOn.X, lblExtension.Y, 0, 0)
         };
         AddChild(_chkCsf);
 
         var btnOk = new XNAClientButton(WindowManager)
         {
-            Text = "确定",
+            Text = "Yes".L10N("UI:Main:ButtonYes"),
             ClientRectangle = new Rectangle(150, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnOk);
@@ -1706,7 +1707,7 @@ public class ModInfoWindows : XNAWindow
 
         var btnCancel = new XNAClientButton(WindowManager)
         {
-            Text = "取消",
+            Text = "Cancel".L10N("UI:DTAConfig:ButtonCancel"),
             ClientRectangle = new Rectangle(310, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnCancel);
@@ -1825,7 +1826,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblMissionPackName = new XNALabel(WindowManager)
         {
-            Text = "任务包名称:",
+            Text = "Campaign Package Name:".L10N("UI:DTAConfig:CampaignPackageName"),
             ClientRectangle = new Rectangle(300, 60, 0, 0)
         };
         AddChild(lblMissionPackName);
@@ -1839,7 +1840,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblAuthor = new XNALabel(WindowManager)
         {
-            Text = "任务包作者:",
+            Text = "Campaign Package Author:".L10N("UI:DTAConfig:CampaignPackageAuthor"),
             ClientRectangle = new Rectangle(20, 100, 0, 0)
         };
         AddChild(lblAuthor);
@@ -1852,7 +1853,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblMissionCount = new XNALabel(WindowManager)
         {
-            Text = "任务关数",
+            Text = "Number of campaign levels".L10N("UI:DTAConfig:CampaignLevels"),
             ClientRectangle = new Rectangle(lblMissionPackName.X, 100, 0, 0),
             //Visible = missionMix
             Visible = false
@@ -1870,7 +1871,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblDescription = new XNALabel(WindowManager)
         {
-            Text = "任务包介绍:",
+            Text = "Campaign Package Introduction:".L10N("UI:DTAConfig:CampaignPackageIntroduction"),
             ClientRectangle = new Rectangle(lblAuthor.X, 140, 0, 0)
         };
         AddChild(lblDescription);
@@ -1885,7 +1886,7 @@ public class MissionPackInfoWindows : XNAWindow
         //第三行
         var lblMissionPackPath = new XNALabel(WindowManager)
         {
-            Text = "任务包路径:",
+            Text = "Campaign Package Path:".L10N("UI:DTAConfig:CampaignPackagePath"),
             ClientRectangle = new Rectangle(lblAuthor.X, 180, 0, 0)
         };
         AddChild(lblMissionPackPath);
@@ -1898,7 +1899,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         _chkRender = new XNACheckBox(WindowManager)
         {
-            Text = "渲染预览图",
+            Text = "Rendering Preview Image".L10N("UI:DTAConfig:RenderingPreviewImage"),
             ClientRectangle = new Rectangle(lblMissionPackName.X, _ctbMissionPackPath.Y, 0, 0),
             Checked = true
         };
@@ -1907,7 +1908,7 @@ public class MissionPackInfoWindows : XNAWindow
         //第四行
         var lblCp = new XNALabel(WindowManager)
         {
-            Text = "使用的Mod:",
+            Text = "The Mod Used:".L10N("UI:DTAConfig:ModUsed"),
             ClientRectangle = new Rectangle(lblAuthor.X, 220, 0, 0)
         };
         AddChild(lblCp);
@@ -1921,7 +1922,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         _chkCsf = new XNACheckBox(WindowManager)
         {
-            Text = "转换为简体中文",
+            Text = "Convert to Simplified Chinese".L10N("UI:DTAConfig:ConvertSimplifiedChinese"),
             ClientRectangle = new Rectangle(lblMissionPackName.X, _ctbCp.Y, 0, 0),
             Checked = true
         };
@@ -1929,7 +1930,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var btnOk = new XNAClientButton(WindowManager)
         {
-            Text = "确定",
+            Text = "Yes".L10N("UI:Main:ButtonYes"),
             ClientRectangle = new Rectangle(150, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnOk);
@@ -1939,20 +1940,20 @@ public class MissionPackInfoWindows : XNAWindow
 
             if (MissionPack.QueryID(_pack.ID) && _title == "导入任务包")
             {
-                XNAMessageBox.Show(WindowManager, "错误", "该MissionPackID已存在。");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The MissionPackID already exists".L10N("UI:DTAConfig:MissionPackIDExists"));
                 return;
             }
             //if (missionMix)
             //{
             //    if (string.IsNullOrEmpty(_ctbMissionCount?.Text))
             //    {
-            //        XNAMessageBox.Show(WindowManager, "错误", "我们无法推测这个任务包有几个关卡，需要您指定一下");
+            //        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "我们无法推测这个任务包有几个关卡，需要您指定一下");
             //        return;
             //    }
 
             //    if (!int.TryParse(_ctbMissionCount.Text, out missionCount))
             //    {
-            //        XNAMessageBox.Show(WindowManager, "错误", "任务关数只能输入数字");
+            //        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "任务关数只能输入数字");
             //        return;
             //    }
             //}
@@ -1961,7 +1962,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var btnCancel = new XNAClientButton(WindowManager)
         {
-            Text = "取消",
+            Text = "Cancel".L10N("UI:DTAConfig:ButtonCancel"),
             ClientRectangle = new Rectangle(310, 330, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         AddChild(btnCancel);
@@ -2098,7 +2099,7 @@ public class EditCSFWindows : XNAWindow
 
         var btnSave = new XNAClientButton(windowManager)
         {
-            Text = "保存",
+            Text = "Save".L10N("UI:DTAConfig:ButtonSave"),
             ClientRectangle = new Rectangle(12, _mcListBoxCsfInfo.Bottom + 12, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnSave.LeftClick += Save;
@@ -2106,7 +2107,7 @@ public class EditCSFWindows : XNAWindow
 
         var btnCancel = new XNAClientButton(windowManager)
         {
-            Text = "取消",
+            Text = "Cancel".L10N("UI:DTAConfig:ButtonCancel"),
             ClientRectangle = new Rectangle(btnSave.Right + 12, _mcListBoxCsfInfo.Bottom + 12, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnCancel.LeftClick += (_, _) => Disable();
@@ -2118,7 +2119,7 @@ public class EditCSFWindows : XNAWindow
 
         _menu.AddItem(new XNAContextMenuItem
         {
-            Text = "添加条目",
+            Text = "Add an entry".L10N("UI:DTAConfig:AddEntry"),
             SelectAction = Add
         });
         //修改
@@ -2150,7 +2151,7 @@ public class EditCSFWindows : XNAWindow
     private void Del()
     {
         var key = _mcListBoxCsfInfo.GetItem(0, _mcListBoxCsfInfo.SelectedIndex).Text;
-        var message = new XNAMessageBox(windowManager, "删除确认", "确定要删除这个条目吗？", XNAMessageBoxButtons.YesNo);
+        var message = new XNAMessageBox(windowManager, "Delete Confirmation".L10N("UI:Main:DeleteConfirmation"), "Are you sure you want to delete this entry?".L10N("UI:DTAConfig:DeleteEntryConfirmation"), XNAMessageBoxButtons.YesNo);
         message.YesClickedAction += (_) => DelCsf(key);
         message.Show();
     }
@@ -2233,15 +2234,15 @@ public class AddCsfWindows : XNAWindow
         _tbValue.Text = _value;
 
         var btnAdd = new XNAClientButton(WindowManager);
-        btnAdd.Text = "添加";
+        btnAdd.Text = "Add".L10N("UI:DTAConfig:Add");
         if (!string.IsNullOrEmpty(_key) || !string.IsNullOrEmpty(_value))
-            btnAdd.Text = "修改";
+            btnAdd.Text = "Revise".L10N("UI:DTAConfig:Revise");
         btnAdd.ClientRectangle = new Rectangle(20, _tbValue.Bottom + 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT);
         btnAdd.LeftClick += Add;
         AddChild(btnAdd);
 
         var btnCancel = new XNAClientButton(WindowManager);
-        btnCancel.Text = "取消";
+        btnCancel.Text = "Cancel".L10N("UI:Main:ButtonCancel");
         btnCancel.ClientRectangle = new Rectangle(btnAdd.Right + 12, _tbValue.Bottom + 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT);
         btnCancel.LeftClick += (_, _) => Disable();
         AddChild(btnCancel);
@@ -2259,7 +2260,7 @@ public class AddCsfWindows : XNAWindow
     {
         if (string.IsNullOrEmpty(_tbKey.Text))
         {
-            XNAMessageBox.Show(WindowManager, "错误", "键不能为空");
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The key cannot be empty".L10N("UI:DTAConfig:KeyEmpty"));
             return;
         }
 

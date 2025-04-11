@@ -83,8 +83,8 @@ namespace DTAConfig.OptionPanels
             };
 
             tabControl
-                .AddTab("我的资料", UIDesignConstants.BUTTON_WIDTH_133)
-                .AddTab("我的工坊", UIDesignConstants.BUTTON_WIDTH_133)
+                .AddTab("Profile".L10N("UI:DTAConfig:MyProfile"), UIDesignConstants.BUTTON_WIDTH_133)
+                .AddTab("Workshop".L10N("UI:DTAConfig:MyWorkshop"), UIDesignConstants.BUTTON_WIDTH_133)
                 .SelectedIndexChanged += Tab切换事件;
 
             AddChild(tabControl);
@@ -98,7 +98,7 @@ namespace DTAConfig.OptionPanels
 
             var lblID = new XNALabel(WindowManager)
             {
-                Text = "账号:",
+                Text = "Account:".L10N("UI:DTAConfig:WorkshopAccount"),
                 ClientRectangle = new Rectangle(btnImg.X + 150, btnImg.Y, 0, 0),
                 FontIndex = 0,
             };
@@ -112,21 +112,21 @@ namespace DTAConfig.OptionPanels
 
             var lblName = new XNALabel(WindowManager)
             {
-                Text = "昵称:",
+                Text = "NickName:".L10N("UI:DTAConfig:WorkshopNickName"),
                 ClientRectangle = new Rectangle(btnImg.X + 150, lblID.Y + 40, 0, 0),
                 FontIndex = 0,
             };
 
             lblNameValue = new XNALinkLabel(WindowManager)
             {
-                Text = "点击登录或注册",
+                Text = "Click Sign in or Register".L10N("UI:DTAConfig:SignInOrRegister"),
                 ClientRectangle = new Rectangle(btnImg.Right + 70, lblName.Y, 0, 0),
                 FontIndex = 0,
             };
 
             var lbl徽章 = new XNALabel(WindowManager)
             {
-                Text = "徽章:",
+                Text = "Badge:".L10N("UI:DTAConfig:Badge"),
                 ClientRectangle = new Rectangle(lblName.X, lblName.Y + 40, 0, 0),
                 FontIndex = 0,
             };
@@ -169,7 +169,7 @@ namespace DTAConfig.OptionPanels
 
             var lblSide = new XNALabel(WindowManager)
             {
-                Text = "阵营:",
+                Text = "Camp:".L10N("UI:DTAConfig:Camp"),
                 ClientRectangle = new Rectangle(btnImg.X + 150, lbl徽章.Y + 40, 0, 0),
                 FontIndex = 0,
             };
@@ -182,14 +182,14 @@ namespace DTAConfig.OptionPanels
 
             lblcertify = new XNALinkLabel(WindowManager)
             {
-                Text = "点此认证",
+                Text = "Click here for certification".L10N("UI:DTAConfig:Certification"),
                 ClientRectangle = new Rectangle(lblName.X, lblSide.Bottom + 40, 0, 0),
             };
             lblcertify.LeftClick += 跳转答题窗口;
 
             出题按钮 = new XNAClientButton(WindowManager)
             {
-                Text = "我来出题",
+                Text = "I'll come up with the question".L10N("UI:DTAConfig:ComeUpQuestion"),
                 X = 等级图标.X,
                 Y = lblcertify.Y - 5,
                 Enabled = false
@@ -198,7 +198,7 @@ namespace DTAConfig.OptionPanels
 
             出题记录按钮 = new XNAClientButton(WindowManager)
             {
-                Text = "出题记录",
+                Text = "Transcript of the question".L10N("UI:DTAConfig:TranscriptQuestion"),
                 X = 出题按钮.Right + 40,
                 Y = 出题按钮.Y,
                 Enabled = false
@@ -214,7 +214,7 @@ namespace DTAConfig.OptionPanels
             #region 我的工坊
             var lblType = new XNALabel(WindowManager)
             {
-                Text = "类型",
+                Text = "Type".L10N("UI:DTAConfig:Type"),
                 ClientRectangle = new Rectangle(40, 60, 0, 0),
                 Visible = false
             };
@@ -232,7 +232,7 @@ namespace DTAConfig.OptionPanels
 
             var lblState = new XNALabel(WindowManager)
             {
-                Text = "状态",
+                Text = "Status".L10N("UI:DTAConfig:Status"),
                 ClientRectangle = new Rectangle(ddType.Right + 30, ddType.Y, 0, 0),
                 Visible = false
             };
@@ -244,9 +244,9 @@ namespace DTAConfig.OptionPanels
                 SelectedIndex = 0
             };
 
-            ddStatus.AddItem("所有");
-            ddStatus.AddItem("已通过");
-            ddStatus.AddItem("未通过");
+            ddStatus.AddItem("All".L10N("UI:DTAConfig:All"));
+            ddStatus.AddItem("Passed".L10N("UI:DTAConfig:Passed"));
+            ddStatus.AddItem("Failed".L10N("UI:DTAConfig:Failed"));
 
             ddStatus.SelectedIndexChanged += 筛选;
 
@@ -261,7 +261,7 @@ namespace DTAConfig.OptionPanels
 
             var btnUpload = new XNAClientButton(WindowManager)
             {
-                Text = "上传",
+                Text = "Upload".L10N("UI:DTAConfig:ButtonUpload"),
                 X = tbSearch.Right + 50,
                 Y = tbSearch.Y,
                 Visible = false
@@ -286,7 +286,7 @@ namespace DTAConfig.OptionPanels
 
             _menu.AddItem(new XNAContextMenuItem
             {
-                Text = "刷新",
+                Text = "Refresh".L10N("UI:DTAConfig:Refresh"),
                 SelectAction = () => {
                     _ = 获取所有阵营类型();
                     获取该用户所有组件();
@@ -295,13 +295,13 @@ namespace DTAConfig.OptionPanels
 
             _menu.AddItem(new XNAContextMenuItem
             {
-                Text = "编辑",
+                Text = "Edit".L10N("UI:DTAConfig:Edit"),
                 SelectAction = 编辑
             });
 
             _menu.AddItem(new XNAContextMenuItem
             {
-                Text = "删除",
+                Text = "Delete".L10N("UI:DTAConfig:Delete"),
                 SelectAction = 删除
             });
 
@@ -416,7 +416,7 @@ namespace DTAConfig.OptionPanels
                     lblNameValue.Enabled = true;
                     if (Sides.Count == 0)
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", "获取阵营类型失败");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Failed to get faction type".L10N("UI:DTAConfig:FailedGetFactionType"));
                         return;
                     }
                 }
@@ -525,7 +525,7 @@ namespace DTAConfig.OptionPanels
 
             if(lblcertify.Text == "点此认证")
             {
-                XNAMessageBox.Show(WindowManager, "错误", "您还未通过答题认证，不能上传。");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "You have not passed the answer verification and do not have upload permissions".L10N("UI:DTAConfig:NotPassedAnswerVerificationUpload"));
                 return;
             }
 
@@ -567,7 +567,7 @@ namespace DTAConfig.OptionPanels
             if (mlbWorkshop.SelectedIndex == -1) return;
 
             var c = 筛选后组件[mlbWorkshop.SelectedIndex];
-            var messageBox = new XNAMessageBox(WindowManager, "提示", $"您确定要删除此组件吗:\n{c.name}", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Are you sure you want to remove this component:\n{c.name}".L10N("UI:DTAConfig:RemoveComponentTip"), XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
 
@@ -576,11 +576,11 @@ namespace DTAConfig.OptionPanels
                     var r = await NetWorkINISettings.Post<bool>($"component/delComponent", c);
                     if (r.Item1)
                     {
-                        XNAMessageBox.Show(WindowManager, "信息", "删除成功!");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Deleted successfully!".L10N("UI:DTAConfig:DeletedSuccessfully"));
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "信息", $"删除失败!原因:{r.Item2}");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"Delete failed! reason: {r.Item2}".L10N("UI:DTAConfig:DeletedFailed"));
                     }
                     获取该用户所有组件();
                 });
@@ -593,7 +593,7 @@ namespace DTAConfig.OptionPanels
             if(lblNameValue.Text == "点击登录或注册")
             {
                 lblNameValue.OnLeftClick();
-                XNAMessageBox.Show(WindowManager, "提示","请先登录再进行认证。");
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "Please login before authenticating".L10N("UI:DTAConfig:LoginAuthenticating"));
                 return;
             }
             lblcertify.Enabled = false;
@@ -601,7 +601,7 @@ namespace DTAConfig.OptionPanels
             lblcertify.Enabled = true;
             if (questionTypes.Length == 0)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "获取题库失败");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Failed to get question bank".L10N("UI:DTAConfig:FailedGetQuestion"));
                 return;
             }
 
@@ -622,7 +622,7 @@ namespace DTAConfig.OptionPanels
                     lblNameValue.Enabled = true;
                     if (Sides.Count == 0)
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", "获取阵营类型失败");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Failed to get faction type".L10N("UI:DTAConfig:FailedGetFactionType"));
                         return;
                     }
                 }
@@ -639,7 +639,7 @@ namespace DTAConfig.OptionPanels
             var questionTypes = NetWorkINISettings.Get<string>("dict/getValue?section=question&key=type").GetAwaiter().GetResult().Item1?.Split(",") ?? [];
             if (questionTypes.Length == 0)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "获取题库失败");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Failed to get question bank".L10N("UI:DTAConfig:FailedGetQuestion"));
                 return;
             }
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, new 出题窗口(WindowManager, questionTypes));
@@ -965,13 +965,13 @@ namespace DTAConfig.OptionPanels
 
             if(token == null)
             {
-                XNAMessageBox.Show(WindowManager, "错误", msg);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                 return;
             }
 
             UserINISettings.Instance.Token.Value = token.access_token;
 
-            XNAMessageBox.Show(WindowManager,"信息", "登录成功！");
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Login successful!".L10N("UI:DTAConfig:LoginSuccessful"));
 
             UserINISettings.Instance.SaveSettings();
 
@@ -989,7 +989,7 @@ namespace DTAConfig.OptionPanels
             var checkString = CheckInPut(true);
             if (checkString != null)
             {
-                XNAMessageBox.Show(WindowManager, "错误", checkString);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), checkString);
                 return;
             }
 
@@ -1002,11 +1002,11 @@ namespace DTAConfig.OptionPanels
 
             if (!r)
             {
-                XNAMessageBox.Show(WindowManager, "错误", msg);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                 return;
             }
 
-            XNAMessageBox.Show(WindowManager, "信息", "重置成功！");
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Reset successful!".L10N("UI:DTAConfig:ResetSuccessful"));
             btnCancel.OnLeftClick();
         }
 
@@ -1020,7 +1020,7 @@ namespace DTAConfig.OptionPanels
 
             if (!tbEmail.Text.IsValidEmail())
             {
-                XNAMessageBox.Show(WindowManager, "信息", "邮箱格式不正确！");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "The email format is incorrect!".L10N("UI:DTAConfig:EmailFormatIncorrect"));
                 return;
             }
 
@@ -1038,7 +1038,7 @@ namespace DTAConfig.OptionPanels
 
                 if (code == null)
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", msg);
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                     return;
                 }
                 // 禁用 LinkLabel 防止重复点击
@@ -1046,7 +1046,7 @@ namespace DTAConfig.OptionPanels
 
                 verificationCode = code;
 
-                XNAMessageBox.Show(WindowManager, "信息", "发送成功！");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Send successfully!".L10N("UI:DTAConfig:SendSuccessfully"));
 
                 // 初始化倒计时
                 countdownSeconds = 60;
@@ -1115,7 +1115,7 @@ namespace DTAConfig.OptionPanels
             var checkString = CheckInPut();
             if(checkString != null)
             {
-                XNAMessageBox.Show(WindowManager,"错误", checkString);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), checkString);
                 return;
             }
 
@@ -1129,11 +1129,11 @@ namespace DTAConfig.OptionPanels
             }).GetAwaiter().GetResult();
 
             if(r != true) {
-                XNAMessageBox.Show(WindowManager,"错误", msg);
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), msg);
                 return;
             }
 
-            XNAMessageBox.Show(WindowManager, "信息", "注册成功");
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Registration is successful".L10N("UI:DTAConfig:RegistrationSuccessful"));
             btnCancel.OnLeftClick();
 
         }
@@ -1270,11 +1270,11 @@ namespace DTAConfig.OptionPanels
 
             if (tbPassword.Password != tbPassword2.Password)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "两次密码不一致");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The password entered twice is inconsistent".L10N("UI:DTAConfig:PasswordTwiceInconsistent"));
                 return;
             }
 
-            var messageBox = new XNAMessageBox(WindowManager, "确认", "您确定要修改密码吗?", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Confirm".L10N("UI:Main:Yes"), "Are you sure you want to change your password?".L10N("UI:DTAConfig:ChangePassword"), XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
                 btnLogin.Enabled = false;
@@ -1288,12 +1288,12 @@ namespace DTAConfig.OptionPanels
 
                     if (r.Item1 == true)
                     {
-                        XNAMessageBox.Show(WindowManager, "信息", "修改成功!");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Modification successful!".L10N("UI:DTAConfig:ModificationSuccessful"));
                         退出登录?.Invoke();
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", $"原密码错误!");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"The original password is wrong!".L10N("UI:DTAConfig:OriginalPasswordWrong"));
                     }
                     btnLogin.Enabled = true;
                 });
@@ -1303,7 +1303,7 @@ namespace DTAConfig.OptionPanels
 
         private void 修改信息(object sender, EventArgs e)
         {
-            var messageBox = new XNAMessageBox(WindowManager, "确认", "您确定要修改吗?",XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Confirm".L10N("UI:Main:Yes"), "Are you sure you want to modify?".L10N("UI:DTAConfig:ModifyConfirm"),XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) => {
                 var user = UserINISettings.Instance.User;
                 user.side = ddSide.SelectedIndex;
@@ -1315,13 +1315,13 @@ namespace DTAConfig.OptionPanels
 
                     if(r.Item1 == true)
                     {
-                        XNAMessageBox.Show(WindowManager, "信息","修改成功!");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Modification successful!".L10N("UI:DTAConfig:ModificationSuccessful"));
                         重新登录?.Invoke();
                         Disable();
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", $"修改失败!原因:{r.Item2}");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"Modification failed! reason: {r.Item2}".L10N("UI:DTAConfig:ModificationFailed"));
                     }
                     btnLogin.Enabled = true;
                 });
@@ -1335,7 +1335,7 @@ namespace DTAConfig.OptionPanels
 
         private void 退出登录事件(object sender, EventArgs e)
         {
-            var messageBox = new XNAMessageBox(WindowManager, "退出登录", "确定退出登录吗？", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Logout".L10N("UI:DTAConfig:Logout"), "Are you sure you want to logout？".L10N("UI:DTAConfig:LogoutConfirm"), XNAMessageBoxButtons.YesNo);
 
             messageBox.YesClickedAction += (_) =>
             {
@@ -1486,7 +1486,7 @@ namespace DTAConfig.OptionPanels
                     chk.CheckedChanged += (_, _) => {
                         if (chk.Checked && chkOptions.FindAll(x => x.Checked).Count > maxCheckedCount)
                         {
-                            XNAMessageBox.Show(WindowManager, "提示", $"最多只能选择{maxCheckedCount}项");
+                            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Select up to {maxCheckedCount} items".L10N("UI:DTAConfig:MaxSelectItem"));
                             chk.Checked = false;
                         }
                     };
@@ -1501,11 +1501,11 @@ namespace DTAConfig.OptionPanels
 
             if ((题目框.Text + 选项框.Text + 答案框.Text).Length == 0 || !chkOptions.Exists(c => c.Checked))
             {
-                XNAMessageBox.Show(WindowManager, "信息", "存在未填写的内容.");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "There are unfilled fields.".L10N("UI:DTAConfig:UnfilledFields"));
                 return;
             }
 
-            var messageBox = new XNAMessageBox(windowManager, "提示", "确定修改吗?", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(windowManager, "Tips".L10N("UI:Main:Tips"), "Are you sure you want to modify?".L10N("UI:DTAConfig:ModifyConfirm"), XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) => {
                 Task.Run(async () =>
                 {
@@ -1527,11 +1527,11 @@ namespace DTAConfig.OptionPanels
                     var r = await NetWorkINISettings.Post<bool>("questionBank/updQuestionBank", q);
                     if (r.Item1)
                     {
-                        XNAMessageBox.Show(windowManager, "信息", "提交成功!");
+                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), "Submitted successfully!".L10N("UI:DTAConfig:SubmittedSuccessfully"));
                     }
                     else
                     {
-                        XNAMessageBox.Show(windowManager, "信息", $"提交失败!原因:{r.Item2}");
+                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), $"Submission failed! reason: {r.Item2}".L10N("UI:DTAConfig:SubmissionFailed"));
                     }
                     提交按钮.Enabled = true;
                     需要更新?.Invoke();
@@ -1555,11 +1555,11 @@ namespace DTAConfig.OptionPanels
         {
             if((题目框.Text + 选项框.Text + 答案框.Text).Length == 0 || !chkOptions.Exists(c => c.Checked))
             {
-                XNAMessageBox.Show(WindowManager, "信息", "存在未填写的内容.");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "There are unfilled fields.".L10N("UI:DTAConfig:UnfilledFields"));
                 return;
             }
 
-            var messageBox = new XNAMessageBox(windowManager, "提示", "确定提交吗?", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(windowManager, "Tips".L10N("UI:Main:Tips"), "Are you sure you want to submit?".L10N("UI:DTAConfig:SubmitConfirm"), XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) => {
                 Task.Run(async () =>
                 {
@@ -1580,7 +1580,7 @@ namespace DTAConfig.OptionPanels
                     var r = await NetWorkINISettings.Post<bool>("questionBank/addQuestionBank", q);
                     if (r.Item1)
                     {
-                        XNAMessageBox.Show(windowManager, "信息", "提交成功!");
+                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), "Submitted successfully!".L10N("UI:DTAConfig:SubmittedSuccessfully"));
                         题目框.Text = string.Empty;
                         选项框.Text = "A:选项1 B:选项2 C:选项3 D:选项4";
                         答案框.SelectedIndex = 0;
@@ -1589,7 +1589,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(windowManager, "信息", $"提交失败!原因:{r.Item2}");
+                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), $"Submission failed! reason: {r.Item2}".L10N("UI:DTAConfig:SubmissionFailed"));
                     }
                     提交按钮.Enabled = true;
 
@@ -1600,7 +1600,7 @@ namespace DTAConfig.OptionPanels
 
         private void 返回按钮_LeftClick(object sender, EventArgs e)
         {
-            var messageBox = new XNAMessageBox(windowManager, "提示", "确定退出吗?", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(windowManager, "Tips".L10N("UI:Main:Tips"), "Are you sure you want to exit？".L10N("UI:DTAConfig:ExitConfirm"), XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) => { Disable(); };
             messageBox.Show();
         }
@@ -1692,7 +1692,7 @@ namespace DTAConfig.OptionPanels
             var questionTypes = NetWorkINISettings.Get<string>("dict/getValue?section=question&key=type").GetAwaiter().GetResult().Item1?.Split(",") ?? [];
             if (questionTypes.Length == 0)
             {
-                XNAMessageBox.Show(WindowManager, "错误", "获取题库失败");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Failed to get question bank".L10N("UI:DTAConfig:FailedGetQuestion"));
                 return;
             }
             var w = new 出题窗口(WindowManager, questionTypes, questionBanks[题目列表.SelectedIndex]);
@@ -1705,7 +1705,7 @@ namespace DTAConfig.OptionPanels
             if (题目列表.SelectedIndex == -1) return;
 
             var q = questionBanks[题目列表.SelectedIndex];
-            var messageBox = new XNAMessageBox(WindowManager, "提示", $"您确定要删除此问题吗:\n{q.problem}",XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), $"您确定要删除此问题吗:\n{q.problem}".L10N("UI:DTAConfig:RegistrationSuccessful"),XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
                 
@@ -1714,11 +1714,11 @@ namespace DTAConfig.OptionPanels
                     var r = await NetWorkINISettings.Post<bool>($"questionBank/delQuestionBank", q);
                     if (r.Item1)
                     {
-                        XNAMessageBox.Show(WindowManager, "信息", "删除成功!");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Deleted successfully!".L10N("UI:DTAConfig:DeletedSuccessfully"));
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "信息", $"删除失败!原因:{r.Item2}");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"Delete failed! reason: {r.Item2}".L10N("UI:DTAConfig:DeletedFailed"));
                     }
                     刷新();
                 });

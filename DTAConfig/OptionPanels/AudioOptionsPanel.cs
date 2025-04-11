@@ -200,7 +200,7 @@ namespace DTAConfig.OptionPanels
                 Name = "btnMusicWindow",
                 X = lblScoreVolume.X,
                 Y = chkStopMusicOnMenu.Y + 48,
-                Text = "管理游戏内音乐",
+                Text = "Manage in-game music".L10N("UI:DTAConfig:ManageingameMusic"),
 
             };
             btnMusicWindow.LeftClick += (_, _) => { musicWindow.Enable(); };

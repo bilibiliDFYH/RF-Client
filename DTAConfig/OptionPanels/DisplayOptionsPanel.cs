@@ -103,7 +103,7 @@ namespace DTAConfig.OptionPanels
             chkCustomIngameResolution.Name = "chkCustomIngameResolution";
             chkCustomIngameResolution.ClientRectangle = new Rectangle(lblIngameResolution.X,
                 ddIngameResolution.Bottom + 10, 0, 0);
-            chkCustomIngameResolution.Text = "自定义游戏分辨率";
+            chkCustomIngameResolution.Text = "Customize the game resolution".L10N("UI:DTAConfig:CustomizethegameResolution");
             chkCustomIngameResolution.CheckedChanged += ChkCustomIngameResolution_CheckedChanged;
             chkCustomIngameResolution.Checked = false;
             AddChild(chkCustomIngameResolution);
@@ -282,7 +282,7 @@ namespace DTAConfig.OptionPanels
             // 随机启动封面->壁纸or视频
             var lblStart = new XNALabel(WindowManager);
             lblStart.Name = "lblStart";
-            lblStart.Text = "载入:";
+            lblStart.Text = "Load:".L10N("UI:Main:Load");
             lblStart.ClientRectangle = new Rectangle(chkRandom_wallpaper.Right + 50, chkRandom_wallpaper.Y, 0, 0);
             lblStart.Visible = false;
             AddChild(lblStart);
@@ -290,15 +290,15 @@ namespace DTAConfig.OptionPanels
             ddStart = new XNAClientDropDown(WindowManager);
             ddStart.Name = "ddStart";
             ddStart.ClientRectangle = new Rectangle(lblStart.Right + 30, lblStart.Y - 2, 60, ddRenderer.Height);
-            ddStart.AddItem("图");
-            ddStart.AddItem("视频");
+            ddStart.AddItem("Image".L10N("UI:Main:Image"));
+            ddStart.AddItem("Video".L10N("UI:Main:Video"));
             ddStart.SelectedChanged += DdStart_SelectedChanged;
             ddStart.Visible = false;
             AddChild(ddStart);
 
             var btnOpen = new XNAButton(WindowManager);
             btnOpen.Name = "btnOpen";
-            btnOpen.Text = "打开位置";
+            btnOpen.Text = "Open the location".L10N("UI:Main:Openthelocation");
             btnOpen.ClientRectangle = new Rectangle(ddStart.Right + 30, lblStart.Y, 50, ddRenderer.Height);
             btnOpen.LeftClick += BtnOpen_LeftClick;
             AddChild(btnOpen);

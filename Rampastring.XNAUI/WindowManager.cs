@@ -799,7 +799,7 @@ public class WindowManager : DrawableGameComponent
             Game.Window.ClientBounds.Width - (SceneXPosition * 2), Game.Window.ClientBounds.Height - (SceneYPosition * 2)), Color.White);
 
 #if DEBUG
-        Renderer.DrawString("Active control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
+        Renderer.DrawString("Active Control: " + activeControlName, 0, Vector2.Zero, Color.Red, 1.0f);
 
         if (IMEHandler != null && IMEHandler.TextCompositionEnabled)
         {

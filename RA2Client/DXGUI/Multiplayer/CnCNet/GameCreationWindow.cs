@@ -105,7 +105,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 ddSkillLevel.AddItem(localizedSkillLevel);
             }
 
-            ddSkillLevel.SelectedIndex = 0;
+            ddSkillLevel.SelectedIndex = ClientConfiguration.Instance.DefaultSkillLevelIndex;
 
             lblSkillLevel = new XNALabel(WindowManager);
             lblSkillLevel.Name = nameof(lblSkillLevel);

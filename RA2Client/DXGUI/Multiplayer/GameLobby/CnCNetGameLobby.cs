@@ -87,6 +87,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 new StringCommandHandler(MAP_SHARING_FAIL_MESSAGE, HandleMapTransferFailMessage),
                 new StringCommandHandler(MAP_SHARING_DOWNLOAD_REQUEST, HandleMapDownloadRequest),
                 new NoParamCommandHandler(MAP_SHARING_DISABLED_MESSAGE, HandleMapSharingBlockedMessage),
+                new NoParamCommandHandler("STRTD", GameStartedNotification),
                 new NoParamCommandHandler("RETURN", ReturnNotification),
                 new IntCommandHandler("TNLPNG", HandleTunnelPing),
                 new StringCommandHandler("FHSH", FileHashNotification),
@@ -240,7 +241,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private bool closed = false;
 
-        private int gameDifficulty = 0;
+        private int skillLevel = ClientConfiguration.Instance.DefaultSkillLevelIndex;
 
         private bool isCustomPassword = false;
 
@@ -350,7 +351,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         public void SetUp(Channel channel, bool isHost, int playerLimit,
             CnCNetTunnel tunnel, string hostName, bool isCustomPassword,
-            int gameDifficulty)
+            int skillLevel)
         {
             this.channel = channel;
             channel.MessageAdded += Channel_MessageAdded;
@@ -365,7 +366,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             this.hostName = hostName;
             this.playerLimit = playerLimit;
             this.isCustomPassword = isCustomPassword;
-            this.gameDifficulty = gameDifficulty;
+            this.skillLevel = skillLevel;
             //  this.password = password;
 
             if (isHost)
@@ -1467,8 +1468,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 Logger.Log("Game files modified during client session!");
                 channel.SendCTCPMessage(CHEAT_DETECTED_MESSAGE, QueuedMessageType.INSTANT_MESSAGE, 0);
-             //   HandleCheatDetectedMessage(ProgramConstants.PLAYERNAME);
+                // HandleCheatDetectedMessage(ProgramConstants.PLAYERNAME);
             }
+            
+            channel.SendCTCPMessage("STRTD", QueuedMessageType.SYSTEM_MESSAGE, 20);
 
             base.StartGame();
         }
@@ -1583,6 +1586,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (IsHost)
                 channel.SendCTCPMessage("INGM " + playerIndex, QueuedMessageType.GAME_NOTIFICATION_MESSAGE, 0);
+        }
+        
+        private void GameStartedNotification(string sender)
+        {
+            PlayerInfo pInfo = Players.Find(p => p.Name == sender);
+
+            if (pInfo != null)
+                pInfo.IsInGame = true;
+
+            CopyPlayerDataToUI();
         }
 
         private void ReturnNotification(string sender)
@@ -2111,7 +2124,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             sb.Append(";");
             sb.Append(0); // LoadedGameId
             sb.Append(";");
-            sb.Append(gameDifficulty); // SkillLevel
+            sb.Append(skillLevel); // SkillLevel
 
             broadcastChannel.SendCTCPMessage(sb.ToString(), QueuedMessageType.SYSTEM_MESSAGE, 20);
         }

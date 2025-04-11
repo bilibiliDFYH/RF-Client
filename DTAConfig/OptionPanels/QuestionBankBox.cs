@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Localization;
 
 namespace DTAConfig.OptionPanels
 {
@@ -71,7 +72,7 @@ namespace DTAConfig.OptionPanels
 
             lblName = new XNALabel(WindowManager)
             {
-                Text = $"出题人：{questionBanks[index].name}",
+                Text = $"Author of the question: {questionBanks[index].name}".L10N("UI:DTAConfig:QuestionAuthor"),
                 ClientRectangle = new Rectangle(20, 10, 0, 0)
             };
             倒计时标签 = new XNALabel(WindowManager)
@@ -91,7 +92,7 @@ namespace DTAConfig.OptionPanels
             
             下一题按钮 = new XNAClientButton(WindowManager)
             {
-                Text = "下一题",
+                Text = "Next question".L10N("UI:DTAConfig:NextQuestion"),
                 X = lblScore.X - 110,
                 Y = 225
             };
@@ -99,13 +100,13 @@ namespace DTAConfig.OptionPanels
 
             取消按钮 = new XNAClientButton(WindowManager)
             {
-                Text = "我不想做了",
+                Text = "I don't want to do it".L10N("UI:DTAConfig:DonotWantDoQuestion"),
                 X = lblName.X,
                 Y = 225
             };
 
             取消按钮.LeftClick += (_, _) => {
-                var messageBox = new XNAMessageBox(WindowManager, "提示", "您确定要放弃作答吗?", XNAMessageBoxButtons.YesNo);
+                var messageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), "Are you sure you want to give up?".L10N("UI:DTAConfig:GiveUp"), XNAMessageBoxButtons.YesNo);
                 messageBox.YesClickedAction += (_) => {
                     index = questionBanks.Count;
                     判断答题结束(); 
@@ -161,7 +162,7 @@ namespace DTAConfig.OptionPanels
                         判断答题结束();
                     }
 
-                    倒计时标签.Text = $"倒计时：{倒计时}秒";
+                    倒计时标签.Text = $"Countdown: {倒计时} seconds".L10N("UI:DTAConfig:Countdown");
                 };
 
                 // 启动计时器
@@ -175,7 +176,7 @@ namespace DTAConfig.OptionPanels
            
             if (questionBanks.Count - index < 60 - Score)
             {
-                XNAMessageBox.Show(WindowManager, "失败", "未能通过考试，请再接再励。");
+                XNAMessageBox.Show(WindowManager, "Failed".L10N("UI:Main:Failed"), "If you fail the exam, please keep up the good work.".L10N("UI:DTAConfig:FailedExam"));
                 //不通过
                 Disable();
                 return true;
@@ -188,15 +189,15 @@ namespace DTAConfig.OptionPanels
                     Task.Run(通过认证);
                 }
                 else
-                    XNAMessageBox.Show(WindowManager, "失败", "未能通过考试，请再接再励。");
+                    XNAMessageBox.Show(WindowManager, "Failed".L10N("UI:Main:Failed"), "If you fail the exam, please keep up the good work.".L10N("UI:DTAConfig:FailedExam"));
                 Disable();
                 return true;
             }
 
             if (lblScore.Text == "60" && 取消按钮.Text == "我不想做了")
             {
-                取消按钮.Text = "交卷";
-                XNAMessageBox.Show(WindowManager, "通过", "您已经通过考试,可以随时交卷,或者继续答题获取更高分数.");
+                取消按钮.Text = "Submit".L10N("UI:DTAConfig:Submit");
+                XNAMessageBox.Show(WindowManager, "Passed".L10N("UI:Main:Passed"), "Now that you've passed the exam, you can submit your results at any time or continue to answer the questions for a higher score.".L10N("UI:DTAConfig:PassedExam"));
                 return false;
             }
             return false;
@@ -208,7 +209,7 @@ namespace DTAConfig.OptionPanels
             var chkIndex = chkOptions.FindIndex(chk => chk.Checked);
             if (chkIndex == -1)
             {
-                XNAMessageBox.Show(WindowManager, "信息", "请选择一个选项。");
+                XNAMessageBox.Show(WindowManager, "Passed".L10N("UI:Main:Passed"), "Please select an option".L10N("UI:DTAConfig:SelectOption"));
                 return;
             }
 
@@ -229,7 +230,7 @@ namespace DTAConfig.OptionPanels
         /// <param name="questionBank"></param>
         private void 更新题目(in QuestionBank questionBank)
         {
-            lblName.Text = $"出题人：{questionBanks[index].name}";
+            lblName.Text = $"Author of the question: {questionBanks[index].name}".L10N("UI:DTAConfig:QuestionAuthor");
             lblProblem.Text = questionBank.problem;
 
             foreach (var chk in chkOptions)
@@ -247,7 +248,7 @@ namespace DTAConfig.OptionPanels
 
             if (index == questionBanks.Count - 1)
             {
-                下一题按钮.Text = "结束答题";
+                下一题按钮.Text = "Concludes the answer".L10N("UI:DTAConfig:ConcludesAnswer");
             }
         }
 
@@ -268,7 +269,7 @@ namespace DTAConfig.OptionPanels
             {
                 s = r.Item2;
             }
-            XNAMessageBox.Show(WindowManager, "信息", s);
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), s);
             pass?.Invoke();
         }
     }
@@ -291,7 +292,7 @@ namespace DTAConfig.OptionPanels
 
             var lbltitle = new XNALabel(WindowManager)
             {
-                Text = "重聚未来*创意工坊 - 创作者认证答题须知",
+                Text = "Reunion * Workshop - Instructions for Creator Certification".L10N("UI:DTAConfig:ReunionWorkshop"),
                 ClientRectangle = new Rectangle(160, 20, 0, 0)
             };
 
@@ -314,7 +315,7 @@ namespace DTAConfig.OptionPanels
             var 返回按钮 = new XNAClientButton(WindowManager)
             {
                 Name = "btnReturn",
-                Text = "返回",
+                Text = "Back".L10N("UI:Main:Back"),
                 X = 20,
                 Y = Bottom - 40,
             };
@@ -324,7 +325,7 @@ namespace DTAConfig.OptionPanels
             var 进入答题按钮 = new XNAClientButton(WindowManager)
             {
                 Name = "btnStart",
-                Text = "开始答题",
+                Text = "Start answering".L10N("UI:DTAConfig:StartAnswer"),
                 X = Right - 170,
                 Y = Bottom - 40,
             };
@@ -362,7 +363,7 @@ namespace DTAConfig.OptionPanels
                     chk.CheckedChanged += (_, _) => {
                         if (chk.Checked && chkOptions.FindAll(x => x.Checked).Count > maxCheckedCount)
                         {
-                            XNAMessageBox.Show(WindowManager, "提示", $"最多只能选择{maxCheckedCount}项");
+                            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Select up to {maxCheckedCount} items".L10N("UI:DTAConfig:MaxSelectItem"));
                             chk.Checked = false;
                         }
                     };
@@ -378,7 +379,7 @@ namespace DTAConfig.OptionPanels
         {
             if (chkOptions.FindAll(x => x.Checked).Count < minCheckedCount)
             {
-                XNAMessageBox.Show(WindowManager, "提示", $"至少选择{minCheckedCount}项");
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Select at least the {minCheckedCount} item".L10N("UI:DTAConfig:LeastSelectItem"));
                 return;
             }
 
@@ -391,7 +392,7 @@ namespace DTAConfig.OptionPanels
             var (questions, msg) = NetWorkINISettings.Get<List<QuestionBank>>($"questionBank/getQuestionBank?types={string.Join(",", selectedIndexes)}").GetAwaiter().GetResult();
             if (questions == null)
             {
-                XNAMessageBox.Show(WindowManager, "错误", $"获取题库失败,请稍后重试: {msg}");
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"Failed to get question bank, please try again later: {msg}".L10N("UI:DTAConfig:FailedGetQuestionBank"));
                 return;
             }
             Disable();

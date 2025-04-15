@@ -578,21 +578,36 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected override void UpdateDiscordPresence(bool resetTimer = false)
         {
-            if (discordHandler == null)
+            if (discordHandler == null || Map == null || GameMode == null)
                 return;
 
             PlayerInfo player = FindLocalPlayer();
-            if (player == null || Map == null || GameMode == null)
+            if (player == null || Players == null || !Players.Contains(player))
                 return;
             string side = "";
-            if (ddPlayerSides.Length > Players.IndexOf(player))
-                side = ddPlayerSides[Players.IndexOf(player)].SelectedItem.Text;
-            string currentState = ProgramConstants.IsInGame ? "In Game" : "In Lobby"; // not UI strings
+            var playerIndex = Players.IndexOf(player);
+            if (ddPlayerSides != null &&
+                playerIndex >= 0 &&
+                playerIndex < ddPlayerSides.Length &&
+                ddPlayerSides[playerIndex]?.SelectedItem != null)
+            {
+                side = ddPlayerSides[playerIndex].SelectedItem.Text;
+            }
 
             discordHandler.UpdatePresence(
-                Map.Name, GameMode.Name, "Multiplayer",
-                currentState, Players.Count, playerLimit, side,
-                channel.UIName, IsHost, isCustomPassword, Locked, resetTimer);
+                Map?.Name ?? "[No Map]",
+                GameMode?.Name ?? "[No Mode]",
+                "Multiplayer",
+                ProgramConstants.IsInGame ? "In Game" : "In Lobby",
+                Players?.Count ?? 0,
+                playerLimit,
+                side,
+                channel?.UIName ?? "[No Channel]",
+                IsHost,
+                isCustomPassword,
+                Locked,
+                resetTimer
+            );
         }
 
         private void Channel_UserQuitIRC(object sender, UserNameEventArgs e)

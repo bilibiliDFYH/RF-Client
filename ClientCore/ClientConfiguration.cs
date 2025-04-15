@@ -391,7 +391,7 @@ namespace ClientCore
         /// <summary>
         /// Default value for FrameSendRate setting written in spawn.ini.
         /// </summary>
-        public int DefaultFrameSendRate => clientDefinitionsIni.GetIntValue(SETTINGS, nameof(DefaultFrameSendRate), 1);
+        public int DefaultFrameSendRate => clientDefinitionsIni.GetIntValue(SETTINGS, nameof(DefaultFrameSendRate), 3);
 
         /// <summary>
         /// Default value for Protocol setting written in spawn.ini.

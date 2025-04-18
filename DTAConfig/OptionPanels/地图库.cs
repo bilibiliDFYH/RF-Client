@@ -2,12 +2,14 @@
 using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
+using DTAConfig.Entity;
 using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -24,8 +26,9 @@ namespace DTAConfig.OptionPanels
         private string[] types;
         private static readonly object _lock = new();
         private int _当前页数 = 1;
-        private int _总页数 = 1;
+        private int _总页数 = 0;
         private XNALabel lblPage;
+        private XNAContextMenu _modMenu;
 
         public int 当前页数
         {
@@ -114,15 +117,34 @@ namespace DTAConfig.OptionPanels
             //    BackgroundColor = Color.Black * 0.5f // 半透明背景
             };
 
-            mapPanel.LineHeight = 120;
-            mapPanel.AddColumn("预览图", 200);
+            mapPanel.DoubleLeftClick += 查看地图详细信息;
+
+            mapPanel.LineHeight = 20;
+         //   mapPanel.AddColumn("预览图", 200);
             mapPanel.AddColumn("地图名", 120);
             mapPanel.AddColumn("作者", 120);
             mapPanel.AddColumn("地图类型", 100);
-            mapPanel.AddColumn("下载次数", 100);
-            mapPanel.AddColumn("评分", 100);
-            mapPanel.AddColumn("介绍", 160);
-            // mapPanel.AddColumn("下载", 100);
+            mapPanel.AddColumn("下载次数", 80);
+            mapPanel.AddColumn("评分", 80);
+            mapPanel.AddColumn("介绍", 100);
+            mapPanel.AddColumn("下载", 100);
+
+            mapPanel.RightClick += (sender, args) =>
+            {
+                _modMenu.Open(GetCursorPoint());
+            };
+
+            _modMenu = new XNAContextMenu(WindowManager);
+            _modMenu.Name = nameof(_modMenu);
+            _modMenu.Width = 100;
+
+            _modMenu.AddItem(new XNAContextMenuItem
+            {
+                Text = "刷新",
+                SelectAction = Reload
+            });
+
+            mapPanel.AddChild(_modMenu);
 
             types = NetWorkINISettings.Get<string>("dict/getValue?section=map&key=type").Result.Item1.Split(',');
 
@@ -144,7 +166,7 @@ namespace DTAConfig.OptionPanels
 
             lblPage = new XNALabel(WindowManager)
             {
-                Text = "0 / 0",
+                Text = "1 / 1",
                 ClientRectangle = new Rectangle(btnLeft.Right + 10, btnLeft.Y, 0, 0)
             };
 
@@ -184,6 +206,11 @@ namespace DTAConfig.OptionPanels
             // Reload();
         }
 
+        private void 查看地图详细信息(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private void BtnRight_LeftClick(object sender, EventArgs e)
         {
             if (当前页数 > 1)
@@ -199,7 +226,7 @@ namespace DTAConfig.OptionPanels
 
         private void 下载地图(int id)
         {
-            var r =  NetWorkINISettings.Get<Maps>($"map/downMap?id={id}").Result;
+            var r =  NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={id}").Result;
             if(r.Item1 != null)
             {
                 File.WriteAllText(Path.Combine(ProgramConstants.GamePath, "Maps\\Multi\\WorkShop", $"{r.Item1.name}.map"), r.Item1.file);
@@ -213,30 +240,171 @@ namespace DTAConfig.OptionPanels
 
         private async void Reload()
         {
-            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={searchBox.Text.Trim()}&types={ddType.SelectedIndex - 2}&maxPlayers=&pageNum={当前页数}&pageSize=10");
+            var search = searchBox.Text.Trim() == "搜索地图名..." ? string.Empty : searchBox.Text.Trim();
+
+            var ts = ddType.SelectedIndex == 0 ? string.Empty : $"{ddType.SelectedIndex - 1}";
+
+            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={search}&types={ts}&maxPlayers=&pageNum={当前页数}&pageSize=10");
+
+            if(r.Item1 == null)
+            {
+                XNAMessageBox.Show(WindowManager, "错误", r.Item2);
+                return;
+            }
 
             总页数 = (int)r.Item1.total;
 
             mapPanel.ClearItems();
+            int i = 0;
             r.Item1.records.ForEach(map =>
             {
                 List<XNAListBoxItem> items = [];
-                var item = new XNAListBoxItem
-                {
-                    Texture = AssetLoader.Base64ToTexture(map.base64)
-                };
+                //var item = new XNAListBoxItem
+                //{
+                //    Texture = AssetLoader.Base64ToTexture(map.base64)
+                //};
 
-                items.Add(item);
+                //items.Add(item);
                 items.Add(new XNAListBoxItem(map.name));
                 items.Add(new XNAListBoxItem(map.author));
                 items.Add(new XNAListBoxItem(types[map.type]));
                 items.Add(new XNAListBoxItem(map.downCount.ToString()));
                 items.Add(new XNAListBoxItem(map.score.ToString()));
                 items.Add(new XNAListBoxItem(map.description));
-
+                items.Add(new XNAListBoxItem(string.Empty));
                 mapPanel.AddItem(items);
+
+                var btn = new XNAClientButton(WindowManager);
+                btn.Width = UIDesignConstants.BUTTON_WIDTH_92;
+                btn.X = 804;
+                btn.Y = 70 + i * mapPanel.LineHeight;
+                btn.Text = "下载";
+                btn.LeftClick += (_, _) => { 下载地图(map.id); };
+
+                mapPanel.AddChild(btn);
+                i++;
             });
         }
 
+    }
+
+    public class 地图详细信息界面 : XNAWindow
+    {
+
+        private Maps map;
+
+        public 地图详细信息界面(WindowManager windowManager,Maps map, string[] types) : base(windowManager)
+        {
+            this.map = NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={map.id}").Result.Item1;
+        }
+
+        public override void Initialize()
+        {
+            var 地图预览图 = new XNATextBlock(WindowManager)
+            {
+                BackgroundTexture = AssetLoader.Base64ToTexture(map.base64),
+                ClientRectangle = new Rectangle(10, 10, 256, 153)
+            };
+
+            var 地图名 = new XNALabel(WindowManager)
+            {
+                Text = "地图名称：",
+                ClientRectangle = new Rectangle(地图预览图.Right + 20, 地图预览图.Y, 0, 0)
+            };
+
+            var 地图名内容 = new XNALabel(WindowManager)
+            {
+                Text = map.name,
+                ClientRectangle = new Rectangle(400, 10, 200, 30)
+            };
+
+            var 地图作者 = new XNALabel(WindowManager)
+            {
+                Text = "地图作者：",
+                ClientRectangle = new Rectangle(地图名.X, 地图名.Bottom + 10, 0, 0)
+            };
+            var 地图作者内容 = new XNALabel(WindowManager)
+            {
+                Text = map.author,
+                ClientRectangle = new Rectangle(地图名内容.X, 地图名内容.Bottom + 10, 200, 30)
+            };
+            var 地图类型 = new XNALabel(WindowManager)
+            {
+                Text = "地图类型：",
+                ClientRectangle = new Rectangle(地图作者.X, 地图作者.Bottom + 10, 0, 0)
+            };
+            var 地图类型内容 = new XNALabel(WindowManager)
+            {
+                Text = types[map.type],
+                ClientRectangle = new Rectangle(地图名内容.X, 地图作者内容.Bottom + 10, 200, 30)
+            };
+            var 地图评分 = new XNALabel(WindowManager)
+            {
+                Text = "地图评分：",
+                ClientRectangle = new Rectangle(地图类型.X, 地图类型.Bottom + 10, 0, 0)
+            };
+            var 地图评分内容 = new XNALabel(WindowManager)
+            {
+                Text = map.score.ToString(),
+                ClientRectangle = new Rectangle(地图类型内容.X, 地图类型内容.Bottom + 10, 200, 30)
+            };
+            var 下载次数 = new XNALabel(WindowManager)
+            {
+                Text = "下载次数：",
+                ClientRectangle = new Rectangle(地图评分.X, 地图评分.Bottom + 10, 0, 0)
+            };
+            var 下载次数内容 = new XNALabel(WindowManager)
+            {
+                Text = map.downCount.ToString(),
+                ClientRectangle = new Rectangle(地图评分内容.X, 地图评分内容.Bottom + 10, 200, 30)
+            };
+
+            var 地图介绍 = new XNALabel(WindowManager)
+            {
+                Text = map.description,
+                ClientRectangle = new Rectangle(地图预览图.X, 地图预览图.Bottom + 10, 0, 0)
+            };
+
+            var 下载按钮 = new XNAClientButton(WindowManager)
+            {
+                Text = "下载",
+                ClientRectangle = new Rectangle(地图介绍.X, 地图介绍.Bottom + 10, 100, 30)
+            };
+
+            下载按钮.LeftClick += (sender, args) =>
+            {
+                File.WriteAllText(Path.Combine(ProgramConstants.GamePath, "Maps\\Multi\\WorkShop", $"{map.name}.map"), map.file);
+            };
+
+            var 关闭按钮 = new XNAClientButton(WindowManager)
+            {
+                Text = "关闭",
+                ClientRectangle = new Rectangle(地图介绍.X + 200, 地图介绍.Bottom + 10, 100, 30)
+            };
+
+            关闭按钮.LeftClick += (sender, args) =>
+            {
+                Disable();
+            };
+
+            AddChild(地图预览图);
+            AddChild(地图名);
+            AddChild(地图名内容);
+            AddChild(地图作者);
+            AddChild(地图作者内容);
+            AddChild(地图类型);
+            AddChild(地图类型内容);
+            AddChild(地图评分);
+            AddChild(地图评分内容);  
+            AddChild(下载次数);
+            AddChild(下载次数内容);
+            AddChild(地图介绍);
+            AddChild(下载按钮);
+            AddChild(关闭按钮);
+             
+            base.Initialize();
+
+            CenterOnParent();
+        }
     }
 }

@@ -99,7 +99,7 @@ namespace Ra2Client.DXGUI.Generic
             {
                 control.Enabled = true;
                 control.Visible = true;
-                control.IgnoreInputOnFrame = true;
+                control.InputIgnoreTime = TimeSpan.Zero;
             }
         }
 

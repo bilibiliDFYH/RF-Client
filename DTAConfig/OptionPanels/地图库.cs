@@ -292,10 +292,12 @@ namespace DTAConfig.OptionPanels
     {
 
         private Maps map;
+        private string[] types;
 
         public 地图详细信息界面(WindowManager windowManager,Maps map, string[] types) : base(windowManager)
         {
             this.map = NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={map.id}").Result.Item1;
+            this.types = types;
         }
 
         public override void Initialize()

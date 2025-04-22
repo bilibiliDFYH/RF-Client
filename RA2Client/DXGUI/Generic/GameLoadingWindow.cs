@@ -133,7 +133,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if((newGame != string.Empty &&!Directory.Exists(newGame)) || (newMission != string.Empty && !Directory.Exists(newMission)))
             {
-                XNAMessageBox.Show(WindowManager,"错误","任务包文件或模组文件已被删除，无法加载存档。");
+                XNAMessageBox.Show(WindowManager,"Error".L10N("UI:Main:Error"), "The mission pack file or mod file has been deleted and the save cannot be loaded.".L10N("UI:Main:CannotLoadedSave"));
                 return;
             }
 
@@ -186,8 +186,8 @@ namespace Ra2Client.DXGUI.Generic
             
 
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
-            var msgBox = new XNAMessageBox(WindowManager, "删除确认".L10N("UI:Main:DeleteConfirmationTitle"),
-                string.Format("以下保存的游戏将被永久删除:" + Environment.NewLine +
+            var msgBox = new XNAMessageBox(WindowManager, "Delete confirmation".L10N("UI:Main:DeleteConfirmationTitle"),
+                string.Format("The following saved games will be permanently deleted:" + Environment.NewLine +
                     Environment.NewLine +
                     "Filename: {0}" + Environment.NewLine +
                     "Saved game name: {1}" + Environment.NewLine +

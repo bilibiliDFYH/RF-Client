@@ -52,7 +52,7 @@ namespace Ra2Client.DXGUI.Generic
             var firstLabel = new XNALabel(WindowManager)
             {
                 ClientRectangle = new Rectangle(20, 10, 0, 0),
-                Text = "看起来您是第一次运行游戏，先给自己取个名字吧！"
+                Text = "It looks like you're playing the game for the first time, so let's give yourself a name!".L10N("UI:Main:GiveYourselfAName")
             };
 
 
@@ -61,13 +61,13 @@ namespace Ra2Client.DXGUI.Generic
             {
                 ClientRectangle = new Rectangle(20, 50, 350, 25),
                 Name = "nameTextBox",
-                Suggestion = "(不能为空,长度不超过10位)"
+                Suggestion = "(cannot be empty, no more than 10 digits in length)".L10N("UI:Main:NameRequirements")
             };
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
                 ClientRectangle = new Rectangle(100, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
-                Text = "确认"
+                Text = "Yes".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
             {
@@ -75,7 +75,7 @@ namespace Ra2Client.DXGUI.Generic
 
                 if (error != null)
                 {
-                    XNAMessageBox.Show(windowManager, "提示", error);
+                    XNAMessageBox.Show(windowManager, "Tips".L10N("UI:Main:Tips"), error);
                     return;
                 }
 
@@ -126,7 +126,7 @@ namespace Ra2Client.DXGUI.Generic
             var label = new XNALabel(WindowManager)
             {
                 ClientRectangle = new Rectangle(20, 10, 0, 0),
-                Text = "您想使用哪个模组的地编?"
+                Text = "Which mod's map editor would you like to use?".L10N("UI:Main:SelectMapEditor")
             };
 
 
@@ -144,7 +144,7 @@ namespace Ra2Client.DXGUI.Generic
             var btnConfirm = new XNAClientButton(WindowManager)
             {
                 ClientRectangle = new Rectangle(50, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
-                Text = "确认"
+                Text = "Yes".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
             {
@@ -347,9 +347,8 @@ namespace Ra2Client.DXGUI.Generic
             btnNewCampaign.HoverTexture = AssetLoader.LoadTexture("MainMenu/campaign_c.png");
             btnNewCampaign.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnNewCampaign.LeftClick += BtnNewCampaign_LeftClick;
-            btnNewCampaign.Tag = "游玩战役（任务包）";
-
             btnNewCampaign.Text = "Campaign".L10N("UI:Main:Campaign");
+            btnNewCampaign.Tag = "Play the Campaign (Mission Pack)".L10N("UI:Main:CampaignDescription");
 
             btnLoadGame = new XNAClientButton(WindowManager);
             btnLoadGame.Name = nameof(btnLoadGame);
@@ -358,7 +357,7 @@ namespace Ra2Client.DXGUI.Generic
             btnLoadGame.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnLoadGame.LeftClick += BtnLoadGame_LeftClick;
             btnLoadGame.Text = "ReLoad Game".L10N("UI:Main:LoadGame");
-            btnLoadGame.Tag = "载入存档";
+            btnLoadGame.Tag = "Load your saved game".L10N("UI:Main:LoadGameDescription");
 
             btnSkirmish = new XNAClientButton(WindowManager);
             btnSkirmish.Name = nameof(btnSkirmish);
@@ -367,7 +366,7 @@ namespace Ra2Client.DXGUI.Generic
             btnSkirmish.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnSkirmish.LeftClick += BtnSkirmish_LeftClick;
             btnSkirmish.Text = "Skirmish".L10N("UI:Main:SkirmishLobby");
-            btnSkirmish.Tag = "遭遇战";
+            btnSkirmish.Tag = "AI battles".L10N("UI:Main:SkirmishLobbyDescription");
 
             btnCnCNet = new XNAClientButton(WindowManager);
             btnCnCNet.Name = nameof(btnCnCNet);
@@ -376,7 +375,7 @@ namespace Ra2Client.DXGUI.Generic
             btnCnCNet.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnCnCNet.LeftClick += BtnCnCNet_LeftClick;
             btnCnCNet.Text = "CnCNet".L10N("UI:Main:CnCNetLobby");
-            btnCnCNet.Tag = "进入联机大厅联机";
+            btnCnCNet.Tag = "Play online against other players".L10N("UI:Main:CnCNetLobbyDescription");
 
             btnLan = new XNAClientButton(WindowManager);
             btnLan.Name = nameof(btnLan);
@@ -385,7 +384,7 @@ namespace Ra2Client.DXGUI.Generic
             btnLan.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnLan.Text = "LAN".L10N("UI:Main:LANGameLobby");
             btnLan.LeftClick += BtnLan_LeftClick;
-            btnLan.Tag = "和朋友一起在局域网游玩";
+            btnLan.Tag = "Hosts in the same LAN are battling".L10N("UI:Main:LANGameLobbyDescription");
 
             btnOptions = new XNAClientButton(WindowManager);
             btnOptions.Name = nameof(btnOptions);
@@ -394,7 +393,7 @@ namespace Ra2Client.DXGUI.Generic
             btnOptions.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnOptions.LeftClick += BtnOptions_LeftClick;
             btnOptions.Text = "Options".L10N("UI:Main:Options");
-            btnOptions.Tag = "进入设置";
+            btnOptions.Tag = "Client Settings/Game Settings".L10N("UI:Main:OptionsDescription");
 
             btnMapEditor = new XNAClientButton(WindowManager);
             btnMapEditor.Name = nameof(btnMapEditor);
@@ -403,8 +402,7 @@ namespace Ra2Client.DXGUI.Generic
             btnMapEditor.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnMapEditor.LeftClick += BtnMapEditor_LeftClick;
             btnMapEditor.Text = "Map Editor".L10N("UI:Main:MapEditor");
-
-            btnMapEditor.Tag = "打开地图编辑器";
+            btnMapEditor.Tag = "Use the map editor to make a map".L10N("UI:Main:MapEditorDescription");
 
             btnStatistics = new XNAClientButton(WindowManager);
             btnStatistics.Name = nameof(btnStatistics);
@@ -413,7 +411,7 @@ namespace Ra2Client.DXGUI.Generic
             btnStatistics.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnStatistics.LeftClick += BtnStatistics_LeftClick;
             btnStatistics.Text = "Statistics".L10N("UI:Main:Statistics");
-            btnStatistics.Tag = "战绩查询";
+            btnStatistics.Tag = "Check the game performance".L10N("UI:Main:StatisticsDescription");
 
 
             btnCredits = new XNAClientButton(WindowManager);
@@ -421,7 +419,7 @@ namespace Ra2Client.DXGUI.Generic
             btnCredits.IdleTexture = AssetLoader.LoadTexture("MainMenu/credits.png");
             btnCredits.HoverTexture = AssetLoader.LoadTexture("MainMenu/credits_c.png");
             btnCredits.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
-          //  btnCredits.LeftClick += BtnCredits_LeftClick;
+            // btnCredits.LeftClick += BtnCredits_LeftClick;
             btnCredits.Text = "View Credits".L10N("UI:MainMenu:Credits");
 
 
@@ -439,7 +437,7 @@ namespace Ra2Client.DXGUI.Generic
             btnExit.HoverSoundEffect = new EnhancedSoundEffect("MainMenu/button.wav");
             btnExit.LeftClick += BtnExit_LeftClick;
             btnExit.Text = "Exit".L10N("UI:Main:Exit");
-            btnExit.Tag = "退出游戏";
+            btnExit.Tag = "I don't want to play anymore and quit the client".L10N("UI:Main:ExitDescription");
 
             XNALabel lblCnCNetStatus = new XNALabel(WindowManager);
             lblCnCNetStatus.Name = nameof(lblCnCNetStatus);
@@ -467,13 +465,13 @@ namespace Ra2Client.DXGUI.Generic
             lblUpdateStatus.Name = nameof(lblUpdateStatus);
             lblUpdateStatus.LeftClick += LblUpdateStatus_LeftClick;
             lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
-            lblUpdateStatus.Text = "获取更新状态失败,点击以重试";
+            lblUpdateStatus.Text = "Failed to get update status, tap to try again".L10N("UI:Main:FailedGetUpdateStatus");
 
             lblWebsite = new XNALinkLabel(WindowManager);
             lblWebsite.Name = nameof(lblWebsite);
             lblWebsite.LeftClick += lblWebsite_LeftClick;
 
-            //  lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
+            // lblUpdateStatus.ClientRectangle = new Rectangle(0, 0, UIDesignConstants.BUTTON_WIDTH_160, 20);
 
             AddChild(picDynamicbg);
             AddChild(lblPlayerCount);
@@ -598,7 +596,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public async void UseDownloadedData()
         {
-            lblannouncement.Text = GetContent((await NetWorkINISettings.Get<string>("anno/getAnnoByType?type=mainMenu")).Item1 ?? "暂无公告");
+            lblannouncement.Text = GetContent((await NetWorkINISettings.Get<string>("anno/getAnnoByType?type=mainMenu")).Item1 ?? "There are no announcements yet".L10N("UI:Main:NoAnnouncement"));
         }
 
         private string GetContent(string content)
@@ -650,7 +648,7 @@ namespace Ra2Client.DXGUI.Generic
                         // 设置新值
                         sessionManagerKey.SetValue(valueName, newValues, RegistryValueKind.MultiString);
 
-                        XNAMessageBox.Show(WindowManager, "提示信息", "我们注意到游戏渲染插件可能无法被正确调用，已为您自动修复，但这些更改需要您重启计算机才能生效.\n若不重启电脑直接启动,您可能会遇到 无法设置渲染模式,按ESC或者点击右上角按钮卡住,游戏黑屏卡顿 等问题.");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "We have noticed that the game rendering plugin may not be called correctly, which has been fixed automatically for you, but these changes require you to restart your computer to take effect.\nIf you start directly without restarting your computer, you may encounter problems such as unable to set the rendering mode, pressing ESC or clicking the button in the upper right corner, and the game is stuck with a black screen.".L10N("UI:Main:RenderingInvalid"));
                     }
                     else
                     {
@@ -792,7 +790,7 @@ namespace Ra2Client.DXGUI.Generic
             if (ModManager.判断是否为Mod(ProgramConstants.GamePath,true))
             {
 
-                var XNAMessageBox = new XNAMessageBox(WindowManager, "提示", "检测到模组或任务包.\n选 是 则按模组导入.选 否 则按任务包导入.", XNAMessageBoxButtons.YesNo);
+                var XNAMessageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), "Mods or mission packs detected.\nClick Yes to import by mod. Click No to import by task package.".L10N("UI:Main:DetectedModOrMission"), XNAMessageBoxButtons.YesNo);
                 XNAMessageBox.YesClickedAction += (_) => {
                     modManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
                     清理根目录();
@@ -1090,7 +1088,7 @@ namespace Ra2Client.DXGUI.Generic
                 else
                 {
 
-                    lblUpdateStatus.Text = "点击以检查更新.";
+                    lblUpdateStatus.Text = "Click to check for updates.".L10N("UI:Main:ClickUpdates");
                 }
             }
             //Verification_File();
@@ -1111,7 +1109,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             catch (Exception ex)
             {
-                Logger.Log("错误", $"删除缓存文件夹出错: {ex.Message}");
+                Logger.Log("Error".L10N("UI:Main:Error"), $"There was an error deleting the cache folder: {ex.Message}".L10N("UI:Main:DeleteCacheFolderError"));
             }
             //if (MapLoader.rootMaps.Count != 0)
             //{
@@ -1125,7 +1123,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if(ProgramConstants.GamePath.Length > 100)
             {
-                XNAMessageBox.Show(WindowManager,"提示",$"您的安装路径:\n{ProgramConstants.GamePath}\n似乎过长，进入游戏可能会导致弹窗，若多次出现弹窗请更换为更短的路径重新安装");
+                XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), $"Your installation path:\n{ProgramConstants.GamePath}\nIt seems to be too long, entering the game may cause pop-ups, if the pop-up window appears multiple times, please replace it with a shorter path and reinstall it".L10N("UI:Main:InstallPathTooLong"));
             }
         }
 
@@ -1147,12 +1145,12 @@ namespace Ra2Client.DXGUI.Generic
                 string hostName = Environment.MachineName;
                 if (!regex.IsMatch(hostName))
                 {
-                    XNAMessageBox.Show(WindowManager, "警告", "您的电脑名称似乎有些复杂，这可能导致无法正常运行游戏。若进入游戏反复出现英文弹窗，请更改您的电脑名称。");
+                    XNAMessageBox.Show(WindowManager, "Warning".L10N("UI:Main:Warning"), "Your computer's name seems to be a bit complicated, which may cause the game to not function properly. If the English pop-up window repeatedly appears when entering the game, please change the name of your computer.".L10N("UI:Main:ComputerNameComplex"));
                 }
             }
             catch (Exception ex)
             {
-                Logger.Log("错误", $"出现未知错误。错误信息: {ex.Message}");
+                Logger.Log("Error".L10N("UI:Main:Error"), $"An unknown error occurred. Error message: {ex.Message}".L10N("UI:Main:UnknownErrorOccurred"));
             }
         }
 
@@ -1184,7 +1182,7 @@ namespace Ra2Client.DXGUI.Generic
         private void UpdateWindow_UpdateFailed(object sender, UpdateFailureEventArgs e)
         {
             innerPanel.Hide();
-            lblUpdateStatus.Text = "检查更新失败，点击以重试.";
+            lblUpdateStatus.Text = "Check for update failed, tap to try again.".L10N("UI:Main:CheckUpdateFailed");
             lblUpdateStatus.DrawUnderline = true;
             lblUpdateStatus.Enabled = true;
             UpdateInProgress = false;
@@ -1246,7 +1244,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             catch(Exception ex)
             {
-                XNAMessageBox.Show(WindowManager, "错误", ex.ToString());
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), ex.ToString());
             }
         }
 
@@ -1274,7 +1272,7 @@ namespace Ra2Client.DXGUI.Generic
             WindowManager.Report();
             innerPanel.UpdateQueryWindow.GetUpdateContentsAsync(Updater.versionState.ToString(), VersionState.UPTODATE.ToString());
             lblUpdateStatus.Enabled = false;
-            lblUpdateStatus.Text = "检查更新中...";
+            lblUpdateStatus.Text = "Checking for updates...".L10N("UI:Main:CheckingForUpdates");
             lastUpdateCheckTime = DateTime.Now;
         }
 
@@ -1316,7 +1314,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             else if (Updater.versionState == VersionState.UNKNOWN)
             {
-                lblUpdateStatus.Text = "检查更新失败，点击以重试.";
+                lblUpdateStatus.Text = "Check for update failed, tap to try again.".L10N("UI:Main:CheckUpdateFailed");
                 lblUpdateStatus.Enabled = true;
                 lblUpdateStatus.DrawUnderline = true;
             }
@@ -1452,7 +1450,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnExit_LeftClick(object sender, EventArgs e)
         {
-            var messageBox = new XNAMessageBox(WindowManager, "退出确认", "您确定要退出了吗QwQ?", XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Exit confirmation".L10N("UI:Main:ExitConfirmation"), "Are you sure you want to quit?".L10N("UI:Main:ExitConfirmationMessage"), XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
                 WindowManager.HideWindow();

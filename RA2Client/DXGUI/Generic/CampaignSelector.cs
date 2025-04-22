@@ -140,21 +140,21 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnImport = new XNAClientButton(WindowManager)
             {
-                Text = "导入任务包",
+                Text = "Import Mission Packs".L10N("UI:Main:ImportMissionPacks"),
                 ClientRectangle = new Rectangle(10, 32, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT)
             }; 
             btnImport.LeftClick += BtnImport_LeftClick;
 
             var btnDownLoad = new XNAClientButton(WindowManager)
             {
-                Text = "下载任务包",
+                Text = "Download Mission Packs".L10N("UI:Main:DownloadMissionPacks"),
                 ClientRectangle = new Rectangle(btnImport.Right + 10, 32, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT)
             };
             btnDownLoad.LeftClick += BtnDownLoad_LeftClick;
 
             var _lblScreen = new XNALabel(WindowManager);
             _lblScreen.Name = "lblScreen";
-            _lblScreen.Text = "筛选:";
+            _lblScreen.Text = "Filter:".L10N("UI:Main:Filter");
             _lblScreen.ClientRectangle = new Rectangle(10, 60, 0, 0);
 
             _ddDifficulty = new XNADropDown(WindowManager);
@@ -222,22 +222,22 @@ namespace Ra2Client.DXGUI.Generic
             //_campaignMenu.AddItem("删除这组任务");
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "刷新地图列表",
+                Text = "Refresh Map List".L10N("UI:Main:RefreshMapList"),
                 SelectAction = () => ReadMissionList()
             });
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "删除这组任务",
+                Text = "Delete Mission Packs".L10N("UI:Main:DeleteMissionPacks"),
                 SelectAction = DelConf
             });
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "导入任务包",
+                Text = "Import Mission Packs".L10N("UI:Main:ImportMissionPacks"),
                 SelectAction = btnImport.OnLeftClick
             });
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "任务包管理",
+                Text = "Mission Packs Management".L10N("UI:Main:MissionPacksManagement"),
                 SelectAction = () => ModManagerEnabled(1)
             });
             
@@ -312,7 +312,7 @@ namespace Ra2Client.DXGUI.Generic
 
             _ratingBox = new XNAClientRatingBox(WindowManager);
             _ratingBox.Name = nameof(_ratingBox);
-            _ratingBox.Text = "评分";
+            _ratingBox.Text = "Score".L10N("UI:Main:Score");
             _ratingBox.ClientRectangle = new Rectangle(_lbxCampaignList.X, _lbxCampaignList.Y + _lbxCampaignList.Height + 150, 0, 0);
             _ratingBox.CheckedChanged += RatingBox_CheckedChanged;
             _ratingBox.Visible = false;
@@ -320,7 +320,7 @@ namespace Ra2Client.DXGUI.Generic
 
             _btnRatingDone = new XNAClientButton(WindowManager);
             _btnRatingDone.Name = nameof(_btnRatingDone);
-            _btnRatingDone.Text = "打分";
+            _btnRatingDone.Text = "Rating".L10N("UI:Main:Rating");
             _btnRatingDone.ClientRectangle = new Rectangle(_ratingBox.Right + 20, _ratingBox.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT);
             _btnRatingDone.LeftClick += BtnRatingDone_LeftClick;
             _btnRatingDone.Visible = false;
@@ -335,7 +335,7 @@ namespace Ra2Client.DXGUI.Generic
             _lbxInforBox = new XNAListBox(WindowManager);
 
             var lblalter = new XNALabel(WindowManager);
-            lblalter.Text = "任务包附带说明文件，双击可打开。";
+            lblalter.Text = "The mission package comes with a description file that can be opened by double-clicking".L10N("UI:Main:OpenMissionPackageDescription");
 
             timer = new System.Windows.Forms.Timer();
             timer.Interval = 延迟时间; // 延迟 500ms
@@ -376,13 +376,13 @@ namespace Ra2Client.DXGUI.Generic
 
             var _lblGame = new XNALabel(WindowManager)
             {
-                Text = "使用模组：",
+                Text = "Use mod:".L10N("UI:Main:UseMod"),
                 ClientRectangle = new Rectangle(_tbMissionDescriptionList.X + _tbMissionDescriptionList.Width + 10, _tbMissionDescriptionList.Y, 0,0)
             };
 
             var lblModify = new XNALabel(WindowManager);
             lblModify.Name = nameof(lblModify);
-            lblModify.Text = "注：修改不一定生效，某些可能会破坏战役流程。";
+            lblModify.Text = "Note: Changes may not take effect, and some may disrupt the flow of the mission".L10N("UI:Main:TurnOnCheat");
             lblModify.ClientRectangle = new Rectangle(_lblGame.X, _tbMissionDescriptionList.Y + 40, 0, 0);
             AddChild(lblModify);
 
@@ -452,11 +452,11 @@ namespace Ra2Client.DXGUI.Generic
                 }
                 catch(Exception ex)
                 {
-                    XNAMessageBox.Show(WindowManager, "错误", ex.ToString());
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), ex.ToString());
                 }
             }
             else
-                XNAMessageBox.Show(WindowManager, "信息", $"文件{path}不存在！");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"File {path} does not exist!".L10N("UI:Main:FileDoesNotExist"));
 
         }
 
@@ -522,7 +522,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if (-1 == _scoreLevel)
             {
-                XNAMessageBox.Show(WindowManager, "信息", "您是否还没有打分呢！");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "You haven't scored it yet!".L10N("UI:Main:NotScored"));
                 return;
             }
 
@@ -535,7 +535,7 @@ namespace Ra2Client.DXGUI.Generic
 
             int mark = ini.GetValue(missionName, "Mark", -1);
             if (-1 != mark)
-                XNAMessageBox.Show(WindowManager, "信息", "这个战役您已经打过分啦！");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "You've already scored this mission!".L10N("UI:Main:Scored"));
             else
             {
                _ = Task.Run(async() =>
@@ -833,9 +833,9 @@ namespace Ra2Client.DXGUI.Generic
             {
                 var score = NetWorkINISettings.Get<ClientCore.Entity.Score>($"score/getScore?name={name}").GetAwaiter().GetResult().Item1;
                 if (score != null)
-                    _lblRatingResult.Text = string.Format("任务评分:{0:F1}分（参与人数:{1}）", score.score, score.total);
+                    _lblRatingResult.Text = string.Format("Mission Rating: {0:F1} (Number of participants: {1})".L10N("UI:Main:MissionRating"), score.score, score.total);
                 else
-                    _lblRatingResult.Text = "快来抢占您的第一个评分^_^";
+                    _lblRatingResult.Text = "Come and grab your first rating ^_^".L10N("UI:Main:FirstRating");
             }
             catch (Exception ex)
             {
@@ -868,7 +868,7 @@ namespace Ra2Client.DXGUI.Generic
             {
                 string name = _screenMissions[_lbxCampaignList.SelectedIndex].SectionName;
                 _scoreLevel = ratingBox.CheckedIndex + 1;
-                CDebugView.OutputDebugInfo("任务：{0},评分：{1}", name, _scoreLevel);
+                CDebugView.OutputDebugInfo("Mission: {0}, Rating: {1}".L10N("UI:Main:Rating2"), name, _scoreLevel);
             }
         }
 
@@ -1142,7 +1142,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (!string.IsNullOrEmpty(result))
             {
-                XNAMessageBox.Show(WindowManager, "信息", result);
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), result);
                 return;
             }
 
@@ -1153,7 +1153,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             //if (_chkModify.Checked)
                 if (_cmbGame.SelectedItem == null)
-                    return "请选择游戏";
+                    return "Please select a game".L10N("UI:Main:SelectGame");
             return string.Empty;
         }
 
@@ -1439,9 +1439,9 @@ namespace Ra2Client.DXGUI.Generic
             _ddDifficulty.Items.Clear();
             _ddMissionPack.Items.Clear();
 
-            _ddDifficulty.AddItem(new XNADropDownItem() { Text = "筛选难度" });
-            _ddSide.AddItem(new XNADropDownItem() { Text = "筛选阵营" });
-            _ddMissionPack.AddItem(new XNADropDownItem() { Text = "选择任务包" });
+            _ddDifficulty.AddItem(new XNADropDownItem() { Text = "Difficulty of screening".L10N("UI:Main:DifficultyScreening") });
+            _ddSide.AddItem(new XNADropDownItem() { Text = "Filter the factions".L10N("UI:Main:FilterFactions") });
+            _ddMissionPack.AddItem(new XNADropDownItem() { Text = "Select the mission packs".L10N("UI:Main:SelectMissionPacks") });
 
             // Mod.Clear();
             string path = @"Maps/Cp";

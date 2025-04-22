@@ -379,38 +379,31 @@ namespace DTAConfig.OptionPanels
             if (null == _curComponent)
                 return;
 
-            
             mainButton.Visible = false;
             progressBar.Visible = true;
             lbstatus.Visible = true;
             lbprogress.Visible = true;
-            
 
-          
             string strLocPath = string.Empty;
-
             lbstatus.Text = "Downloading...".L10N("UI:DTAConfig:Downloading");
 
             try
             {
-                using WebClient webClient = new WebClient();
+                using HttpClient httpClient = new HttpClient();
+                // 设置请求头
+                // string clientVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                // httpClient.DefaultRequestHeaders.Add("User-Agent", $"Reunion/{clientVersion}");
+
                 TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-                webClient.DownloadProgressChanged += (s, evt) =>
-                {
-                    progressBar.Value = evt.ProgressPercentage;
 
-                    lbprogress.Text = progressBar.Value.ToString() + "%";
-
-                    TaskbarProgress.Instance.SetValue(evt.ProgressPercentage,100);
-                };
-                
                 var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
-
                 if (string.IsNullOrEmpty(strDownPath))
                 {
-                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Failed to get the component package link:{message}".L10N("UI:DTAConfig:FailedGetComponentLink"));
+                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"),
+                        $"Failed to get the component package link: {message}".L10N("UI:DTAConfig:FailedGetComponentLink"));
                     return;
                 }
+
                 string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
                 if (!Directory.Exists(strTmp))
                     Directory.CreateDirectory(strTmp);
@@ -418,38 +411,69 @@ namespace DTAConfig.OptionPanels
 
                 if (File.Exists(strLocPath))
                     File.Delete(strLocPath);
-                await webClient.DownloadFileTaskAsync(new Uri(strDownPath), strLocPath);
+
+                using var response = await httpClient.GetAsync(strDownPath, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+
+                using var contentStream = await response.Content.ReadAsStreamAsync();
+                using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
+
+                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                var totalRead = 0L;
+                var buffer = new byte[81920]; // 增大缓冲区
+                bool isMoreToRead = true;
+                int lastProgress = 0;
+
+                while (isMoreToRead)
+                {
+                    int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                    if (read == 0)
+                    {
+                        isMoreToRead = false;
+                        continue;
+                    }
+                    await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                    totalRead += read;
+
+                    if (totalBytes > 0)
+                    {
+                        int progress = (int)((totalRead * 100) / totalBytes);
+                        if (progress - lastProgress >= 1)
+                        {
+                            progressBar.Value = progress;
+                            lbprogress.Text = $"{progress}%";
+                            TaskbarProgress.Instance.SetValue(progress, 100);
+                            lastProgress = progress;
+                        }
+                    }
+                }
             }
-                catch (Exception ex)
+            catch (Exception ex)
             {
                 Logger.Log(ex.Message);
-                
                 mainButton.Visible = true;
                 progressBar.Visible = false;
                 lbstatus.Visible = false;
                 lbprogress.Visible = false;
-                
                 RefreshInstallButtonStatus(CompList.SelectedIndex);
+                return;
             }
 
-            //extract
+            // extract
             if (File.Exists(strLocPath))
             {
-
                 //比对hash，如果远程未设置则不对比
-                if(!string.IsNullOrEmpty(_curComponent.hash))
+                if (!string.IsNullOrEmpty(_curComponent.hash))
                 {
-                    //获取文件hash并比对
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {
-                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
-                        
-                            mainButton.Visible = true;
-                            progressBar.Visible = false;
-                            lbstatus.Visible = false;
-                            lbprogress.Visible = false;
-                        
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"),
+                            $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
+                        mainButton.Visible = true;
+                        progressBar.Visible = false;
+                        lbstatus.Visible = false;
+                        lbprogress.Visible = false;
                         RefreshInstallButtonStatus(CompList.SelectedIndex);
                         return;
                     }
@@ -478,7 +502,8 @@ namespace DTAConfig.OptionPanels
                     try
                     {
                         File.Delete(strLocPath);
-                    }catch (Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         Logger.Log(ex.ToString());
                     }
@@ -488,12 +513,10 @@ namespace DTAConfig.OptionPanels
             else
                 mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
 
-            
-                mainButton.Visible = true;
-                progressBar.Visible = false;
-                lbstatus.Visible = false;
-                lbprogress.Visible = false;
-            
+            mainButton.Visible = true;
+            progressBar.Visible = false;
+            lbstatus.Visible = false;
+            lbprogress.Visible = false;
             RefreshInstallButtonStatus(CompList.SelectedIndex);
         }
 

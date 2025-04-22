@@ -399,8 +399,7 @@ namespace DTAConfig.OptionPanels
                 var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
                 if (string.IsNullOrEmpty(strDownPath))
                 {
-                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"),
-                        $"Failed to get the component package link: {message}".L10N("UI:DTAConfig:FailedGetComponentLink"));
+                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Failed to get the component package link: {message}".L10N("UI:DTAConfig:FailedGetComponentLink"));
                     return;
                 }
 
@@ -416,11 +415,11 @@ namespace DTAConfig.OptionPanels
                 response.EnsureSuccessStatusCode();
 
                 using var contentStream = await response.Content.ReadAsStreamAsync();
-                using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920, true);
+                using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
 
                 var totalBytes = response.Content.Headers.ContentLength ?? -1L;
                 var totalRead = 0L;
-                var buffer = new byte[81920]; // 增大缓冲区
+                var buffer = new byte[131072]; // 128KB缓冲区
                 bool isMoreToRead = true;
                 int lastProgress = 0;
 
@@ -455,6 +454,7 @@ namespace DTAConfig.OptionPanels
                 progressBar.Visible = false;
                 lbstatus.Visible = false;
                 lbprogress.Visible = false;
+
                 RefreshInstallButtonStatus(CompList.SelectedIndex);
                 return;
             }
@@ -468,12 +468,13 @@ namespace DTAConfig.OptionPanels
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {
-                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"),
-                            $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
+
                         mainButton.Visible = true;
                         progressBar.Visible = false;
                         lbstatus.Visible = false;
                         lbprogress.Visible = false;
+
                         RefreshInstallButtonStatus(CompList.SelectedIndex);
                         return;
                     }
@@ -517,6 +518,7 @@ namespace DTAConfig.OptionPanels
             progressBar.Visible = false;
             lbstatus.Visible = false;
             lbprogress.Visible = false;
+
             RefreshInstallButtonStatus(CompList.SelectedIndex);
         }
 

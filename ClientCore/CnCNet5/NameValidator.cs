@@ -48,7 +48,7 @@ namespace ClientCore.CnCNet5
             }
 
             if (name.Length > ClientConfiguration.Instance.MaxNameLength)
-                return $"Your nickname is too long, Must not exceed {ClientConfiguration.Instance.MaxNameLength} characters.".L10N("UI:ClientCore:NameTooLong");
+                return $"您的名称过长,不得超过 {ClientConfiguration.Instance.MaxNameLength} 个字符";
 
             return null;
         }

@@ -898,11 +898,11 @@ namespace Ra2Client.DXGUI.Generic
             Value[7, 0] = 0;    //以德服人
             Value[8, 0] = 0;    //过关斩将
             Value[9, 0] = 0;    //枪林弹雨
-            Value[10, 0] = 0;  //法克尤
-            Value[11, 0] = 0;  //尽力局
-            Value[12, 0] = 0;  //躺赢局
-            Value[13, 0] = 0;//马奇诺防线
-            Value[14, 0] = 0;//冰天
+            Value[10, 0] = 0;   //法克尤
+            Value[11, 0] = 0;   //尽力局
+            Value[12, 0] = 0;   //躺赢局
+            Value[13, 0] = 0;   //马奇诺防线
+            Value[14, 0] = 0;   //冰天
 
             foreach (int gameIndex in listedGameIndexes)
             {
@@ -927,7 +927,8 @@ namespace Ra2Client.DXGUI.Generic
                         if (ms.MapName == "[8]冰天大雪地" || ms.MapName == "[8]冰天雪地")
                             Value[14, 0]++;
                         if (localPlayer.Side == 3)
-                        {//玩家法国
+                        {
+                            //玩家法国
                             if ((ms.GetPlayer(0).Side == 3 && ms.GetPlayer(1).Side == 10) || (ms.GetPlayer(1).Side == 3 && ms.GetPlayer(0).Side == 10)) //两人为法国和尤里
                                 Value[10, 0]++;
                             if (localPlayer.Economy > 500)

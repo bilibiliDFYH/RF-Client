@@ -398,7 +398,7 @@ namespace Ra2Client.DXGUI.Generic
 
             if (OptionsWindow.UseSkin)
             {
-                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "警告", "联机时禁止使用皮肤，请将皮肤还原为默认", XNAMessageBoxButtons.OK);
+                XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Warning".L10N("UI:Main:Warning"), "Skins are prohibited when online, revert skins to default".L10N("UI:Main:SkinsProhibited"), XNAMessageBoxButtons.OK);
                 messageBox.Show();
                 return;
             }

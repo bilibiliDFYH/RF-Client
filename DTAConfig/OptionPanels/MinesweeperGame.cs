@@ -574,7 +574,7 @@ namespace DTAConfig.OptionPanels
                             trb_input2.ButtonTexture = buttonTextures[7];
                             trb_input3.ButtonTexture = buttonTextures[7];
                             XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game Over".L10N("UI:Main:GameOver"),
-                                $"Game over, keep up the good work. \nRemaining Grids: {(Rows * Columns - MineCount - _uncoveredCount)}".L10N("UI:Main:GameOverTips"), XNAMessageBoxButtons.OK);
+                                $"游戏结束,请再接再厉TwT.\n剩余格子: {(Rows * Columns - MineCount - _uncoveredCount)}", XNAMessageBoxButtons.OK);
                             messageBox.Show();
                         }
                         else if (_victory)
@@ -594,7 +594,7 @@ namespace DTAConfig.OptionPanels
                             //string elapsedTimeString = _elapsedTime.ToString(@"hh\:mm\:ss");
                             string elapsedTimeString = $"{(int)_elapsedTime.TotalHours} 时 {(int)_elapsedTime.TotalMinutes % 60} 分 {_elapsedTime.Seconds} 秒";
                             XNAMessageBox messageBox = new XNAMessageBox(WindowManager, "Game Victory".L10N("UI:Main:GameVictory"),
-                                $"Congratulations, you've won. \nNumber of rows: {Rows}, Number of columns: {Columns}, Number of mines: {MineCount}, \nTime elapsed: {elapsedTimeString}".L10N("UI:Main:GameVictoryTips"), XNAMessageBoxButtons.OK);
+                                $"恭喜,您获胜了OvO.\n行数: {Rows}, 列数: {Columns}, 地雷数: {MineCount}, \n耗费时间: {elapsedTimeString}", XNAMessageBoxButtons.OK);
                             messageBox.Show();
                         }
                     }

@@ -399,7 +399,7 @@ namespace DTAConfig.OptionPanels
                 var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
                 if (string.IsNullOrEmpty(strDownPath))
                 {
-                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Failed to get the component package link: {message}".L10N("UI:DTAConfig:FailedGetComponentLink"));
+                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
                     return;
                 }
 

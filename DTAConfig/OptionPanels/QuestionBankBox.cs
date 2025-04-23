@@ -72,7 +72,7 @@ namespace DTAConfig.OptionPanels
 
             lblName = new XNALabel(WindowManager)
             {
-                Text = $"Author of the question: {questionBanks[index].name}".L10N("UI:DTAConfig:QuestionAuthor"),
+                Text = $"出题人: {questionBanks[index].name}",
                 ClientRectangle = new Rectangle(20, 10, 0, 0)
             };
             倒计时标签 = new XNALabel(WindowManager)
@@ -162,7 +162,7 @@ namespace DTAConfig.OptionPanels
                         判断答题结束();
                     }
 
-                    倒计时标签.Text = $"Countdown: {倒计时} seconds".L10N("UI:DTAConfig:Countdown");
+                    倒计时标签.Text = $"倒计时: {倒计时} 秒";
                 };
 
                 // 启动计时器
@@ -230,7 +230,7 @@ namespace DTAConfig.OptionPanels
         /// <param name="questionBank"></param>
         private void 更新题目(in QuestionBank questionBank)
         {
-            lblName.Text = $"Author of the question: {questionBanks[index].name}".L10N("UI:DTAConfig:QuestionAuthor");
+            lblName.Text = $"出题人: {questionBanks[index].name}";
             lblProblem.Text = questionBank.problem;
 
             foreach (var chk in chkOptions)
@@ -363,7 +363,7 @@ namespace DTAConfig.OptionPanels
                     chk.CheckedChanged += (_, _) => {
                         if (chk.Checked && chkOptions.FindAll(x => x.Checked).Count > maxCheckedCount)
                         {
-                            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Select up to {maxCheckedCount} items".L10N("UI:DTAConfig:MaxSelectItem"));
+                            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"最多选择 {maxCheckedCount} 项");
                             chk.Checked = false;
                         }
                     };
@@ -379,7 +379,7 @@ namespace DTAConfig.OptionPanels
         {
             if (chkOptions.FindAll(x => x.Checked).Count < minCheckedCount)
             {
-                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Select at least the {minCheckedCount} item".L10N("UI:DTAConfig:LeastSelectItem"));
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"至少选择 {minCheckedCount} 项");
                 return;
             }
 
@@ -392,7 +392,7 @@ namespace DTAConfig.OptionPanels
             var (questions, msg) = NetWorkINISettings.Get<List<QuestionBank>>($"questionBank/getQuestionBank?types={string.Join(",", selectedIndexes)}").GetAwaiter().GetResult();
             if (questions == null)
             {
-                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"Failed to get question bank, please try again later: {msg}".L10N("UI:DTAConfig:FailedGetQuestionBank"));
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"获取题库失败, 请稍后重试: {msg}");
                 return;
             }
             Disable();

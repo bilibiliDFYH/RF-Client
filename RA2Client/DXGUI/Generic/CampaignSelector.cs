@@ -456,7 +456,7 @@ namespace Ra2Client.DXGUI.Generic
                 }
             }
             else
-                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"File {path} does not exist!".L10N("UI:Main:FileDoesNotExist"));
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"文件 {path} 不存在!".L10N("UI:Main:FileDoesNotExist"));
 
         }
 

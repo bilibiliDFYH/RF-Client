@@ -277,7 +277,7 @@ public class ModManager : XNAWindow
             var path = Path.Combine(Dname,Fname);
             if (File.Exists(path))
             {
-                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"The packaging was successful:{path}".L10N("UI:DTAConfig:PackagingSuccessful"));
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"打包成功: {path}");
             }else
                 XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Packaging failed".L10N("UI:DTAConfig:PackagingFailed"));
         }
@@ -1020,7 +1020,7 @@ public class ModManager : XNAWindow
 
         if (!Directory.Exists(pack.FilePath))
         {
-            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"The campaign package path {pack. FilePath} does not exist!".L10N("UI:DTAConfig:CampaignPackagePathdoesnotexist"));
+            XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"任务包路径 {pack. FilePath} 不存在!");
             return;
         }
 
@@ -1114,7 +1114,7 @@ public class ModManager : XNAWindow
             {
                 if (missionPack.Mod.Contains(mod.ID))
                 {
-                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"This Mod is used by the campaign pack {missionPack. Name} and cannot be deleted. If you want to delete it, please delete the campaign pack".L10N("UI:DTAConfig:CampaignPackUsedMod"));
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"这个Mod被任务包 {missionPack. Name} 使用, 无法删除, 如要删除请删除任务包");
                     return;
                 }
             }
@@ -1145,7 +1145,7 @@ public class ModManager : XNAWindow
         }
 
         var xNAMessageBox = new XNAMessageBox(WindowManager, "Delete Confirmation".L10N("UI:Main:DeleteConfirmation"),
-            $"Are you sure you want to delete the campaign pack {missionPack. Name}? It includes the following battles: {Environment.NewLine}{m} ".L10N("UI:DTAConfig:CampaignPackDeleteConfirmation"), XNAMessageBoxButtons.YesNo);
+            $"您确定要删除任务包 {missionPack. Name}? 它包含以下任务: {Environment.NewLine}{m} ", XNAMessageBoxButtons.YesNo);
         xNAMessageBox.YesClickedAction += (_) => { DelMissionPack(missionPack); };
         xNAMessageBox.Show();
     }

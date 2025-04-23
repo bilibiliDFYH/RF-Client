@@ -567,7 +567,7 @@ namespace DTAConfig.OptionPanels
             if (mlbWorkshop.SelectedIndex == -1) return;
 
             var c = 筛选后组件[mlbWorkshop.SelectedIndex];
-            var messageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), $"Are you sure you want to remove this component:\n{c.name}".L10N("UI:DTAConfig:RemoveComponentTip"), XNAMessageBoxButtons.YesNo);
+            var messageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), $"您确定要删除此组件?\n{c.name}", XNAMessageBoxButtons.YesNo);
             messageBox.YesClickedAction += (_) =>
             {
 
@@ -580,7 +580,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"Delete failed! reason: {r.Item2}".L10N("UI:DTAConfig:DeletedFailed"));
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"删除失败!原因: {r.Item2}");
                     }
                     获取该用户所有组件();
                 });
@@ -1321,7 +1321,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"Modification failed! reason: {r.Item2}".L10N("UI:DTAConfig:ModificationFailed"));
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"修改失败! 原因: {r.Item2}");
                     }
                     btnLogin.Enabled = true;
                 });
@@ -1531,7 +1531,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), $"Submission failed! reason: {r.Item2}".L10N("UI:DTAConfig:SubmissionFailed"));
+                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), $"提交失败! 原因: {r.Item2}");
                     }
                     提交按钮.Enabled = true;
                     需要更新?.Invoke();
@@ -1589,7 +1589,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), $"Submission failed! reason: {r.Item2}".L10N("UI:DTAConfig:SubmissionFailed"));
+                        XNAMessageBox.Show(windowManager, "Info".L10N("UI:Main:Info"), $"提交失败! 原因: {r.Item2}");
                     }
                     提交按钮.Enabled = true;
 
@@ -1718,7 +1718,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"Delete failed! reason: {r.Item2}".L10N("UI:DTAConfig:DeletedFailed"));
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $删除失败!原因: {r.Item2}");
                     }
                     刷新();
                 });

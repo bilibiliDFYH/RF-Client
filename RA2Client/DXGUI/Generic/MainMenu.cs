@@ -1109,7 +1109,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             catch (Exception ex)
             {
-                Logger.Log("Error".L10N("UI:Main:Error"), $"There was an error deleting the cache folder: {ex.Message}".L10N("UI:Main:DeleteCacheFolderError"));
+                Logger.Log("Error".L10N("UI:Main:Error"), $"删除缓存文件夹出错: {ex.Message}");
             }
             //if (MapLoader.rootMaps.Count != 0)
             //{
@@ -1123,7 +1123,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             if(ProgramConstants.GamePath.Length > 100)
             {
-                XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), $"Your installation path:\n{ProgramConstants.GamePath}\nIt seems to be too long, entering the game may cause pop-ups, if the pop-up window appears multiple times, please replace it with a shorter path and reinstall it".L10N("UI:Main:InstallPathTooLong"));
+                XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), $"您的安装路径:\n{ProgramConstants.GamePath}\n似乎过长, 进入游戏可能会导致弹窗, 若多次出现弹窗请更换为更短的路径重新安装");
             }
         }
 
@@ -1150,7 +1150,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             catch (Exception ex)
             {
-                Logger.Log("Error".L10N("UI:Main:Error"), $"An unknown error occurred. Error message: {ex.Message}".L10N("UI:Main:UnknownErrorOccurred"));
+                Logger.Log("Error".L10N("UI:Main:Error"), $"出现未知错误. 错误信息: {ex.Message}");
             }
         }
 

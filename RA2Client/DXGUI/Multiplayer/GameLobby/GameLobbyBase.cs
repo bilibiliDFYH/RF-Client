@@ -159,7 +159,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected XNAMultiColumnListBox lbGameModeMapList;
         protected XNAClientDropDown ddGameModeMapFilter;
         protected XNALabel lblGameModeSelect;
-        private XNAContextMenu ModMenu; //mod选择器右击菜单
+        private XNAContextMenu ModMenu; //Mod选择器右击菜单
 
         private 生成随机地图窗口 randomMap;
 
@@ -283,12 +283,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             ModMenu.Width = 100;
             ModMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "模组管理器",
+                Text = "ModManager".L10N("UI:Main:ModManager"),
                 SelectAction = ModManagerEnabled
             });
             ModMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "导入Mod",
+                Text = "Import Mod".L10N("UI:Main:ImportMod"),
                 SelectAction = () =>
                 {
                     var infoWindows = new 导入选择窗口(WindowManager);
@@ -329,7 +329,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "打开地图位置",
+                Text = "Open Map Locations".L10N("UI:Main:OpenMapLocations"),
                 SelectAction = 打开地图位置
             });
             toggleFavoriteItem = new XNAContextMenuItem
@@ -347,19 +347,19 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnLoadMaps = new XNAClientButton(WindowManager);
             //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
-            btnLoadMaps.Text = "导入地图";
+            btnLoadMaps.Text = "Import Map".L10N("UI:Main:ImportMap");
             btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 33, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
             btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;
             AddChild(btnLoadMaps);
 
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "刷新地图列表",
+                Text = "Refresh the map list".L10N("UI:Main:RefreshMapList"),
                 SelectAction = 刷新地图列表
             });
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "导入新地图",
+                Text = "Import a new map".L10N("UI:Main:ImportNewMap"),
                 SelectAction = btnLoadMaps.OnLeftClick
             });
             
@@ -367,7 +367,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "删除重复地图",
+                Text = "Delete duplicate maps".L10N("UI:Main:DeleteDuplicateMaps"),
                 SelectAction = 删除重复地图
             });
             AddChild(mapContextMenu);
@@ -407,7 +407,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             lblscreen = new XNALabel(WindowManager);
             lblscreen.Name = nameof(lblscreen);
-            lblscreen.Text = "人数：";
+            lblscreen.Text = "Number:".L10N("UI:Main:Number");
             lblscreen.ClientRectangle = new Rectangle(btnLoadMaps.X, ddGameModeMapFilter.Y, 0, 0);
             AddChild(lblscreen);
 
@@ -431,7 +431,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 Name = nameof(btnDownLoad),
                 IdleTexture = AssetLoader.LoadTexture("133pxtab.png"),
                 HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png"),
-                Text = "下载地图",
+                Text = "Download the map".L10N("UI:Main:DownloadMap"),
                 ClientRectangle = new Rectangle(btnLoadMaps.Right + 10, btnLoadMaps.Y, btnLoadMaps.Width, btnLoadMaps.Height)
             };
             btnDownLoad.LeftClick += BtnDownLoad_LeftClick;
@@ -528,11 +528,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             if (count > 0)
             {
-                XNAMessageBox.Show(WindowManager, "信息", $"成功导入了{count}张地图,复制到了{targetFolder}");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"成功导入了{count}张地图,复制到了{targetFolder}");
                 刷新地图列表();
             }
             else
-                XNAMessageBox.Show(WindowManager, "信息", "没有找到符合条件的地图或已在地图库中:\nmap,yrm,mpr格式的多人地图.");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "No eligible maps found or multiplayer maps in Map Gallery:\nmap, yrm, mpr format.".L10N("UI:Main:NoEligibleMap"));
         }
 
         private void 打开地图位置()
@@ -549,7 +549,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 RenderImage.CancelRendering();
 
-                var box = new XNAMessageBox(WindowManager, "确认删除", $"检测到以下重复的地图，是否删除？\n{string.Join('\n', [.. duplicateFiles])}", XNAMessageBoxButtons.YesNo);
+                var box = new XNAMessageBox(WindowManager, "Delete confirmation".L10N("UI:Main:DeleteConfirmationTitle"), $"检测到以下重复的地图,是否删除?\n{string.Join('\n', [.. duplicateFiles])}", XNAMessageBoxButtons.YesNo);
 
                 box.YesClickedAction += (_) =>
                 {
@@ -560,7 +560,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     }
                     catch(Exception ex)
                     {
-                        XNAMessageBox.Show(WindowManager, "错误", $"删除文件遇到错误\n{ex}");
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"删除文件遇到错误\n{ex}");
                     }
 
                 };
@@ -569,7 +569,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             else
             {
-                XNAMessageBox.Show(WindowManager,"信息", "没有找到重复的地图");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "No duplicate maps found".L10N("UI:Main:NotFoundDuplicateMaps"));
             }
         }
 
@@ -1013,7 +1013,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (GameModeMap != null)
             {
                 if (ddGameModeMapFilter.SelectedIndex == 0)
-                    ddGameModeMapFilter.SetToolTipText("收藏的地图");
+                    ddGameModeMapFilter.SetToolTipText("Favorite Maps".L10N("UI:Main:FavoriteMaps"));
                 else
                     ddGameModeMapFilter.SetToolTipText(GameModeMaps.GameModes[ddGameModeMapFilter.SelectedIndex - 1].modeText.L10N("UI:ModeText:" + GameModeMap.GameMode.Name));
             }
@@ -1158,10 +1158,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
             }
 
-            //    foreach (XNAListBoxItem[] mapInfoArray in maplist)
-            //    {
-            //       lbGameModeMapList.AddItem(mapInfoArray);
-            //  }
+            // foreach (XNAListBoxItem[] mapInfoArray in maplist)
+            // {
+            //    lbGameModeMapList.AddItem(mapInfoArray);
+            // }
 
             if (mapIndex > -1)
             {

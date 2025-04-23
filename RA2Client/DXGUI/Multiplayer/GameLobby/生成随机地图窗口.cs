@@ -29,7 +29,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private XNALabel lblPeople; //人数
         private XNAClientDropDown ddPeople;
 
-        private XNAClientCheckBox cbDamage;//建筑物损伤
+        private XNAClientCheckBox cbDamage; //建筑物损伤
 
         private XNALabel lblSize;
         private XNAClientDropDown ddSize;
@@ -278,7 +278,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 btnGenerate.Enabled = false;
                 btnSave.Enabled = false;
                 btnCancel.Enabled = false;
-             //   lblStatus.ClientRectangle = new Rectangle(100, 420, 300, 20);
+                // lblStatus.ClientRectangle = new Rectangle(100, 420, 300, 20);
                 string[] TextList = { "Is dispersing civilians.".L10N("UI:Main:GenText1"), "Ore being mined".L10N("UI:Main:GenText2"), "The base construction vehicles are being loaded".L10N("UI:Main:GenText3"), "Ammunition being examined".L10N("UI:Main:GenText4"), "Bobosa is being distributed for mobilization".L10N("UI:Main:GenText5"), "Getting the Phantom tank familiar with the environment".L10N("UI:Main:GenText6"), "The police dogs are being calmed".L10N("UI:Main:GenText7"), "Catching dolphins".L10N("UI:Main:GenText8"), "Bargaining with the logistics".L10N("UI:Main:GenText9"), "The transport plane is being refuelled".L10N("UI:Main:GenText10"), "We're sinking the submarine".L10N("UI:Main:GenText11"), "The building is being painted".L10N("UI:Main:GenText12") };
 
                 while (!Stop)

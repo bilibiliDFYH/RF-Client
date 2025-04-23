@@ -1,4 +1,5 @@
 ﻿using ClientGUI;
+using Localization;
 using Microsoft.Xna.Framework;
 using Ra2Client.Domain.Multiplayer;
 using Rampastring.XNAUI;
@@ -31,7 +32,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             var 添加至 = new XNALabel(windowManager)
             {
-                Text = "添加至: ",
+                Text = "Add to:".L10N("UI:Main:AddTo"),
                 ClientRectangle = new Rectangle(lblMapName.X, lblMapName.Bottom + 30, 0, 0)
             };
 
@@ -43,7 +44,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             var 新增模式 = new XNAButton(windowManager)
             {
-                Text = "新增",
+                Text = "Add".L10N("UI:Main:Add"),
                 ClientRectangle = new Rectangle(游戏模式选项框.Right + 10, 添加至.Y, 75, 23),
                 IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
                 HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png"),
@@ -54,7 +55,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             var 确定 = new XNAButton(windowManager)
             {
-                Text = "确定",
+                Text = "Yes".L10N("UI:Main:ButtonCancel"),
                 ClientRectangle = new Rectangle(添加至.X, 游戏模式选项框.Bottom + 5, 75, 23),
                 IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
                 HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png"),
@@ -64,7 +65,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             确定.LeftClick += (_, _) => {
                 if (map.GameModes.Contains(游戏模式选项框.SelectedItem.Text))
                 {
-                    XNAMessageBox.Show(WindowManager, "信息", "该地图已经在该游戏模式中了!");
+                    XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "The map is already in this game mode!".L10N("UI:Main:MapInGameMode"));
                     return;
                 }
 
@@ -85,7 +86,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 // mapLoader.GameModes.Find(gm => gm.Name == 游戏模式选项框.SelectedItem.Text).Maps = [.. maps, map];
 
-                XNAMessageBox.Show(WindowManager, "信息", "移动成功!");
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "Move success!".L10N("UI:Main:MoveSuccess"));
                 Disable();
                 return;
             };
@@ -93,7 +94,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             var 取消 = new XNAButton(windowManager)
             {
-                Text = "取消",
+                Text = "Cancel".L10N("UI:Main:ButtonCancel"),
                 ClientRectangle = new Rectangle(新增模式.X, 确定.Y, 75, 23),
                 IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
                 HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png"),

@@ -1718,7 +1718,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $删除失败!原因: {r.Item2}");
+                        XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), $"删除失败!原因: {r.Item2}");
                     }
                     刷新();
                 });

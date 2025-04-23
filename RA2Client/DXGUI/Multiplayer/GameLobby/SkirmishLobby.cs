@@ -138,7 +138,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (Map.MaxPlayers < 1)
             {
-                return "这张地图疑似有问题,客户端认为没有玩家出生点.";
+                return "There is a suspected problem with this map, and the client does not think there is a player spawn point.".L10N("UI:Main:MapError");
             }
 
             if (totalPlayerCount < Map.MinPlayers)
@@ -206,7 +206,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (string.IsNullOrEmpty(error))
             {
                 SaveSettings();
-               // FileHelper.ReNameCustomFile();
+                // FileHelper.ReNameCustomFile();
                 StartGame();
                 return;
             }

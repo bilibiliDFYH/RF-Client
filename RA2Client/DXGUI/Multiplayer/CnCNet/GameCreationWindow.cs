@@ -138,7 +138,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lblTunnelServer.Name = nameof(lblTunnelServer);
             lblTunnelServer.ClientRectangle = new Rectangle(UIDesignConstants.EMPTY_SPACE_SIDES +
                 UIDesignConstants.CONTROL_HORIZONTAL_MARGIN, lblPassword.Bottom + UIDesignConstants.CONTROL_VERTICAL_MARGIN * 4, 0, 0);
-            lblTunnelServer.Text = "服务器列表:";
+            lblTunnelServer.Text = "Tunnel Server:".L10N("UI:Main:TunnelServer");
             lblTunnelServer.Enabled = false;
             lblTunnelServer.Visible = false;
 
@@ -314,8 +314,8 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         private int GetMinms()
         {
             int pingMin = 100000; //最低延迟  
-                                  //  int people;  //平均人数
-            int index = 0; //最适合索引
+            // int people;        //平均人数
+            int index = 0;        //最适合索引
 
             for (int i = 0; i < lbTunnelList.ItemCount; i++)
             {

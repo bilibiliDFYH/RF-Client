@@ -823,37 +823,37 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             return GetJoinGameErrorBase();
         }
 
-        private bool CheckGameCompatible(string strHgVer, string strLocVer)
-        {
-            if (string.IsNullOrEmpty(strHgVer) || string.IsNullOrEmpty(strLocVer))
-                return false;
-            Version v1 = Version.Parse(strHgVer);
-            Version v2 = Version.Parse(strLocVer);
-            //主要和次要完全一致则直接兼容 这么写是为了下面单独处理1.4.x的版本(不能兼容1.4.x的所有版本)
-            if(v1.Major == v2.Major && v1.Minor == v2.Minor)
-                return true;
-            else
-            {
-                if (v1.Major == v2.Major)
-                {
-                    //子版本只能不差或差1
-                    if (Math.Abs(v1.Minor - v2.Minor) < 2)
-                    {
-                        //针对双方出现的1.4.19 ~ 21之间的版本单独兼容，其他版本直接兼容
-                        if (v2.Minor== 4 || v1.Minor == 4)
-                        {
-                            if (Math.Abs(v1.Build - 20) < 2 || (Math.Abs(v2.Build - 20) < 2))
-                                return true;
-                            else
-                                return false;
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-                return false;
-            }
-        }
+        //private bool CheckGameCompatible(string strHgVer, string strLocVer)
+        //{
+        //    if (string.IsNullOrEmpty(strHgVer) || string.IsNullOrEmpty(strLocVer))
+        //        return false;
+        //    Version v1 = Version.Parse(strHgVer);
+        //    Version v2 = Version.Parse(strLocVer);
+        //    //主要和次要完全一致则直接兼容 这么写是为了下面单独处理1.4.x的版本(不能兼容1.4.x的所有版本)
+        //    if(v1.Major == v2.Major && v1.Minor == v2.Minor)
+        //        return true;
+        //    else
+        //    {
+        //        if (v1.Major == v2.Major)
+        //        {
+        //            //子版本只能不差或差1
+        //            if (Math.Abs(v1.Minor - v2.Minor) < 2)
+        //            {
+        //                //针对双方出现的1.4.19 ~ 21之间的版本单独兼容，其他版本直接兼容
+        //                if (v2.Minor== 4 || v1.Minor == 4)
+        //                {
+        //                    if (Math.Abs(v1.Build - 20) < 2 || (Math.Abs(v2.Build - 20) < 2))
+        //                        return true;
+        //                    else
+        //                        return false;
+        //                }
+        //                return true;
+        //            }
+        //            return false;
+        //        }
+        //        return false;
+        //    }
+        //}
 
         private void JoinSelectedGame()
         {

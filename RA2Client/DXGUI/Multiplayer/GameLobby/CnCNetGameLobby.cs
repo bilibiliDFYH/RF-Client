@@ -93,7 +93,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 new StringCommandHandler("FHSH", FileHashNotification),
                 new StringCommandHandler("MM", CheaterNotification),
                 new StringCommandHandler(DICE_ROLL_MESSAGE, HandleDiceRollResult),
-            //    new NoParamCommandHandler(CHEAT_DETECTED_MESSAGE, HandleCheatDetectedMessage),
+                // new NoParamCommandHandler(CHEAT_DETECTED_MESSAGE, HandleCheatDetectedMessage),
                 new StringCommandHandler(CHANGE_TUNNEL_SERVER_MESSAGE, HandleTunnelServerChangeMessage),
 
                  
@@ -177,7 +177,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (map == null || 请求传输地图确认框 != null) return;
 
-            请求传输地图确认框 = new XNAMessageBox(WindowManager, "请求传输地图", $"{name} 请求传输地图: {map.Name}", XNAMessageBoxButtons.YesNo);
+            请求传输地图确认框 = new XNAMessageBox(WindowManager, "Request a map transfer".L10N("UI:Main:RequestMapTransfer"), $"{name} 请求传输地图: {map.Name}", XNAMessageBoxButtons.YesNo);
             请求传输地图确认框.YesClickedAction += (_) =>
             {
                 using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
@@ -282,10 +282,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             btnChangeTunnel.Text = "Change Tunnel".L10N("UI:Main:ChangeTunnel");
 
             //暂时修改测试
-              btnChangeTunnel.LeftClick += BtnChangeTunnel_LeftClick;
+            btnChangeTunnel.LeftClick += BtnChangeTunnel_LeftClick;
             //btnChangeTunnel.LeftClick += MapSharingConfirmationPanel_MapDownloadConfirmed;
-             btnClosePass = new XNAClientButton(WindowManager);
-            btnClosePass.Text = "解除密码";
+            btnClosePass = new XNAClientButton(WindowManager);
+            btnClosePass.Text = "Remove the password".L10N("UI:Main:RemovePassword");
             btnClosePass.ClientRectangle = new Rectangle(btnChangeTunnel.X - 150, btnChangeTunnel.Y, btnChangeTunnel.Width, btnChangeTunnel.Height);
             btnClosePass.LeftClick += BtnClosePass_LeftClick;
             btnClosePass.Visible = false;
@@ -333,7 +333,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             Console.WriteLine(password);
             hg.Password = password;
             btnClosePass.Visible = false;
-            AddNotice("房主已解除房间密码");
+            AddNotice("The host has decoded the room".L10N("UI:Main:HostRemovePassword"));
         }
 
         private void MultiplayerName_RightClick(object sender, MultiplayerNameRightClickedEventArgs args)
@@ -1270,7 +1270,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 if (!success)
                 {
-                    AddNotice(("Failed to parse check 请求传输地图确认框 options sent by game host!" +
+                    AddNotice(("Failed to parse check box options sent by game host!" +
                         "The game host's game version might be different from yours.").L10N("UI:Main:HostCheckBoxParseError"), Color.Red);
                     return;
                 }

@@ -1964,11 +1964,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             var mod = (Mod)cmbGame.SelectedItem.Tag;
             string newGame = mod.FilePath;
-            
 
-           // string newExtension = string.Empty;
 
-            string newMission = Map.Mission;
+            // string newExtension = string.Empty;
+
+            string newMission = Map?.Mission ?? string.Empty;
 
             if (Map.IsCoop)
             {

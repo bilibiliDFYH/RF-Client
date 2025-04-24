@@ -440,8 +440,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (player == null || Map == null || GameMode == null)
                 return;
             string side = "";
-            if (ddPlayerSides.Length > Players.IndexOf(player))
-                side = ddPlayerSides[Players.IndexOf(player)].SelectedItem.Text;
+            int playerIndex = Players.IndexOf(player);
+            if (ddPlayerSides != null && playerIndex != -1 && playerIndex < ddPlayerSides.Length && ddPlayerSides[playerIndex]?.SelectedItem != null)
+            {
+                side = ddPlayerSides[playerIndex].SelectedItem.Text;
+            }
             string currentState = ProgramConstants.IsInGame ? "In Game" : "In Lobby"; // not UI strings
 
             discordHandler.UpdatePresence(
@@ -663,12 +666,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             base.GameProcessExited();
 
-            if (client != null && client.Connected)
+            if (!IsHost)
             {
-                SendMessageToHost(PLAYER_QUIT_COMMAND);
+                if (client != null && client.Connected)
+                    SendMessageToHost(RETURN_COMMAND);
             }
-
-            if (IsHost)
+            else
             {
                 RandomSeed = new Random().Next();
                 OnGameOptionChanged();

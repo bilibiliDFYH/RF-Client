@@ -125,7 +125,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var label = new XNALabel(WindowManager)
             {
-                ClientRectangle = new Rectangle(20, 10, 0, 0),
+                ClientRectangle = new Rectangle(10, 10, 0, 0),
                 Text = "Which mod's map editor would you like to use?".L10N("UI:Main:SelectMapEditor")
             };
 
@@ -133,7 +133,7 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
             var ddMod = new XNAClientDropDown(WindowManager)
             {
-                ClientRectangle = new Rectangle(20, 50, 200, 25),
+                ClientRectangle = new Rectangle(25, 50, 200, 25),
                 Name = "ddMod",
             };
 
@@ -143,7 +143,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(50, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(40, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
                 Text = "Yes".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>

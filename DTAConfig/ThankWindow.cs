@@ -34,7 +34,7 @@ namespace DTAConfig
             lblCheater.Name = "lblCheater";
             lblCheater.ClientRectangle = new Rectangle(0, 0, 0, 0);
             lblCheater.FontIndex = 1;
-            lblCheater.Text = "鸣谢列表".L10N("UI:DTAConfig:ButtonThanks");
+            lblCheater.Text = "Thanks".L10N("UI:DTAConfig:ButtonThanks");
 
             lblThankList = new XNAListBox(WindowManager);
             lblThankList.Name = nameof(lblThankList);
@@ -46,7 +46,7 @@ namespace DTAConfig
             btnYes.Name = "btnYes";
             btnYes.ClientRectangle = new Rectangle((Width - UIDesignConstants.BUTTON_WIDTH_92) / 2,
                 Height - 35, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT);
-            btnYes.Text = "是".L10N("UI:Main:Yes");
+            btnYes.Text = "Yes".L10N("UI:Main:Yes");
             btnYes.LeftClick += BtnYes_LeftClick;
 
             AddChild(lblThankList);

@@ -31,7 +31,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         public static CnCNetTunnel Parse(string str)
         {
             // For the format, check http://cncnet.org/master-list
-
             try
             {
                 var tunnel = new CnCNetTunnel();
@@ -110,28 +109,27 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         /// Gets a list of player ports to use from a specific tunnel server.
         /// </summary>
         /// <returns>A list of player ports to use.</returns>
-        public List<int> GetPlayerPortInfo(int playerCount)
+        public async Task<List<int>> GetPlayerPortInfoAsync(int playerCount)
         {
             try
             {
                 Logger.Log($"Contacting tunnel at {Address}:{Port}");
-
                 string addressString = $"http://{Address}:{Port}/request?clients={playerCount}";
                 Logger.Log($"Downloading from {addressString}");
 
                 using (var client = new HttpClient { Timeout = TimeSpan.FromMilliseconds(REQUEST_TIMEOUT) })
                 {
-                    string data = client.GetStringAsync(new Uri(addressString)).Result;
-
+                    string data = await client.GetStringAsync(new Uri(addressString));
                     data = data.Replace("[", String.Empty);
                     data = data.Replace("]", String.Empty);
 
                     string[] portIDs = data.Split(',');
-                    List<int> playerPorts = new List<int>();
 
+                    var playerPorts = new List<int>();
                     foreach (string _port in portIDs)
                     {
-                        playerPorts.Add(Convert.ToInt32(_port));
+                        int port = Convert.ToInt32(_port);
+                        playerPorts.Add(port);
                         Logger.Log($"Added port {_port}");
                     }
 

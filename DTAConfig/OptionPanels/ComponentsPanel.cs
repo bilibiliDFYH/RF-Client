@@ -465,6 +465,7 @@ namespace DTAConfig.OptionPanels
                 //比对hash，如果远程未设置则不对比
                 if (!string.IsNullOrEmpty(_curComponent.hash))
                 {
+                    //获取文件hash并比对
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {

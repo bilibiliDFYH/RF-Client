@@ -123,7 +123,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
             for (int i = 0; i < Tunnels.Count; i++)
             {
-                //    if (Tunnels[i].Official || Tunnels[i].Recommended)
+                // if (Tunnels[i].Official || Tunnels[i].Recommended)
                 pingTasks[i] = PingListTunnelAsync(i);
             }
 

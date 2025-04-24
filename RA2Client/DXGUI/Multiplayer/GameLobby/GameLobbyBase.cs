@@ -346,7 +346,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //AddChild(mapContextMenu);
 
             btnLoadMaps = new XNAClientButton(WindowManager);
-            //   btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
+            // btnLoadMaps = FindChild<XNAClientButton>(nameof(btnLoadMaps));
             btnLoadMaps.Text = "Import Map".L10N("UI:Main:ImportMap");
             btnLoadMaps.ClientRectangle = new Rectangle(btnLaunchGame.X, lbGameModeMapList.Y - 33, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT);
             btnLoadMaps.LeftClick += BtnLoadMaps_LeftClick; ;

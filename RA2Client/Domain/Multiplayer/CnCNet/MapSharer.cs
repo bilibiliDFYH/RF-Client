@@ -8,7 +8,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using ClientCore;
 using Rampastring.Tools;
@@ -21,15 +20,10 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
     public static class MapSharer
     {
         public static event EventHandler<MapEventArgs> MapUploadFailed;
-
         public static event EventHandler<MapEventArgs> MapUploadComplete;
-
         public static event EventHandler<MapEventArgs> MapUploadStarted;
-
         public static event EventHandler<SHA1EventArgs> MapDownloadFailed;
-
         public static event EventHandler<SHA1EventArgs> MapDownloadComplete;
-
         public static event EventHandler<SHA1EventArgs> MapDownloadStarted;
 
         private volatile static List<string> MapDownloadQueue = new List<string>();
@@ -59,29 +53,17 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
 
                 if (MapUploadQueue.Count == 1)
                 {
-                    ParameterizedThreadStart pts = new ParameterizedThreadStart(Upload);
-                    Thread thread = new Thread(pts);
-                    object[] mapAndGame = new object[2];
-                    mapAndGame[0] = map;
-                    mapAndGame[1] = myGame.ToLower();
-                    thread.Start(mapAndGame);
+                    _ = Task.Run(() => UploadAsync(map, myGame.ToLower()));
                 }
             }
         }
 
-        private static void Upload(object mapAndGame)
+        private static async Task UploadAsync(Map map, string myGameId)
         {
-            object[] mapGameArray = (object[])mapAndGame;
-
-            Map map = (Map)mapGameArray[0];
-            string myGameId = (string)mapGameArray[1];
-
             MapUploadStarted?.Invoke(null, new MapEventArgs(map));
-
             Logger.Log("MapSharer: Starting upload of " + map.BaseFilePath);
 
-            var (message, success) = MapUpload(MAPDB_URL, map, myGameId).Result;
-
+            var (message, success) = await MapUpload(MAPDB_URL, map, myGameId);
             if (success)
             {
                 MapUploadComplete?.Invoke(null, new MapEventArgs(map));
@@ -91,34 +73,25 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     UploadedMaps.Add(map.SHA1);
                 }
 
-                Logger.Log("MapSharer: Uploading map " + map.BaseFilePath + " completed succesfully.");
+                Logger.Log("MapSharer: Uploading map " + map.BaseFilePath + " completed successfully.");
             }
             else
             {
                 MapUploadFailed?.Invoke(null, new MapEventArgs(map));
-
                 Logger.Log("MapSharer: Uploading map " + map.BaseFilePath + " failed! Returned message: " + message);
             }
 
             lock (locker)
             {
                 MapUploadQueue.Remove(map);
-
                 if (MapUploadQueue.Count > 0)
                 {
                     Map nextMap = MapUploadQueue[0];
-
-                    object[] array = new object[2];
-                    array[0] = nextMap;
-                    array[1] = myGameId;
-
                     Logger.Log("MapSharer: There are additional maps in the queue.");
-
-                    Upload(array);
+                    _ = Task.Run(() => UploadAsync(nextMap, myGameId));
                 }
             }
         }
-
 
         private static async Task<(string, bool)> MapUpload(string _URL, Map map, string gameName)
         {
@@ -157,9 +130,9 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     files.Add(file);
 
                     NameValueCollection values = new NameValueCollection
-            {
-                { "game", gameName.ToLower() },
-            };
+                    {
+                        { "game", gameName.ToLower() },
+                    };
 
                     byte[] responseArray = await UploadFiles(_URL, files, values);
                     string response = Encoding.UTF8.GetString(responseArray);
@@ -170,7 +143,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     }
                     Logger.Log("MapSharer: Upload response: " + response);
 
-                    return (String.Empty, true);
+                    return (string.Empty, true);
                 }
             }
             catch (Exception ex)
@@ -179,29 +152,26 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             }
         }
 
-
         private static async Task<byte[]> UploadFiles(string address, List<FileToUpload> files, NameValueCollection values)
         {
             using (var client = new HttpClient())
+            using (var content = new MultipartFormDataContent())
             {
-                using (var content = new MultipartFormDataContent())
+                foreach (string name in values.Keys)
                 {
-                    foreach (string name in values.Keys)
-                    {
-                        content.Add(new StringContent(values[name]), name);
-                    }
-
-                    foreach (FileToUpload file in files)
-                    {
-                        var fileContent = new StreamContent(file.Stream);
-                        fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-                        content.Add(fileContent, file.Name, file.Filename);
-                    }
-
-                    var response = await client.PostAsync(address, content);
-                    response.EnsureSuccessStatusCode();
-                    return await response.Content.ReadAsByteArrayAsync();
+                    content.Add(new StringContent(values[name]), name);
                 }
+
+                foreach (FileToUpload file in files)
+                {
+                    var fileContent = new StreamContent(file.Stream);
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    content.Add(fileContent, file.Name, file.Filename);
+                }
+
+                var response = await client.PostAsync(address, content);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsByteArrayAsync();
             }
         }
 
@@ -229,7 +199,6 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             // here, we extract every entry, but we could extract conditionally
             // based on entry name, size, date, checkbox status, etc.  
             zipArchive.ExtractToDirectory(destDir);
-
             return zipArchive.Entries.FirstOrDefault()?.Name;
         }
 
@@ -252,20 +221,13 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                     details[1] = myGame.ToLower();
                     details[2] = mapName;
 
-                    ParameterizedThreadStart pts = new ParameterizedThreadStart(Download);
-                    Thread thread = new Thread(pts);
-                    thread.Start(details);
+                    Task.Run(() => DownloadAsync(sha1, myGame.ToLower(), mapName));
                 }
             }
         }
 
-        private static void Download(object details)
+        private static async Task DownloadAsync(string sha1, string myGameId, string mapName)
         {
-            object[] sha1AndGame = (object[])details;
-            string sha1 = (string)sha1AndGame[0];
-            string myGameId = (string)sha1AndGame[1];
-            string mapName = (string)sha1AndGame[2];
-
             Logger.Log("MapSharer: Preparing to download map " + sha1 + " with name: " + mapName);
 
             try
@@ -278,18 +240,18 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 Logger.Log("MapSharer: ERROR " + ex.Message);
             }
 
-            var (mapPath, downloadSuccess) = DownloadMain(sha1, myGameId, mapName).Result;
+            var (mapPath, downloadSuccess) = await DownloadMain(sha1, myGameId, mapName);
 
             lock (locker)
             {
                 if (downloadSuccess)
                 {
-                    Logger.Log("MapSharer: Download_Notice of map " + sha1 + " completed succesfully.");
+                    Logger.Log("MapSharer: Download_Notice of map " + sha1 + " completed successfully.");
                     MapDownloadComplete?.Invoke(null, new SHA1EventArgs(sha1, mapName));
                 }
                 else
                 {
-                    Logger.Log("MapSharer: Download_Notice of map " + sha1 + "failed! Reason: " + mapPath);
+                    Logger.Log("MapSharer: Download_Notice of map " + sha1 + " failed! Reason: " + mapPath);
                     MapDownloadFailed?.Invoke(null, new SHA1EventArgs(sha1, mapName));
                 }
 
@@ -298,18 +260,12 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
                 if (MapDownloadQueue.Count > 0)
                 {
                     Logger.Log("MapSharer: Continuing custom map downloads.");
-
-                    object[] array = new object[3];
-                    array[0] = MapDownloadQueue[0];
-                    array[1] = myGameId;
-                    array[2] = mapName;
-
-                    Download(array);
+                    string nextSha1 = MapDownloadQueue[0];
+                    // 这里简单将 mapName 和 myGameId 传递给下一个下载任务，根据业务需求可自行调整
+                    Task.Run(() => DownloadAsync(nextSha1, myGameId, mapName));
                 }
             }
         }
-
-
 
         public static string GetMapFileName(string sha1, string mapName)
             => mapName + "_" + sha1;
@@ -317,9 +273,7 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
         private static async Task<(string, bool)> DownloadMain(string sha1, string myGame, string mapName)
         {
             string customMapsDirectory = SafePath.CombineDirectoryPath(ProgramConstants.GamePath, "Maps", "Custom");
-
             string mapFileName = GetMapFileName(sha1, mapName);
-
             FileInfo destinationFile = SafePath.GetFile(customMapsDirectory, FormattableString.Invariant($"{mapFileName}.zip"));
 
             // This string is up here so we can check that there isn't already a .map file for this download.
@@ -362,20 +316,14 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             // We can safely assume that there will not be a duplicate file due to deleting it
             // earlier if one already existed.
             File.Move(SafePath.CombineFilePath(customMapsDirectory, extractedFile), newFile.FullName);
-
             destinationFile.Delete();
 
             return (extractedFile, true);
         }
 
-
         class FileToUpload
         {
-            public FileToUpload()
-            {
-                ContentType = "application/octet-stream";
-            }
-
+            public FileToUpload() => ContentType = "application/octet-stream";
             public string Name { get; set; }
             public string Filename { get; set; }
             public string ContentType { get; set; }

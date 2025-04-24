@@ -162,54 +162,75 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         }
 
 
-        private XNAMessageBox 请求传输地图确认框;
+        private Dictionary<string, XNAMessageBox> pendingMapTransferDialogs = new Dictionary<string, XNAMessageBox>();
 
         private void HandleMapDownloadNotice(object sender, EventArgs e)
         {
-          
-            var name = sender as string;
+            string requester = sender as string;
+            if (requester == null)
+                return;
 
-           var map =  GameModeMap.Map;
+            var map = GameModeMap?.Map;
+            if (map == null)
+                return;
 
-             var path = $"{ProgramConstants.GamePath}{map.BaseFilePath}";
+            // 如果该请求已存在，则忽略重复请求
+            if (pendingMapTransferDialogs.ContainsKey(requester))
+                return;
 
-            //var path = "E:\\Documents\\My_File\\Reunion-Developer\\Bin\\Maps\\Multi\\MadHQ\\2+1=3.map";
+            var path = $"{ProgramConstants.GamePath}{map.BaseFilePath}";
 
-            if (map == null || 请求传输地图确认框 != null) return;
+            var messageBox = new XNAMessageBox(
+                WindowManager,
+                "Request a map transfer".L10N("UI:Main:RequestMapTransfer"),
+                $"{requester} 请求传输地图: {map.Name}",
+                XNAMessageBoxButtons.YesNo
+            );
 
-            请求传输地图确认框 = new XNAMessageBox(WindowManager, "Request a map transfer".L10N("UI:Main:RequestMapTransfer"), $"{name} 请求传输地图: {map.Name}", XNAMessageBoxButtons.YesNo);
-            请求传输地图确认框.YesClickedAction += (_) =>
+            messageBox.YesClickedAction += (_) =>
             {
-                using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                var fileContent = new StreamContent(fileStream);
-                var fileNameContent = new StringContent(Path.GetFileName(path), encoding: null);
+                try
+                {
+                    using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    var fileContent = new StreamContent(fileStream);
+                    var fileNameContent = new StringContent(Path.GetFileName(path));
 
-                var customMapDto = new MultipartFormDataContent
+                    var customMapDto = new MultipartFormDataContent
                     {
                         { fileNameContent, "name" },
                         { fileContent, "file", Path.GetFileName(path) }
                     };
 
-                var task = Task.Run(async () =>
-                {
-                    var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
-                    //if(result == "新增成功")
-                    //{
-                        string messageBody = ProgramConstants.MAP_DOWNLOAD + " " + $"{Path.GetFileName(path)};{result.Item1}";
+                    var task = Task.Run(async () =>
+                    {
+                        var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
+                        string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1}";
                         connectionManager.SendCustomMessage(new QueuedMessage(
-                            "PRIVMSG " + name + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+                            "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
                         ));
-                 //   }
-                });
+                    });
 
-                task.Wait();
-
+                    task.Wait();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                finally
+                {
+                    pendingMapTransferDialogs.Remove(requester);
+                    messageBox.Dispose();
+                }
             };
-            请求传输地图确认框.NoClickedAction += (_) => { Dispose(); };
 
-            请求传输地图确认框.Show();
+            messageBox.NoClickedAction += (_) =>
+            {
+                pendingMapTransferDialogs.Remove(requester);
+                messageBox.Dispose();
+            };
 
-
+            messageBox.Show();
+            pendingMapTransferDialogs.Add(requester, messageBox);
         }
 
 

@@ -229,8 +229,8 @@ namespace DTAConfig.OptionPanels
                 return;
             }
          
-         //   if (0 < comboBoxtypes.SelectedIndex)
-          //  {
+            // if (0 < comboBoxtypes.SelectedIndex)
+            // {
                 CompList.ClearItems();
                 
                 _components = All_components
@@ -238,7 +238,7 @@ namespace DTAConfig.OptionPanels
                 .FindAll(p => p.name.Contains(textBoxSearch.Text.TrimEnd()))
                 ;
               
-          //  }
+            // }
             InitialComponetsList(_components);
             CompList_SelectedChanged(null, null);
             CompList.TopIndex = -1;
@@ -317,9 +317,9 @@ namespace DTAConfig.OptionPanels
                 {
                     state = new StateItem { Code = 1, Text = "Installed".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
                     if (CheckVersionNew(locSec.Keys["version"], comp.version))
-                    {
-                        state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
-                    }
+                {
+                    state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
+                }
                     break;
                 }
             }
@@ -523,15 +523,17 @@ namespace DTAConfig.OptionPanels
         private void WriteConponentConfig(List<string> files)
         {
             //写本地ini配置，确保可以加载
-            _locIniData.Sections.AddSection(_curComponent.hash);
-            _locIniData[_curComponent.hash].AddKey("name", _curComponent.name);
-            _locIniData[_curComponent.hash].AddKey("version", _curComponent.version);
+            string sectionName = _curComponent.id.ToString(); // 使用ID作为主键
+            _locIniData.Sections.AddSection(sectionName);
+            _locIniData[sectionName].AddKey("name", _curComponent.name);
+            _locIniData[sectionName].AddKey("version", _curComponent.version);
+            _locIniData[sectionName].AddKey("hash", _curComponent.hash);
             StringBuilder sBuff = new StringBuilder();
             foreach (string strfile in files)
             {
                 sBuff.AppendFormat("{0},", strfile);
             }
-            _locIniData[_curComponent.hash].AddKey("Unload", sBuff.ToString().TrimEnd(','));
+            _locIniData[_curComponent.id.ToString()].AddKey("Unload", sBuff.ToString().TrimEnd(','));
             iniParser.WriteFile(componentnamePath, _locIniData);
         }
 
@@ -587,7 +589,7 @@ namespace DTAConfig.OptionPanels
             if (null == _curComponent)
                 return;
             
-                var secData = _locIniData.Sections[_curComponent.hash];
+                var secData = _locIniData.Sections[_curComponent.id.ToString()];
                 string strUnload = secData["Unload"].ToString();
                 string[] lstDelfiles = strUnload.Split(',');
                 
@@ -605,12 +607,12 @@ namespace DTAConfig.OptionPanels
                     string pngFilePath = Path.ChangeExtension(filePath, ".png");
                     if (File.Exists(pngFilePath)) File.Delete(pngFilePath);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     continue;
                 }
 
-                _locIniData.Sections.RemoveSection(_curComponent.hash);
+                _locIniData.Sections.RemoveSection(_curComponent.id.ToString());
                 iniParser.WriteFile(componentnamePath, _locIniData);
                 需要刷新 = true;
                 WindowManager.Report();

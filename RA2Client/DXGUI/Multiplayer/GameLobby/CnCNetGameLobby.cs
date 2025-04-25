@@ -112,7 +112,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChatBoxCommand(new ChatBoxCommand("TUNNELINFO",
                 "View tunnel server information".L10N("UI:Main:TunnelInfo"), false, PrintTunnelServerInformation));
             AddChatBoxCommand(new ChatBoxCommand("GAMENAME",
-                "Change a game's name (game host only).\nExample: \"/gamename 2v2 3v3\"".L10N("Client:Main:ChangeGameNameCommand"), true, s => ChangeGameName(s)));
+                "Change a game's name (game host only).\nExample: \"/gamename 2v2 3v3\"".L10N("UI:Main:ChangeGameNameCommand"), true, s => ChangeGameName(s)));
             AddChatBoxCommand(new ChatBoxCommand("CHANGETUNNEL",
                 "Change the used CnCNet tunnel server (game host only)".L10N("UI:Main:ChangeTunnel"),
                 true, (s) => ShowTunnelSelectionWindow("Select tunnel server:".L10N("UI:Main:SelectTunnelServer"))));
@@ -1789,7 +1789,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void HandleGameNameChangeMessage(string sender, string newGameName)
         {
-            AddNotice(String.Format("The game host has changed the game name to {0}".L10N("Client:Main:HostGameNameChanged"), newGameName));
+            AddNotice(String.Format("The game host has changed the game name to {0}".L10N("UI:Main:HostGameNameChanged"), newGameName));
             channel.UIName = newGameName;
         }
 
@@ -2130,7 +2130,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (!string.IsNullOrEmpty(gameNameValid))
             {
-                XNAMessageBox.Show(WindowManager, "Invalid game name".L10N("Client:Main:GameNameInvalid"),
+                XNAMessageBox.Show(WindowManager, "Invalid game name".L10N("UI:Main:GameNameInvalid"),
                     gameNameValid);
                 return;
             }
@@ -2144,7 +2144,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             channel.SendCTCPMessage(GAME_NAME_CHANGED + " " + gameName, QueuedMessageType.SYSTEM_MESSAGE, priority: 9);
 
             // inform ourself
-            AddNotice(String.Format("Game name changed to {0}.".L10N("Client:Main:GameNameChanged"), gameName));
+            AddNotice(String.Format("Game name changed to {0}.".L10N("UI:Main:GameNameChanged"), gameName));
         }
 
         /// <summary>

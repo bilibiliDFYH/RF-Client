@@ -162,7 +162,6 @@ namespace DTAConfig.OptionPanels
         private void ForceUpdateMsgBox_YesClicked(XNAMessageBox obj)
         {
             Updater.ClearVersionInfo();
-            //Updater.GameVersion = "1.5.0.18";
             
             OnForceUpdate?.Invoke(this, EventArgs.Empty);
         }

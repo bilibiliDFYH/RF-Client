@@ -771,7 +771,7 @@ namespace Ra2Client.DXGUI.Generic
                 List<XNAListBoxItem> items = new List<XNAListBoxItem>();
 
                 if (ps.Color > -1 && ps.Color < mpColors.Count)
-                    textColor = mpColors[ps.Color].TextColor;
+                    textColor = mpColors[ps.Color].XnaColor;
 
                 if (ps.IsAI)
                 {

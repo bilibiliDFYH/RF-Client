@@ -649,17 +649,21 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (var ddPlayerColor in ddPlayerColors)
             {
                 ddPlayerColor.Items.Clear();
-                ddPlayerColor.AddItem("Random".L10N("UI:Main:Random"), AssetLoader.GetColorFromString(randomColor));
-                ddPlayerColor.ItemHeight = 25;
-                foreach (MultiplayerColor mpColor in MPColors)
-                    // ddPlayerColor.AddItem(mpColor.Name, mpColor.TextColor);
-                    ddPlayerColor.AddItem(new XNADropDownItem()
+                ddPlayerColor.AddItem(MultiplayerColor.GetRandomColorLabel(), AssetLoader.GetColorFromString(randomColor));
+                    foreach (MultiplayerColor mpColor in MPColors)
                     {
-                        Texture = AssetLoader.CreateTexture(mpColor.TextColor, 60, 18)
-                    });
+                        if (mpColor.Name.StartsWith("$"))
+                            ddPlayerColor.AddItem(new XNADropDownItem()
+                            {
+                                Text = mpColor.Name.TrimStart('$'),
+                                Texture = AssetLoader.CreateTexture(mpColor.XnaColor, ddPlayerColor.ItemHeight - 2, ddPlayerColor.ItemHeight - 2),
+                            });
+                        else
+                            ddPlayerColor.AddItem(mpColor.Name, mpColor.XnaColor);
+                    }
 
-              //  ddPlayerColor.AllowDropDown = false;
-                ddPlayerColor.Tag = false;
+                    // ddPlayerColor.AllowDropDown = false;
+                    ddPlayerColor.Tag = false;
             }
 
             string[] sides = mod.Countries.Split(',');
@@ -1457,14 +1461,20 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 ddPlayerColor.ClientRectangle = new Rectangle(
                     ddPlayerSide.Right + playerOptionHorizontalMargin,
                     ddPlayerName.Y, colorWidth, DROP_DOWN_HEIGHT);
-                ddPlayerColor.AddItem("Random".L10N("UI:Main:Random"), AssetLoader.GetColorFromString(randomColor));
-                ddPlayerColor.ItemHeight = 25;
-                foreach (MultiplayerColor mpColor in MPColors)
-                    // ddPlayerColor.AddItem(mpColor.Name, mpColor.TextColor);
-                    ddPlayerColor.AddItem(new XNADropDownItem()
+                ddPlayerColor.AddItem(MultiplayerColor.GetRandomColorLabel(), AssetLoader.GetColorFromString(randomColor));
+                {
+                    foreach (var mpColor in MPColors)
                     {
-                        Texture = AssetLoader.CreateTexture(mpColor.TextColor,60,18)
-                    });
+                        if (mpColor.Name.StartsWith("$"))
+                            ddPlayerColor.AddItem(new XNADropDownItem()
+                            {
+                                Text = mpColor.Name.TrimStart('$'),
+                                Texture = AssetLoader.CreateTexture(mpColor.XnaColor, ddPlayerColor.ItemHeight - 2, ddPlayerColor.ItemHeight - 2),
+                            });
+                        else
+                            ddPlayerColor.AddItem(mpColor.Name, mpColor.XnaColor);
+                    }
+                }
 
                 ddPlayerColor.AllowDropDown = false;
                 ddPlayerColor.SelectedIndexChanged += CopyPlayerDataFromUI;

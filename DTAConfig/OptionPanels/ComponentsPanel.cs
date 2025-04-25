@@ -390,9 +390,6 @@ namespace DTAConfig.OptionPanels
             try
             {
                 using HttpClient httpClient = new HttpClient();
-                // 设置请求头
-                // string clientVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-                // httpClient.DefaultRequestHeaders.Add("User-Agent", $"Reunion/{clientVersion}");
 
                 TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
 

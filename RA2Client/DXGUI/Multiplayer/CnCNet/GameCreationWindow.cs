@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using ClientCore;
+using ClientCore.CnCNet5;
 using ClientGUI;
 using Ra2Client.Domain.Multiplayer.CnCNet;
 using Localization;
@@ -285,17 +286,13 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
         private void BtnCreateGame_LeftClick(object sender, EventArgs e)
         {
-            string gameName = tbGameName.Text.Replace(";", string.Empty);
+            var gameName = tbGameName.Text;
+            var gameNameValid = NameValidator.IsGameNameValid(gameName);
 
-            if (string.IsNullOrEmpty(gameName))
+            if (!string.IsNullOrEmpty(gameNameValid))
             {
-                return;
-            }
-
-            if (new ProfanityFilter().IsOffensive(gameName))
-            {
-                XNAMessageBox.Show(WindowManager, "Offensive game name".L10N("UI:Main:GameNameOffensiveTitle"),
-                    "Please enter a less offensive game name.".L10N("UI:Main:GameNameOffensiveText"));
+                XNAMessageBox.Show(WindowManager, "Invalid game name".L10N("UI:Main:GameNameInvalid"),
+                    gameNameValid);
                 return;
             }
 

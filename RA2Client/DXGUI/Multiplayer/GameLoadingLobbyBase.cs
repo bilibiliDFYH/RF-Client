@@ -468,7 +468,7 @@ namespace Ra2Client.DXGUI.Multiplayer
                     continue;
                 }
 
-                playerLabel.RemapColor = sgPlayer.ColorIndex > -1 ? MPColors[sgPlayer.ColorIndex].TextColor
+                playerLabel.RemapColor = sgPlayer.ColorIndex > -1 ? MPColors[sgPlayer.ColorIndex].XnaColor
                     : Color.White;
                 playerLabel.Text = pInfo.Ready ? sgPlayer.Name : sgPlayer.Name + " " + "(Not Ready)".L10N("UI:Main:NotReadySuffix");
             }

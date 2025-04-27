@@ -69,7 +69,7 @@ public class ModManager : XNAWindow
             ClientRectangle = new Rectangle(25, 30, 200, 40)
         };
 
-        DDModAI.AddItem(["Mod".L10N("UI:DTAConfig:Mod"), "Campaign Pack".L10N("UI:DTAConfig:CampaignPack")]);
+        DDModAI.AddItem(["Mod".L10N("UI:DTAConfig:Mod"), "Mission Pack".L10N("UI:DTAConfig:MissionPack")]);
 
         AddChild(DDModAI);
 
@@ -458,8 +458,8 @@ public class ModManager : XNAWindow
             
         if (id == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Please select Yuri's Revenge Campaign Pack or the campaign pack file based on the original".L10N("UI:DTAConfig:SelectCampaignPackFile"));
-            return "No campaign package files found".L10N("UI:DTAConfig:CampaignPackageFileNotFound");
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Please select Yuri's Revenge Mission Pack or the ission pack file based on the original".L10N("UI:DTAConfig:SelectMissionPackFile"));
+            return "No mission package files found".L10N("UI:DTAConfig:MissionPackageFileNotFound");
         }
 
         刷新并渲染(mapFiles);
@@ -1034,7 +1034,7 @@ public class ModManager : XNAWindow
             csfExist = true;
         }
 
-        var infoWindows = new MissionPackInfoWindows(WindowManager, pack, "Modify Campaign Package".L10N("UI:DTAConfig:ModifyCampaignPackage"), missionMix, csfExist);
+        var infoWindows = new MissionPackInfoWindows(WindowManager, pack, "Modify Mission Package".L10N("UI:DTAConfig:ModifyMissionPackage"), missionMix, csfExist);
         var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, infoWindows);
 
         //AddChild(infoWindows);
@@ -1095,7 +1095,7 @@ public class ModManager : XNAWindow
     {
         if (!((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).CanDel)
         {
-            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The built-in campaign package cannot be deleted".L10N("UI:DTAConfig:DeleteBuilt-inCampaignPackage"));
+            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The built-in mission package cannot be deleted".L10N("UI:DTAConfig:DeleteBuilt-inMissionPackage"));
             return;
         }
 
@@ -1285,8 +1285,8 @@ public class ModManager : XNAWindow
             case 1:
                 var missionPack = MissionPack.MissionPacks.Find(m => m.ID == ((MissionPack)ListBoxModAi.SelectedItem.Tag).ID);
                 properties = missionPack.GetProperties();
-                BtnNew.Text = "Import campaign package".L10N("UI:DTAConfig:ImportCampaignPackage");
-                BtnDel.Text = "Delete campaign package".L10N("UI:DTAConfig:DeleteCampaignPackage");
+                BtnNew.Text = "Import mission package".L10N("UI:DTAConfig:ImportMissionPackage");
+                BtnDel.Text = "Delete mission package".L10N("UI:DTAConfig:DeleteMissionPackage");
                 BtnNew.Enable();
                 BtnDel.Enable();
                 break;
@@ -1826,7 +1826,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblMissionPackName = new XNALabel(WindowManager)
         {
-            Text = "Campaign Package Name:".L10N("UI:DTAConfig:CampaignPackageName"),
+            Text = "Mission Package Name:".L10N("UI:DTAConfig:MissionPackageName"),
             ClientRectangle = new Rectangle(300, 60, 0, 0)
         };
         AddChild(lblMissionPackName);
@@ -1840,7 +1840,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblAuthor = new XNALabel(WindowManager)
         {
-            Text = "Campaign Package Author:".L10N("UI:DTAConfig:CampaignPackageAuthor"),
+            Text = "Mission Package Author:".L10N("UI:DTAConfig:MissionPackageAuthor"),
             ClientRectangle = new Rectangle(20, 100, 0, 0)
         };
         AddChild(lblAuthor);
@@ -1853,7 +1853,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblMissionCount = new XNALabel(WindowManager)
         {
-            Text = "Number of campaign levels".L10N("UI:DTAConfig:CampaignLevels"),
+            Text = "Number of mission levels".L10N("UI:DTAConfig:MissionLevels"),
             ClientRectangle = new Rectangle(lblMissionPackName.X, 100, 0, 0),
             //Visible = missionMix
             Visible = false
@@ -1871,7 +1871,7 @@ public class MissionPackInfoWindows : XNAWindow
 
         var lblDescription = new XNALabel(WindowManager)
         {
-            Text = "Campaign Package Introduction:".L10N("UI:DTAConfig:CampaignPackageIntroduction"),
+            Text = "Mission Package Introduction:".L10N("UI:DTAConfig:MissionPackageIntroduction"),
             ClientRectangle = new Rectangle(lblAuthor.X, 140, 0, 0)
         };
         AddChild(lblDescription);
@@ -1886,7 +1886,7 @@ public class MissionPackInfoWindows : XNAWindow
         //第三行
         var lblMissionPackPath = new XNALabel(WindowManager)
         {
-            Text = "Campaign Package Path:".L10N("UI:DTAConfig:CampaignPackagePath"),
+            Text = "Mission Package Path:".L10N("UI:DTAConfig:MissionPackagePath"),
             ClientRectangle = new Rectangle(lblAuthor.X, 180, 0, 0)
         };
         AddChild(lblMissionPackPath);

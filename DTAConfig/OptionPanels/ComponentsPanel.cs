@@ -405,7 +405,7 @@ namespace DTAConfig.OptionPanels
                 if (File.Exists(strLocPath))
                     File.Delete(strLocPath);
 
-                int maxRetries = 3;
+                int maxRetries = 5;
                 int attempt = 0;
                 bool downloadSuccess = false;
 

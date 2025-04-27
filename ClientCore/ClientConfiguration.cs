@@ -386,7 +386,7 @@ namespace ClientCore
 
 #endregion
 
-#region Game networking defaults
+        #region Game networking defaults
 
         /// <summary>
         /// Default value for FrameSendRate setting written in spawn.ini.
@@ -407,53 +407,130 @@ namespace ClientCore
 
         public OSVersion GetOperatingSystemVersion()
         {
-#if NETFRAMEWORK
-            // OperatingSystem.IsWindowsVersionAtLeast() is the preferred API but is not supported on earlier .NET versions
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                Version osVersion = Environment.OSVersion.Version;
-
-                if (osVersion.Major <= 4)
-                    return OSVersion.UNKNOWN;
-
-                if (osVersion.Major == 5)
-                    return OSVersion.WINXP;
-
-                if (osVersion.Major == 6 && osVersion.Minor == 0)
-                    return OSVersion.WINVISTA;
-
-                if (osVersion.Major == 6 && osVersion.Minor <= 1)
-                    return OSVersion.WIN7;
-
-                return OSVersion.WIN810;
-            }
-
-            if (ProgramConstants.ISMONO)
-                return OSVersion.UNIX;
-
-            // http://mono.wikia.com/wiki/Detecting_the_execution_platform
-            int p = (int)Environment.OSVersion.Platform;
-            if (p == 4 || p == 6 || p == 128)
-                return OSVersion.UNIX;
-
-            return OSVersion.UNKNOWN;
-#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (OperatingSystem.IsWindowsVersionAtLeast(6, 2))
-                    return OSVersion.WIN810;
+                var version = Environment.OSVersion.Version;
+
+                if (version.Major == 10)
+                {
+                    if (version.Build == 22000)
+                    {
+                        return OSVersion.Windows11_21H2;
+                    }
+                    else if (version.Build == 22621)
+                    {
+                        return OSVersion.Windows11_22H2;
+                    }
+                    else if (version.Build == 22631)
+                    {
+                        return OSVersion.Windows11_23H2;
+                    }
+                    else if (version.Build == 22635)
+                    {
+                        return OSVersion.Windows11_23H2_Beta;
+                    }
+                    else if (version.Build == 26100)
+                    {
+                        return OSVersion.Windows11_24H2_LTSC2024_SERVER2025;
+                    }
+                    else if (version.Build == 26120)
+                    {
+                        return OSVersion.Windows11_24H2_Beta;
+                    }
+                    else if (version.Build == 26200)
+                    {
+                        return OSVersion.Windows11_24H2_Dev;
+                    }
+                    //等待Windows11 25H2发布并确定具体内核版本
+                    //else if (version.Build == 27000)
+                    //{
+                    //    return OSVersion.Windows11_25H2;
+                    //}
+                    else if (version.Build == 10240)
+                    {
+                        return OSVersion.Windows10_1507_LTSB2015;
+                    }
+                    else if (version.Build == 10586)
+                    {
+                        return OSVersion.Windows10_1511;
+                    }
+                    else if (version.Build == 14393)
+                    {
+                        return OSVersion.Windows10_1607_LTSB2016_SERVER2016;
+                    }
+                    else if (version.Build == 15063)
+                    {
+                        return OSVersion.Windows10_1703;
+                    }
+                    else if (version.Build == 16299)
+                    {
+                        return OSVersion.Windows10_1709;
+                    }
+                    else if (version.Build == 17134)
+                    {
+                        return OSVersion.Windows10_1803;
+                    }
+                    else if (version.Build == 17763)
+                    {
+                        return OSVersion.Windows10_1809_LTSC2019_SERVER2019;
+                    }
+                    else if (version.Build == 18362)
+                    {
+                        return OSVersion.Windows10_1903;
+                    }
+                    else if (version.Build == 18363)
+                    {
+                        return OSVersion.Windows10_1909;
+                    }
+                    else if (version.Build == 19041)
+                    {
+                        return OSVersion.Windows10_2004;
+                    }
+                    else if (version.Build == 19042)
+                    {
+                        return OSVersion.Windows10_20H2;
+                    }
+                    else if (version.Build == 19043)
+                    {
+                        return OSVersion.Windows10_21H1;
+                    }
+                    else if (version.Build == 19044)
+                    {
+                        return OSVersion.Windows10_21H2_LTSC2021;
+                    }
+                    else if (version.Build == 19045)
+                    {
+                        return OSVersion.Windows10_22H2_2009;
+                    }
+                    else if (version.Build == 20348)
+                    {
+                        return OSVersion.Windows10_SERVER2022;
+                    }
+                    else
+                    {
+                        return OSVersion.Experimental_Version_Of_Windows;
+                    }
+                }
+
+                if (OperatingSystem.IsWindowsVersionAtLeast(6, 3))
+                    return OSVersion.Windows8_1_SERVER2012R2;
+                else if (OperatingSystem.IsWindowsVersionAtLeast(6, 2))
+                    return OSVersion.Windows8_SERVER2012;
                 else if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
-                    return OSVersion.WIN7;
+                    return OSVersion.Windows7_SERVER2008R2;
                 else if (OperatingSystem.IsWindowsVersionAtLeast(6, 0))
-                    return OSVersion.WINVISTA;
+                    return OSVersion.WindowsVista_SERVER2008;
+                else if (OperatingSystem.IsWindowsVersionAtLeast(5, 2))
+                    return OSVersion.WindowsXP_SERVER2003_SERVER2003R2;
+                else if (OperatingSystem.IsWindowsVersionAtLeast(5, 1))
+                    return OSVersion.WindowsXP;
                 else if (OperatingSystem.IsWindowsVersionAtLeast(5, 0))
-                    return OSVersion.WINXP;
+                    return OSVersion.Windows2000;
                 else
                     return OSVersion.UNKNOWN;
             }
 
             return OSVersion.UNIX;
-#endif
         }
     }
 

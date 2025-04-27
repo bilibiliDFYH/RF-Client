@@ -45,7 +45,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private XNAProgressBar prgCurrentFile;
         private XNAProgressBar prgTotal;
-        
+
 
         private bool isStartingForceUpdate;
 
@@ -216,7 +216,6 @@ namespace Ra2Client.DXGUI.Generic
             lblCurrentFile.Text = "Current file:".L10N("UI:Main:CurrentFile") + " " + currFileName;
             lblUpdaterStatus.Text = "Downloading files".L10N("UI:Main:DownloadingFiles");
 
-           
             try
             {
                 TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);

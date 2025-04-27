@@ -47,7 +47,7 @@ public static class Updater
     public static string CallingExecutableFileName { get; private set; } = string.Empty;
 
     /// <summary>
-    /// 更新服务器组（只读）
+    /// 更新服务器组 (只读)
     /// </summary>
     public static List<ServerMirror> ServerMirrors { get => serverMirrors; set => serverMirrors = value; }
 

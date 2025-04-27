@@ -16,9 +16,9 @@ internal sealed class Program
     private static StreamWriter errorWriter;
 
     /// <summary>
-    /// 更新程序 For Ra2Client Reunion
+    /// 更新程序 For Ra2Client Reunion.
     /// </summary>
-    /// <param name="args">可执行程序路径 根目录</param>
+    /// <param name="args">可执行程序路径根目录.</param>
     private static void Main(string[] args)
     {
         foreach (var arg in args)
@@ -44,8 +44,8 @@ internal sealed class Program
             Write("Ra2Client更新器", ConsoleColor.Green);
             Write(string.Empty);
 
-            //调试使用的参数
-            //args = new string[] { "Ra2Client.dll", @"D:\RF-Client\Bin" };
+            // 调试使用的参数
+            // args = new string[] { "Ra2Client.dll", @"D:\RF-Client\Bin" };
             if (args.Length < 2 || string.IsNullOrEmpty(args[0]) || string.IsNullOrEmpty(args[1]) || !SafePath.GetDirectory(args[1].Replace("\"", null, StringComparison.OrdinalIgnoreCase)).Exists)
             {
                 Write("无效参数!", ConsoleColor.Red);
@@ -139,17 +139,20 @@ internal sealed class Program
                         {
                             try
                             {
-                                FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName,relativeFileInfo.ToString());
+                                FileInfo copiedFile = SafePath.GetFile(baseDirectory.FullName, relativeFileInfo.ToString());
                                 Write($"更新文件 -> {relativeFileInfo}");
 
                                 var p = Path.GetDirectoryName(copiedFile.FullName);
                                 if (!Directory.Exists(p))
                                 {
                                     Directory.CreateDirectory(p);
-                                } 
+                                }
 
-                                if(File.Exists(copiedFile.FullName))
+                                if (File.Exists(copiedFile.FullName))
+                                {
                                     File.SetAttributes(copiedFile.FullName, FileAttributes.Normal);
+                                }
+
                                 fileInfo.CopyTo(copiedFile.FullName, true);
                             }
                             catch (Exception ex)
@@ -232,9 +235,9 @@ internal sealed class Program
     }
 
     /// <summary>
-    /// 更新前需要删的文件
+    /// 更新前需要删的文件.
     /// </summary>
-    /// <param name="delUpdateFile">文件列表</param>
+    /// <param name="delUpdateFile">文件列表.</param>
     private static void DeleteListedFiles(DirectoryInfo directoryInfo, FileInfo delUpdateFile)
     {
         if (delUpdateFile.Exists)

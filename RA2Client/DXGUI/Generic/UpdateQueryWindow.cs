@@ -106,14 +106,14 @@ namespace Ra2Client.DXGUI.Generic
             });
         }
 
-        public async Task GetUpdateContentsAsync(string currentVersion, string latestVersion)
+        public void GetUpdateContents(string currentVersion, string latestVersion)
         {
             changelogUrl = Updater.serverVerCfg.ManualDownURL;
 
             lstBoxUpdaterLog.Clear();
             var logs = Updater.serverVerCfg.Logs?.Split("@") ?? [];
 
-            foreach ( var log in logs  )
+            foreach (var log in logs)
             {
                 lstBoxUpdaterLog.AddItem(log);
             }

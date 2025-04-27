@@ -305,21 +305,21 @@ namespace DTAConfig.OptionPanels
         private StateItem CheckComponentStatus(Component comp)
         {
             StateItem state = new StateItem { Code = -1, Text = "Not available".L10N("UI:DTAConfig:Notavailable"), TextColor = Color.Red };
-            string strid = comp.hash;
+            string strid = comp.id.ToString();
             if (string.IsNullOrEmpty(strid))
                 return state;
 
             state = new StateItem { Code = 0, Text = "Not installed".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
-            var parser = new FileIniDataParser();
             foreach (SectionData locSec in _locIniData.Sections)
             {
                 if (strid == locSec.SectionName)
                 {
                     state = new StateItem { Code = 1, Text = "Installed".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
-                    if (CheckVersionNew(locSec.Keys["version"], comp.version))
-                {
-                    state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
-                }
+                    // 使用哈希校验比对是否有更新
+                    if (CheckVersionNew(locSec.Keys["hash"], comp.hash))
+                    {
+                        state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
+                    }
                     break;
                 }
             }
@@ -328,10 +328,11 @@ namespace DTAConfig.OptionPanels
 
         private bool CheckVersionNew(string strLocal, string strServer)
         {
-            //先简单判断，版本内容不一样就显示有更新,后续再细化版本号判断
-            if(string.IsNullOrEmpty(strLocal) || string.IsNullOrEmpty(strServer))
+            if (string.IsNullOrEmpty(strLocal) || string.IsNullOrEmpty(strServer))
                 return false;
-            return strLocal != strServer;
+
+            // 忽略大小写比较哈希值
+            return !strLocal.Equals(strServer, StringComparison.OrdinalIgnoreCase);
         }
 
         private void CompList_SelectedChanged(object sender, EventArgs e)
@@ -389,10 +390,6 @@ namespace DTAConfig.OptionPanels
 
             try
             {
-                using HttpClient httpClient = new HttpClient();
-
-                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-
                 var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
                 if (string.IsNullOrEmpty(strDownPath))
                 {
@@ -408,39 +405,70 @@ namespace DTAConfig.OptionPanels
                 if (File.Exists(strLocPath))
                     File.Delete(strLocPath);
 
-                using var response = await httpClient.GetAsync(strDownPath, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
+                int maxRetries = 3;
+                int attempt = 0;
+                bool downloadSuccess = false;
 
-                using var contentStream = await response.Content.ReadAsStreamAsync();
-                using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
-
-                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-                var totalRead = 0L;
-                var buffer = new byte[131072]; // 128KB缓冲区
-                bool isMoreToRead = true;
-                int lastProgress = 0;
-
-                while (isMoreToRead)
+                while (!downloadSuccess && attempt < maxRetries)
                 {
-                    int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                    if (read == 0)
+                    attempt++;
+                    try
                     {
-                        isMoreToRead = false;
-                        continue;
-                    }
-                    await fileStream.WriteAsync(buffer.AsMemory(0, read));
-                    totalRead += read;
+                        using HttpClient httpClient = new HttpClient();
 
-                    if (totalBytes > 0)
-                    {
-                        int progress = (int)((totalRead * 100) / totalBytes);
-                        if (progress - lastProgress >= 1)
+                        TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
+                        using var response = await httpClient.GetAsync(strDownPath, HttpCompletionOption.ResponseHeadersRead);
+                        response.EnsureSuccessStatusCode();
+
+                        using var contentStream = await response.Content.ReadAsStreamAsync();
+                        using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
+
+                        var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                        var totalRead = 0L;
+                        var buffer = new byte[131072]; // 128KB缓冲区
+                        bool isMoreToRead = true;
+                        int lastProgress = 0;
+
+                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                        while (isMoreToRead)
                         {
-                            progressBar.Value = progress;
-                            lbprogress.Text = $"{progress}%";
-                            TaskbarProgress.Instance.SetValue(progress, 100);
-                            lastProgress = progress;
+                            int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                            if (read == 0)
+                            {
+                                isMoreToRead = false;
+                                continue;
+                            }
+                            await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                            totalRead += read;
+
+                            if (totalBytes > 0)
+                            {
+                                int progress = (int)((totalRead * 100) / totalBytes);
+                                if (progress - lastProgress >= 1)
+                                {
+                                    progressBar.Value = progress;
+                                    double seconds = stopwatch.Elapsed.TotalSeconds;
+                                    double kbSpeed = seconds > 0 ? totalRead / 1024d / seconds : 0;
+                                    string speedStr = kbSpeed >= 1024 ? $"{(kbSpeed / 1024):F2} MB/s" : $"{kbSpeed:F2} KB/s";
+
+                                    lbprogress.Text = $"{progress}%   {speedStr}";
+                                    TaskbarProgress.Instance.SetValue(progress, 100);
+                                    lastProgress = progress;
+                                }
+                            }
                         }
+
+                        downloadSuccess = true;
+                    }
+                    catch (Exception innerEx)
+                    {
+                        Logger.Log($"下载尝试 {attempt} 失败: {innerEx.Message}");
+                        if (attempt >= maxRetries)
+                            throw;
+                        // 等待2秒后重试
+                        await Task.Delay(2000);
                     }
                 }
             }
@@ -607,7 +635,7 @@ namespace DTAConfig.OptionPanels
                     string pngFilePath = Path.ChangeExtension(filePath, ".png");
                     if (File.Exists(pngFilePath)) File.Delete(pngFilePath);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     continue;
                 }

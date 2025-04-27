@@ -218,7 +218,7 @@ namespace ClientCore
 
         public string Mod_AiIniPath => SafePath.CombineFilePath(clientDefinitionsIni.GetStringValue(SETTINGS, "Mod&Ai", string.Empty));
 
-        public int MaxNameLength => clientDefinitionsIni.GetIntValue(SETTINGS, "MaxNameLength", 16);
+        public int MaxNameLength => clientDefinitionsIni.GetIntValue(SETTINGS, "MaxNameLength", 13);
 
         public bool UseIsometricCells => clientDefinitionsIni.GetBooleanValue(SETTINGS, "UseIsometricCells", true);
 

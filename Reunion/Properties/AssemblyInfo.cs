@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("重聚未来客户端启动器")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Reunion Client Launcher OwO")]
+[assembly: AssemblyProduct("Reunion Client Launcher Ciallo～ (∠・ω< )⌒★")]
 [assembly: AssemblyCopyright("Copyright © Snowy Studio 2022-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

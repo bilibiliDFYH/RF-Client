@@ -40,7 +40,12 @@ namespace Reunion
 
                 if (dotnetHost == null)
                 {
-                    MessageBox.Show($"检测到缺少.NET6环境，请到重聚未来官网下载对应计算机位数的.NET6运行库", "错误");
+                    var result = MessageBox.Show("检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?", "错误", MessageBoxButtons.OKCancel);
+                    if (result == DialogResult.OK)
+                    {
+                        Process.Start("https://www.yra2.com/runtime#net6-download");
+                    }
+                    Environment.Exit(1);
                     return;
                 }
 

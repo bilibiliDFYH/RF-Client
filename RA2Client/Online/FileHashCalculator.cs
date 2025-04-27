@@ -40,7 +40,7 @@ namespace Ra2Client.Online
                 GameExeHash = calculateGameExeHash ?
                 Utilities.CalculateSHA1ForFile(SafePath.CombineFilePath(ProgramConstants.GamePath, ClientConfiguration.Instance.GetGameExecutableName())) : string.Empty,
                 LauncherExeHash = Utilities.CalculateSHA1ForFile(SafePath.CombineFilePath(ProgramConstants.GamePath, ClientConfiguration.Instance.GameLauncherExecutableName)),
-               // MPMapsHash = Utilities.CalculateSHA1ForFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, ClientConfiguration.Instance.GameModesIniPath)),
+                // MPMapsHash = Utilities.CalculateSHA1ForFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, ClientConfiguration.Instance.GameModesIniPath)),
                 FHCConfigHash = Utilities.CalculateSHA1ForFile(SafePath.CombineFilePath(ProgramConstants.BASE_RESOURCE_PATH, CONFIGNAME)),
                 INIHashes = string.Empty
             };
@@ -48,7 +48,7 @@ namespace Ra2Client.Online
             Logger.Log("Hash for " + ProgramConstants.BASE_RESOURCE_PATH + CONFIGNAME + ": " + fh.FHCConfigHash);
             Logger.Log("Hash for " + ProgramConstants.BASE_RESOURCE_PATH + "\\GameOptions.ini: " + fh.GameOptionsHash);
             Logger.Log("Hash for " + ProgramConstants.BASE_RESOURCE_PATH + "\\Binaries\\Ra2Client.dll: " + fh.ClientDXHash);
-           // Logger.Log("Hash for " + ClientConfiguration.Instance.GameModesIniPath + ": " + fh.MPMapsHash);
+            // Logger.Log("Hash for " + ClientConfiguration.Instance.GameModesIniPath + ": " + fh.MPMapsHash);
 
             if (calculateGameExeHash)
                 Logger.Log("Hash for " + ClientConfiguration.Instance.GetGameExecutableName() + ": " + fh.GameExeHash);
@@ -106,7 +106,7 @@ namespace Ra2Client.Online
             str += fh.GameExeHash;
             str += fh.LauncherExeHash;
             str += fh.INIHashes;
-         //   str += fh.MPMapsHash;
+            // str += fh.MPMapsHash;
             str += fh.FHCConfigHash;
 
             Logger.Log("Complete hash: " + Utilities.CalculateSHA1ForString(str));
@@ -137,7 +137,7 @@ namespace Ra2Client.Online
             string GameOptionsHash,
             string ClientDXHash,
             string INIHashes,
-        //    string MPMapsHash,
+            // string MPMapsHash,
             string GameExeHash,
             string LauncherExeHash,
             string FHCConfigHash);

@@ -43,7 +43,7 @@ namespace Ra2Client.Domain
 
             SUPPORT_URL_SHORT = clientConfiguration.ShortSupportURL;
 
-          //  CREDITS_URL = clientConfiguration.CreditsURL;
+            //CREDITS_URL = clientConfiguration.CreditsURL;
 
             USE_ISOMETRIC_CELLS = clientConfiguration.UseIsometricCells;
             TDRA_WAYPOINT_COEFFICIENT = clientConfiguration.WaypointCoefficient;

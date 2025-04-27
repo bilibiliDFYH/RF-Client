@@ -184,7 +184,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 Color textColor = Color.White;
                 if (pInfo.ColorId > 0)
-                    textColor = mpColors[pInfo.ColorId - 1].TextColor;
+                    textColor = mpColors[pInfo.ColorId - 1].XnaColor;
 
                 if (backgroundAlpha > 0.0)
                 {
@@ -229,7 +229,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             Color hoverRemapColor = HoverRemapColor;
             if (Players.Count == 1 && Players[0].ColorId > 0)
             {
-                remapColor = mpColors[Players[0].ColorId - 1].TextColor;
+                remapColor = mpColors[Players[0].ColorId - 1].XnaColor;
                 hoverRemapColor = remapColor;
             }
 

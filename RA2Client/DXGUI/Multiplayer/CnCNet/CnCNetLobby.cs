@@ -478,7 +478,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 if (chatChannel == null)
                 {
                     chatChannel = connectionManager.CreateChannel(game.UIName, game.ChatChannel,
-                        true, true, "ra1-derp");
+                        true, true, "ra1-derp", true);
                     connectionManager.AddChannel(chatChannel);
                 }
 
@@ -492,7 +492,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                     {
                         gameBroadcastChannel = connectionManager.CreateChannel(
                             string.Format("{0} Broadcast Channel".L10N("UI:Main:BroadcastChannel"), game.UIName),
-                            game.GameBroadcastChannel, true, false, null);
+                            game.GameBroadcastChannel, true, false, null, true);
                         connectionManager.AddChannel(gameBroadcastChannel);
                     }
 
@@ -916,7 +916,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 if (!hg.IsLoadedGame)
                 {
                     password = Utilities.CalculateSHA1ForString
-                        (hg.ChannelName + hg.RoomName).Substring(0, 10);
+                        (hg.ChannelName).Substring(0, 10);
                 }
                 else
                 {
@@ -938,7 +938,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             isJoiningGame = true;
             gameOfLastJoinAttempt = hg;
 
-            Channel gameChannel = connectionManager.CreateChannel(hg.RoomName, hg.ChannelName, false, true, password);
+            Channel gameChannel = connectionManager.CreateChannel(hg.RoomName, hg.ChannelName, false, true, password, true);
             connectionManager.AddChannel(gameChannel);
 
             if (hg.IsLoadedGame)
@@ -1057,11 +1057,11 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             if (string.IsNullOrEmpty(password))
             {
                 password = Rampastring.Tools.Utilities.CalculateSHA1ForString(
-                    channelName + e.GameRoomName).Substring(0, 10);
+                    channelName).Substring(0, 10);
                 isCustomPassword = false;
             }
             //isCustomPassword = false;
-            Channel gameChannel = connectionManager.CreateChannel(e.GameRoomName, channelName, false, true, password);
+            Channel gameChannel = connectionManager.CreateChannel(e.GameRoomName, channelName, false, true, password, isCustomPassword);
 
             connectionManager.AddChannel(gameChannel);
 
@@ -1086,7 +1086,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
 
             string channelName = RandomizeChannelName();
 
-            Channel gameLoadingChannel = connectionManager.CreateChannel(e.GameRoomName, channelName, false, true, e.Password);
+            Channel gameLoadingChannel = connectionManager.CreateChannel(e.GameRoomName, channelName, false, true, e.Password, true);
             connectionManager.AddChannel(gameLoadingChannel);
             gameLoadingLobby.SetUp(true, e.Tunnel, gameLoadingChannel, ProgramConstants.PLAYERNAME);
             gameLoadingChannel.UserAdded += GameLoadingChannel_UserAdded;

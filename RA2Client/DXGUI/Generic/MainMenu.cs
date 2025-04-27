@@ -125,7 +125,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var label = new XNALabel(WindowManager)
             {
-                ClientRectangle = new Rectangle(20, 10, 0, 0),
+                ClientRectangle = new Rectangle(10, 10, 0, 0),
                 Text = "Which mod's map editor would you like to use?".L10N("UI:Main:SelectMapEditor")
             };
 
@@ -133,7 +133,7 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
             var ddMod = new XNAClientDropDown(WindowManager)
             {
-                ClientRectangle = new Rectangle(20, 50, 200, 25),
+                ClientRectangle = new Rectangle(25, 50, 200, 25),
                 Name = "ddMod",
             };
 
@@ -143,7 +143,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(50, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(40, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
                 Text = "Yes".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
@@ -1542,20 +1542,20 @@ namespace Ra2Client.DXGUI.Generic
             if (!isMediaPlayerAvailable)
                 return; // SharpDX fails at music playback on Vista
 
-            if (themeSong != null && UserINISettings.Instance.PlayMainMenuMusic)
+            try
             {
-                isMusicFading = false;
-                MediaPlayer.IsRepeating = true;
-                MediaPlayer.Volume = (float)UserINISettings.Instance.ClientVolume;
-
-                try
+                if (themeSong != null && UserINISettings.Instance.PlayMainMenuMusic)
                 {
+                    isMusicFading = false;
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Volume = (float)UserINISettings.Instance.ClientVolume;
+
                     MediaPlayer.Play(themeSong);
                 }
-                catch (InvalidOperationException ex)
-                {
-                    Logger.Log("Playing main menu music failed! " + ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Playing main menu music failed! " + ex.ToString());
             }
         }
 
@@ -1569,15 +1569,22 @@ namespace Ra2Client.DXGUI.Generic
             if (!isMediaPlayerAvailable || !isMusicFading || themeSong == null)
                 return;
 
-            // Fade during 1 second
-            float step = SoundPlayer.Volume * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (MediaPlayer.Volume > step)
-                MediaPlayer.Volume -= step;
-            else
+            try
             {
-                MediaPlayer.Stop();
-                isMusicFading = false;
+                // Fade during 1 second
+                float step = SoundPlayer.Volume * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                if (MediaPlayer.Volume > step)
+                    MediaPlayer.Volume -= step;
+                else
+                {
+                    MediaPlayer.Stop();
+                    isMusicFading = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Fading music failed! Message: " + ex.ToString());
             }
         }
 
@@ -1592,17 +1599,24 @@ namespace Ra2Client.DXGUI.Generic
                 return;
             }
 
-            float step = MEDIA_PLAYER_VOLUME_EXIT_FADE_STEP * (float)UserINISettings.Instance.ClientVolume;
+            try
+            {
+                float step = MEDIA_PLAYER_VOLUME_EXIT_FADE_STEP * (float)UserINISettings.Instance.ClientVolume;
 
-            if (MediaPlayer.Volume > step)
-            {
-                MediaPlayer.Volume -= step;
-                AddCallback(new Action(FadeMusicExit), null);
+                if (MediaPlayer.Volume > step)
+                {
+                    MediaPlayer.Volume -= step;
+                    AddCallback(new Action(FadeMusicExit), null);
+                }
+                else
+                {
+                    MediaPlayer.Stop();
+                    ExitClient();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MediaPlayer.Stop();
-                ExitClient();
+                Logger.Log("Fading music on exit failed! Message: " + ex.ToString());
             }
         }
 

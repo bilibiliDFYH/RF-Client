@@ -107,7 +107,7 @@ namespace DTAConfig.OptionPanels
             chkSkipLoginWindow = new XNAClientCheckBox(WindowManager);
             chkSkipLoginWindow.Name = nameof(chkSkipLoginWindow);
             chkSkipLoginWindow.ClientRectangle = new Rectangle(
-                chkWriteInstallPathToRegistry.Right + 150,
+                chkWriteInstallPathToRegistry.Right + 120,
                 12, 0, 0);
             chkSkipLoginWindow.Text = "Skip login dialog".L10N("UI:DTAConfig:SkipLoginDialog");
             chkSkipLoginWindow.CheckedChanged += ChkSkipLoginWindow_CheckedChanged;

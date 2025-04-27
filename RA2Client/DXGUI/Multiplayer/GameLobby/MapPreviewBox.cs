@@ -572,7 +572,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 XNAContextMenuItem item = new XNAContextMenuItem()
                 {
                     Text = id + ". " + text,
-                    TextColor = pInfo.ColorId > 0 ? mpColors[pInfo.ColorId - 1].TextColor : Color.White,
+                    TextColor = pInfo.ColorId > 0 ? mpColors[pInfo.ColorId - 1].XnaColor : Color.White,
                     SelectAction = () => ContextMenu_OptionSelected(index),
                 };
                 contextMenu.AddItem(item);

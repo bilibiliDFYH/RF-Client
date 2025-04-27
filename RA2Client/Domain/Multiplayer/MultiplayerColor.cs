@@ -16,9 +16,13 @@ namespace Ra2Client.Domain.Multiplayer
 
         public string Name { get; private set; }
 
-        public Color TextColor { get; private set; }
+        public Color XnaColor { get; private set; }
 
         private static List<MultiplayerColor> colorList;
+
+        private static string randomColorLabel;
+
+        private static string RandomColorDefaultLabel => "Random".L10N("UI:Main:Random");
 
         /// <summary>
         /// Creates a new multiplayer color from data in a string array.
@@ -31,7 +35,7 @@ namespace Ra2Client.Domain.Multiplayer
             return new MultiplayerColor()
             {
                 Name = name,
-                TextColor = new Color(Math.Min(255, Int32.Parse(data[0])),
+                XnaColor = new Color(Math.Min(255, Int32.Parse(data[0])),
                 Math.Min(255, Int32.Parse(data[1])),
                 Math.Min(255, Int32.Parse(data[2])), 255),
                 GameColorIndex = nIndex,
@@ -91,8 +95,15 @@ namespace Ra2Client.Domain.Multiplayer
                     }
                 }
 
+            var randomColorSection = gameOptionsIni.GetSection("MPColorsRandomLabel");
+            if (randomColorSection != null)
+                randomColorLabel = randomColorSection.GetStringValue("Text", null);
+
             colorList = mpColors;
             return new List<MultiplayerColor>(colorList);
         }
+
+        public static string GetRandomColorLabel()
+            => string.IsNullOrEmpty(randomColorLabel) ? RandomColorDefaultLabel : randomColorLabel;
     }
 }

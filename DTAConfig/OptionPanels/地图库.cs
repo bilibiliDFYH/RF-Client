@@ -27,8 +27,9 @@ namespace DTAConfig.OptionPanels
         private static readonly object _lock = new();
         private int _当前页数 = 1;
         private int _总页数 = 0;
+
         private XNALabel lblPage;
-        private XNAContextMenu _modMenu;
+        private XNAContextMenu _modMenu; 
 
         public int 当前页数
         {
@@ -208,14 +209,15 @@ namespace DTAConfig.OptionPanels
 
         private void 查看地图详细信息(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            mapPanel.SelectedIndex = mapPanel.HoveredIndex;
+            if (mapPanel.SelectedIndex < 0) return;
+            var w = new 地图详细信息界面(WindowManager, 地图列表[mapPanel.SelectedIndex].id, types);
         }
 
         private void BtnRight_LeftClick(object sender, EventArgs e)
         {
             if (当前页数 > 1)
                 当前页数--;
-
         }
 
         private void BtnLeft_LeftClick(object sender, EventArgs e)
@@ -238,6 +240,8 @@ namespace DTAConfig.OptionPanels
             Reload();
         }
 
+        private List<Maps> 地图列表 = [];
+
         private async void Reload()
         {
             var search = searchBox.Text.Trim() == "搜索地图名..." ? string.Empty : searchBox.Text.Trim();
@@ -256,6 +260,7 @@ namespace DTAConfig.OptionPanels
 
             mapPanel.ClearItems();
             int i = 0;
+            地图列表 = r.Item1.records;
             r.Item1.records.ForEach(map =>
             {
                 List<XNAListBoxItem> items = [];
@@ -294,9 +299,9 @@ namespace DTAConfig.OptionPanels
         private Maps map;
         private string[] types;
 
-        public 地图详细信息界面(WindowManager windowManager,Maps map, string[] types) : base(windowManager)
+        public 地图详细信息界面(WindowManager windowManager,int mapID, string[] types) : base(windowManager)
         {
-            this.map = NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={map.id}").Result.Item1;
+            map = NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={mapID}").Result.Item1;
             this.types = types;
         }
 
@@ -325,36 +330,43 @@ namespace DTAConfig.OptionPanels
                 Text = "地图作者：",
                 ClientRectangle = new Rectangle(地图名.X, 地图名.Bottom + 10, 0, 0)
             };
+
             var 地图作者内容 = new XNALabel(WindowManager)
             {
                 Text = map.author,
                 ClientRectangle = new Rectangle(地图名内容.X, 地图名内容.Bottom + 10, 200, 30)
             };
+
             var 地图类型 = new XNALabel(WindowManager)
             {
                 Text = "地图类型：",
                 ClientRectangle = new Rectangle(地图作者.X, 地图作者.Bottom + 10, 0, 0)
             };
+
             var 地图类型内容 = new XNALabel(WindowManager)
             {
                 Text = types[map.type],
                 ClientRectangle = new Rectangle(地图名内容.X, 地图作者内容.Bottom + 10, 200, 30)
             };
+
             var 地图评分 = new XNALabel(WindowManager)
             {
                 Text = "地图评分：",
                 ClientRectangle = new Rectangle(地图类型.X, 地图类型.Bottom + 10, 0, 0)
             };
+
             var 地图评分内容 = new XNALabel(WindowManager)
             {
                 Text = map.score.ToString(),
                 ClientRectangle = new Rectangle(地图类型内容.X, 地图类型内容.Bottom + 10, 200, 30)
             };
+
             var 下载次数 = new XNALabel(WindowManager)
             {
                 Text = "下载次数：",
                 ClientRectangle = new Rectangle(地图评分.X, 地图评分.Bottom + 10, 0, 0)
             };
+
             var 下载次数内容 = new XNALabel(WindowManager)
             {
                 Text = map.downCount.ToString(),

@@ -119,11 +119,13 @@ public class SevenZip
             // 构造命令行参数
             string arguments = $"x -y -aoa \"{archivePath}\" -o\"{extractPath}\"";
 
-            string architecture = Environment.Is64BitProcess ? "x64" : "x86";
-            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm || RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            string architecture = RuntimeInformation.OSArchitecture switch
             {
-                architecture = "arm64";
-            }
+                Architecture.X64 => "x64",      // x64 系统
+                Architecture.X86 => "x86",      // x86 系统
+                Architecture.Arm64 => "arm64",  // ARM64 系统
+                _ => "unknown"                  // 其他架构 (如 Arm32、WASM 等)
+            };
 
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new()
@@ -193,11 +195,13 @@ public class SevenZip
 
             Logger.Log(arguments);
 
-            string architecture = Environment.Is64BitProcess ? "x64" : "x86";
-            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm || RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            string architecture = RuntimeInformation.OSArchitecture switch
             {
-                architecture = "arm64";
-            }
+                Architecture.X64 => "x64",      // x64 系统
+                Architecture.X86 => "x86",      // x86 系统
+                Architecture.Arm64 => "arm64",  // ARM64 系统
+                _ => "unknown"                  // 其他架构 (如 Arm32、WASM 等)
+            };
 
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new()
@@ -244,11 +248,13 @@ public class SevenZip
             string arguments = $"a -t7z \"{archivePath}\" \"{sourceFiles}\" -r";
             Logger.Log(arguments);
 
-            string architecture = Environment.Is64BitProcess ? "x64" : "x86";
-            if (RuntimeInformation.ProcessArchitecture == Architecture.Arm || RuntimeInformation.ProcessArchitecture == Architecture.Arm64)
+            string architecture = RuntimeInformation.OSArchitecture switch
             {
-                architecture = "arm64";
-            }
+                Architecture.X64 => "x64",      // x64 系统
+                Architecture.X86 => "x86",      // x86 系统
+                Architecture.Arm64 => "arm64",  // ARM64 系统
+                _ => "unknown"                  // 其他架构 (如 Arm32、WASM 等)
+            };
 
             // 启动 7z.exe 进程
             ProcessStartInfo startInfo = new()

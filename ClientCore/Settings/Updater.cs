@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Handlers;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -894,7 +895,7 @@ public static class Updater
 
                         FileInfo clientUpdaterFile = SafePath.GetFile(ResourcePath, "Binaries", SECOND_STAGE_UPDATER);
 
-                        //移动文件到游戏目录下(文件会占用导致失败？)
+                        //移动文件到游戏目录下(文件会占用导致失败?)
                         //if (curClientUpdater.Exists)
                         {
                             //try
@@ -916,9 +917,7 @@ public static class Updater
                         //启动游戏目录下的更新器
                         Logger.Log("更新：Launching second-stage updater executable " + clientUpdaterFile.FullName + ".");
 
-                        string strDotnet = @"C:\Program Files (x86)\dotnet\dotnet.exe";
-                        if (Environment.Is64BitProcess)
-                            strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
+                        string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
 
                         if (!File.Exists(strDotnet))
                         {

@@ -251,7 +251,13 @@ namespace Localization.SevenZip
         {
             if (string.IsNullOrWhiteSpace(this.libraryFilePath))
             {
-                string currentArchitecture = Environment.Is64BitProcess ? "x64" : "x86"; // magic check
+                string currentArchitecture = RuntimeInformation.OSArchitecture switch
+                {
+                    Architecture.X64 => "x64",      // x64 系统
+                    Architecture.X86 => "x86",      // x86 系统
+                    Architecture.Arm64 => "arm64",  // ARM64 系统
+                    _ => "unknown"                  // 其他架构 (如 Arm32、WASM 等)
+                };
 
                 if (File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "7z-" + currentArchitecture + ".dll")))
                 {

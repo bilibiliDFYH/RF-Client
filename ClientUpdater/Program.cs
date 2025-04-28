@@ -6,7 +6,9 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Fun;
 
@@ -28,7 +30,7 @@ internal sealed class Program
 
         defaultColor = Console.ForegroundColor;
 
-        var errorLogPath = "Client/update_log.txt";
+        var errorLogPath = "Client/update.log";
         var logDirectory = Path.GetDirectoryName(errorLogPath);
 
         if (!Directory.Exists(logDirectory))
@@ -98,17 +100,34 @@ internal sealed class Program
                 const int maxRetryCount = 10;
                 const int retryDelay = 1000; // 1秒
 
-                // 先统一检查所有文件是否被占用
-                bool anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
+                bool anyFileInUse = files.Any(IsFileInUse);
                 bool bUpdateSuc = true;
                 int retryCount = 0;
 
-                // 如果文件被占用，最多尝试10次，每次间隔1秒
                 while (anyFileInUse && retryCount < maxRetryCount)
                 {
-                    Write("发现文件被占用，等待 1 秒后重新检查...", ConsoleColor.Yellow);
+                    Write("发现文件被占用，尝试结束相关进程...", ConsoleColor.Yellow);
+
+                    foreach (var file in files.Where(IsFileInUse))
+                    {
+                        var processes = GetProcessesLockingFile(file);
+                        foreach (var process in processes)
+                        {
+                            try
+                            {
+                                Write($"正在结束进程: {process.ProcessName} (PID: {process.Id})", ConsoleColor.Yellow);
+                                process.Kill();
+                                process.WaitForExit(1000);
+                            }
+                            catch (Exception ex)
+                            {
+                                Write($"结束进程失败: {ex.Message}", ConsoleColor.Red);
+                            }
+                        }
+                    }
+
                     Thread.Sleep(retryDelay);
-                    anyFileInUse = files.Any(fileInfo => IsFileInUse(fileInfo));
+                    anyFileInUse = files.Any(IsFileInUse);
                     retryCount++;
                 }
 
@@ -193,22 +212,15 @@ internal sealed class Program
                 {
                     Write("发现启动程序: " + launcherExeFile.FullName, ConsoleColor.Green);
 
-#pragma warning disable SA1312 // Variable names should begin with lower-case letter
+                    string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
 
-                    string strDotnet = @"C:\Program Files (x86)\dotnet\dotnet.exe";
-                    if (Environment.Is64BitProcess)
-                    {
-                        strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
-                    }
-
-                    using var _ = Process.Start(new ProcessStartInfo
+                    using var process = Process.Start(new ProcessStartInfo
                     {
                         FileName = strDotnet,
                         Arguments = "\"" + launcherExeFile.FullName + "\"",
                         CreateNoWindow = true,
                         UseShellExecute = false,
                     });
-#pragma warning restore SA1312 // Variable names should begin with lower-case letter
                 }
                 else
                 {
@@ -271,19 +283,79 @@ internal sealed class Program
 
     private static bool IsFileInUse(FileInfo file)
     {
+        return GetProcessesLockingFile(file).Count != 0;
+    }
+
+    private static List<Process> GetProcessesLockingFile(FileInfo file)
+    {
+        var processes = new List<Process>();
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return processes;
+        }
+
+        var path = file.FullName;
+        var query = $@"SELECT ProcessId FROM Win32_Process WHERE ExecutablePath IS NOT NULL";
+        using (var searcher = new ManagementObjectSearcher(query))
+        using (var results = searcher.Get())
+        {
+            foreach (var mo in results)
+            {
+                var executablePath = mo["ExecutablePath"]?.ToString();
+                if (executablePath != null && executablePath.Equals(path, StringComparison.OrdinalIgnoreCase))
+                {
+                    var processId = Convert.ToInt32(mo["ProcessId"], CultureInfo.InvariantCulture);
+                    try
+                    {
+                        var process = Process.GetProcessById(processId);
+                        processes.Add(process);
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
+                }
+            }
+        }
+
+        query = $"SELECT ProcessId FROM Win32_Process WHERE CommandLine LIKE '%{path.Replace(@"\", @"\\", StringComparison.Ordinal)}%'";
+        using (var searcher = new ManagementObjectSearcher(query))
+        using (var results = searcher.Get())
+        {
+            foreach (var mo in results)
+            {
+                var processId = Convert.ToInt32(mo["ProcessId"], CultureInfo.InvariantCulture);
+                try
+                {
+                    var process = Process.GetProcessById(processId);
+                    if (IsFileLockedByProcess(process, path))
+                    {
+                        processes.Add(process);
+                    }
+                }
+                catch (ArgumentException)
+                {
+                }
+            }
+        }
+
+        return processes.Distinct().ToList();
+    }
+
+    private static bool IsFileLockedByProcess(Process process, string filePath)
+    {
         try
         {
-            using (FileStream fs = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.None))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {
-                fs.Close(); // 文件可用，正常关闭流
+                fs.Close();
             }
-
-            return false; // 文件未被占用
         }
-        catch (Exception)
+        catch (IOException)
         {
-            return true; // 捕获IOException表示文件被占用
+            return process.Id != Environment.ProcessId; // 排除自身进程
         }
+
+        return false;
     }
 
     private static void Write(string text)

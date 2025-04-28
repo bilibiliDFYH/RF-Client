@@ -34,8 +34,6 @@ namespace Reunion
         {
             try
             {
-                // if (Environment.Is64BitOperatingSystem)
-                //    run32Bit = true;
                 var dotnetHost = CheckAndRetrieveDotNetHost();
 
                 if (dotnetHost == null)

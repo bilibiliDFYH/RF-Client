@@ -21,11 +21,13 @@ namespace ZIP
                 // 构造命令行参数
                 string arguments = $"x -y -aoa \"{archivePath}\" -o\"{extractPath}\"";
 
-                string architecture = IntPtr.Size == 8 ? "x64" : "x86";
-                if (Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "ARM")
+                string architecture = RuntimeInformation.OSArchitecture switch
                 {
-                    architecture = "arm64";
-                }
+                    Architecture.X64 => "x64",      // x64 系统
+                    Architecture.X86 => "x86",      // x86 系统
+                    Architecture.Arm64 => "arm64",  // ARM64 系统
+                    _ => "unknown"                  // 其他架构 (如 Arm32、WASM 等)
+                };
 
                 // 启动 7z.exe 进程
                 ProcessStartInfo startInfo = new ProcessStartInfo()

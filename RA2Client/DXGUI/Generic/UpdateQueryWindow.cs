@@ -24,7 +24,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public delegate void UpdateDeclinedEventHandler(object sender, EventArgs e);
         public event UpdateDeclinedEventHandler UpdateDeclined;
-        
+
         public UpdateQueryWindow(WindowManager windowManager) : base(windowManager) { }
 
         private XNALabel lblDescription;
@@ -35,9 +35,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Initialize()
         {
-
             //changelogUrl = ClientConfiguration.Instance.ChangelogURL;
-
             ChangeAddress();
 
             Name = "UpdateQueryWindow";
@@ -92,14 +90,12 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(btnNo);
 
             base.Initialize();
-
             CenterOnParent();
-           
         }
 
         public void ChangeAddress()
         {
-            Task.Run( async () =>
+            Task.Run(async () =>
             {
                 var beta = UserINISettings.Instance.Beta.Value == 1 ? "beta_log" : "log";
                 changelogUrl = (await NetWorkINISettings.Get<string>($"dict/getValue?section=updater&key={beta}")).Item1 ?? "www.yra2.com";
@@ -109,10 +105,8 @@ namespace Ra2Client.DXGUI.Generic
         public void GetUpdateContents(string currentVersion, string latestVersion)
         {
             changelogUrl = Updater.serverVerCfg.ManualDownURL;
-
             lstBoxUpdaterLog.Clear();
-            var logs = Updater.serverVerCfg.Logs?.Split("@") ?? [];
-
+            var logs = Updater.serverVerCfg.Logs?.Split("@") ?? Array.Empty<string>();
             foreach (var log in logs)
             {
                 lstBoxUpdaterLog.AddItem(log);
@@ -134,7 +128,7 @@ namespace Ra2Client.DXGUI.Generic
             UpdateDeclined?.Invoke(this, e);
         }
 
-        public void SetInfo(string version, int updateSize,string updateTime)
+        public void SetInfo(string version, int updateSize, string updateTime)
         {
             lblDescription.Text = string.Format("A new version \"{0}\" has been pushed, do you want to install this update?".L10N("UI:Main:UpdateInfo1"), version);
             lblUpdateSize.Text = string.Format("Update package size: {0}".L10N("UI:Main:UpdateInfo2"), GetSizeString(updateSize));

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Handlers;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -68,7 +69,6 @@ public static class Updater
     public static VersionState versionState
     {
         get => _versionState;
-
         private set
         {
             _versionState = value;
@@ -111,7 +111,6 @@ public static class Updater
     /// </summary>
     public static string UpdateTime { get; private set; }
 
-
     // Misc.
     private static IniFile settingsINI;
     private static int currentServerMirrorIndex;
@@ -141,24 +140,22 @@ public static class Updater
     private static int totalDownloadedKbs;
 
     /// <summary>
-    /// Initializes the updater.
+    /// 初始化更新器.
     /// </summary>
-    /// <param name="resourcePath">Path of the resource folder of client / game.</param>
-    /// <param name="settingsIniName">Client settings INI filename.</param>
-    /// <param name="localGame">Local game ID of the current game.</param>
-    /// <param name="callingExecutableFileName">File name of the calling executable.</param>
-    /// <param name="servers">Server list</param>
+    /// <param name="settingsIniName">Client settings INI 文件名.</param>
+    /// <param name="localGame">当前游戏的本地游戏ID.</param>
+    /// <param name="callingExecutableFileName">调用执行文件的文件名.</param>
+    /// <param name="servers">服务器列表</param>
     public static void Initialize(string settingsIniName, string localGame, string callingExecutableFileName)
     {
         Logger.Log("更新: 初始化更新模块.");
-
         settingsINI = new(SafePath.CombineFilePath(GamePath, settingsIniName));
         LocalGame = localGame;
         CallingExecutableFileName = callingExecutableFileName;
     }
 
     /// <summary>
-    /// Checks if there are available updates.
+    /// 检查是否有更新.
     /// </summary>
     public static void CheckForUpdates()
     {
@@ -170,14 +167,14 @@ public static class Updater
     }
 
     /// <summary>
-    /// Checks version information of local files.
+    /// 检查本地文件版本.
     /// </summary>
     public static void CheckLocalFileVersions()
     {
         Logger.Log("更新: 检查本地文件版本.");
 
         string strUpdaterFile = SafePath.CombineFilePath(ResourcePath, "Binaries", SECOND_STAGE_UPDATER);
-        if(File.Exists(strUpdaterFile))
+        if (File.Exists(strUpdaterFile))
         {
             Assembly assembly = Assembly.LoadFile(strUpdaterFile);
             UpdaterVersion = assembly.GetName().Version.ToString();
@@ -197,7 +194,7 @@ public static class Updater
         var lstKeys = version.GetSectionKeys("");
         if (null != lstKeys && lstKeys.Count > 0)
         {
-            foreach ( var strKey in lstKeys)
+            foreach (var strKey in lstKeys)
             {
                 string[] strArray = version.GetStringValue("FileVerify", strKey, string.Empty).Split(',');
                 var item = new UpdaterFileInfo(
@@ -210,24 +207,23 @@ public static class Updater
                 localFileInfos.Add(item);
             }
         }
-
         OnLocalFileVersionsChecked?.Invoke();
     }
 
     /// <summary>
-    /// Starts update process.
+    /// 开始更新过程.
     /// </summary>
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
     public static void StartUpdate() => PerformUpdateAsync();
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
     /// <summary>
-    /// Stops current update process.
+    /// 停止当前更新过程.
     /// </summary>
     public static void StopUpdate() => terminateUpdate = true;
 
     /// <summary>
-    /// Clears current version file information.
+    /// 清除当前版本文件信息.
     /// </summary>
     public static void ClearVersionInfo()
     {
@@ -238,38 +234,49 @@ public static class Updater
     }
 
     /// <summary>
-    /// Moves update mirror down in list of update mirrors.
+    /// 根据指定更新通道返回实际延迟最低的服务器。
     /// </summary>
-    /// <param name="mirrorIndex">Index of mirror to move in the list.</param>
-    public static void MoveMirrorDown(int nType, int mirrorIndex)
+    /// <param name="channel">更新通道（例如：Stable=0，Insiders=1）</param>
+    public static ServerMirror? GetBestMirror(int channel)
     {
-        var lstServers = serverMirrors.Where(f => f.Type.Equals(nType)).ToList();
-        if (mirrorIndex > lstServers.Count - 2 || mirrorIndex < 0)
-            return;
+        var mirrors = serverMirrors.Where(m => m.Type == channel).ToList();
+        if (mirrors.Count == 0)
+            return null;
 
-        (lstServers[mirrorIndex], lstServers[mirrorIndex + 1]) = (lstServers[mirrorIndex + 1], lstServers[mirrorIndex]);
-        var lstOtherServers = serverMirrors.Where(f => f.Type.Equals(Math.Abs(nType - 1))).ToList();
-        serverMirrors.Clear();
-        serverMirrors.AddRange(lstServers);
-        serverMirrors.AddRange(lstOtherServers);
+        ServerMirror bestMirror = default;
+        long bestLatency = long.MaxValue;
+
+        foreach (var mirror in mirrors)
+        {
+            long latency = MeasureLatency(mirror);
+            if (latency >= 0 && latency < bestLatency)
+            {
+                bestLatency = latency;
+                bestMirror = mirror;
+            }
+        }
+        return bestMirror;
     }
 
     /// <summary>
-    /// Moves update mirror up in list of update mirrors.
+    /// 使用 Ping 测试服务器延迟，返回往返时间（毫秒）。若测试失败则返回 -1。
     /// </summary>
-    /// <param name="mirrorIndex">Index of mirror to move in the list.</param>
-    public static void MoveMirrorUp(int nType, int mirrorIndex)
+    private static long MeasureLatency(ServerMirror mirror)
     {
-        var lstServers = serverMirrors.Where(f => f.Type.Equals(nType)).ToList();
-
-        if (lstServers.Count <= mirrorIndex || mirrorIndex < 1)
-            return;
-
-        (lstServers[mirrorIndex], lstServers[mirrorIndex - 1]) = (lstServers[mirrorIndex - 1], lstServers[mirrorIndex]);
-        var lstOtherServers = serverMirrors.Where(f => f.Type.Equals(Math.Abs(nType - 1))).ToList();
-        serverMirrors.Clear();
-        serverMirrors.AddRange(lstServers);
-        serverMirrors.AddRange(lstOtherServers);
+        try
+        {
+            // 提取 URL 主机进行Ping测试
+            string host = new Uri(mirror.URL).Host;
+            using var ping = new Ping();
+            PingReply reply = ping.Send(host, 1000);
+            if (reply.Status == IPStatus.Success)
+                return reply.RoundtripTime;
+        }
+        catch
+        {
+            // 忽略异常，返回-1
+        }
+        return -1;
     }
 
     internal static void UpdateUserAgent(HttpClient httpClient)
@@ -277,19 +284,19 @@ public static class Updater
         httpClient.DefaultRequestHeaders.UserAgent.Clear();
 
         if (GameVersion != "N/A")
-            httpClient.DefaultRequestHeaders.UserAgent.Add(new(LocalGame, GameVersion));
+            httpClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue(LocalGame, GameVersion));
 
         if (UpdaterVersion != "N/A")
-            httpClient.DefaultRequestHeaders.UserAgent.Add(new(nameof(Updater), UpdaterVersion));
+            httpClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue(nameof(Updater), UpdaterVersion));
 
-        httpClient.DefaultRequestHeaders.UserAgent.Add(new("Client", Assembly.GetEntryAssembly().GetName().Version.ToString()));
+        httpClient.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("Client", Assembly.GetEntryAssembly().GetName().Version.ToString()));
     }
 
     /// <summary>
-    /// Deletes file and waits until it has been deleted.
+    /// 删除文件，并等待其删除完成.
     /// </summary>
-    /// <param name="filepath">File to delete.</param>
-    /// <param name="timeout">Maximum time to wait in milliseconds.</param>
+    /// <param name="filepath">待删除的文件路径.</param>
+    /// <param name="timeout">等待超时时间（毫秒）.</param>
     internal static void DeleteFileAndWait(string filepath, int timeout = 10000)
     {
         FileInfo fileInfo = SafePath.GetFile(filepath);
@@ -306,13 +313,12 @@ public static class Updater
     }
 
     /// <summary>
-    /// Creates all directories required for file path.
+    /// 为文件路径创建所有所需的目录.
     /// </summary>
-    /// <param name="filePath">File path.</param>
+    /// <param name="filePath">文件路径.</param>
     internal static void CreatePath(string filePath)
     {
         FileInfo fileInfo = SafePath.GetFile(filePath);
-
         if (!fileInfo.Directory.Exists)
             fileInfo.Directory.Create();
     }
@@ -324,43 +330,36 @@ public static class Updater
         using FileStream fs = SafePath.GetFile(GamePath, filePath).OpenRead();
         md.ComputeHash(fs);
         var builder = new StringBuilder();
-
         foreach (byte num2 in md.Hash)
             builder.Append(num2);
-
         md.Clear();
         return builder.ToString();
     }
 
     /// <summary>
-    /// Checks if file
+    /// 检查文件是否不存在或为原始文件.
     /// </summary>
     public static bool IsFileNonexistantOrOriginal(string filePath)
     {
-        if(null == localFileInfos || 0 == localFileInfos.Count)
+        if (localFileInfos is null || localFileInfos.Count == 0)
             return true;
-
         var info = localFileInfos.Find(f => f.Filename.Equals(filePath, StringComparison.OrdinalIgnoreCase));
         if (info == null)
             return true;
-
         string uniqueIdForFile = GetUniqueIdForFile(info.Filename);
         return info.Identifier == uniqueIdForFile;
     }
 
     /// <summary>
-    /// Performs a version file check on update server.
+    /// 对更新服务器执行版本信息检查.
     /// </summary>
     private static void DoVersionCheckAsync()
     {
         Logger.Log("更新: 检查文件版本.");
-
         UpdateSizeInKb = 0;
-
         try
         {
             versionState = VersionState.UPDATECHECKINPROGRESS;
-
             if (ServerMirrors.Count == 0)
             {
                 Logger.Log("更新：这不是合法的更新地址!");
@@ -368,54 +367,13 @@ public static class Updater
             else
             {
                 Logger.Log("更新：检查更新服务.");
-
                 UpdateUserAgent(SharedHttpClient);
 
-                //FileInfo dirInfo = SafePath.GetFile(游戏目录, "Tmp");
-                //if(!Directory.Exists(dirInfo.FullName))
-                //    Directory.CreateDirectory(dirInfo.FullName);
-                //else
-                //    Directory.Delete(dirInfo.FullName, true);
-
-                //FileInfo downloadFile = SafePath.GetFile(dirInfo.FullName, FormattableString.Invariant($"{VERSION_FILE}"));
-                //if (File.Exists(downloadFile.FullName))
-                //    downloadFile.Delete();
-
-                // 根据条件判断服务器类型
-                //var serversCondi = ServerMirrors.Where(f => f.Type.Equals(UserINISettings.Instance.Beta.Value)).ToList();
-                
                 // 根据更新服务器顺序依次查找合适的服务器信息
-                //while (currentServerMirrorIndex < serversCondi.Count)
-                //{
-                //    try
-                //    {
-                //        Logger.Log("更新：Trying to connect to update mirror " + serversCondi[currentServerMirrorIndex].URL);
-                //        if (WebHelper.HttpDownFile(serversCondi[currentServerMirrorIndex].URL + VERSION_FILE, downloadFile.FullName))
-                //            break;
-                //    }
-                //    catch (Exception e)
-                //    {
-                //        Logger.Log("更新：Error connecting to update mirror. Error message: " + e.Message);
-                //        Logger.Log("更新：Seeking other mirrors...");
-
-                //        if (currentServerMirrorIndex >= ServerMirrors.Count)
-                //        {
-                //            currentServerMirrorIndex = 0;
-                //            throw new("Unable to connect to update servers.");
-                //        }
-                //    }
-                //    currentServerMirrorIndex++;
-                //}
-
-                //Logger.Log("更新：下载版本信息.");
-                //var version = new IniFile(downloadFile.FullName);
-
                 var version = NetWorkINISettings.Get<ClientCore.Entity.Updater>($"updater/getLatestInfo?type={UserINISettings.Instance.Beta.Value}").GetAwaiter().GetResult().Item1 ?? throw new("Update server integrity error while checking for updates.");
                 serverVerCfg = new VersionFileConfig()
                 {
                     Version = version.version,
-                    //UpdaterVersion = version.GetStringValue("Client", "UpdaterVersion", "N/A"),
-                    //ManualDownURL = version.GetStringValue("Client", "ManualDownloadURL", string.Empty),
                     Package = version.file,
                     Hash = version.hash,
                     Size = (int)version.size,
@@ -429,20 +387,17 @@ public static class Updater
                 if (!CheckHasNewVersion(ServerGameVersion, GameVersion))
                 {
                     versionState = VersionState.UPTODATE;
-                //    downloadFile.Delete();
                     DoFileIdentifiersUpdatedEvent();
                 }
                 else
                 {
                     string strServUpdaterVer = serverVerCfg.UpdaterVersion;
-                   
                     if (strServUpdaterVer != "N/A" && UpdaterVersion == "N/A" && strServUpdaterVer != UpdaterVersion)
                     {
                         Logger.Log("更新：Server updater  version is set to " + strServUpdaterVer + " and is different to local update system version " + UpdaterVersion + ". Manual update required.");
                         versionState = VersionState.OUTDATED;
                         ManualUpdateRequired = true;
                         ManualDownloadURL = serverVerCfg.ManualDownURL;
-                     //   downloadFile.Delete();
                         DoFileIdentifiersUpdatedEvent();
                     }
                     else
@@ -465,29 +420,20 @@ public static class Updater
     {
         Version v1 = new Version(strSer);
         Version v2 = new Version(strLoc);
-
         if (v1.Major > v2.Major)
-        {
             return true;
-        }
         if (v1.Major == v2.Major)
         {
             if (v1.Minor > v2.Minor)
-            {
                 return true;
-            }
             if (v1.Minor == v2.Minor)
             {
                 if (v1.Build > v2.Build)
-                {
                     return true;
-                }
                 if (v1.Build == v2.Build)
                 {
                     if (v1.Revision > v2.Revision)
-                    {
                         return true;
-                    }
                 }
             }
         }
@@ -495,7 +441,7 @@ public static class Updater
     }
 
     /// <summary>
-    /// Executes after-update script file.
+    /// 下载更新后执行的脚本文件.
     /// </summary>
     private static async ValueTask ExecuteAfterUpdateScriptAsync()
     {
@@ -510,11 +456,9 @@ public static class Updater
                 Options = FileOptions.Asynchronous | FileOptions.SequentialScan | FileOptions.WriteThrough,
                 Share = FileShare.None
             });
-
             await using (fileStream.ConfigureAwait(false))
             {
                 Stream stream = await SharedHttpClient.GetStreamAsync(ServerMirrors[currentServerMirrorIndex].URL + "updateexec").ConfigureAwait(false);
-
                 await using (stream.ConfigureAwait(false))
                 {
                     await stream.CopyToAsync(fileStream).ConfigureAwait(false);
@@ -526,63 +470,22 @@ public static class Updater
             Logger.Log("更新：Warning: Downloading updateexec failed: " + exception.Message);
             return;
         }
-
         ExecuteScript("updateexec");
     }
 
-    ///// <summary>
-    ///// Executes pre-update script file.
-    ///// </summary>
-    ///// <returns>True if succesful, otherwise false.</returns>
-    //private static async ValueTask<bool> ExecutePreUpdateScriptAsync()
-    //{
-    //    Logger.Log("更新：Downloading preupdateexec.");
-    //    try
-    //    {
-    //        var fileStream = new FileStream(SafePath.CombineFilePath(游戏目录, "preupdateexec"), new FileStreamOptions
-    //        {
-    //            Access = FileAccess.Write,
-    //            BufferSize = 0,
-    //            Mode = FileMode.Create,
-    //            Options = FileOptions.Asynchronous | FileOptions.SequentialScan | FileOptions.WriteThrough,
-    //            Share = FileShare.None
-    //        });
-
-    //        await using (fileStream.ConfigureAwait(false))
-    //        {
-    //            Stream stream = await SharedHttpClient.GetStreamAsync(ServerMirrors[currentServerMirrorIndex].URL + "preupdateexec").ConfigureAwait(false);
-
-    //            await using (stream.ConfigureAwait(false))
-    //            {
-    //                await stream.CopyToAsync(fileStream).ConfigureAwait(false);
-    //            }
-    //        }
-    //    }
-    //    catch (Exception exception)
-    //    {
-    //        Logger.Log("更新：Warning: Downloading preupdateexec failed: " + exception.Message);
-    //        return false;
-    //    }
-
-    //    ExecuteScript("preupdateexec");
-    //    return true;
-    //}
-
     /// <summary>
-    /// Executes a script file.
+    /// 执行脚本文件.
     /// </summary>
-    /// <param name="fileName">Filename of the script file.</param>
+    /// <param name="fileName">脚本文件名.</param>
     private static void ExecuteScript(string fileName)
     {
         Logger.Log("更新：Executing " + fileName + ".");
         FileInfo scriptFileInfo = SafePath.GetFile(GamePath, fileName);
         var script = new IniFile(scriptFileInfo.FullName);
-
         // Delete files.
         foreach (string key in GetKeys(script, "Delete"))
         {
             Logger.Log("更新：" + fileName + ": Deleting file " + key);
-
             try
             {
                 SafePath.DeleteFileIfExists(GamePath, key);
@@ -592,7 +495,6 @@ public static class Updater
                 Logger.Log("更新：" + fileName + ": Deleting file " + key + "failed: " + ex.Message);
             }
         }
-
         // Rename files.
         foreach (string key in GetKeys(script, "Rename"))
         {
@@ -602,9 +504,7 @@ public static class Updater
             try
             {
                 Logger.Log("更新：" + fileName + ": Renaming file '" + key + "' to '" + newFilename + "'");
-
                 FileInfo file = SafePath.GetFile(GamePath, key);
-
                 if (file.Exists)
                     file.MoveTo(SafePath.CombineFilePath(GamePath, newFilename));
             }
@@ -613,7 +513,6 @@ public static class Updater
                 Logger.Log("更新：" + fileName + ": Renaming file '" + key + "' to '" + newFilename + "' failed: " + ex.Message);
             }
         }
-
         // Rename folders.
         foreach (string key in GetKeys(script, "RenameFolder"))
         {
@@ -623,9 +522,7 @@ public static class Updater
             try
             {
                 Logger.Log("更新：" + fileName + ": Renaming directory '" + key + "' to '" + newDirectoryName + "'");
-
                 DirectoryInfo directory = SafePath.GetDirectory(GamePath, key);
-
                 if (directory.Exists)
                     directory.MoveTo(SafePath.CombineDirectoryPath(GamePath, newDirectoryName));
             }
@@ -634,7 +531,6 @@ public static class Updater
                 Logger.Log("更新：" + fileName + ": Renaming directory '" + key + "' to '" + newDirectoryName + "' failed: " + ex.Message);
             }
         }
-
         // Rename & merge files / folders.
         foreach (string key in GetKeys(script, "RenameAndMerge"))
         {
@@ -647,10 +543,8 @@ public static class Updater
                 Logger.Log("更新：" + fileName + ": Merging directory '" + directoryName + "' with '" + directoryNameToMergeInto + "'");
                 DirectoryInfo directoryToMergeInto = SafePath.GetDirectory(GamePath, directoryNameToMergeInto);
                 DirectoryInfo gameDirectory = SafePath.GetDirectory(GamePath, directoryName);
-
                 if (!gameDirectory.Exists)
                     continue;
-
                 if (!directoryToMergeInto.Exists)
                 {
                     Logger.Log("更新：" + fileName + ": Destination directory '" + directoryNameToMergeInto + "' does not exist, renaming.");
@@ -665,14 +559,12 @@ public static class Updater
                         FileInfo fileToMergeInto = SafePath.GetFile(directoryToMergeInto.FullName, file.Name);
                         if (fileToMergeInto.Exists)
                         {
-                            Logger.Log("更新：" + fileName + ": Destination file '" + directoryNameToMergeInto + "/" + file.Name +
-                                "' exists, removing original source file " + directoryName + "/" + file.Name);
+                            Logger.Log("更新：" + fileName + ": Destination file '" + directoryNameToMergeInto + "/" + file.Name + "' exists, removing original source file " + directoryName + "/" + file.Name);
                             fileToMergeInto.Delete();
                         }
                         else
                         {
-                            Logger.Log("更新：" + fileName + ": Destination file '" + directoryNameToMergeInto + "/" + file.Name +
-                                "' does not exist, moving original source file " + directoryName + "/" + file.Name);
+                            Logger.Log("更新：" + fileName + ": Destination file '" + directoryNameToMergeInto + "/" + file.Name + "' does not exist, moving original source file " + directoryName + "/" + file.Name);
                             file.MoveTo(fileToMergeInto.FullName);
                         }
                     }
@@ -683,7 +575,6 @@ public static class Updater
                 Logger.Log("更新：" + fileName + ": Merging directory '" + directoryName + "' with '" + directoryNameToMergeInto + "' failed: " + ex.Message);
             }
         }
-
         // Delete folders.
         foreach (string sectionName in new string[] { "DeleteFolder", "ForceDeleteFolder" })
         {
@@ -692,7 +583,6 @@ public static class Updater
                 try
                 {
                     Logger.Log("更新：" + fileName + ": Deleting directory '" + key + "'");
-
                     SafePath.DeleteDirectoryIfExists(true, GamePath, key);
                 }
                 catch (Exception ex)
@@ -701,38 +591,28 @@ public static class Updater
                 }
             }
         }
-
         // Delete folders, if empty.
         foreach (string key in GetKeys(script, "DeleteFolderIfEmpty"))
         {
             try
             {
                 Logger.Log("更新：" + fileName + ": Deleting directory '" + key + "' if it's empty.");
-
                 DirectoryInfo directoryInfo = SafePath.GetDirectory(GamePath, key);
-
                 if (directoryInfo.Exists)
                 {
                     if (!directoryInfo.EnumerateFiles().Any())
-                    {
                         directoryInfo.Delete();
-                    }
                     else
-                    {
                         Logger.Log("更新：" + fileName + ": Directory '" + key + "' is not empty!");
-                    }
                 }
                 else
-                {
                     Logger.Log("更新：" + fileName + ": Specified directory does not exist.");
-                }
             }
             catch (Exception ex)
             {
                 Logger.Log("更新：" + fileName + ": Deleting directory '" + key + "' if it's empty failed: " + ex.Message);
             }
         }
-
         // Create folders.
         foreach (string key in GetKeys(script, "CreateFolder"))
         {
@@ -745,21 +625,18 @@ public static class Updater
                     directoryInfo.Create();
                 }
                 else
-                {
                     Logger.Log("更新：" + fileName + ": Directory '" + key + "' already exists.");
-                }
             }
             catch (Exception ex)
             {
                 Logger.Log("更新：" + fileName + ": Creating directory '" + key + "' failed: " + ex.Message);
             }
         }
-
         scriptFileInfo.Delete();
     }
 
     /// <summary>
-    /// Handle version check.
+    /// 处理版本检查逻辑.
     /// </summary>
     private static void VersionCheckHandle()
     {
@@ -770,31 +647,21 @@ public static class Updater
     }
 
     /// <summary>
-    /// Downloads files required for update and starts second-stage updater.
+    /// 下载更新文件并启动第二阶段更新程序.
     /// </summary>
     private static async Task PerformUpdateAsync()
     {
         Logger.Log("更新：Starting update.");
         versionState = VersionState.UPDATEINPROGRESS;
-
         try
         {
             UpdateUserAgent(SharedHttpClient);
-
             SharedProgressMessageHandler.HttpReceiveProgress += ProgressMessageHandlerOnHttpReceiveProgress;
-
-            //if (!await ExecutePreUpdateScriptAsync().ConfigureAwait(false))
-            //    throw new("Executing preupdateexec failed.");
-
             VersionCheckHandle();
-
             if (string.IsNullOrEmpty(ServerGameVersion) || ServerGameVersion == "N/A" || versionState != VersionState.OUTDATED)
                 throw new("Update server integrity error.");
-
             versionState = VersionState.UPDATEINPROGRESS;
-
             totalDownloadedKbs = currentFileSize = 0;
-
             if (terminateUpdate)
             {
                 Logger.Log("更新：Terminating update because of user request.");
@@ -804,7 +671,6 @@ public static class Updater
             }
             else
             {
-
                 int num = 0;
                 if (terminateUpdate)
                 {
@@ -814,13 +680,11 @@ public static class Updater
                     terminateUpdate = false;
                     return;
                 }
-
                 while (true)
                 {
                     currentFilename = serverVerCfg.Package;
                     currentFileSize += serverVerCfg.Size;
                     bool flag = await DownloadFileAsync(currentFilename).ConfigureAwait(false);
-
                     if (terminateUpdate)
                     {
                         Logger.Log("更新：Terminating update because of user request.");
@@ -829,13 +693,11 @@ public static class Updater
                         terminateUpdate = false;
                         return;
                     }
-
                     if (flag)
                     {
                         totalDownloadedKbs += currentFileSize;
                         break;
                     }
-
                     num++;
                     if (num == 2)
                     {
@@ -843,7 +705,6 @@ public static class Updater
                         throw new("Too many retries for downloading file " + currentFilename);
                     }
                 }
-
                 if (terminateUpdate)
                 {
                     Logger.Log("更新：Terminating update because of user request.");
@@ -854,10 +715,8 @@ public static class Updater
                 else
                 {
                     DirectoryInfo tmpDirInfo = SafePath.GetDirectory(GamePath, "Tmp");
-
                     try
                     {
-                        //判断文件是否合法，远程未设置Hash则不判断
                         var pkgFile = SafePath.CombineFilePath(tmpDirInfo.FullName, currentFilename);
                         if (!string.IsNullOrEmpty(serverVerCfg.Hash))
                         {
@@ -871,70 +730,35 @@ public static class Updater
                                 return;
                             }
                         }
-
                         RenderImage.CancelRendering();
-                        //解压更新包文件
-                        //bool bRet = SevenZip.CompressWith7Zip(pkgFile, tmpDirInfo.FullName);
-                        //if (bRet)
-                        //    File.Delete(pkgFile);
-
                         SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Logger.Log(ex.ToString());
                     }
-
                     tmpDirInfo.Refresh();
                     if (tmpDirInfo.Exists)
                     {
-                        //判断ClientUpdater是否有更新，有则优先移动到安装目录\Resources\Binaries\目录下等待更新
                         DirectoryInfo curClientUpdaterDir = SafePath.GetDirectory(tmpDirInfo.FullName, "Resources", "Binaries");
                         FileInfo curClientUpdater = SafePath.GetFile(curClientUpdaterDir.FullName, SECOND_STAGE_UPDATER);
                         Logger.Log("更新：Checking & moving second-stage updater files.");
-
                         FileInfo clientUpdaterFile = SafePath.GetFile(ResourcePath, "Binaries", SECOND_STAGE_UPDATER);
-
-                        //移动文件到游戏目录下(文件会占用导致失败?)
-                        //if (curClientUpdater.Exists)
-                        {
-                            //try
-                            //{
-
-                            //    Logger.Log("更新：Moving second-stage updater file " + curClientUpdater.Name + ".");
-                            //    curClientUpdater.MoveTo(clientUpdaterFile.FullName, true);
-
-                            //}
-                            //catch(Exception ex)
-                            //{
-                            //    File.Move(curClientUpdater.FullName, clientUpdaterFile.FullName, true);
-                            //}
-                            //versionState = VersionState.OUTDATED;
-                            //ManualUpdateRequired = true;
-                            //return;
-                        }
-
-                        //启动游戏目录下的更新器
                         Logger.Log("更新：Launching second-stage updater executable " + clientUpdaterFile.FullName + ".");
-
                         string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
-
                         if (!File.Exists(strDotnet))
                         {
                             Logger.Log("dotnet not exits.");
                             DoOnUpdateFailed("dotnet.exe不存在");
                             return;
                         }
-
                         using var _ = Process.Start(new ProcessStartInfo
                         {
                             FileName = strDotnet,
                             Arguments = "\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"",
                             UseShellExecute = true
                         });
-
                         Logger.Log("\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"");
-
                         Environment.Exit(0);
                         Restart?.Invoke(null, EventArgs.Empty);
                     }
@@ -947,9 +771,6 @@ public static class Updater
                         ServerGameVersion = "N/A";
                         versionState = VersionState.UPTODATE;
                         DoUpdateCompleted();
-
-                        //if (AreCustomComponentsOutdated())
-                        //    DoCustomComponentsOutdatedEvent();
                     }
                 }
             }
@@ -967,27 +788,22 @@ public static class Updater
     }
 
     /// <summary>
-    /// Downloads and handles individual file.
+    /// 下载并处理单个文件.
     /// </summary>
-    /// <param name="fileInfo">File info for the file.</param>
-    /// <returns>True if successful, otherwise false.</returns>
+    /// <param name="strfile">文件名.</param>
+    /// <returns>下载成功返回 true，否则 false.</returns>
     private static async ValueTask<bool> DownloadFileAsync(string strfile)
     {
         Logger.Log("更新：Initiliazing download of file " + strfile);
-
         UpdateDownloadProgress(0);
-
         string prefixPath = "Tmp";
         FileInfo locFile = SafePath.GetFile(GamePath, prefixPath, strfile);
-
         try
         {
-            int currentServerMirrorId = Updater.currentServerMirrorIndex;
-            
+            int currentServerMirrorId = currentServerMirrorIndex;
             var serversCondi = ServerMirrors.Where(f => f.Type.Equals(UserINISettings.Instance.Beta.Value)).ToList();
             var serverFile = (serversCondi[currentServerMirrorId].URL + strfile).Replace(@"\", "/", StringComparison.OrdinalIgnoreCase);
             CreatePath(locFile.FullName);
-
             Logger.Log("更新：Downloading file " + strfile);
             var fileStream = new FileStream(locFile.FullName, new FileStreamOptions
             {
@@ -997,50 +813,16 @@ public static class Updater
                 Options = FileOptions.Asynchronous | FileOptions.SequentialScan | FileOptions.WriteThrough,
                 Share = FileShare.None
             });
-
             await using (fileStream.ConfigureAwait(false))
             {
                 Stream stream = await SharedHttpClient.GetStreamAsync(new Uri(serverFile)).ConfigureAwait(false);
-
                 await using (stream.ConfigureAwait(false))
                 {
                     await stream.CopyToAsync(fileStream).ConfigureAwait(false);
                 }
             }
-
             OnFileDownloadCompleted?.Invoke(strfile);
             Logger.Log("更新：Download of file " + strfile + " finished - verifying.");
-
-            //    if (fileInfo.Archived)
-            //    {
-            //        Logger.Log("更新：File is an archive.");
-            //        string archiveIdentifier = CheckFileIdentifiers(strfile, fileRelativePath, fileInfo.ArchiveIdentifier);
-
-            //        if (string.IsNullOrEmpty(archiveIdentifier))
-            //        {
-            //            Logger.Log("更新：Archive " + strfile + extraExtension + " is intact. Unpacking...");
-            //            ZIP.Unpack(downloadFile.FullName, decompressedFile.FullName);
-            //            downloadFile.Delete();
-            //        }
-            //        else
-            //        {
-            //            Logger.Log("更新：Downloaded archive " + strfile + extraExtension + " has a non-matching identifier: " + archiveIdentifier + " against " + fileInfo.ArchiveIdentifier);
-            //            DeleteFileAndWait(downloadFile.FullName);
-
-            //            return false;
-            //        }
-            //    }
-
-            //string fileIdentifier = CheckFileIdentifiers(strfile, SafePath.CombineFilePath(prefixPath, strfile), fileInfo.Identifier);
-            //if (string.IsNullOrEmpty(fileIdentifier))
-            //{
-            //    Logger.Log("更新：File " + strfile + " is intact.");
-
-            //    return true;
-            //}
-
-            //Logger.Log("更新：Downloaded file " + strfile + " has a non-matching identifier: " + fileIdentifier + " against " + fileInfo.Identifier);
-            //DeleteFileAndWait(decompressedFile.FullName);
         }
         catch (Exception exception)
         {
@@ -1051,43 +833,38 @@ public static class Updater
     }
 
     /// <summary>
-    /// 更新下载进度
+    /// 更新下载进度.
     /// </summary>
-    /// <param name="progressPercentage">Progress percentage.</param>
+    /// <param name="progressPercentage">当前进度百分比.</param>
     private static void UpdateDownloadProgress(int progressPercentage)
     {
         double num = currentFileSize * (progressPercentage / 100.0);
         double num2 = totalDownloadedKbs + num;
-
         int totalPercentage = 0;
-
         if (UpdateSizeInKb is > 0 and < int.MaxValue)
             totalPercentage = (int)(num2 / UpdateSizeInKb * 100.0);
-
         DownloadProgressChanged(currentFilename, progressPercentage, totalPercentage);
     }
 
     /// <summary>
-    /// Gets keys from INI file section.
+    /// 从INI文件的指定段获取所有键.
     /// </summary>
-    /// <param name="iniFile">INI file.</param>
-    /// <param name="sectionName">Section name.</param>
-    /// <returns>List of keys or empty list if section does not exist or no keys were found.</returns>
+    /// <param name="iniFile">INI文件.</param>
+    /// <param name="sectionName">段名称.</param>
+    /// <returns>键列表，若没有则返回空列表.</returns>
     private static List<string> GetKeys(IniFile iniFile, string sectionName)
     {
         List<string> keys = iniFile.GetSectionKeys(sectionName);
-
         if (keys != null)
             return keys;
-
         return new();
     }
 
     /// <summary>
-    /// Attempts to get file identifier for a file.
+    /// 尝试获取文件的唯一标识.
     /// </summary>
-    /// <param name="filePath">File path of file.</param>
-    /// <returns>File identifier if successful, otherwise empty string.</returns>
+    /// <param name="filePath">文件路径.</param>
+    /// <returns>若成功返回文件标识，否则返回空字符串.</returns>
     private static string TryGetUniqueId(string filePath)
     {
         try
@@ -1101,57 +878,38 @@ public static class Updater
     }
 
     public static event NoParamEventHandler FileIdentifiersUpdated;
-
     public static event LocalFileCheckProgressChangedCallback LocalFileCheckProgressChanged;
-
     public static event NoParamEventHandler OnCustomComponentsOutdated;
-
     public static event NoParamEventHandler OnLocalFileVersionsChecked;
-
     public static event NoParamEventHandler OnUpdateCompleted;
-
     public static event SetExceptionCallback OnUpdateFailed;
-
     public static event NoParamEventHandler OnVersionStateChanged;
-
     public static event FileDownloadCompletedEventHandler OnFileDownloadCompleted;
-
     public static event EventHandler Restart;
-
     public static event UpdateProgressChangedCallback UpdateProgressChanged;
 
     public delegate void LocalFileCheckProgressChangedCallback(int checkedFileCount, int totalFileCount);
-
     public delegate void NoParamEventHandler();
-
     public delegate void SetExceptionCallback(string strMsg);
-
     public delegate void UpdateProgressChangedCallback(string currFileName, int currFilePercentage, int totalPercentage);
-
     public delegate void FileDownloadCompletedEventHandler(string archiveName);
 
     private static void ProgressMessageHandlerOnHttpReceiveProgress(object sender, HttpProgressEventArgs e) => UpdateDownloadProgress(e.ProgressPercentage);
-
     private static void DownloadProgressChanged(string currFileName, int currentFilePercentage, int totalPercentage) => UpdateProgressChanged?.Invoke(currFileName, currentFilePercentage, totalPercentage);
-
     private static void DoCustomComponentsOutdatedEvent() => OnCustomComponentsOutdated?.Invoke();
-
     private static void DoFileIdentifiersUpdatedEvent()
     {
         Logger.Log("更新：File identifiers updated.");
         FileIdentifiersUpdated?.Invoke();
     }
-
     private static void DoOnUpdateFailed(string strMsg) => OnUpdateFailed?.Invoke(strMsg);
-
     private static void DoOnVersionStateChanged() => OnVersionStateChanged?.Invoke();
-
     private static void DoUpdateCompleted() => OnUpdateCompleted?.Invoke();
 }
 
 public readonly record struct ServerMirror(int Type, string Name, string Location, string URL);
 
-public readonly record struct VersionFileConfig(string Version, string UpdaterVersion, string ManualDownURL, string Package, string Hash, int Size, string Logs,string time);
+public readonly record struct VersionFileConfig(string Version, string UpdaterVersion, string ManualDownURL, string Package, string Hash, int Size, string Logs, string time);
 
 public enum VersionState
 {
@@ -1166,10 +924,7 @@ public enum VersionState
 internal sealed record UpdaterFileInfo(string Filename, int Size)
 {
     public string Identifier { get; set; }
-
     public string ArchiveIdentifier { get; set; }
-
     public int ArchiveSize { get; set; }
-
     public bool Archived => !string.IsNullOrEmpty(ArchiveIdentifier) && ArchiveSize > 0;
 }

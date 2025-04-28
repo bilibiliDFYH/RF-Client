@@ -85,8 +85,10 @@ namespace ClientCore
             DetailLevel = new IntSetting(iniFile, OPTIONS, "DetailLevel", 2);
             Game = new StringSetting(iniFile, OPTIONS, "Game", "SkirmishLobby");
             YRPath = new StringSetting(iniFile, OPTIONS, "YRPath", "YR");
-            IMEEnabled = new BoolSetting(iniFile, OPTIONS, "IMEEnabled", false);
-            Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer", Environment.OSVersion.Version.Major == 6 && Environment.OSVersion.Version.Minor == 1 ? "Default" : "CnC_DDraw");
+            IMEEnabled = new BoolSetting(iniFile, OPTIONS, "IMEEnabled", true);
+            Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer",
+                Environment.OSVersion.Version.Major == 5 ? "Default" :
+                Environment.OSVersion.Version.Major == 6 ? "CnC_DDraw2" : "CnC_DDraw");
       
             WindowedMode = new BoolSetting(iniFile, VIDEO, WINDOWED_MODE_KEY, false);
             BorderlessWindowedMode = new BoolSetting(iniFile, VIDEO, "NoWindowFrame", false);
@@ -143,7 +145,7 @@ namespace ClientCore
 
             //随机壁纸
             Random_wallpaper = new BoolSetting(iniFile, OPTIONS, "Random_wallpaper", false);
-            //壁纸还是视频
+            //壁纸or视频
             video_wallpaper = new BoolSetting(iniFile, OPTIONS, "video_wallpaper", false);
             IsFirstRun = new BoolSetting(iniFile, OPTIONS, "IsFirstRun", true);
             ChkExtensionIsFirst = new BoolSetting(iniFile, OPTIONS, "ChkExtensionIsFirst", true);

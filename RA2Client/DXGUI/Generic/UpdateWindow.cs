@@ -34,7 +34,6 @@ namespace Ra2Client.DXGUI.Generic
 
         public UpdateWindow(WindowManager windowManager) : base(windowManager)
         {
-
         }
 
         private XNALabel lblDescription;
@@ -45,7 +44,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private XNAProgressBar prgCurrentFile;
         private XNAProgressBar prgTotal;
-
 
         private bool isStartingForceUpdate;
 
@@ -61,8 +59,6 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Initialize()
         {
-
-      
             Name = "UpdateWindow";
             ClientRectangle = new Rectangle(0, 0, 446, 270);
             BackgroundTexture = AssetLoader.LoadTexture("updaterbg.png");
@@ -86,7 +82,6 @@ namespace Ra2Client.DXGUI.Generic
             prgCurrentFile.Name = "prgCurrentFile";
             prgCurrentFile.Maximum = 100;
             prgCurrentFile.ClientRectangle = new Rectangle(12, 110, 422, 30);
-            //prgCurrentFile.BorderColor = UISettings.WindowBorderColor;
             prgCurrentFile.SmoothForwardTransition = true;
             prgCurrentFile.SmoothTransitionRate = 10;
 
@@ -108,8 +103,6 @@ namespace Ra2Client.DXGUI.Generic
             prgTotal.Name = "prgTotal";
             prgTotal.Maximum = 100;
             prgTotal.ClientRectangle = new Rectangle(12, 190, prgCurrentFile.Width, prgCurrentFile.Height);
-            //prgTotal.BorderColor = UISettings.WindowBorderColor;
-            //prgTotal.BorderColor = UISettings.WindowBorderColor
 
             lblUpdaterStatus = new XNALabel(WindowManager);
             lblUpdaterStatus.Name = "lblUpdaterStatus";
@@ -132,8 +125,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(lblUpdaterStatus);
             AddChild(btnCancel);
 
-            base.Initialize(); // Read theme settings from INI
-
+            base.Initialize();
             CenterOnParent();
 
             Updater.FileIdentifiersUpdated += Updater_FileIdentifiersUpdated;
@@ -142,10 +134,7 @@ namespace Ra2Client.DXGUI.Generic
             Updater.UpdateProgressChanged += Updater_UpdateProgressChanged;
             Updater.LocalFileCheckProgressChanged += Updater_LocalFileCheckProgressChanged;
             Updater.OnFileDownloadCompleted += Updater_OnFileDownloadCompleted;
-
         }
-
-      
 
         private void Updater_FileIdentifiersUpdated()
         {
@@ -168,13 +157,11 @@ namespace Ra2Client.DXGUI.Generic
             SetData(Updater.ServerGameVersion);
             isStartingForceUpdate = false;
             Updater.StartUpdate();
-            
         }
 
         private void Updater_LocalFileCheckProgressChanged(int checkedFileCount, int totalFileCount)
         {
-            AddCallback(new Action<int>(UpdateFileProgress),
-                (checkedFileCount * 100 / totalFileCount));
+            AddCallback(new Action<int>(UpdateFileProgress), (checkedFileCount * 100 / totalFileCount));
         }
 
         private void UpdateFileProgress(int value)
@@ -339,10 +326,4 @@ namespace Ra2Client.DXGUI.Generic
             get { return reason; }
         }
     }
-
-    /// <summary>
-    /// For utilizing the taskbar progress bar introduced in Windows 7:
-    /// http://stackoverflow.com/questions/1295890/windows-7-progress-bar-in-taskbar-in-c
-    /// </summary>
-
 }

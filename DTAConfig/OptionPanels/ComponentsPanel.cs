@@ -392,7 +392,6 @@ namespace DTAConfig.OptionPanels
             string message = null;
             int apiMaxRetries = 3;
 
-            // 第一部分：获取下载链接，优先使用主API
             for (int i = 0; i < apiMaxRetries; i++)
             {
                 var result = await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}");
@@ -401,31 +400,6 @@ namespace DTAConfig.OptionPanels
                 if (!string.IsNullOrEmpty(strDownPath))
                     break;
                 await Task.Delay(2000);
-            }
-
-            // 如果仍然失败，则尝试备用API地址
-            if (string.IsNullOrEmpty(strDownPath))
-            {
-                string altApiUrl = $"https://apis.yra2.com/component/getComponentUrl?id={_curComponent.id}";
-                using (HttpClient altClient = new HttpClient())
-                {
-                    for (int i = 0; i < apiMaxRetries; i++)
-                    {
-                        try
-                        {
-                            var altResponse = await altClient.GetAsync(altApiUrl);
-                            altResponse.EnsureSuccessStatusCode();
-                            strDownPath = await altResponse.Content.ReadAsStringAsync();
-                            if (!string.IsNullOrEmpty(strDownPath))
-                                break;
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log($"备用API尝试 {i + 1} 失败: {ex.Message}");
-                        }
-                        await Task.Delay(2000);
-                    }
-                }
             }
 
             if (string.IsNullOrEmpty(strDownPath))
@@ -448,7 +422,7 @@ namespace DTAConfig.OptionPanels
             if (File.Exists(strLocPath))
                 File.Delete(strLocPath);
 
-            int maxRetries = 5;
+            int maxRetries = 3;
             int attempt = 0;
             bool downloadSuccess = false;
             bool useAltDownloadDomain = false;
@@ -533,10 +507,10 @@ namespace DTAConfig.OptionPanels
             // 下载完成后校验并解压
             if (File.Exists(strLocPath))
             {
-                //比对hash，如果远程未设置则不对比
+                // 比对hash，如果远程未设置则不对比
                 if (!string.IsNullOrEmpty(_curComponent.hash))
                 {
-                    //获取文件hash并比对
+                    // 获取文件hash并比对
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {

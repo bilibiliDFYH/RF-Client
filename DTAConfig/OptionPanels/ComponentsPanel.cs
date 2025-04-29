@@ -377,7 +377,7 @@ namespace DTAConfig.OptionPanels
 
         private async Task DownloadfilesAsync()
         {
-            if (null == _curComponent)
+            if (_curComponent == null)
                 return;
 
             mainButton.Visible = false;
@@ -388,103 +388,149 @@ namespace DTAConfig.OptionPanels
             string strLocPath = string.Empty;
             lbstatus.Text = "Downloading...".L10N("UI:DTAConfig:Downloading");
 
-            try
+            string strDownPath = null;
+            string message = null;
+            int apiMaxRetries = 3;
+
+            // 第一部分：获取下载链接，优先使用主API
+            for (int i = 0; i < apiMaxRetries; i++)
             {
-                var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
-                if (string.IsNullOrEmpty(strDownPath))
+                var result = await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}");
+                strDownPath = result.Item1;
+                message = result.Item2;
+                if (!string.IsNullOrEmpty(strDownPath))
+                    break;
+                await Task.Delay(2000);
+            }
+
+            // 如果仍然失败，则尝试备用API地址
+            if (string.IsNullOrEmpty(strDownPath))
+            {
+                string altApiUrl = $"https://apis.yra2.com/component/getComponentUrl?id={_curComponent.id}";
+                using (HttpClient altClient = new HttpClient())
                 {
-                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
-                    return;
-                }
-
-                string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
-                if (!Directory.Exists(strTmp))
-                    Directory.CreateDirectory(strTmp);
-                strLocPath = Path.Combine(strTmp, _curComponent.file);
-
-                if (File.Exists(strLocPath))
-                    File.Delete(strLocPath);
-
-                int maxRetries = 5;
-                int attempt = 0;
-                bool downloadSuccess = false;
-
-                while (!downloadSuccess && attempt < maxRetries)
-                {
-                    attempt++;
-                    try
+                    for (int i = 0; i < apiMaxRetries; i++)
                     {
-                        using HttpClient httpClient = new HttpClient();
-
-                        TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-
-                        using var response = await httpClient.GetAsync(strDownPath, HttpCompletionOption.ResponseHeadersRead);
-                        response.EnsureSuccessStatusCode();
-
-                        using var contentStream = await response.Content.ReadAsStreamAsync();
-                        using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
-
-                        var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-                        var totalRead = 0L;
-                        var buffer = new byte[131072]; // 128KB缓冲区
-                        bool isMoreToRead = true;
-                        int lastProgress = 0;
-
-                        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-                        while (isMoreToRead)
+                        try
                         {
-                            int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                            if (read == 0)
-                            {
-                                isMoreToRead = false;
-                                continue;
-                            }
-                            await fileStream.WriteAsync(buffer.AsMemory(0, read));
-                            totalRead += read;
-
-                            if (totalBytes > 0)
-                            {
-                                int progress = (int)((totalRead * 100) / totalBytes);
-                                if (progress - lastProgress >= 1)
-                                {
-                                    progressBar.Value = progress;
-                                    double seconds = stopwatch.Elapsed.TotalSeconds;
-                                    double kbSpeed = seconds > 0 ? totalRead / 1024d / seconds : 0;
-                                    string speedStr = kbSpeed >= 1024 ? $"{(kbSpeed / 1024):F2} MB/s" : $"{kbSpeed:F2} KB/s";
-
-                                    lbprogress.Text = $"{progress}%   {speedStr}";
-                                    TaskbarProgress.Instance.SetValue(progress, 100);
-                                    lastProgress = progress;
-                                }
-                            }
+                            var altResponse = await altClient.GetAsync(altApiUrl);
+                            altResponse.EnsureSuccessStatusCode();
+                            strDownPath = await altResponse.Content.ReadAsStringAsync();
+                            if (!string.IsNullOrEmpty(strDownPath))
+                                break;
                         }
-
-                        downloadSuccess = true;
-                    }
-                    catch (Exception innerEx)
-                    {
-                        Logger.Log($"下载尝试 {attempt} 失败: {innerEx.Message}");
-                        if (attempt >= maxRetries)
-                            throw;
-                        // 等待2秒后重试
+                        catch (Exception ex)
+                        {
+                            Logger.Log($"备用API尝试 {i + 1} 失败: {ex.Message}");
+                        }
                         await Task.Delay(2000);
                     }
                 }
             }
-            catch (Exception ex)
+
+            if (string.IsNullOrEmpty(strDownPath))
             {
-                Logger.Log(ex.Message);
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
                 mainButton.Visible = true;
                 progressBar.Visible = false;
                 lbstatus.Visible = false;
                 lbprogress.Visible = false;
-
                 RefreshInstallButtonStatus(CompList.SelectedIndex);
                 return;
             }
 
-            // extract
+            // 确保临时目录存在
+            string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
+            if (!Directory.Exists(strTmp))
+                Directory.CreateDirectory(strTmp);
+            strLocPath = Path.Combine(strTmp, _curComponent.file);
+
+            if (File.Exists(strLocPath))
+                File.Delete(strLocPath);
+
+            int maxRetries = 5;
+            int attempt = 0;
+            bool downloadSuccess = false;
+            bool useAltDownloadDomain = false;
+
+            while (!downloadSuccess && attempt < maxRetries)
+            {
+                attempt++;
+                try
+                {
+                    string downloadUrl = strDownPath;
+                    if (useAltDownloadDomain)
+                    {
+                        // 尝试使用备用下载地址
+                        downloadUrl = downloadUrl.Replace("autopatch1-js.yra2.com", "autopatch1-mjs.yra2.com");
+                    }
+
+                    using HttpClient httpClient = new HttpClient();
+
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
+                    using var response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                    response.EnsureSuccessStatusCode();
+
+                    using var contentStream = await response.Content.ReadAsStreamAsync();
+                    using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
+
+                    var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                    long totalRead = 0L;
+                    var buffer = new byte[131072]; // 128KB缓冲区
+                    bool isMoreToRead = true;
+                    int lastProgress = 0;
+
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                    while (isMoreToRead)
+                    {
+                        int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                        if (read == 0)
+                        {
+                            isMoreToRead = false;
+                            continue;
+                        }
+                        await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                        totalRead += read;
+
+                        if (totalBytes > 0)
+                        {
+                            int progress = (int)((totalRead * 100) / totalBytes);
+                            if (progress - lastProgress >= 1)
+                            {
+                                progressBar.Value = progress;
+                                double seconds = stopwatch.Elapsed.TotalSeconds;
+                                double kbSpeed = seconds > 0 ? totalRead / 1024d / seconds : 0;
+                                string speedStr = kbSpeed >= 1024 ? $"{(kbSpeed / 1024):F2} MB/s" : $"{kbSpeed:F2} KB/s";
+
+                                lbprogress.Text = $"{progress}%   {speedStr}";
+                                TaskbarProgress.Instance.SetValue(progress, 100);
+                                lastProgress = progress;
+                            }
+                        }
+                    }
+
+                    downloadSuccess = true;
+                }
+                catch (Exception innerEx)
+                {
+                    Logger.Log($"下载尝试 {attempt} 失败: {innerEx.Message}");
+                    if (attempt >= maxRetries && !useAltDownloadDomain)
+                    {
+                        // 转为备用下载地址后重试
+                        useAltDownloadDomain = true;
+                        attempt = 0;
+                    }
+                    else if (attempt >= maxRetries && useAltDownloadDomain)
+                    {
+                        throw;
+                    }
+                    await Task.Delay(2000);
+                }
+            }
+
+            // 下载完成后校验并解压
             if (File.Exists(strLocPath))
             {
                 //比对hash，如果远程未设置则不对比
@@ -506,7 +552,7 @@ namespace DTAConfig.OptionPanels
                     }
                 }
                 lbstatus.Text = "Unzipping...".L10N("UI:DTAConfig:Unzipping");
-                //安装组件包
+                // 安装组件包
                 await Task.Run(() =>
                 {
                     var TargetPath = "./";
@@ -538,7 +584,9 @@ namespace DTAConfig.OptionPanels
                 mainButton.Text = "Uninstall".L10N("UI:DTAConfig:Uninstall");
             }
             else
+            {
                 mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
+            }
 
             mainButton.Visible = true;
             progressBar.Visible = false;

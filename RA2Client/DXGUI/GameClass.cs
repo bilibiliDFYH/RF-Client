@@ -146,18 +146,20 @@ namespace Ra2Client.DXGUI
             }
 
             WindowManager.标题改变 += ChangeTiTle;
-         //   ClientConfiguration.标题改变 += ChangeTiTle;
+            // ClientConfiguration.标题改变 += ChangeTiTle;
 
             //注册隐藏全局快捷键
             if (null == hotKey)
             {
                 hotKey = new HotKey(Window.Handle);
                 hotKey.OnHotkey += HotKey_OnHotkey;
-                bool bRet = hotKey.Regist((uint)(HotKey.HotkeyModifiers.Alt), (uint)System.Windows.Forms.Keys.D1);
+                // 注册全局快捷键: 隐藏窗口 (Alt+H)
+                bool bRet = hotKey.Regist((uint)(HotKey.HotkeyModifiers.Alt), (uint)System.Windows.Forms.Keys.H);
                 if (!bRet)
                     Logger.Log("Regist Hidden Key Error, Please Change To Other Key");
 
-                bRet = hotKey.Regist((uint)(HotKey.HotkeyModifiers.Alt), (uint)System.Windows.Forms.Keys.D2);
+                // 注册全局快捷键: 显示窗口 (Alt+J)
+                bRet = hotKey.Regist((uint)(HotKey.HotkeyModifiers.Alt), (uint)System.Windows.Forms.Keys.J);
                 if (!bRet)
                     Logger.Log("Regist Show Key Error, Please Change To Other Key");
 

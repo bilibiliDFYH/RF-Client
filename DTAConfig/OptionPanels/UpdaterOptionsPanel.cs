@@ -90,19 +90,6 @@ namespace DTAConfig.OptionPanels
         private void DdBeta_SelectedIndexChanged(object sender, EventArgs e)
         {
             PopulateServerList();
-
-            var bestServer = Updater.GetBestMirror(ddBeta.SelectedIndex);
-            if (bestServer.HasValue)
-            {
-                var server = bestServer.Value;
-                lblBestServer.Text = server.Name +
-                    (!string.IsNullOrEmpty(server.Location) ? $" ({server.Location})" : string.Empty) +
-                    $" 延迟: {GetServerLatency(server)}ms";
-            }
-            else
-            {
-                lblBestServer.Text = "No servers found available".L10N("UI:DTAConfig:NoServerAvailable");
-            }
         }
 
         private void PopulateServerList()
@@ -223,17 +210,7 @@ namespace DTAConfig.OptionPanels
 
                 chkAutoCheck.Checked = IniSettings.CheckForUpdates;
 
-                var bestServer = Updater.GetBestMirror(ddBeta.SelectedIndex);
-                if (bestServer.HasValue)
-                {
-                    lblBestServer.Text = bestServer.Value.Name +
-                        (!string.IsNullOrEmpty(bestServer.Value.Location) ? $" ({bestServer.Value.Location})" : string.Empty) +
-                        $" 延迟: {GetServerLatency(bestServer.Value)}ms";
-                }
-                else
-                {
-                    lblBestServer.Text = "No servers found available".L10N("UI:DTAConfig:NoServerAvailable");
-                }
+                lblBestServer.Text = "Best server: N/A".L10N("UI:DTAConfig:BestServer");
 
                 PopulateServerList();
 

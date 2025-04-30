@@ -1,47 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows7.0</TargetFramework>
-	  <LangVersion>13.0</LangVersion>
-    <Title>Rampastring.Tools</Title>
-    <Description>Rampastring's Generally Useful Library</Description>
-    <Company>Rampastring</Company>
-    <Product>Rampastring.Tools</Product>
-    <Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
-    <Trademark></Trademark>
-    <AssemblyName>Rampastring.Tools</AssemblyName>
-    <RootNamespace>Rampastring.Tools</RootNamespace>
-    <Nullable>disable</Nullable>
-    <ComVisible>false</ComVisible>
-    <CLSCompliant>false</CLSCompliant>
-    <AnalysisLevel>preview-all</AnalysisLevel>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <Platforms>AnyCPU</Platforms>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <ComVisible>false</ComVisible>
-    <CLSCompliant>false</CLSCompliant>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Rampastring.Tools</PackageId>
-    <PackageTags></PackageTags>
-    <PackageProjectUrl>https://github.com/Rampastring/Rampastring.Tools</PackageProjectUrl>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
-    <EnablePackageValidation>true</EnablePackageValidation>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	<OutputPath>..\Bin\Resources\Binaries</OutputPath>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CHTCHSConv" Version="1.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" PrivateAssets="All" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0-windows7.0</TargetFramework>
+		<LangVersion>13.0</LangVersion>
+		<Title>Rampastring.Tools</Title>
+		<Description>Rampastring's Generally Useful Library</Description>
+		<Company>Rampastring</Company>
+		<Product>Rampastring.Tools</Product>
+		<Copyright>Copyright © Rami 'Rampastring' Pasanen 2016-2022</Copyright>
+		<Trademark></Trademark>
+		<AssemblyName>Rampastring.Tools</AssemblyName>
+		<RootNamespace>Rampastring.Tools</RootNamespace>
+		<Nullable>disable</Nullable>
+		<ComVisible>false</ComVisible>
+		<CLSCompliant>false</CLSCompliant>
+		<AnalysisLevel>preview-all</AnalysisLevel>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<Platforms>AnyCPU</Platforms>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<ComVisible>false</ComVisible>
+		<CLSCompliant>false</CLSCompliant>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageId>Rampastring.Tools</PackageId>
+		<PackageTags></PackageTags>
+		<PackageProjectUrl>https://github.com/Rampastring/Rampastring.Tools</PackageProjectUrl>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageLicenseExpression></PackageLicenseExpression>
+		<ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+		<EnablePackageValidation>true</EnablePackageValidation>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<OutputPath>..\Bin\Debug\Resources\Binaries\</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<OutputPath>..\Bin\Resources\Binaries\</OutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CHTCHSConv" Version="1.0.0" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" PrivateAssets="All" />
+	</ItemGroup>
 </Project>

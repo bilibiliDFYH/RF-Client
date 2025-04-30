@@ -9,6 +9,7 @@
     <RootNamespace>Reunion</RootNamespace>
     <AssemblyName>Reunion</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+      <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -18,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin\</OutputPath>
+    <OutputPath>..\Bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

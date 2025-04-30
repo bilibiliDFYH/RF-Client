@@ -230,7 +230,7 @@ namespace Ra2Client.DXGUI.Generic
             dp.CenterOnParent();
 
             //dp.LeftClick += btnMinesweeper_LeftClick;
-            // dp.DoubleLeftClick += btnMinesweeper_LeftClick;
+            //dp.DoubleLeftClick += btnMinesweeper_LeftClick;
             dp.LeftClick += (_, _) => { minesweeperGameWindow.Disable(); };
 
             minesweeperGameWindow.ClientRectangle = new Rectangle(
@@ -306,7 +306,7 @@ namespace Ra2Client.DXGUI.Generic
                 return;
             var dp = DarkeningPanel.AddAndInitializeWithControl(WindowManager, modManager);
 
-           // modManager.DDModAI.SelectedIndex = 0;
+            // modManager.DDModAI.SelectedIndex = 0;
             modManager.Enable();
             modManager.EnabledChanged += (_, _) =>
             {
@@ -431,7 +431,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnOptions_LeftClick(object sender, EventArgs e)
         {
-          //  privateMessageSwitch.SwitchOff();
+            //privateMessageSwitch.SwitchOff();
 
             //optionsWindow.tabControl.MakeUnselectable(4);
             optionsWindow.Open();

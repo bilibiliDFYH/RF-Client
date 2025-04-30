@@ -19,16 +19,17 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Configurations>Debug;Release</Configurations>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
     <IsPublishable>False</IsPublishable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1509;1591;</NoWarn>
     <DefineConstants>$(DefineConstants);DX</DefineConstants>
+	<OutputPath>..\Bin\Debug\Resources\Binaries\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;1509;1591;</NoWarn>
     <DefineConstants>$(DefineConstants);DX</DefineConstants>
+	<OutputPath>..\Bin\Resources\Binaries\</OutputPath>
   </PropertyGroup>
 	<Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
 		<ItemGroup>
@@ -67,7 +68,7 @@
     <PackageReference Include="Microsoft.NETCore.Jit" Version="1.0.18" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.1.303" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.7" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.8" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
     <PackageReference Include="TextCopy" Version="6.2.1" />

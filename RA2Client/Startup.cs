@@ -78,7 +78,7 @@ namespace Ra2Client
             Logger.Log("进程架构: " + RuntimeInformation.ProcessArchitecture);
             Logger.Log("运行框架: " + RuntimeInformation.FrameworkDescription);
             Logger.Log("运行环境: " + RuntimeInformation.RuntimeIdentifier);
-         //   Logger.Log("当前操作系统: " + MainClientConstants.OSId);
+            Logger.Log("当前操作系统: " + MainClientConstants.OSId);
             Logger.Log("系统语言: " + CultureInfo.CurrentCulture);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -125,7 +125,7 @@ namespace Ra2Client
             //    }
             //}
 
-          //  FinalSunSettings.WriteFinalSunIni();
+            // FinalSunSettings.WriteFinalSunIni();
 
             //if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             //    WriteInstallPathToRegistry();
@@ -133,10 +133,10 @@ namespace Ra2Client
             ClientConfiguration.Instance.RefreshSettings();
 
             // Start INI file preprocessor
-           // PreprocessorBackgroundTask.Instance.Run();
+            // PreprocessorBackgroundTask.Instance.Run();
 
             var gameClass = new GameClass();
-          //  UserINISettings.标题改变 += gameClass.ChangeTiTle;
+            // UserINISettings.标题改变 += gameClass.ChangeTiTle;
 
 
             int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;

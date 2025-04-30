@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 /// <summary>
 /// Provides safe cross platform Path handling.
 /// </summary>
-public static class SafePath
+internal static class SafePath
 {
     /// <summary>
     /// Safely combines multiple directory paths for all platforms.
@@ -138,12 +138,12 @@ public static class SafePath
     private static string GetPath(string path)
     {
         return FormattableString.Invariant($"{path?
-            .Replace("///", "/")
-            .Replace("//", "/")
-            .Replace('/', Path.DirectorySeparatorChar)
-            .Replace("\\\\\\", "\\")
-            .Replace("\\\\", "\\")
-            .Replace('\\', Path.DirectorySeparatorChar)
+            .Replace("///", "/", StringComparison.Ordinal)
+            .Replace("//", "/", StringComparison.Ordinal)
+            .Replace("/", Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)
+            .Replace("\\\\\\", "\\", StringComparison.Ordinal)
+            .Replace("\\\\", "\\", StringComparison.Ordinal)
+            .Replace("\\", Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)
             .TrimStart(Path.DirectorySeparatorChar)
             .TrimStart(Path.AltDirectorySeparatorChar)
             .TrimEnd(Path.DirectorySeparatorChar)

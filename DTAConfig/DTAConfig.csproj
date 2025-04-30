@@ -15,14 +15,15 @@
     <RootNamespace>DTAConfig</RootNamespace>
     <Nullable>disable</Nullable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>$(DefineConstants);</DefineConstants>
+	<OutputPath>..\Bin\Debug\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);</DefineConstants>
+	<OutputPath>..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BunLabs.NAudio.Flac" Version="2.0.1" />

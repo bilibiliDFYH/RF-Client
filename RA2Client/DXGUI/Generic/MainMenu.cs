@@ -1278,7 +1278,7 @@ namespace Ra2Client.DXGUI.Generic
 
             Updater.CheckForUpdates();
             WindowManager.Report();
-            innerPanel.UpdateQueryWindow.GetUpdateContentsAsync(Updater.versionState.ToString(), VersionState.UPTODATE.ToString());
+            innerPanel.UpdateQueryWindow.GetUpdateContents(Updater.versionState.ToString(), VersionState.UPTODATE.ToString());
             lblUpdateStatus.Enabled = false;
             lblUpdateStatus.Text = "Checking for updates...".L10N("UI:Main:CheckingForUpdates");
             lastUpdateCheckTime = DateTime.Now;

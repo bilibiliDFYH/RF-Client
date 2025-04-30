@@ -21,11 +21,7 @@ namespace ZIP
                 // 构造命令行参数
                 string arguments = $"x -y -aoa \"{archivePath}\" -o\"{extractPath}\"";
 
-                string architecture = IntPtr.Size == 8 ? "x64" : "x86";
-                if (Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "ARM")
-                {
-                    architecture = "arm64";
-                }
+                string architecture = GetOSArchitectureForFramework();
 
                 // 启动 7z.exe 进程
                 ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -80,7 +76,21 @@ namespace ZIP
             }
         }
 
-   
+        private static string GetOSArchitectureForFramework()
+        {
+            string arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432") ??
+                          Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") ??
+                          "";
 
+            arch = arch.ToUpperInvariant();
+
+            return arch switch
+            {
+                "AMD64" => "x64",
+                "X86" => "x86",
+                "ARM64" => "arm64",
+                _ => IntPtr.Size == 8 ? "x64" : "x86"
+            };
+        }
     }
 }

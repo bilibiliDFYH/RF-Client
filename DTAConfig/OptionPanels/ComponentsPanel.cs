@@ -304,22 +304,22 @@ namespace DTAConfig.OptionPanels
         /// <returns></returns>
         private StateItem CheckComponentStatus(Component comp)
         {
-            StateItem state = new StateItem { Code = -1, Text = "不可用".L10N("UI:DTAConfig:Notavailable"), TextColor = Color.Red };
+            StateItem state = new StateItem { Code = -1, Text = "Not available".L10N("UI:DTAConfig:Notavailable"), TextColor = Color.Red };
             string strid = comp.id.ToString();
             if (string.IsNullOrEmpty(strid))
                 return state;
 
-            state = new StateItem { Code = 0, Text = "未安装".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
-            var parser = new FileIniDataParser();
+            state = new StateItem { Code = 0, Text = "Not installed".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
             foreach (SectionData locSec in _locIniData.Sections)
             {
                 if (strid == locSec.SectionName)
                 {
-                    state = new StateItem { Code = 1, Text = "已安装".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
+                    state = new StateItem { Code = 1, Text = "Installed".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
+                    // 使用哈希校验比对是否有更新
                     if (CheckVersionNew(locSec.Keys["hash"], comp.hash))
-                {
-                    state = new StateItem { Code = 2, Text = "有更新".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
-                }
+                    {
+                        state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
+                    }
                     break;
                 }
             }
@@ -328,10 +328,11 @@ namespace DTAConfig.OptionPanels
 
         private bool CheckVersionNew(string strLocal, string strServer)
         {
-            //先简单判断，版本内容不一样就显示有更新,后续再细化版本号判断
-            if(string.IsNullOrEmpty(strLocal) || string.IsNullOrEmpty(strServer))
+            if (string.IsNullOrEmpty(strLocal) || string.IsNullOrEmpty(strServer))
                 return false;
-            return strLocal != strServer;
+
+            // 忽略大小写比较哈希值
+            return !strLocal.Equals(strServer, StringComparison.OrdinalIgnoreCase);
         }
 
         private void CompList_SelectedChanged(object sender, EventArgs e)
@@ -376,7 +377,7 @@ namespace DTAConfig.OptionPanels
 
         private async Task DownloadfilesAsync()
         {
-            if (null == _curComponent)
+            if (_curComponent == null)
                 return;
 
             mainButton.Visible = false;
@@ -387,86 +388,129 @@ namespace DTAConfig.OptionPanels
             string strLocPath = string.Empty;
             lbstatus.Text = "安装...".L10N("UI:DTAConfig:Downloading");
 
-            try
+            string strDownPath = null;
+            string message = null;
+            int apiMaxRetries = 3;
+
+            for (int i = 0; i < apiMaxRetries; i++)
             {
-                using HttpClient httpClient = new HttpClient();
-
-                TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-
-                var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}",5));
-                if (string.IsNullOrEmpty(strDownPath))
-                {
-                    (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}", 30));
-                    if (string.IsNullOrEmpty(strDownPath))
-                    {
-                        XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
-                        return;
-                    }
-                }
-
-                string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
-                if (!Directory.Exists(strTmp))
-                    Directory.CreateDirectory(strTmp);
-                strLocPath = Path.Combine(strTmp, _curComponent.file);
-
-                if (File.Exists(strLocPath))
-                    File.Delete(strLocPath);
-
-                using var response = await httpClient.GetAsync(strDownPath, HttpCompletionOption.ResponseHeadersRead);
-                response.EnsureSuccessStatusCode();
-
-                using var contentStream = await response.Content.ReadAsStreamAsync();
-                using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
-
-                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-                var totalRead = 0L;
-                var buffer = new byte[131072]; // 128KB缓冲区
-                bool isMoreToRead = true;
-                int lastProgress = 0;
-
-                while (isMoreToRead)
-                {
-                    int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                    if (read == 0)
-                    {
-                        isMoreToRead = false;
-                        continue;
-                    }
-                    await fileStream.WriteAsync(buffer.AsMemory(0, read));
-                    totalRead += read;
-
-                    if (totalBytes > 0)
-                    {
-                        int progress = (int)((totalRead * 100) / totalBytes);
-                        if (progress - lastProgress >= 1)
-                        {
-                            progressBar.Value = progress;
-                            lbprogress.Text = $"{progress}%";
-                            TaskbarProgress.Instance.SetValue(progress, 100);
-                            lastProgress = progress;
-                        }
-                    }
-                }
+                var result = await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}");
+                strDownPath = result.Item1;
+                message = result.Item2;
+                if (!string.IsNullOrEmpty(strDownPath))
+                    break;
+                await Task.Delay(2000);
             }
-            catch (Exception ex)
+
+            if (string.IsNullOrEmpty(strDownPath))
             {
-                Logger.Log(ex.Message);
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
                 mainButton.Visible = true;
                 progressBar.Visible = false;
                 lbstatus.Visible = false;
                 lbprogress.Visible = false;
-
                 RefreshInstallButtonStatus(CompList.SelectedIndex);
                 return;
             }
 
-            // extract
+            // 确保临时目录存在
+            string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
+            if (!Directory.Exists(strTmp))
+                Directory.CreateDirectory(strTmp);
+            strLocPath = Path.Combine(strTmp, _curComponent.file);
+
+            if (File.Exists(strLocPath))
+                File.Delete(strLocPath);
+
+            int maxRetries = 3;
+            int attempt = 0;
+            bool downloadSuccess = false;
+            bool useAltDownloadDomain = false;
+
+            while (!downloadSuccess && attempt < maxRetries)
+            {
+                attempt++;
+                try
+                {
+                    string downloadUrl = strDownPath;
+                    if (useAltDownloadDomain)
+                    {
+                        // 尝试使用备用下载地址
+                        downloadUrl = downloadUrl.Replace("autopatch1-js.yra2.com", "autopatch1-mjs.yra2.com");
+                    }
+
+                    using HttpClient httpClient = new HttpClient();
+
+                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
+                    using var response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                    response.EnsureSuccessStatusCode();
+
+                    using var contentStream = await response.Content.ReadAsStreamAsync();
+                    using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
+
+                    var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                    long totalRead = 0L;
+                    var buffer = new byte[131072]; // 128KB缓冲区
+                    bool isMoreToRead = true;
+                    int lastProgress = 0;
+
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                    while (isMoreToRead)
+                    {
+                        int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                        if (read == 0)
+                        {
+                            isMoreToRead = false;
+                            continue;
+                        }
+                        await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                        totalRead += read;
+
+                        if (totalBytes > 0)
+                        {
+                            int progress = (int)((totalRead * 100) / totalBytes);
+                            if (progress - lastProgress >= 1)
+                            {
+                                progressBar.Value = progress;
+                                double seconds = stopwatch.Elapsed.TotalSeconds;
+                                double kbSpeed = seconds > 0 ? totalRead / 1024d / seconds : 0;
+                                string speedStr = kbSpeed >= 1024 ? $"{(kbSpeed / 1024):F2} MB/s" : $"{kbSpeed:F2} KB/s";
+
+                                lbprogress.Text = $"{progress}%   {speedStr}";
+                                TaskbarProgress.Instance.SetValue(progress, 100);
+                                lastProgress = progress;
+                            }
+                        }
+                    }
+
+                    downloadSuccess = true;
+                }
+                catch (Exception innerEx)
+                {
+                    Logger.Log($"下载尝试 {attempt} 失败: {innerEx.Message}");
+                    if (attempt >= maxRetries && !useAltDownloadDomain)
+                    {
+                        // 转为备用下载地址后重试
+                        useAltDownloadDomain = true;
+                        attempt = 0;
+                    }
+                    else if (attempt >= maxRetries && useAltDownloadDomain)
+                    {
+                        throw;
+                    }
+                    await Task.Delay(2000);
+                }
+            }
+
+            // 下载完成后校验并解压
             if (File.Exists(strLocPath))
             {
-                //比对hash，如果远程未设置则不对比
+                // 比对hash，如果远程未设置则不对比
                 if (!string.IsNullOrEmpty(_curComponent.hash))
                 {
-                    //获取文件hash并比对
+                    // 获取文件hash并比对
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {
@@ -481,8 +525,8 @@ namespace DTAConfig.OptionPanels
                         return;
                     }
                 }
-                lbstatus.Text = "解压中...".L10N("UI:DTAConfig:Unzipping");
-                //安装组件包
+                lbstatus.Text = "Unzipping...".L10N("UI:DTAConfig:Unzipping");
+                // 安装组件包
                 await Task.Run(() =>
                 {
                     var TargetPath = "./";
@@ -514,7 +558,9 @@ namespace DTAConfig.OptionPanels
                 mainButton.Text = "卸载".L10N("UI:DTAConfig:Uninstall");
             }
             else
-                mainButton.Text = "安装".L10N("UI:DTAConfig:Install");
+            {
+                mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
+            }
 
             mainButton.Visible = true;
             progressBar.Visible = false;
@@ -546,7 +592,7 @@ namespace DTAConfig.OptionPanels
         {
             if (UserINISettings.Instance.第一次下载扩展.Value)
             {
-                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "If you encounter problems during the game, please do not contact the original author directly, and give priority to the Reunion production team, and we will give feedback to the original author after detailed testing and verification, thank you for your understanding and cooperation".L10N("UI:DTAConfig:FirstDownloadComponentTips"));
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "If you encounter problems during the game, please do not contact the original author directly, and give priority to the Reunion production team, and we will give feedback to the original author after detailed testing and verification, thank you for your understanding and cooperation\n\nFor China Telecom and China Mobile players: If you are experiencing the problem of getting the component link while downloading the component, please try to download it with multiple clicks or change the DNS.".L10N("UI:DTAConfig:FirstDownloadComponentTips"));
                 UserINISettings.Instance.第一次下载扩展.Value = false;
                 UserINISettings.Instance.SaveSettings();
                 return;
@@ -612,7 +658,7 @@ namespace DTAConfig.OptionPanels
                     string pngFilePath = Path.ChangeExtension(filePath, ".png");
                     if (File.Exists(pngFilePath)) File.Delete(pngFilePath);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     continue;
                 }

@@ -531,7 +531,7 @@ namespace DTAConfig.OptionPanels
 
                 if(modManager.导入具体任务包(true,true, misssionPackPath, false,Path.Combine(ProgramConstants.GamePath, $"Tmp\\{directoryPath}")) == null)
                 {
-                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The campaign package file was not found".L10N("UI:DTAConfig:CampaignPackageFileNotFound"));
+                    XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The mission package file was not found".L10N("UI:DTAConfig:MissionPackageFileNotFound"));
                     return string.Empty;
                 }
 
@@ -642,7 +642,7 @@ namespace DTAConfig.OptionPanels
                     }
                     else
                     {
-                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The folder you select does not constitute a campaign pack".L10N("UI:DTAConfig:ConstituteCampaignPackError"));
+                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The folder you select does not constitute a mission pack".L10N("UI:DTAConfig:ConstituteMissionPackError"));
                     }
                     // 显示文件数在按钮上
 

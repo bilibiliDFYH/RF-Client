@@ -15,14 +15,15 @@
     <RootNamespace>Localization</RootNamespace>
     <Nullable>disable</Nullable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
     <IsPublishable>False</IsPublishable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;CA1416;</NoWarn>
+	<OutputPath>..\Bin\Debug\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;CA1416;</NoWarn>
+	<OutputPath>..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />

@@ -14,17 +14,18 @@
     <AssemblyName>ClientCore</AssemblyName>
     <RootNamespace>ClientCore</RootNamespace>
     <Nullable>disable</Nullable>
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AnalysisLevel>6.0</AnalysisLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningLevel>7</WarningLevel>
     <Optimize>False</Optimize>
+	<OutputPath>..\Bin\Debug\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <WarningLevel>7</WarningLevel>
     <Optimize>True</Optimize>
+	<OutputPath>..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Resources\cncneticon.png" />

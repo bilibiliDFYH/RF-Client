@@ -19,16 +19,17 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <Configurations>Debug;Release</Configurations>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>..\Bin\Resources\Binaries</OutputPath>
     <IsPublishable>False</IsPublishable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702;1509;1591;</NoWarn>
     <DefineConstants>$(DefineConstants);DX</DefineConstants>
+	<OutputPath>..\Bin\Debug\Resources\Binaries\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <NoWarn>1701;1702;1509;1591;</NoWarn>
     <DefineConstants>$(DefineConstants);DX</DefineConstants>
+	<OutputPath>..\Bin\Resources\Binaries\</OutputPath>
   </PropertyGroup>
 	<Target Name="IncludeDesktopGLAssemblies" Condition="$(DefineConstants.Contains('GL')) And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
 		<ItemGroup>

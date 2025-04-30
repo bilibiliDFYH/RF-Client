@@ -10,7 +10,7 @@ namespace Ra2Client.Domain.Multiplayer
 
         /// <summary>
         /// A side (or, more correctly, house or country depending on the game)
-        /// index that is used in rules file of the game.
+        /// index that is used in Rules file of the game.
         /// </summary>
         public int InternalSideIndex
         {

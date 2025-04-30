@@ -40,6 +40,29 @@ namespace Ra2Client.Domain.Multiplayer
         }
     }
 
+    public enum RuleType
+    {
+        Mandatory,  // 强制规则，必须满足
+        Suggested   // 建议规则，最好满足
+    }
+
+    public enum PositionRequirement
+    {
+        Player,        // 必须是玩家
+        AI,            // 必须是AI
+        SameTeam,      // 必须同一队
+        DifferentTeam  // 必须不同队
+    }
+
+    public class Rule
+    {
+        public int Position1 { get; set; }          // 位置1
+        public int? Position2 { get; set; }          // 位置2（有些规则需要两个位置，比如 SameTeam）
+        public PositionRequirement Requirement { get; set; }  // 规则内容
+        public RuleType Type { get; set; }           // 是强制还是建议
+    }
+
+
     /// <summary>
     /// A multiplayer map.
     /// </summary>
@@ -226,6 +249,9 @@ namespace Ra2Client.Domain.Multiplayer
 
         public int Money = 0;
 
+        public List<Rule> Rules { get; private set; }
+
+
         public static readonly string ANNOTATION = "" +
            "# 这里用来设置地图信息。\r\n" +
            "# [MAP ID]\r\n" +
@@ -398,6 +424,9 @@ namespace Ra2Client.Domain.Multiplayer
                 {
                     Bases = Convert.ToInt32(Conversions.BooleanFromString(bases, false));
                 }
+
+
+                Rules = LoadRulesFromSection(section);
 
                 int i = 0;
                 while (true)
@@ -651,6 +680,40 @@ namespace Ra2Client.Domain.Multiplayer
                 return GetIsoTilePixelCoord(mapPoint.X, mapPoint.Y, actualSize, localSize, previewSize, level);
 
             return GetTDRACellPixelCoord(mapPoint.X, mapPoint.Y, x, y, width, height, previewSize);
+        }
+
+        public List<Rule> LoadRulesFromSection(IniSection section)
+        {
+            List<Rule> rules = [];
+
+            for (int j = 1; section.KeyExists($"Rule{j}"); j++)
+            {
+                string ruleLine = section.GetValue($"Rule{j}", string.Empty);
+                if (string.IsNullOrWhiteSpace(ruleLine))
+                    continue;
+
+                var parts = ruleLine.Split(',');
+
+                if (parts.Length >= 3)
+                {
+                    var rule = new Rule
+                    {
+                        Type = parts[0] == "Mandatory" ? RuleType.Mandatory : RuleType.Suggested,
+                        Requirement = Enum.Parse<PositionRequirement>(parts[1]),
+                        Position1 = int.Parse(parts[2]),
+                        Position2 = parts.Length >= 4 ? int.Parse(parts[3]) : (int?)null
+                    };
+
+                    rules.Add(rule);
+                }
+                else
+                {
+                    // 可以加个日志，提醒规则写得不完整
+                    Console.WriteLine($"规则 Rule{j} 格式错误: {ruleLine}");
+                }
+            }
+
+            return rules;
         }
 
         /// <summary>

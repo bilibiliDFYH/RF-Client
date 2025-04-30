@@ -223,7 +223,7 @@ public class NetWorkINISettings
         return (responseData, string.Empty);
     }
 
-    public static async Task<(T,string)> Get<T>(string url)
+    public static async Task<(T,string)> Get<T>(string url,int timeOut = 30)
     {
         try
         {
@@ -233,7 +233,7 @@ public class NetWorkINISettings
             // 发送 GET 请求并获取响应
             HttpResponseMessage response;
 
-            client.Timeout = new TimeSpan(30 * TimeSpan.TicksPerSecond);
+            client.Timeout = new TimeSpan(timeOut * TimeSpan.TicksPerSecond);
             response = await client.GetAsync($"{Address}{url}").ConfigureAwait(false);
         
             // 读取响应内容

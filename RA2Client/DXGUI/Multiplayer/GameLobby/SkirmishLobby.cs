@@ -12,6 +12,7 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
+using System.Data;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -199,8 +200,85 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             return null;
         }
 
+        protected string CheckRules(Domain.Multiplayer.Rule rule,PlayerInfo seat1, PlayerInfo seat2)
+        {
+            switch (rule.Requirement)
+            {
+                case PositionRequirement.Player:
+                    if (seat1?.IsAI != false)  // 玩家应该是IsAI = false
+                    {
+                        return $"位置{rule.Position1}必须是玩家";
+                    }
+                    break;
+
+                case PositionRequirement.AI:
+                    if (seat1?.IsAI != true)  // AI应该是IsAI = true
+                    {
+                        return $"位置{rule.Position1}必须是AI";
+                    }
+                    break;
+
+                case PositionRequirement.SameTeam:
+                    if (seat1?.TeamId > 0 == false || seat2?.TeamId > 0 == false || seat1?.TeamId != seat2?.TeamId)
+                    {
+                        return $"位置{rule.Position1}和位置{rule.Position2}必须同一队";
+                    }
+                    break;
+
+                case PositionRequirement.DifferentTeam:
+                    if (seat1?.TeamId < 0 == false && seat2?.TeamId < 0 == false && seat1?.TeamId == seat2?.TeamId)
+                    {
+                        return $"位置{rule.Position1}和位置{rule.Position2}必须不同队";
+                    }
+                    break;
+                default:
+                    return null;
+                    
+            }
+            return null;
+        }
+
+
         protected override void BtnLaunchGame_LeftClick(object sender, EventArgs e)
         {
+            
+            List<PlayerInfo> AllPlayers = [..Players, .. AIPlayers];
+
+            for (int i = 0; i < Map.Rules.Count; i++)
+            {
+                var rule = Map.Rules[i];
+                bool isLast = (i == Map.Rules.Count - 1);
+
+                var seat1 = AllPlayers.FirstOrDefault(s => s.StartingLocation == rule.Position1);
+                var seat2 = rule.Position2.HasValue ? AllPlayers.FirstOrDefault(s => s.StartingLocation == rule.Position2.Value) : null;
+
+                var err = CheckRules(rule, seat1, seat2);
+                  if (err != null)
+                {
+                    if (rule.Type == RuleType.Mandatory)
+                    {
+                        XNAMessageBox.Show(WindowManager, "无法启动游戏".L10N("UI:Main:LaunchGameErrorTitle"), err);
+                        return;
+                    }
+                    else
+                    {
+                        var mbox = new XNAMessageBox(WindowManager, "建议", e + "\n确定要继续游戏吗？", XNAMessageBoxButtons.YesNo);
+
+                        mbox.NoClickedAction += (_) => { return; };
+
+                        if (isLast)
+                        {
+                            mbox.YesClickedAction += (_) => {
+                                SaveSettings();
+                                // FileHelper.ReNameCustomFile();
+                                StartGame();
+                            };
+                            return;
+                        }
+                    }
+                }
+            }
+
             string error = CheckGameValidity();
 
             if (string.IsNullOrEmpty(error))

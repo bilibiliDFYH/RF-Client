@@ -515,7 +515,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     }
 
                     try
-                    {
+                    {    
                         File.Copy(file, destinationPath, true);
                         count++;
                     }

@@ -114,11 +114,11 @@ namespace Localization.Tools
                             //    else
                             //        throw new InvalidDataException("Invalid label format");
                             //}
-                            if (lbl != " LBL" || one != 1)
-                            {
-                                Console.Write("");
+                            //if (lbl != " LBL" || one != 1)
+                            //{
+                            //    Console.Write("");
                                 
-                            }
+                            //}
 
                                 byte[] uiNameBytes = csfFile.ReadBytes(uinameLength);
                             byte[] rtsIdBytes = csfFile.ReadBytes(4);
@@ -143,7 +143,7 @@ namespace Localization.Tools
                             uint rtsLen = csfFile.ReadUInt32() * 2;
                             byte[] contentRaw = csfFile.ReadBytes((int)rtsLen);
 
-                            if (rtsId != " RTS")
+                            if (rtsId != " RTS")  
                             {
                                 uint extraLen = csfFile.ReadUInt32();
                                 byte[] extraRaw = csfFile.ReadBytes((int)extraLen);
@@ -152,9 +152,9 @@ namespace Localization.Tools
                             if (rtsId == "WRTS")
                                 wRTS.Add(uiName);
 
-                            if (uiName == "VOX:iyursee") //732
-                                Console.Write("");
-
+                            //if (uiName == "VOX:iyursee") //732
+                            //    Console.Write("");
+                             
                             string content = BytesToString(contentRaw);
                             
                             nameStrMap[uiName] = content;

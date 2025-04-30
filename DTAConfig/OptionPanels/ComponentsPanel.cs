@@ -304,21 +304,21 @@ namespace DTAConfig.OptionPanels
         /// <returns></returns>
         private StateItem CheckComponentStatus(Component comp)
         {
-            StateItem state = new StateItem { Code = -1, Text = "Not available".L10N("UI:DTAConfig:Notavailable"), TextColor = Color.Red };
-            string strid = comp.hash;
+            StateItem state = new StateItem { Code = -1, Text = "不可用".L10N("UI:DTAConfig:Notavailable"), TextColor = Color.Red };
+            string strid = comp.id.ToString();
             if (string.IsNullOrEmpty(strid))
                 return state;
 
-            state = new StateItem { Code = 0, Text = "Not installed".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
+            state = new StateItem { Code = 0, Text = "未安装".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
             var parser = new FileIniDataParser();
             foreach (SectionData locSec in _locIniData.Sections)
             {
                 if (strid == locSec.SectionName)
                 {
-                    state = new StateItem { Code = 1, Text = "Installed".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
-                    if (CheckVersionNew(locSec.Keys["version"], comp.version))
+                    state = new StateItem { Code = 1, Text = "已安装".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
+                    if (CheckVersionNew(locSec.Keys["hash"], comp.hash))
                 {
-                    state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
+                    state = new StateItem { Code = 2, Text = "有更新".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
                 }
                     break;
                 }
@@ -364,11 +364,11 @@ namespace DTAConfig.OptionPanels
             {
                 mainButton.Visible = true;
                 if (0 == item.Code)
-                    mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
+                    mainButton.Text = "安装".L10N("UI:DTAConfig:Install");
                 else if (1 == item.Code)
-                    mainButton.Text = "Uninstall".L10N("UI:DTAConfig:Uninstall");
+                    mainButton.Text = "卸载".L10N("UI:DTAConfig:Uninstall");
                 else
-                    mainButton.Text = "Update".L10N("UI:DTAConfig:Update");
+                    mainButton.Text = "更新".L10N("UI:DTAConfig:Update");
             }
             else
                 mainButton.Visible = false;
@@ -385,7 +385,7 @@ namespace DTAConfig.OptionPanels
             lbprogress.Visible = true;
 
             string strLocPath = string.Empty;
-            lbstatus.Text = "Downloading...".L10N("UI:DTAConfig:Downloading");
+            lbstatus.Text = "安装...".L10N("UI:DTAConfig:Downloading");
 
             try
             {
@@ -393,11 +393,15 @@ namespace DTAConfig.OptionPanels
 
                 TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
 
-                var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}"));
+                var (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}",5));
                 if (string.IsNullOrEmpty(strDownPath))
                 {
-                    XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
-                    return;
+                    (strDownPath, message) = (await NetWorkINISettings.Get<string>($"component/getComponentUrl?id={_curComponent.id}", 30));
+                    if (string.IsNullOrEmpty(strDownPath))
+                    {
+                        XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), $"组件包链接获取失败: {message}");
+                        return;
+                    }
                 }
 
                 string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
@@ -466,7 +470,7 @@ namespace DTAConfig.OptionPanels
                     string strfilehash = Utilities.CalculateSHA1ForFile(strLocPath);
                     if (_curComponent.hash != strfilehash)
                     {
-                        XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
+                        XNAMessageBox.Show(WindowManager, "错误".L10N("UI:Main:Error"), $"The file may be corrupted, please download it again".L10N("UI:DTAConfig:FileCorrupted"));
 
                         mainButton.Visible = true;
                         progressBar.Visible = false;
@@ -477,7 +481,7 @@ namespace DTAConfig.OptionPanels
                         return;
                     }
                 }
-                lbstatus.Text = "Unzipping...".L10N("UI:DTAConfig:Unzipping");
+                lbstatus.Text = "解压中...".L10N("UI:DTAConfig:Unzipping");
                 //安装组件包
                 await Task.Run(() =>
                 {
@@ -507,10 +511,10 @@ namespace DTAConfig.OptionPanels
                         Logger.Log(ex.ToString());
                     }
                 });
-                mainButton.Text = "Uninstall".L10N("UI:DTAConfig:Uninstall");
+                mainButton.Text = "卸载".L10N("UI:DTAConfig:Uninstall");
             }
             else
-                mainButton.Text = "Install".L10N("UI:DTAConfig:Install");
+                mainButton.Text = "安装".L10N("UI:DTAConfig:Install");
 
             mainButton.Visible = true;
             progressBar.Visible = false;
@@ -590,6 +594,7 @@ namespace DTAConfig.OptionPanels
                 return;
             
                 var secData = _locIniData.Sections[_curComponent.id.ToString()];
+            if (secData == null) return;
                 string strUnload = secData["Unload"].ToString();
                 string[] lstDelfiles = strUnload.Split(',');
                 

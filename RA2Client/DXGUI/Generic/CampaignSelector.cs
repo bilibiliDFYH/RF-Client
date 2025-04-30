@@ -613,8 +613,8 @@ namespace Ra2Client.DXGUI.Generic
         //        if (!modChange)
         //            missionInfo = mission.MissionInfo;
         //        Rulesmd rulesmd = null;
-        //        if (mod.rules != string.Empty)
-        //            rulesmd = new(mod.rules, mod.ID);
+        //        if (mod.Rules != string.Empty)
+        //            rulesmd = new(mod.Rules, mod.ID);
 
         //        if (string.IsNullOrEmpty(missionInfo) || modChange) // 如果不在内存中
         //        {

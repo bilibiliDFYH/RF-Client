@@ -93,7 +93,7 @@ public class ModManager : XNAWindow
             Text = "Add".L10N("UI:DTAConfig:Add"),
             SelectAction = () => BtnNew.OnLeftClick()
         });
-        //_modMenu.AddItem(new XNAContextMenuItem
+        //_menu.AddItem(new XNAContextMenuItem
         //{
         //    Text = "Revise".L10N("UI:DTAConfig:Revise"),
         //    SelectAction = UpdateBase

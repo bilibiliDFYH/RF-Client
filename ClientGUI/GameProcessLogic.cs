@@ -272,6 +272,12 @@ namespace ClientGUI
             iniFile.WriteIniFile();
             
         }
+
+        public static bool IsNtfs(string path)
+        {
+            var drive = new DriveInfo(Path.GetPathRoot(path));
+            return string.Equals(drive.DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase);
+        }
         public static bool 加载模组文件(WindowManager windowManager, IniFile iniFile) { 
 
             var newSection = iniFile.GetSection("Settings");
@@ -299,14 +305,6 @@ namespace ClientGUI
             try
             {   List<string> 所有需要复制的文件 = [];
                     
-                //void 所有需要复制的文件.Add(string folderPath)
-                //{
-                //    if (!Directory.Exists(folderPath)) return;
-                //    Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories)
-                //      .ToList()
-                //      .ForEach(所有需要复制的文件.Add);
-                //}
-
                 if(!Directory.Exists(ProgramConstants.游戏目录))
                     Directory.CreateDirectory(ProgramConstants.游戏目录);
 
@@ -349,9 +347,24 @@ namespace ClientGUI
                     所有需要复制的文件.Add(Path.Combine(ProgramConstants.GamePath, "Resources\\shroud.shp"));
                 }
 
-                复制文件(所有需要复制的文件);
+                var e = string.Empty;
 
-                复制CSF(newGame);
+                if (IsNtfs(ProgramConstants.GamePath))
+                {
+                    e = 符号链接(所有需要复制的文件);
+                }
+                else
+                {
+                   e = 复制文件(所有需要复制的文件);
+                }
+
+                if (e != string.Empty)
+                {
+                    XNAMessageBox.Show(windowManager, "错误", e);
+                    return false;
+                }
+
+                    复制CSF(newGame);
                 if (newMission != newGame && newMission != string.Empty)
                     复制CSF(newMission);
                 
@@ -402,43 +415,105 @@ namespace ClientGUI
 
         }
 
-        private static void 复制文件(List<string> 所有需要复制的文件)
+        private static string 复制文件(List<string> 所有需要复制的文件)
         {
             Dictionary<string, string> 文件字典 = [];
 
-            foreach (var path in 所有需要复制的文件)
+            try
             {
-                if (File.Exists(path))
+
+                foreach (var path in 所有需要复制的文件)
                 {
-                    // 文件：使用文件名作为 key，保留最后一个相同文件名的路径
-                    string fileName = Path.GetFileName(path);
-                    文件字典[fileName] = path;
-                }
-                else if (Directory.Exists(path))
-                {
-                    // 文件夹：递归获取其中的所有文件，加入字典
-                    var filesInDir = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
-                    foreach (var file in filesInDir)
+                    if (File.Exists(path))
                     {
-                        string relativePath = Path.GetRelativePath(path, file);
-                        string targetPath = relativePath;
-                        文件字典[targetPath] = file;
+                        // 文件：使用文件名作为 key，保留最后一个相同文件名的路径
+                        string fileName = Path.GetFileName(path);
+                        文件字典[fileName] = path;
+                    }
+                    else if (Directory.Exists(path))
+                    {
+                        // 文件夹：递归获取其中的所有文件，加入字典
+                        var filesInDir = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+                        foreach (var file in filesInDir)
+                        {
+                            string relativePath = Path.GetRelativePath(path, file);
+                            string targetPath = relativePath;
+                            文件字典[targetPath] = file;
+                        }
                     }
                 }
+
+                var 去重后的文件列表 = 文件字典.ToList();
+
+                // 清理之前目标目录中已有的目标路径文件
+                ProgramConstants.清理游戏目录(去重后的文件列表.Select(kv => Path.Combine(ProgramConstants.游戏目录, kv.Key)).ToList());
+
+                foreach (var kv in 去重后的文件列表)
+                {
+                    string targetPath = Path.Combine(ProgramConstants.游戏目录, kv.Key);
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+                    FileHelper.CopyFile(kv.Value, targetPath);
+                }
             }
-
-            var 去重后的文件列表 = 文件字典.ToList();
-
-            // 清理之前目标目录中已有的目标路径文件
-            ProgramConstants.清理游戏目录(去重后的文件列表.Select(kv => Path.Combine(ProgramConstants.游戏目录, kv.Key)).ToList());
-
-            foreach (var kv in 去重后的文件列表)
+            catch (Exception ex)
             {
-                string targetPath = Path.Combine(ProgramConstants.游戏目录, kv.Key);
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
-                FileHelper.CopyFile(kv.Value, targetPath);
+                return $"复制文件失败：{ex.Message}";
             }
+            return string.Empty;
+          
         }
+
+        private static string 符号链接(List<string> 所有需要链接的文件)
+        {
+            Dictionary<string, string> 文件字典 = [];
+            try
+            {
+                foreach (var path in 所有需要链接的文件)
+                {
+                    if (File.Exists(path))
+                    {
+                        string fileName = Path.GetFileName(path);
+                        文件字典[fileName] = path;
+                    }
+                    else if (Directory.Exists(path))
+                    {
+                        var filesInDir = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+                        foreach (var file in filesInDir)
+                        {
+                            string relativePath = Path.GetRelativePath(path, file);
+                            文件字典[relativePath] = file;
+                        }
+                    }
+                }
+
+                var 去重后的文件列表 = 文件字典.ToList();
+
+                // 清理之前目标目录中已有的目标路径文件
+                ProgramConstants.清理游戏目录(去重后的文件列表.Select(kv => Path.Combine(ProgramConstants.游戏目录, kv.Key)).ToList());
+
+                foreach (var kv in 去重后的文件列表)
+                {
+                    string targetPath = Path.Combine(ProgramConstants.游戏目录, kv.Key);
+                    string sourcePath = Path.Combine(ProgramConstants.GamePath,kv.Value);
+
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+
+                    if (File.Exists(targetPath))
+                        File.Delete(targetPath);
+
+                    File.CreateSymbolicLink(targetPath, sourcePath);
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"符号链接失败，原因：{ex.Message}";
+            }
+            return string.Empty;
+        }
+
 
         private static void 复制CSF(string path)
         {

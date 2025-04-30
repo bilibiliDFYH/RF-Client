@@ -30,7 +30,7 @@ namespace Ra2Client.Domain.Multiplayer
             for (int i = 0; ; i++)
             {
                 string[] houseInfo = iniSection.GetStringValue(keyName + i, string.Empty).Split(
-                    new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    [','], StringSplitOptions.RemoveEmptyEntries);
 
                 if (houseInfo.Length == 0)
                     break;
@@ -44,4 +44,4 @@ namespace Ra2Client.Domain.Multiplayer
             return houseList;
         }
     }
-}
+} 

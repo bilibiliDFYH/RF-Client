@@ -40,6 +40,7 @@ using OpenRA.Mods.Cnc.FileSystem;
 using System.Timers;
 
 using Logger = Rampastring.Tools.Logger;
+using System.Security.Principal;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -924,7 +925,13 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-
+        public  void 检查管理员权限()
+        {
+            using WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new(identity);
+            if (!principal.IsInRole(WindowsBuiltInRole.Administrator))
+                XNAMessageBox.Show(WindowManager, "提示","当前不是管理员运行，建议以管理员身份运行，否则可能会出现异常");
+        }
 
         /// <summary>
         /// Checks whether the client is running for the first time.
@@ -947,7 +954,7 @@ namespace Ra2Client.DXGUI.Generic
                     //"Client/custom_art_yr.ini",
                     "Client/CampaignSetting.ini",
                     "Resources/missioninfo.ini",
-                    //"Resources/rules.json",
+                    //"Resources/Rules.json",
             ];
 
             foreach (string filePath in filesToCreate)
@@ -1099,6 +1106,7 @@ namespace Ra2Client.DXGUI.Generic
             if(Environment.OSVersion.Version.Major > 6)
                 CheckDDRAW();
             CheckYRPath();
+            检查管理员权限();
             检查地编();
             检查根目录下是否有玩家放入的Mod或任务包或多人图();
             监控根目录();
@@ -1384,13 +1392,13 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnNewCampaign_LeftClick(object sender, EventArgs e)
         {
-            innerPanel.Show(innerPanel.CampaignSelector);
+            //innerPanel.Show(innerPanel.CampaignSelector);
 
-            if (UserINISettings.Instance.StopMusicOnMenu)
-                MusicOff();
+            //if (UserINISettings.Instance.StopMusicOnMenu)
+            //    MusicOff();
 
-           // var w = 地图库.GetInstance(WindowManager);
-         
+            var w = 地图库.GetInstance(WindowManager);
+            w.Enable();
         }
 
         private void BtnLoadGame_LeftClick(object sender, EventArgs e)

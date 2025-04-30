@@ -21,13 +21,7 @@ namespace ZIP
                 // 构造命令行参数
                 string arguments = $"x -y -aoa \"{archivePath}\" -o\"{extractPath}\"";
 
-                string architecture = RuntimeInformation.OSArchitecture switch
-                {
-                    Architecture.X64 => "x64",      // x64 系统
-                    Architecture.X86 => "x86",      // x86 系统
-                    Architecture.Arm64 => "arm64",  // ARM64 系统
-                    _ => "unknown"                  // 其他架构 (如 Arm32、WASM 等)
-                };
+                string architecture = GetOSArchitectureForFramework();
 
                 // 启动 7z.exe 进程
                 ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -82,7 +76,21 @@ namespace ZIP
             }
         }
 
-   
+        private static string GetOSArchitectureForFramework()
+        {
+            string arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITEW6432") ??
+                          Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") ??
+                          "";
 
+            arch = arch.ToUpperInvariant();
+
+            return arch switch
+            {
+                "AMD64" => "x64",
+                "X86" => "x86",
+                "ARM64" => "arm64",
+                _ => IntPtr.Size == 8 ? "x64" : "x86"
+            };
+        }
     }
 }

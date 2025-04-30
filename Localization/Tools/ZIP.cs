@@ -182,8 +182,6 @@ public class SevenZip
             Console.WriteLine($"Error extracting archive {archivePath} to {extractPath} with 7z.exe: {ex.Message}");
             return false;
         }
-
-        
     }
 
     public static void CompressWith7Zip(string sourcePath, string archivePath, ProgressCallback progressCallback = null)

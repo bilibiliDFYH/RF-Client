@@ -1,4 +1,5 @@
 ﻿
+using ClientCore;
 using Rampastring.Tools;
 using System.Collections.Generic;
 using System.IO;
@@ -71,7 +72,7 @@ public class Mod : InfoBaseClass
 
         Mods.Clear();
 
-        var modAI = Directory.GetFiles("Mod&AI\\", "Mod&AI*.ini");
+        var modAI = Directory.GetFiles(Path.Combine(ProgramConstants.GamePath, "Mod&AI"), "Mod&AI*.ini");
 
         foreach (var file in modAI)
         {

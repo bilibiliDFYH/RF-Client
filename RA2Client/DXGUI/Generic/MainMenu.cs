@@ -1392,13 +1392,12 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnNewCampaign_LeftClick(object sender, EventArgs e)
         {
-            //innerPanel.Show(innerPanel.CampaignSelector);
+            innerPanel.Show(innerPanel.CampaignSelector);
 
-            //if (UserINISettings.Instance.StopMusicOnMenu)
-            //    MusicOff();
+            if (UserINISettings.Instance.StopMusicOnMenu)
+                MusicOff();
 
-            var w = 地图库.GetInstance(WindowManager);
-            w.Enable();
+            
         }
 
         private void BtnLoadGame_LeftClick(object sender, EventArgs e)

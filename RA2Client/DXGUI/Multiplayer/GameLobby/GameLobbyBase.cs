@@ -431,7 +431,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 Name = nameof(btnDownLoad),
                 IdleTexture = AssetLoader.LoadTexture("133pxtab.png"),
                 HoverTexture = AssetLoader.LoadTexture("133pxtab_c.png"),
-                Text = "Download the map".L10N("UI:Main:DownloadMap"),
+                Text = "下载地图".L10N("UI:Main:DownloadMap"),
                 ClientRectangle = new Rectangle(btnLoadMaps.Right + 10, btnLoadMaps.Y, btnLoadMaps.Width, btnLoadMaps.Height)
             };
             btnDownLoad.LeftClick += BtnDownLoad_LeftClick;
@@ -472,8 +472,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void BtnDownLoad_LeftClick(object sender, EventArgs e)
         {
-            var _modManager = ModManager.GetInstance(WindowManager);
-            _modManager.打开创意工坊(1);
+            var w = 地图库.GetInstance(WindowManager);
+            w.Enable();
         }
 
         private void BtnLoadMaps_LeftClick(object sender, EventArgs e)

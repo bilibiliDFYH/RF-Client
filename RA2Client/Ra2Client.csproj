@@ -27,7 +27,7 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<Optimize>False</Optimize>
-		<OutputPath>..\Bin\Debug\Resources\Binaries\</OutputPath>
+		<OutputPath>..\Bin\Resources\Binaries\</OutputPath>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<OutputPath>..\Bin\Resources\Binaries\</OutputPath>

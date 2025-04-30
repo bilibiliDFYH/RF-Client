@@ -18,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);</DefineConstants>
-	<OutputPath>..\Bin\Debug\Resources\Binaries</OutputPath>
+	<OutputPath>..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>$(DefineConstants);</DefineConstants>

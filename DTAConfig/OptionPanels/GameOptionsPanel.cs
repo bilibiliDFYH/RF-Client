@@ -108,7 +108,7 @@ namespace DTAConfig.OptionPanels
             chkMultinuclear = new XNAClientCheckBox(WindowManager);
             chkMultinuclear.Name = "chkMultinuclear";
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
-            chkMultinuclear.Text = "Try multi-core running".L10N("UI:DTAConfig:TryMultiCoreRunning");
+            chkMultinuclear.Text = "System affinity enhancements".L10N("UI:DTAConfig:SystemAffinity");
 
             chkForceEnableGameOptions = new XNAClientCheckBox(WindowManager)
             {

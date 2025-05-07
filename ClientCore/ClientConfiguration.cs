@@ -442,9 +442,14 @@ namespace ClientCore
                         return OSVersion.Windows11_24H2_Dev;
                     }
                     //等待Windows11 25H2发布并确定具体内核版本
-                    //else if (version.Build == 27000)
+                    //else if (version.Build == 26200)
                     //{
                     //    return OSVersion.Windows11_25H2;
+                    //}
+                    //等待Windows11 30H1发布并确定具体内核版本
+                    //else if (version.Build == 27817)
+                    //{
+                    //    return OSVersion.Windows11_30H1;
                     //}
                     else if (version.Build == 10240)
                     {

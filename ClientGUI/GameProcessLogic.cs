@@ -356,7 +356,7 @@ namespace ClientGUI
                 //else
                 //{
                    e = 复制文件(所有需要复制的文件);
-             //   }
+                //}
 
                 if (e != string.Empty)
                 {

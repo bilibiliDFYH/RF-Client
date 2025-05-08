@@ -179,7 +179,7 @@ namespace DTAConfig.OptionPanels
             
             ddRenderer = new XNAClientDropDown(WindowManager);
             ddRenderer.Name = "ddRenderer";
-            ddRenderer.ClientRectangle = new Rectangle(lblRenderer.Right + 12, lblRenderer.Y - 2, ddDetailLevel.Width, ddDetailLevel.Height);
+            ddRenderer.ClientRectangle = new Rectangle(lblRenderer.Right + 12, lblRenderer.Y - 2, 175, ddDetailLevel.Height);
             GetRenderers();
             AddChild(ddRenderer);
             

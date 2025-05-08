@@ -53,8 +53,12 @@ public static class AssetLoader
 
     public static Texture2D Base64ToTexture(string base64String)
     {
+
+        if (base64String == null) return null;
+
         try
         {
+
             // 移除 Base64 前缀（如果存在）
             if (base64String.StartsWith("data:image"))
             {

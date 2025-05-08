@@ -349,14 +349,14 @@ namespace ClientGUI
 
                 var e = string.Empty;
 
-                if (IsNtfs(ProgramConstants.GamePath))
-                {
-                    e = 符号链接(所有需要复制的文件);
-                }
-                else
-                {
+                //if (IsNtfs(ProgramConstants.GamePath))
+                //{
+                //    e = 符号链接(所有需要复制的文件);
+                //}
+                //else
+                //{
                    e = 复制文件(所有需要复制的文件);
-                }
+             //   }
 
                 if (e != string.Empty)
                 {

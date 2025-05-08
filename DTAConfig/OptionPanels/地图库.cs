@@ -69,6 +69,8 @@ namespace DTAConfig.OptionPanels
         // 单例访问点
         public static 地图库 GetInstance(WindowManager windowManager)
         {
+            需要刷新 = false;
+
             if (_instance == null)
             {
                 lock (_lock) // 线程安全
@@ -81,6 +83,8 @@ namespace DTAConfig.OptionPanels
             return _instance;
         }
 
+        public static bool 需要刷新 = false;
+        
         public override void Initialize()
         {
             Name = "地图库";
@@ -191,7 +195,13 @@ namespace DTAConfig.OptionPanels
                 Y = 655,
             //    ClientRectangle = new Rectangle(870, 620, 120, 40)
             };
-            closeButton.LeftClick += (sender, args) => { Disable(); };
+            closeButton.LeftClick += (sender, args) => {
+                if (需要刷新)
+                {
+                    UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+                }
+                Disable(); 
+            };
 
             // 添加控件
             AddChild(titleLabel);
@@ -218,14 +228,21 @@ namespace DTAConfig.OptionPanels
 
         private void BtnRight_LeftClick(object sender, EventArgs e)
         {
-            if (当前页数 > 1)
-                当前页数--;
+
+            if (当前页数 < 总页数)
+            {
+                当前页数++;
+                Reload();
+            }
         }
 
         private void BtnLeft_LeftClick(object sender, EventArgs e)
         {
-            if(当前页数 < 总页数)
-            当前页数++;
+            if (当前页数 > 1)
+            {
+                当前页数--;
+                Reload();
+            }
         }
 
         private void 查看地图(int id,bool is安装) 
@@ -233,6 +250,10 @@ namespace DTAConfig.OptionPanels
         {
             var w = new 地图详细信息界面(WindowManager, id, types,is安装);
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, w);
+            w.EnabledChanged +=(_,_) => {
+             //   if (Enabled == true)
+                    Reload();
+            };
         }
 
         private void DdType_SelectedIndexChanged(object sender, EventArgs e)
@@ -241,13 +262,14 @@ namespace DTAConfig.OptionPanels
         }
 
 
+
         private async void Reload()
         {
             var search = searchBox.Text.Trim() == "搜索地图名..." ? string.Empty : searchBox.Text.Trim();
 
             var ts = ddType.SelectedIndex == 0 ? string.Empty : $"{ddType.SelectedIndex - 1}";
 
-            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={search}&types={ts}&maxPlayers=&pageNum={当前页数}&pageSize=10");
+            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={search}&types={ts}&maxPlayers=&pageNum={当前页数}&pageSize=17");
 
             if(r.Item1 == null)
             {
@@ -255,7 +277,7 @@ namespace DTAConfig.OptionPanels
                 return;
             }
 
-            总页数 = (int)r.Item1.total;
+            总页数 = (int)r.Item1.pages;
 
             mapPanel.ClearItems();
             int i = 0;
@@ -396,7 +418,7 @@ namespace DTAConfig.OptionPanels
 
             下载按钮.LeftClick += 安装;
 
-            if (is下载)
+            if (!is下载)
             {
                 下载按钮.Text = "安装";
                 下载按钮.LeftClick += 安装;
@@ -452,6 +474,7 @@ namespace DTAConfig.OptionPanels
                 if (!Directory.Exists(ProgramConstants.MAP_PATH))
                     Directory.CreateDirectory(ProgramConstants.MAP_PATH);
                 File.WriteAllText(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"), map.file);
+                地图库.需要刷新 = true;
                 下载按钮.Text = "删除";
                 下载按钮.LeftClick -= 删除;
                 下载按钮.LeftClick -= 安装;
@@ -471,6 +494,7 @@ namespace DTAConfig.OptionPanels
             try
             {
                 File.Delete(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"));
+                地图库.需要刷新 = true;
                 下载按钮.Text = "安装";
                 下载按钮.LeftClick -= 删除;
                 下载按钮.LeftClick -= 安装;

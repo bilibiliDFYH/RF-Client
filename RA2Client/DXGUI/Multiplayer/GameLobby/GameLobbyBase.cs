@@ -472,8 +472,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void BtnDownLoad_LeftClick(object sender, EventArgs e)
         {
-            var w = 地图库.GetInstance(WindowManager);
-            w.Enable();
+            //var w = 地图库.GetInstance(WindowManager);
+            //w.Enable();
+            var _modManager = ModManager.GetInstance(WindowManager);
+            _modManager.打开创意工坊(1);
         }
 
         private void BtnLoadMaps_LeftClick(object sender, EventArgs e)

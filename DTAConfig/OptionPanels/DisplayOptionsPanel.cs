@@ -58,7 +58,7 @@ namespace DTAConfig.OptionPanels
 
             //游戏分辨率
             var lblIngameResolution = new XNALabel(WindowManager);
-            lblIngameResolution.Name = "lblIngameResolution";
+            lblIngameResolution.Name = nameof(lblIngameResolution);
             lblIngameResolution.ClientRectangle = new Rectangle(12, 14, 0, 0);
             lblIngameResolution.Text = "In-game Resolution:".L10N("UI:DTAConfig:InGameResolution");
             AddChild(lblIngameResolution);
@@ -72,7 +72,7 @@ namespace DTAConfig.OptionPanels
             AddChild(tbIngameResolutionX);
 
             lblCustomIngameResolution = new XNALabel(WindowManager);
-            lblCustomIngameResolution.Name = "lblCustomIngameResolution";
+            lblCustomIngameResolution.Name = nameof(lblCustomIngameResolution);
             lblCustomIngameResolution.ClientRectangle = new Rectangle(lblIngameResolution.Right + 80, lblIngameResolution.Y , 0, 0);
             lblCustomIngameResolution.Text = "x";
             lblCustomIngameResolution.Disable();
@@ -87,7 +87,7 @@ namespace DTAConfig.OptionPanels
             AddChild(tbIngameResolutionY);
 
             ddIngameResolution = new XNAClientDropDown(WindowManager);
-            ddIngameResolution.Name = "ddIngameResolution";
+            ddIngameResolution.Name = nameof(ddIngameResolution);
             ddIngameResolution.ClientRectangle = new Rectangle(lblIngameResolution.Right + 12,lblIngameResolution.Y - 2, 120, 19);
             AddChild(ddIngameResolution);
 
@@ -100,7 +100,7 @@ namespace DTAConfig.OptionPanels
                 ddIngameResolution.AddItem(res.ToString());
                 
             chkCustomIngameResolution = new XNAClientCheckBox(WindowManager);
-            chkCustomIngameResolution.Name = "chkCustomIngameResolution";
+            chkCustomIngameResolution.Name = nameof(chkCustomIngameResolution);
             chkCustomIngameResolution.ClientRectangle = new Rectangle(lblIngameResolution.X,
                 ddIngameResolution.Bottom + 10, 0, 0);
             chkCustomIngameResolution.Text = "Customize the game resolution".L10N("UI:DTAConfig:CustomizethegameResolution");
@@ -110,13 +110,13 @@ namespace DTAConfig.OptionPanels
 
             // 客户端分辨率
             var lblClientResolution = new XNALabel(WindowManager);
-            lblClientResolution.Name = "lblClientResolution";
+            lblClientResolution.Name = nameof(lblClientResolution);
             lblClientResolution.ClientRectangle = new Rectangle(ddIngameResolution.Right + 120, ddIngameResolution.Top, 0, 0);
             lblClientResolution.Text = "Client Resolution:".L10N("UI:DTAConfig:ClientResolution");
             AddChild(lblClientResolution);
             
             ddClientResolution = new XNAClientPreferredItemDropDown(WindowManager);
-            ddClientResolution.Name = "ddClientResolution";
+            ddClientResolution.Name = nameof(ddClientResolution);
             ddClientResolution.ClientRectangle = new Rectangle(lblClientResolution.Right + 12,lblClientResolution.Y - 2, 160, ddIngameResolution.Height);
             ddClientResolution.AllowDropDown = false;
             ddClientResolution.PreferredItemLabel = "(recommended)".L10N("UI:DTAConfig:Recommended");
@@ -157,13 +157,13 @@ namespace DTAConfig.OptionPanels
 
             // 画面精细度
             var lblDetailLevel = new XNALabel(WindowManager);
-            lblDetailLevel.Name = "lblDetailLevel";
+            lblDetailLevel.Name = nameof(lblDetailLevel);
             lblDetailLevel.ClientRectangle = new Rectangle(lblIngameResolution.X, lblIngameResolution.Bottom + 48, 0, 0);
             lblDetailLevel.Text = "Detail Level:".L10N("UI:DTAConfig:DetailLevel");
             AddChild(lblDetailLevel);
 
             ddDetailLevel = new XNAClientDropDown(WindowManager);
-            ddDetailLevel.Name = "ddDetailLevel";
+            ddDetailLevel.Name = nameof(ddDetailLevel);
             ddDetailLevel.ClientRectangle = new Rectangle(lblDetailLevel.Right + 12, lblDetailLevel.Y - 2, ddIngameResolution.Width, ddIngameResolution.Height);
             ddDetailLevel.AddItem("Low".L10N("UI:DTAConfig:DetailLevelLow"));
             ddDetailLevel.AddItem("Medium".L10N("UI:DTAConfig:DetailLevelMedium"));
@@ -172,13 +172,13 @@ namespace DTAConfig.OptionPanels
 
             // 渲染器(ddraw)
             var lblRenderer = new XNALabel(WindowManager);
-            lblRenderer.Name = "lblRenderer";
+            lblRenderer.Name = nameof(lblRenderer);
             lblRenderer.ClientRectangle = new Rectangle(ddDetailLevel.Right + 120, ddDetailLevel.Top, 0, 0);
             lblRenderer.Text = "Renderer:".L10N("UI:DTAConfig:Renderer");
             AddChild(lblRenderer);
             
             ddRenderer = new XNAClientDropDown(WindowManager);
-            ddRenderer.Name = "ddRenderer";
+            ddRenderer.Name = nameof(ddRenderer);
             ddRenderer.ClientRectangle = new Rectangle(lblRenderer.Right + 12, lblRenderer.Y - 2, 175, ddDetailLevel.Height);
             GetRenderers();
             AddChild(ddRenderer);
@@ -198,7 +198,7 @@ namespace DTAConfig.OptionPanels
 
             // 窗口模式
             chkWindowedMode = new XNAClientCheckBox(WindowManager);
-            chkWindowedMode.Name = "chkWindowedMode";
+            chkWindowedMode.Name = nameof(chkWindowedMode);
             chkWindowedMode.ClientRectangle = new Rectangle(lblDetailLevel.X, lblDetailLevel.Bottom + 16, 0, 0);
             chkWindowedMode.Text = "Windowed Mode".L10N("UI:DTAConfig:WindowedMode");
             chkWindowedMode.CheckedChanged += ChkWindowedMode_CheckedChanged;
@@ -206,7 +206,7 @@ namespace DTAConfig.OptionPanels
            
             // 无窗口模式
             chkBorderlessWindowedMode = new XNAClientCheckBox(WindowManager);
-            chkBorderlessWindowedMode.Name = "chkBorderlessWindowedMode";
+            chkBorderlessWindowedMode.Name = nameof(chkBorderlessWindowedMode);
             chkBorderlessWindowedMode.ClientRectangle = new Rectangle(lblRenderer.X, lblRenderer.Bottom + 16, 0, 0);
             chkBorderlessWindowedMode.Text = "Borderless Windowed Mode".L10N("UI:DTAConfig:BorderlessWindowedMode");
             chkBorderlessWindowedMode.AllowChecking = false;
@@ -214,7 +214,7 @@ namespace DTAConfig.OptionPanels
 
             // 客户端全屏
             chkBorderlessClient = new XNAClientCheckBox(WindowManager);
-            chkBorderlessClient.Name = "chkBorderlessClient";
+            chkBorderlessClient.Name = nameof(chkBorderlessClient);
             chkBorderlessClient.ClientRectangle = new Rectangle(lblClientResolution.X, lblClientResolution.Bottom + 16, 0, 0);
             chkBorderlessClient.Text = "Fullscreen Client".L10N("UI:DTAConfig:FullscreenClient");
             chkBorderlessClient.CheckedChanged += ChkBorderlessMenu_CheckedChanged;
@@ -223,13 +223,13 @@ namespace DTAConfig.OptionPanels
 
             // 语言
             var lblLanguage = new XNALabel(WindowManager);
-            lblLanguage.Name = "lblLanguage";
+            lblLanguage.Name = nameof(lblLanguage);
             lblLanguage.ClientRectangle = new Rectangle(chkBorderlessWindowedMode.X, chkBorderlessWindowedMode.Bottom + 16, 0, 0);
             lblLanguage.Text = "Language:".L10N("UI:Main:Language");
             AddChild(lblLanguage);
             
             ddLanguage = new XNAClientDropDown(WindowManager);
-            ddLanguage.Name = "ddLanguage";
+            ddLanguage.Name = nameof(ddLanguage);
             ddLanguage.ClientRectangle = new Rectangle(lblLanguage.Right + 12, lblLanguage.Y - 2, 160, ddRenderer.Height);
             AddChild(ddLanguage);
             
@@ -249,13 +249,13 @@ namespace DTAConfig.OptionPanels
 
             // 主题
             var lblClientTheme = new XNALabel(WindowManager);
-            lblClientTheme.Name = "lblClientTheme";
+            lblClientTheme.Name = nameof(lblClientTheme);
             lblClientTheme.ClientRectangle = new Rectangle(lblLanguage.X, lblLanguage.Bottom + 16, 0, 0);
             lblClientTheme.Text = "Client Theme:".L10N("UI:DTAConfig:ClientTheme");
             AddChild(lblClientTheme);
             
             ddClientTheme = new XNAClientDropDown(WindowManager);
-            ddClientTheme.Name = "ddClientTheme";
+            ddClientTheme.Name = nameof(ddClientTheme);
             ddClientTheme.ClientRectangle = new Rectangle(lblClientTheme.Right + 12, lblClientTheme.Top - 2, ddClientResolution.Width, ddRenderer.Height);
             AddChild(ddClientTheme);
 
@@ -273,7 +273,7 @@ namespace DTAConfig.OptionPanels
 
             // 随机启动封面
             chkRandom_wallpaper = new XNAClientCheckBox(WindowManager);
-            chkRandom_wallpaper.Name = "chkRandom_wallpaper";
+            chkRandom_wallpaper.Name = nameof(chkRandom_wallpaper);
             chkRandom_wallpaper.ClientRectangle = new Rectangle(chkWindowedMode.X, chkWindowedMode.Bottom + 16, 0, 0);
             chkRandom_wallpaper.Text = "Random start cover".L10N("UI:Main:RanWall");
             chkRandom_wallpaper.Checked = false;
@@ -281,14 +281,14 @@ namespace DTAConfig.OptionPanels
            
             // 随机启动封面->壁纸or视频
             var lblStart = new XNALabel(WindowManager);
-            lblStart.Name = "lblStart";
+            lblStart.Name = nameof(lblStart);
             lblStart.Text = "Load:".L10N("UI:Main:Load");
             lblStart.ClientRectangle = new Rectangle(chkRandom_wallpaper.Right + 50, chkRandom_wallpaper.Y, 0, 0);
             lblStart.Visible = false;
             AddChild(lblStart);
 
             ddStart = new XNAClientDropDown(WindowManager);
-            ddStart.Name = "ddStart";
+            ddStart.Name = nameof(ddStart);
             ddStart.ClientRectangle = new Rectangle(lblStart.Right + 30, lblStart.Y - 2, 60, ddRenderer.Height);
             ddStart.AddItem("Image".L10N("UI:Main:Image"));
             ddStart.AddItem("Video".L10N("UI:Main:Video"));
@@ -297,7 +297,7 @@ namespace DTAConfig.OptionPanels
             AddChild(ddStart);
 
             var btnOpen = new XNAButton(WindowManager);
-            btnOpen.Name = "btnOpen";
+            btnOpen.Name = nameof(btnOpen);
             btnOpen.Text = "Open the location".L10N("UI:Main:Openthelocation");
             btnOpen.ClientRectangle = new Rectangle(ddStart.Right + 30, lblStart.Y, 50, ddRenderer.Height);
             btnOpen.LeftClick += BtnOpen_LeftClick;
@@ -306,7 +306,7 @@ namespace DTAConfig.OptionPanels
 
             // 双缓冲模式
             chkBackBufferInVRAM = new XNAClientCheckBox(WindowManager);
-            chkBackBufferInVRAM.Name = "chkBackBufferInVRAM";
+            chkBackBufferInVRAM.Name = nameof(chkBackBufferInVRAM);
             chkBackBufferInVRAM.ClientRectangle = new Rectangle(chkRandom_wallpaper.X, chkRandom_wallpaper.Bottom + 16, 0, 0);
             chkBackBufferInVRAM.Text = ("Back Buffer in Video Memory" + Environment.NewLine +
                 "(lower performance, but is" + Environment.NewLine + "necessary on some systems)").L10N("UI:DTAConfig:BackBuffer");

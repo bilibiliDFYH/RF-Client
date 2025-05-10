@@ -109,6 +109,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private List<MultiplayerColor> mpColors;
 
+        private bool initialized = false;
+
         public override void Initialize()
         {
       
@@ -125,6 +127,7 @@ namespace Ra2Client.DXGUI.Generic
             Name = "StatisticsWindow";
             BackgroundTexture = AssetLoader.LoadTexture("scoreviewerbg.png");
             ClientRectangle = new Rectangle(0, 0, 900, 521);
+            VisibleChanged += StatisticsWindow_VisibleChanged;
 
             tabControl = new XNAClientTabControl(WindowManager);
             tabControl.Name = "tabControl";
@@ -648,7 +651,7 @@ namespace Ra2Client.DXGUI.Generic
 
             Keyboard.OnKeyPressed += Keyboard_OnKeyPressed;
 
-          
+            initialized = true;
         }
 
         private void Keyboard_OnKeyPressed(object sender, Rampastring.XNAUI.Input.KeyPressEventArgs e)
@@ -658,6 +661,11 @@ namespace Ra2Client.DXGUI.Generic
                 btnReturnToMenu.OnLeftClick();
             }
 
+        }
+
+        private void StatisticsWindow_VisibleChanged(object sender, EventArgs e)
+        {
+            ListGames();
         }
 
         private void Instance_GameAdded(object sender, EventArgs e)
@@ -972,6 +980,9 @@ namespace Ra2Client.DXGUI.Generic
 
         private void ListGames()
         {
+            if (!Visible || !initialized)
+                return;
+
             lbGameList.SelectedIndex = -1;
             lbGameList.SetTopIndex(0);
 

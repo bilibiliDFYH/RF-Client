@@ -54,13 +54,13 @@ namespace DTAConfig.OptionPanels
             Name = "GameOptionsPanel";
 
             var lblScrollRate = new XNALabel(WindowManager);
-            lblScrollRate.Name = "lblScrollRate";
+            lblScrollRate.Name = nameof(lblScrollRate);
             lblScrollRate.ClientRectangle = new Rectangle(12,
                 14, 0, 0);
             lblScrollRate.Text = "Scroll Rate:".L10N("UI:DTAConfig:ScrollRate");
 
             lblScrollRateValue = new XNALabel(WindowManager);
-            lblScrollRateValue.Name = "lblScrollRateValue";
+            lblScrollRateValue.Name = nameof(lblScrollRateValue);
             lblScrollRateValue.FontIndex = 1;
             lblScrollRateValue.Text = "3";
             lblScrollRateValue.ClientRectangle = new Rectangle(
@@ -68,7 +68,7 @@ namespace DTAConfig.OptionPanels
                 lblScrollRate.Y, 0, 0);
 
             trbScrollRate = new XNATrackbar(WindowManager);
-            trbScrollRate.Name = "trbClientVolume";
+            trbScrollRate.Name = nameof(trbScrollRate);
             trbScrollRate.ClientRectangle = new Rectangle(
                 lblScrollRate.Right + 32,
                 lblScrollRate.Y - 2,
@@ -80,7 +80,7 @@ namespace DTAConfig.OptionPanels
             trbScrollRate.ValueChanged += TrbScrollRate_ValueChanged;
 
             chkScrollCoasting = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ScrollMethod", true, "0", "1");
-            chkScrollCoasting.Name = "chkScrollCoasting";
+            chkScrollCoasting.Name = nameof(chkScrollCoasting);
             chkScrollCoasting.ClientRectangle = new Rectangle(
                 lblScrollRate.X,
                 trbScrollRate.Bottom + 20, 0, 0);
@@ -88,25 +88,25 @@ namespace DTAConfig.OptionPanels
 
             //选择游戏
             var lblGameMod = new XNALabel(WindowManager);
-            lblGameMod.Name = "lblGameMod";
+            lblGameMod.Name = nameof(lblGameMod);
             lblGameMod.ClientRectangle = new Rectangle(250, chkScrollCoasting.Y, 0, 0);
             lblGameMod.Text = "Mod:".L10N("UI:DTAConfig:Mod");
 
             chkIMEEnable = new XNAClientCheckBox(WindowManager);
-            chkIMEEnable.Name = "chkIMEEnable";
+            chkIMEEnable.Name = nameof(chkIMEEnable);
             chkIMEEnable.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkScrollCoasting.Y, 150, 20);
             chkIMEEnable.Text = "The client enables the input method".L10N("UI:DTAConfig:Enableinput");
             //chkIMEEnable.Visible = false;
 
             chkTargetLines = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "UnitActionLines");
-            chkTargetLines.Name = "chkTargetLines";
+            chkTargetLines.Name = nameof(chkTargetLines);
             chkTargetLines.ClientRectangle = new Rectangle(
                 lblScrollRate.X,
                 chkScrollCoasting.Bottom + 24, 0, 0);
             chkTargetLines.Text = "Target Lines".L10N("UI:DTAConfig:TargetLines");
 
             chkMultinuclear = new XNAClientCheckBox(WindowManager);
-            chkMultinuclear.Name = "chkMultinuclear";
+            chkMultinuclear.Name = nameof(chkMultinuclear);
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
             chkMultinuclear.Text = "System affinity enhancements".L10N("UI:DTAConfig:SystemAffinity");
 
@@ -118,49 +118,49 @@ namespace DTAConfig.OptionPanels
             };
 
             chkShowHiddenObjects = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ShowHidden");
-            chkShowHiddenObjects.Name = "chkShowHiddenObjects";
+            chkShowHiddenObjects.Name = nameof(chkShowHiddenObjects);
             chkShowHiddenObjects.ClientRectangle = new Rectangle(
                 lblScrollRate.X,
                 chkTargetLines.Bottom + 24, 0, 0);
             chkShowHiddenObjects.Text = "Show Hidden Objects".L10N("UI:DTAConfig:YRShowHidden");
 
             chkRenderPreviewImage = new XNAClientCheckBox(WindowManager);
-            chkRenderPreviewImage.Name = "chkRenderPreviewImage";
+            chkRenderPreviewImage.Name = nameof(chkRenderPreviewImage);
             chkRenderPreviewImage.ClientRectangle = new Rectangle(chkMultinuclear.X, chkShowHiddenObjects.Y, 150, 20);
             chkRenderPreviewImage.Text = "Render holographic preview in the background when importing a new map".L10N("UI:DTAConfig:RenderHolographicPreview");
              
             chkTooltips = new SettingCheckBox(WindowManager, true, UserINISettings.OPTIONS, "ToolTips");
-            chkTooltips.Name = "chkTooltips";
+            chkTooltips.Name = nameof(chkTooltips);
             chkTooltips.Text = "Tooltips".L10N("UI:DTAConfig:Tooltips");
             chkTooltips.ClientRectangle = new Rectangle(
                 lblScrollRate.X,
                 chkShowHiddenObjects.Bottom + 24, 0, 0);
 
             chkSimplifiedCSF = new XNAClientCheckBox(WindowManager);
-            chkSimplifiedCSF.Name = "chkSimplifiedCSF";
+            chkSimplifiedCSF.Name = nameof(chkSimplifiedCSF);
             chkSimplifiedCSF.Text = "Convert to Chinese Simplified Chinese by default when importing campaign packs/mods".L10N("UI:DTAConfig:ChineseSimpCSF");
             chkSimplifiedCSF.ClientRectangle = new Rectangle(chkRenderPreviewImage.X, chkTooltips.Y, 150, 20);
 
             var lblPlayerName = new XNALabel(WindowManager);
-            lblPlayerName.Name = "lblPlayerName";
+            lblPlayerName.Name = nameof(lblPlayerName);
             lblPlayerName.Text = "Player Name*:".L10N("UI:DTAConfig:PlayerName");
             lblPlayerName.ClientRectangle = new Rectangle(
                 lblScrollRate.X,
                 chkTooltips.Bottom + 30, 0, 0);
 
             var lblStartCommand = new XNALabel(WindowManager);
-            lblStartCommand.Name = "lblStartCommand";
+            lblStartCommand.Name = nameof(lblStartCommand);
             lblStartCommand.ClientRectangle = new Rectangle(chkMultinuclear.X , lblPlayerName.Y, 0, 0);
             lblStartCommand.Text = "Start the command:".L10N("UI:DTAConfig:StartCommand");
 
             tbStartCommand = new XNATextBox(WindowManager);
-            tbStartCommand.Name = "tbStartCommand";
+            tbStartCommand.Name = nameof(tbStartCommand);
             tbStartCommand.ClientRectangle = new Rectangle(lblStartCommand.Right + 20, lblStartCommand.Y, 240, 20);
             tbStartCommand.Text = ClientConfiguration.Instance.ExtraExeCommandLineParameters;
             AddChild(chkShowHiddenObjects);
 
             tbPlayerName = new XNATextBox(WindowManager);
-            tbPlayerName.Name = "tbPlayerName";
+            tbPlayerName.Name = nameof(tbPlayerName);
             tbPlayerName.MaximumTextLength = ClientConfiguration.Instance.MaxNameLength;
             tbPlayerName.ClientRectangle = new Rectangle(trbScrollRate.X,
                 lblPlayerName.Y - 2, 100, 19);
@@ -172,7 +172,7 @@ namespace DTAConfig.OptionPanels
             };
         
             var lblNotice = new XNALabel(WindowManager);
-            lblNotice.Name = "lblNotice";
+            lblNotice.Name = nameof(lblNotice);
             lblNotice.ClientRectangle = new Rectangle(lblPlayerName.X,
                 lblPlayerName.Bottom + 30, 0, 0);
             lblNotice.Text = ("* If you are currently connected to CnCNet, you need to log out and reconnect" +
@@ -183,7 +183,7 @@ namespace DTAConfig.OptionPanels
             hotkeyConfigWindow.Disable();
 
             var btnModManager = new XNAClientButton(WindowManager);
-            btnModManager.Name = "btnModManager";
+            btnModManager.Name = nameof(btnModManager);
             btnModManager.ClientRectangle = new Rectangle(lblPlayerName.X, lblNotice.Bottom + 36, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
             btnModManager.Text = "Mod Manager".L10N("UI:DTAConfig:ModManager");
 
@@ -203,13 +203,13 @@ namespace DTAConfig.OptionPanels
             };
 
             var btnConfigureHotkeys = new XNAClientButton(WindowManager);
-            btnConfigureHotkeys.Name = "btnConfigureHotkeys";
+            btnConfigureHotkeys.Name = nameof(btnConfigureHotkeys);
             btnConfigureHotkeys.ClientRectangle = new Rectangle(lblPlayerName.X, lblNotice.Bottom + 72, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
             btnConfigureHotkeys.Text = "Configure Hotkeys".L10N("UI:DTAConfig:ConfigureHotkeys");
             btnConfigureHotkeys.LeftClick += BtnConfigureHotkeys_LeftClick;
 
             var btnRecover = new XNAClientButton(WindowManager);
-            btnRecover.Name = "btnRecover";
+            btnRecover.Name = nameof(btnRecover);
             btnRecover.ClientRectangle = new Rectangle(lblPlayerName.X, lblNotice.Bottom + 108, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
             btnRecover.Text = "Clean up the game cache".L10N("UI:DTAConfig:CleanupGameCache");
             btnRecover.SetToolTipText("If there is a problem with the game, you can click this button to try to fix it.".L10N("UI:DTAConfig:ButtonCleanupGameCache"));

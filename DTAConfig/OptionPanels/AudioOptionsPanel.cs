@@ -17,8 +17,8 @@ namespace DTAConfig.OptionPanels
         private const int VOLUME_SCALE = 10;
         private const int PADDING_X = 12;
         private const int PADDING_Y = 14;
-        private const int TRACKBAR_X_PADDING = 16;
-        private const int TRACKBAR_Y_PADDING = 16;
+        private const int TRACKBAR_X_PADDING = 20;
+        private const int TRACKBAR_Y_PADDING = 20;
         private const int TRACKBAR_Y_OFFSET = 2; //trackbars sit slightly higher than their labels.
         private const int TRACKBAR_HEIGHT = 22;
         private const int CHECKBOX_SPACING = 12;

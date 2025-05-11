@@ -22,8 +22,8 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
 
 #if DEBUG
-   private const string Address = "https://api.yra2.com/";
-   //private const string Address = "http://localhost:9088/";
+    private const string Address = "https://api.yra2.com/";
+    //private const string Address = "http://localhost:9088/";
 #else
     private const string Address = "https://api.yra2.com/";
 #endif
@@ -72,7 +72,7 @@ public class NetWorkINISettings
 
     public static async Task Initialize()
     {
-        var remoteServerUrl = (await Get<string>("dict/GetValue?section=dln&key=main_address")).Item1 ?? "https://autopatch1-js.yra2.com/Client/ServerList";
+        var remoteServerUrl = (await Get<string>("dict/GetValue?section=dln&key=main_address")).Item1 ?? "https://autopatch1-zh-tcdn.yra2.com/Client/ServerList";
 
         if (!DownloadSettingFile(remoteServerUrl, locServerPath))
             Logger.Log("Request Server List File Failed!");

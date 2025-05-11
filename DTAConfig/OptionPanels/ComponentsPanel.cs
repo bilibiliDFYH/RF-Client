@@ -436,7 +436,7 @@ namespace DTAConfig.OptionPanels
                     if (useAltDownloadDomain)
                     {
                         // 尝试使用备用下载地址
-                        downloadUrl = downloadUrl.Replace("autopatch1-js.yra2.com", "autopatch1-mjs.yra2.com");
+                        downloadUrl = downloadUrl.Replace("autopatch1-zh-tcdn.yra2.com", "autopatch4-cn-ucdn.yra2.com");
                     }
 
                     using HttpClient httpClient = new HttpClient();

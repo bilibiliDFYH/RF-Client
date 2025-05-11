@@ -107,6 +107,7 @@ namespace ClientCore
             ClientVolume = new DoubleSetting(iniFile, AUDIO, "ClientVolume", 1.0);
             PlayMainMenuMusic = new BoolSetting(iniFile, AUDIO, "PlayMainMenuMusic", true);
             StopMusicOnMenu = new BoolSetting(iniFile, AUDIO, "StopMusicOnMenu", true);
+            StopGameLobbyMessageAudio = new BoolSetting(iniFile, AUDIO, "StopGameLobbyMessageAudio", true);
             MessageSound = new BoolSetting(iniFile, AUDIO, "ChatMessageSound", true);
 
             ScrollRate = new IntSetting(iniFile, OPTIONS, "ScrollRate", 3);
@@ -218,9 +219,6 @@ namespace ClientCore
         /* AUDIO */
         /*********/
 
-        
-
-
         public DoubleSetting ScoreVolume { get; private set; }
         public DoubleSetting SoundVolume { get; private set; }
         public DoubleSetting VoiceVolume { get; private set; }
@@ -228,6 +226,7 @@ namespace ClientCore
         public DoubleSetting ClientVolume { get; private set; }
         public BoolSetting PlayMainMenuMusic { get; private set; }
         public BoolSetting StopMusicOnMenu { get; private set; }
+        public BoolSetting StopGameLobbyMessageAudio { get; private set; }
         public BoolSetting MessageSound { get; private set; }
 
         public Dictionary<string,string> MusicNameDictionary { get; set; }
@@ -330,6 +329,7 @@ namespace ClientCore
 
         //启动时检查任务包
         //public BoolSetting StartCap { get; private set; }
+
         //调用多核
         public BoolSetting Multinuclear { get; private set; }
         //是否始终渲染预览图

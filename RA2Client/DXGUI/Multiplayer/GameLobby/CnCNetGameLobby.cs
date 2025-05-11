@@ -580,7 +580,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             Clear();
-            channel.Leave();
+            channel?.Leave();
         }
 
         private void ConnectionManager_Disconnected(object sender, EventArgs e) => HandleConnectionLoss();
@@ -1438,6 +1438,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// </summary>
         protected override void GameProcessExited()
         {
+            ResetGameState();
+        }
+
+        protected void GameStartAborted()
+        {
+            ResetGameState();
+        }
+
+        protected void ResetGameState()
+        {
             base.GameProcessExited();
 
             channel.SendCTCPMessage("RETURN", QueuedMessageType.SYSTEM_MESSAGE, 20);
@@ -1464,6 +1474,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             if (sender != hostName)
                 return;
+
+            if (Map == null)
+            {
+                GameStartAborted();
+                return;
+            }
 
             string[] parts = message.Split(';');
 

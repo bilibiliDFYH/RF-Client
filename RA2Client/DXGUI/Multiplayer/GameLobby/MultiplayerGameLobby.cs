@@ -242,6 +242,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (fsw != null)
                 fsw.EnableRaisingEvents = true;
 
+            if (UserINISettings.Instance.StopGameLobbyMessageAudio)
+                sndMessageSound.Enabled = false;
+
             //FileHelper.ReNameCustomFile(true);
 
             base.StartGame();
@@ -262,6 +265,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     pInfo.IsInGame = false;
                 }
             }
+
+            if (UserINISettings.Instance.StopGameLobbyMessageAudio)
+                sndMessageSound.Enabled = true;
 
             base.GameProcessExited();
 

@@ -307,7 +307,7 @@ namespace ClientCore
         }
         public string GameModesIniPath => SafePath.CombineFilePath(clientDefinitionsIni.GetStringValue(SETTINGS, "GameModesIniPath", SafePath.CombineFilePath("Maps/Multi", "GameModes.ini")));
 
-        public string KeyboardINI => clientDefinitionsIni.GetStringValue(SETTINGS, "KeyboardINI", "Keyboard.ini");
+        public string KeyboardINI => clientDefinitionsIni.GetStringValue(SETTINGS, "KeyboardINI", "KeyboardMD.ini");
 
         public int MinimumIngameWidth => clientDefinitionsIni.GetIntValue(SETTINGS, "MinimumIngameWidth", 640);
 

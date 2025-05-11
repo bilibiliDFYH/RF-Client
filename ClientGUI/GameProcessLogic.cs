@@ -349,14 +349,14 @@ namespace ClientGUI
 
                 var e = string.Empty;
 
-                //if (IsNtfs(ProgramConstants.GamePath))
-                //{
-                //    e = 符号链接(所有需要复制的文件);
-                //}
-                //else
-                //{
-                   e = 复制文件(所有需要复制的文件);
-             //   }
+                if (IsNtfs(ProgramConstants.GamePath))
+                {
+                    e = 符号链接(所有需要复制的文件);
+                }
+                else
+                {
+                    e = 复制文件(所有需要复制的文件);
+                }
 
                 if (e != string.Empty)
                 {
@@ -544,8 +544,8 @@ namespace ClientGUI
             proc.Dispose();
             GameProcessExited?.Invoke();
             var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
-            if (File.Exists(keyboardMD))
-                File.Copy(keyboardMD, "KeyboardMD.ini", true);
+            //if (File.Exists(keyboardMD))
+            //    File.Copy(keyboardMD, "KeyboardMD.ini", true);
 
             var RA2MD = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
             if (File.Exists(RA2MD))

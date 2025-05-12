@@ -87,7 +87,7 @@ namespace Rampastring.XNAUI.Input
             switch (msg)
             {
                 case PInvoke.WM_GETDLGCODE:
-                    returnCode = (LRESULT)(returnCode | (nint)PInvoke.DLGC_WANTALLKEYS);
+                    returnCode = (LRESULT)((nint)returnCode | (nint)PInvoke.DLGC_WANTALLKEYS);
                     break;
 
                 //case WM_KEYDOWN:

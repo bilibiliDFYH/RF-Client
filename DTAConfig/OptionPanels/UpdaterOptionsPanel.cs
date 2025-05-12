@@ -218,7 +218,7 @@ namespace DTAConfig.OptionPanels
                 latencyRefreshTimer = new System.Threading.Timer((state) =>
                 {
                     RefreshLatencies();
-                }, null, 5000, 5000);
+                }, null, 1000, 10000);
             }
         }
 

@@ -1093,7 +1093,7 @@ public class ModManager : XNAWindow
 
     private void BtnDel_LeftClick(object sender, EventArgs e)
     {
-        if (!((InfoBaseClass)ListBoxModAi.SelectedItem.Tag).CanDel)
+        if (((InfoBaseClass)ListBoxModAi?.SelectedItem?.Tag)?.CanDel != true)
         {
             XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "The built-in mission package cannot be deleted".L10N("UI:DTAConfig:DeleteBuilt-inMissionPackage"));
             return;

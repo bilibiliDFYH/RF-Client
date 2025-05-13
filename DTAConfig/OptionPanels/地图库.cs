@@ -5,6 +5,7 @@ using ClientGUI;
 using DTAConfig.Entity;
 using Localization;
 using Microsoft.Xna.Framework;
+using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
@@ -29,7 +30,7 @@ namespace DTAConfig.OptionPanels
         private int _当前页数 = 1;
         private int _总页数 = 0;
 
-        
+        private int _大小 = 17;
 
         private XNALabel lblPage;
         private XNAContextMenu _menu; 
@@ -84,6 +85,8 @@ namespace DTAConfig.OptionPanels
         }
 
         public static bool 需要刷新 = false;
+
+        private List<XNAClientButton> buttons = [];
         
         public override void Initialize()
         {
@@ -143,10 +146,28 @@ namespace DTAConfig.OptionPanels
                 _menu.Open(GetCursorPoint());
             };
 
+
+
+
+            for(int i = 0;i < _大小; i++)
+            {
+                var btn = new XNAClientButton(WindowManager);
+                btn.Width = UIDesignConstants.BUTTON_WIDTH_92;
+                btn.X = 804;
+                btn.Y = 25 + i * mapPanel.LineHeight;
+                btn.Text = "查看";
+                btn.LeftClick += (_, _) => { 查看地图(map.id, is安装); };
+
+                buttons.Add(btn);
+                mapPanel.AddChild(btn);
+            }
+
+            
+
             _menu = new XNAContextMenu(WindowManager);
             _menu.Name = nameof(_menu);
             _menu.Width = 100;
-
+             
             _menu.AddItem(new XNAContextMenuItem
             {    
                 Text = "刷新", 
@@ -269,7 +290,7 @@ namespace DTAConfig.OptionPanels
 
             var ts = ddType.SelectedIndex == 0 ? string.Empty : $"{ddType.SelectedIndex - 1}";
 
-            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={search}&types={ts}&maxPlayers=&pageNum={当前页数}&pageSize=17");
+            var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={search}&types={ts}&maxPlayers=&pageNum={当前页数}&pageSize={_大小}");
 
             if(r.Item1 == null)
             {
@@ -280,17 +301,13 @@ namespace DTAConfig.OptionPanels
             总页数 = (int)r.Item1.pages;
 
             mapPanel.ClearItems();
-            int i = 0;
+            
+         
 
             r.Item1.records.ForEach(map =>
             {
             List<XNAListBoxItem> items = [];
-                //var item = new XNAListBoxItem 
-                //{
-                //    Texture = AssetLoader.Base64ToTexture(map.base64)
-                //};
-
-                //items.Add(item);
+               
                 var is安装 = File.Exists(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"));
                 items.Add(new XNAListBoxItem(map.name));
                 items.Add(new XNAListBoxItem(map.author));
@@ -302,15 +319,6 @@ namespace DTAConfig.OptionPanels
                 items.Add(new XNAListBoxItem(string.Empty));
                 mapPanel.AddItem(items);
 
-                var btn = new XNAClientButton(WindowManager);
-                btn.Width = UIDesignConstants.BUTTON_WIDTH_92;
-                btn.X = 804;
-                btn.Y = 25 + i * mapPanel.LineHeight;
-                btn.Text = "查看";
-                btn.LeftClick += (_, _) => { 查看地图(map.id, is安装); };
-
-                mapPanel.AddChild(btn);
-                i++;
             });
         }
 
@@ -474,6 +482,13 @@ namespace DTAConfig.OptionPanels
                 if (!Directory.Exists(ProgramConstants.MAP_PATH))
                     Directory.CreateDirectory(ProgramConstants.MAP_PATH);
                 File.WriteAllText(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"), map.file);
+
+                var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
+                var sectionName = "Maps/Multi/MapLibrary/" + map.id;
+                mapIni.SetValue(sectionName, "Description" , $"[{map.maxPlayers}]{map.name}");
+                mapIni.SetValue(sectionName, "Author", map.author);
+                mapIni.WriteIniFile();
+
                 地图库.需要刷新 = true;
                 下载按钮.Text = "删除";
                 下载按钮.LeftClick -= 删除;

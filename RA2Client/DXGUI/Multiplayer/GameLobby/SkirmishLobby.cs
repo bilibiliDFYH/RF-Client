@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using System.Data;
+using Rampastring.XNAUI.XNAControls;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -66,6 +67,83 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             ReloadMod();
 
             CmbGame_SelectedChanged(cmbGame, null);
+        }
+
+        protected override void ChangeMap(GameModeMap gameModeMap)
+        {
+
+            if (Map?.Rules?.Count > 0)
+            {
+                foreach (var cb in ddPlayerNames.Skip(1))
+                {
+                    cb.SelectedIndex = 0;
+                    cb.AllowDropDown = true;
+                }
+
+                foreach (var cb in ddPlayerColors.Skip(1))
+                {
+                    cb.SelectedIndex = -1;
+                    cb.AllowDropDown = true;
+                }
+
+                foreach (var cb in ddPlayerSides.Skip(1))
+                {
+                    cb.SelectedIndex = -1;
+                    cb.AllowDropDown = true;
+                }
+
+                foreach (var cb in ddPlayerStarts.Skip(1))
+                {
+                    cb.SelectedIndex = -1;
+                    cb.AllowDropDown = true;
+                }
+
+                foreach (var cb in ddPlayerTeams.Skip(1))
+                {
+                    cb.SelectedIndex = -1;
+                    cb.AllowDropDown = true;
+                }
+
+                AIPlayers.Clear();
+
+                int i = 1;
+
+                foreach (var r in Map.Rules)
+                {
+                    if (r.Type == RuleType.Suggested) continue;
+
+                    if (r.Requirement == PositionRequirement.Player)
+                    {
+                        ddPlayerStarts[0].SelectedIndex = r.Position1;
+                        ddPlayerStarts[0].AllowDropDown = false;
+                    }
+                    else if (r.Requirement == PositionRequirement.AI)
+                    {
+                        ddPlayerNames[i].SelectedIndex = 1;
+                        ddPlayerSides[i].SelectedIndex = 0;
+                        ddPlayerColors[i].SelectedIndex = 0;
+                        ddPlayerTeams[i].SelectedIndex = 0;
+                        ddPlayerStarts[i].SelectedIndex = r.Position1;
+                        ddPlayerStarts[i++].AllowDropDown = false;
+                    }
+                    else if (r.Requirement == PositionRequire ment.SameTeam)
+                    {
+
+                    }
+                }
+
+                // 分配团队（直接传 Map.Rules）
+                var teamMap = TeamAssignmentHelper.Assign(8, Map.Rules);
+
+                // 应用团队编号
+                for (int j = 0; j < 8; j++)
+                {
+                    ddPlayerTeams[j].SelectedIndex = teamMap[j];
+                    Console.WriteLine($"玩家 {j} 被分配到队伍 {teamMap[j]}");
+                }
+            }
+
+            base.ChangeMap(gameModeMap);
         }
 
         protected override void ToggleFavoriteMap()

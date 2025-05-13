@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace ClientCore
-{
+{ 
     public static class RenderImage
     {
         public static int RenderCount = 0;
@@ -20,7 +20,7 @@ namespace ClientCore
         public static CancellationTokenSource cts = new CancellationTokenSource();
         public static ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
-        public static List<string> 需要渲染的地图列表 = [];
+        public static HashSet<string> 需要渲染的地图列表 = [];
         public static bool RenderOneImage(string mapPath)
         {
             //if (!File.Exists(mapPath)) return false;
@@ -112,7 +112,7 @@ namespace ClientCore
                             break;
                         }
 
-                        try
+                        try 
                         {
                             // 渲染任务
                             WindowManager.Report($"正在渲染地图:{map}");
@@ -120,6 +120,10 @@ namespace ClientCore
                             Interlocked.Increment(ref RenderCount);
                             TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
                             WindowManager.Report("");
+                            lock (需要渲染的地图列表)
+                            {
+                                需要渲染的地图列表.Remove(map);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -148,7 +152,11 @@ namespace ClientCore
                 return Task.CompletedTask;
             if (!UserINISettings.Instance.RenderPreviewImage.Value)
                 return Task.CompletedTask;
-            需要渲染的地图列表.InsertRange(0, mapFiles);
+        
+            foreach (var map in mapFiles)
+            {
+                需要渲染的地图列表.Add(map);
+            }
             CancelRendering();
             RenderImages();
             return Task.CompletedTask;

@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
 using Rampastring.Tools;
+using System.Management;
 
 namespace Localization.Tools
 {
@@ -204,6 +205,22 @@ namespace Localization.Tools
                     badKeysFormatted.Append(CultureInfo.InvariantCulture, $"{logKey(p.Key)}: [{string.Join(",", p.Value)}]");
                 throw new ArgumentException(badKeysFormatted.ToString());
             }
+        }
+
+        public static string GetWMIValue(string className, string propertyName)
+        {
+            try
+            {
+                using var searcher = new ManagementObjectSearcher($"SELECT {propertyName} FROM {className}");
+                foreach (ManagementObject obj in searcher.Get())
+                {
+                    var value = obj[propertyName];
+                    if (value != null)
+                        return value.ToString().Trim();
+                }
+            }
+            catch { }
+            return "";
         }
 
         public static V GetOrAdd<K, V>(this Dictionary<K, V> d, K k)

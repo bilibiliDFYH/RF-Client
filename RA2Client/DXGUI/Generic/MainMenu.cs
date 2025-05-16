@@ -144,7 +144,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(40, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(80, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
                 Text = "Yes".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
@@ -162,6 +162,18 @@ namespace Ra2Client.DXGUI.Generic
                 Dispose();
             };
 
+            var btnCancel = new XNAClientButton(WindowManager)
+            {
+                ClientRectangle = new Rectangle(10, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
+                Text = "取消".L10N("UI:Main:Cancel")
+            };
+            btnCancel.LeftClick += (_, _) =>
+            {
+                Disable();
+                Dispose();
+            };
+
+
             ClientRectangle = new Rectangle(0, 0, ddMod.Right + 24, btnConfirm.Y + 40);
 
 
@@ -170,6 +182,7 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(label);
             AddChild(ddMod);
             AddChild(btnConfirm);
+            AddChild(btnCancel);
 
             WindowManager.CenterControlOnScreen(this);
 

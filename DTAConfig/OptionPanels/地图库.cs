@@ -156,8 +156,8 @@ namespace DTAConfig.OptionPanels
                 btn.X = 804;
                 btn.Y = 25 + i * mapPanel.LineHeight;
                 btn.Text = "查看";
-                btn.LeftClick += (_, _) => { 查看地图(map.id, is安装); };
-
+              //  btn.LeftClick += (_, _) => { 查看地图(map.id, is安装); };
+   
                 buttons.Add(btn);
                 mapPanel.AddChild(btn);
             }

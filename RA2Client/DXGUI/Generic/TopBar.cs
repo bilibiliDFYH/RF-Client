@@ -18,6 +18,10 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Diagnostics;
 using System.IO;
 using System.Timers;
+using System.Threading.Tasks;
+using ClientCore.Settings;
+using ClientCore.Entity;
+using Localization.Tools;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -403,6 +407,22 @@ namespace Ra2Client.DXGUI.Generic
                 return;
             }
 
+
+            var code = ComputerUniqueHelper.GetComputerUUID();
+
+            var r = NetWorkINISettings.Get<string>($"user/checkBanUserByMac?mac={code}").Result;
+
+            if(r.Item1 != null)
+            {
+                XNAMessageBox.Show(WindowManager, "提示", $"你已被封号至 {r.Item1}");
+                return;
+            }
+
+            var r2 = NetWorkINISettings.Post<bool>("user/addOnlineUser", new User()
+            {
+                username = ProgramConstants.PLAYERNAME,
+                mac = code,
+            }).Result; 
 
             optionsWindow.tabControl.MakeUnselectable(4);
             LastSwitchType = SwitchType.SECONDARY;

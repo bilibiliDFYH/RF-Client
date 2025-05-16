@@ -126,7 +126,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                         ddPlayerStarts[i].SelectedIndex = r.Position1;
                         ddPlayerStarts[i++].AllowDropDown = false;
                     }
-                    else if (r.Requirement == PositionRequire ment.SameTeam)
+                    else if (r.Requirement == PositionRequirement.SameTeam)
                     {
 
                     }

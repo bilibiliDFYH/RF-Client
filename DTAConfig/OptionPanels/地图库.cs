@@ -258,8 +258,10 @@ namespace DTAConfig.OptionPanels
             }
         }
 
-        private void 查看地图() 
+        private void 查看地图(int i) 
         {
+            mapPanel.SelectedIndex = i;
+
             var map = Maps[mapPanel.SelectedIndex];
           
 
@@ -297,7 +299,8 @@ namespace DTAConfig.OptionPanels
             mapPanel.ClearItems();
             buttons.ForEach(b => {
                 mapPanel.RemoveChild(b);
-                b.Visible = false; });
+                });
+            buttons.Clear();
 
             for (int i = 0; i < _大小; i++)
             {
@@ -306,8 +309,10 @@ namespace DTAConfig.OptionPanels
                 btn.X = 804;
                 btn.Y = 25 + i * mapPanel.LineHeight;
                 btn.Text = "查看";
-                btn.LeftClick += (_, _) => { 查看地图(); };
-
+                btn.Tag = i;
+                btn.Visible = false;
+                btn.LeftClick += (_, _) => { 查看地图((int)(btn.Tag)); };
+                
                 buttons.Add(btn);
                 mapPanel.AddChild(btn);
                 
@@ -503,7 +508,7 @@ namespace DTAConfig.OptionPanels
                 mapIni.SetValue(sectionName, "Description" , $"[{map.maxPlayers}]{map.name}");
 
                 mapIni.SetValue(sectionName, "Author", map.author);
-                var rules = map.rules.Split(',');
+                var rules = map.rules?.Split(',') ?? [];
                 for (int i = 1; i <= rules.Length; i++)
                     mapIni.SetValue(sectionName, $"Rule{i}", rules[i]);
                 mapIni.WriteIniFile();

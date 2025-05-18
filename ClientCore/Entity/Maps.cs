@@ -24,6 +24,7 @@ namespace ClientCore.Entity
         public string uploadUserName { get; set; } = "";
 
         public string typeName { get; set; } = "";
+        public string rules { get; set; }
 
         public Maps() { }
     }

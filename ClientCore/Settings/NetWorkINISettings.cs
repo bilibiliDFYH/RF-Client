@@ -22,7 +22,7 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
 
 #if DEBUG
-    //private const string Address = "https://api.yra2.com/";
+// private const string Address = "https://api.yra2.com/";
     private const string Address = "http://localhost:9088/";
 #else
     private const string Address = "https://api.yra2.com/";

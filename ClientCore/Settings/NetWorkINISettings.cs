@@ -23,8 +23,8 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
 
 #if DEBUG
- private const string Address = "https://api.yra2.com/";
- //   private const string Address = "http://localhost:9088/";
+ //private const string Address = "https://api.yra2.com/";
+    private const string Address = "http://localhost:9088/";
 #else
     private const string Address = "https://api.yra2.com/";
 #endif
@@ -167,18 +167,18 @@ public class NetWorkINISettings
         DownloadCompleted?.Invoke(null, EventArgs.Empty);
     }
 
-    protected static bool DownloadSettingFile(string strSerPath, string strLocPath)
-    {
-        try
-        {
-            return WebHelper.HttpDownFile(strSerPath, strLocPath);
-        }
-        catch (Exception ex)
-        {
-            Logger.Log("连接服务器出错。" + ex);
-            return false;
-        }
-    }
+    //protected static bool DownloadSettingFile(string strSerPath, string strLocPath)
+    //{
+    //    try
+    //    {
+    //        return WebHelper.HttpDownFile(strSerPath, strLocPath);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Logger.Log("连接服务器出错。" + ex);
+    //        return false;
+    //    }
+    //}
 
     public void SetServerList()
     {

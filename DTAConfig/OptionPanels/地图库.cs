@@ -508,7 +508,7 @@ namespace DTAConfig.OptionPanels
                 mapIni.SetValue(sectionName, "Description" , $"[{map.maxPlayers}]{map.name}");
 
                 mapIni.SetValue(sectionName, "Author", map.author);
-                var rules = map.rules?.Split(',') ?? [];
+                var rules = map.rules?.Split(';') ?? [];
                 for (int i = 1; i <= rules.Length; i++)
                     mapIni.SetValue(sectionName, $"Rule{i}", rules[i]);
                 mapIni.WriteIniFile();

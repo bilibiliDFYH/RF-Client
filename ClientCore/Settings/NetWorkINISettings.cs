@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ClientCore.Entity;
 using ClientCore.Enums;
 using DTAConfig.Entity;
 using Rampastring.Tools;
@@ -16,8 +17,8 @@ public class NetWorkINISettings
 {
     private static NetWorkINISettings _instance;
 
-    private const string locServerPath = "Resources/ServerList";                                              // 本地服务器列表路径
-    private static string remoteFileUrl = "";                                                                 // 远程设置路径
+    //private const string locServerPath = "Resources/ServerList";                                              // 本地服务器列表路径
+    //private static string remoteFileUrl = "";                                                                 // 远程设置路径
     private const string localFilePath = "Resources\\Settings";                                               // 本地设置路径
     private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
 
@@ -32,16 +33,11 @@ public class NetWorkINISettings
 
     public IniFile SettingsIni { get; private set; }
 
-    public List<ServerMirror> UpdaterServers { get; private set; } = null;         //服务器更新列表
+    public List<ServerMirror> UpdaterServers { get; private set; } = [];         //服务器更新列表
 
     protected NetWorkINISettings(IniFile iniFile)
     {
         SettingsIni = iniFile;
-
-        //if (SettingsIni.SectionExists(secMain))
-        //{
-        //    Announcement = SettingsIni.GetStringValue(secMain, "Announcement", string.Empty);
-        //}
 
         if (SettingsIni.SectionExists(secUpdater))
         {
@@ -49,7 +45,7 @@ public class NetWorkINISettings
             if(!string.IsNullOrEmpty(strServers))
             {
                 string[] serverGroup = strServers.Split(',');
-                UpdaterServers = [];
+                UpdaterServers.Clear();
                 for (int i = 0; i < serverGroup.Length; i++)
                 {
                     var us = new ServerMirror()
@@ -65,6 +61,24 @@ public class NetWorkINISettings
         }
     }
 
+    protected NetWorkINISettings(List<UpdaterServer> uss)
+    {
+        uss.ForEach(updaterServer =>
+        {
+            var us = new ServerMirror()
+            {
+                Type = updaterServer.type,
+                Name = updaterServer.name,
+                Location = updaterServer.location,
+                URL = updaterServer.url
+            };
+            UpdaterServers.Add(us);
+        });
+
+       
+        
+    }
+
     public static NetWorkINISettings Instance
     {
         get => _instance;
@@ -72,58 +86,99 @@ public class NetWorkINISettings
 
     public static async Task Initialize()
     {
-        var remoteServerUrl = (await Get<string>("dict/GetValue?section=dln&key=main_address")).Item1 ?? "https://autopatch1-zh-tcdn.yra2.com/Client/ServerList";
+        //var remoteServerUrl = (await Get<string>("dict/GetValue?section=dln&key=main_address")).Item1 ?? "https://autopatch1-zh-tcdn.yra2.com/Client/ServerList";
 
-        if (!DownloadSettingFile(remoteServerUrl, locServerPath))
-            Logger.Log("Request Server List File Failed!");
+        //if (!DownloadSettingFile(remoteServerUrl, locServerPath))
+        //    Logger.Log("Request Server List File Failed!");
 
-        var IniServer = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, locServerPath));
-        foreach (var secName in IniServer.GetSections())
-        {
-            string strID = IniServer.GetStringValue(secName, "Id", "");
-            string strName = IniServer.GetStringValue(secName, "Name", "");
-            string strURL = IniServer.GetStringValue(secName, "Url", "");
-            if (!string.IsNullOrEmpty(strURL))
-            {
-                remoteFileUrl = strURL + "/Client/Public/Settings";
-                if (DownloadSettingFile(remoteFileUrl, localFilePath))
-                {
-                    ProgramConstants.CUR_SERVER_URL = strURL;
-                    Console.WriteLine("Activated Server：{0}",strURL);
-                    Logger.Log($"Requset Server:{strID} {strName} {strURL} Successed");
-                    break;
-                }
-                else
-                    Logger.Log($"Requset Server:{strID} {strName} {strURL} Failed");
-            }
-        }
+        //var IniServer = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, locServerPath));
+        //foreach (var secName in IniServer.GetSections())
+        //{
+        //    string strID = IniServer.GetStringValue(secName, "Id", "");
+        //    string strName = IniServer.GetStringValue(secName, "Name", "");
+        //    string strURL = IniServer.GetStringValue(secName, "Url", "");
+        //    if (!string.IsNullOrEmpty(strURL))
+        //    {
+        //        remoteFileUrl = strURL + "/Client/Public/Settings";
+        //        if (DownloadSettingFile(remoteFileUrl, localFilePath))
+        //        {
+        //            ProgramConstants.CUR_SERVER_URL = strURL;
+        //            Console.WriteLine("Activated Server：{0}",strURL);
+        //            Logger.Log($"Requset Server:{strID} {strName} {strURL} Successed");
+        //            break;
+        //        }
+        //        else
+        //            Logger.Log($"Requset Server:{strID} {strName} {strURL} Failed");
+        //    }
+        //}
+
+        var uss = Get<List<UpdaterServer>>("updaterServer/getAllUpdaterServer").Result.Item1;
 
         //如果远程获取文件失败则读取本地配置
-        if (!string.IsNullOrEmpty(remoteFileUrl) || File.Exists(localFilePath)) 
+        if (uss == null) 
         {
             var iniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, localFilePath));
             _instance = new NetWorkINISettings(iniFile);
-            Updater.Initialize(
+        }
+        else
+        {
+            _instance = new NetWorkINISettings(uss);
+            _ = Task.Run(() =>
+            {
+                var iniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, localFilePath));
+
+                if (uss != null && uss.Count > 0)
+                {
+                    // 构建 Servers 字符串，例如：Server0,Server1,...
+                    var serverNames = new List<string>();
+                    for (int i = 0; i < uss.Count; i++)
+                    {
+                        string sectionName = $"Server{i}";
+                        var server = uss[i];
+
+                        // 写每个 Server 的字段到对应 section
+                        iniFile.SetIntValue(sectionName, "Type", server.type);
+                        iniFile.SetStringValue(sectionName, "Name", server.name);
+                        iniFile.SetStringValue(sectionName, "Location", server.location);
+                        iniFile.SetStringValue(sectionName, "Url", server.url);
+
+                        serverNames.Add(sectionName);
+                    }
+
+                    // 写 Servers 字段（逗号分隔）
+                    string joined = string.Join(",", serverNames);
+                    iniFile.SetStringValue(secUpdater, "Servers", joined);
+                }
+                else
+                {
+                    // 没有服务器，清空 Servers 字段
+                    iniFile.RemoveSection("Servers");
+                }
+                iniFile.WriteIniFile();
+            });
+            
+        }
+
+        Updater.Initialize(
                 ClientConfiguration.Instance.SettingsIniName,
                 ClientConfiguration.Instance.LocalGame,
                 SafePath.GetFile(ProgramConstants.StartupExecutable).Name);
-            Updater.ServerMirrors = _instance.UpdaterServers;
-            DownloadCompleted?.Invoke(null, EventArgs.Empty);
-        }
+        Updater.ServerMirrors = _instance.UpdaterServers;
+        DownloadCompleted?.Invoke(null, EventArgs.Empty);
     }
 
-    protected static bool DownloadSettingFile(string strSerPath, string strLocPath)
-    {
-        try
-        {
-            return WebHelper.HttpDownFile(strSerPath, strLocPath);
-        }
-        catch (Exception ex)
-        {
-            Logger.Log("连接服务器出错。" + ex);
-            return false;
-        }
-    }
+    //protected static bool DownloadSettingFile(string strSerPath, string strLocPath)
+    //{
+    //    try
+    //    {
+    //        return WebHelper.HttpDownFile(strSerPath, strLocPath);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Logger.Log("连接服务器出错。" + ex);
+    //        return false;
+    //    }
+    //}
 
     public void SetServerList()
     {

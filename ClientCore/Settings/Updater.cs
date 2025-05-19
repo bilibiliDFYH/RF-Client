@@ -370,7 +370,7 @@ public static class Updater
                 UpdateUserAgent(SharedHttpClient);
 
                 // 根据更新服务器顺序依次查找合适的服务器信息
-                var version = NetWorkINISettings.Get<ClientCore.Entity.Updater>($"updater/getLatestInfo?type={UserINISettings.Instance.Beta.Value}").GetAwaiter().GetResult().Item1 ?? throw new("Update server integrity error while checking for updates.");
+                var version = NetWorkINISettings.Get<ClientCore.Entity.Updater>($"updater/getLatestInfoByBaseVersion?type={UserINISettings.Instance.Beta.Value}&baseVersion={GameVersion}").GetAwaiter().GetResult().Item1 ?? throw new("Update server integrity error while checking for updates.");
                 serverVerCfg = new VersionFileConfig()
                 {
                     Version = version.version,

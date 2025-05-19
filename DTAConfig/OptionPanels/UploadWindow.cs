@@ -505,6 +505,8 @@ namespace DTAConfig.OptionPanels
             else if (tabControl.SelectedTab == 1)
             {
                 var misssionPackPath = btnSelect.Text;
+                if (!Directory.Exists(misssionPackPath))
+                    return string.Empty;
                 
                 List<string> 压缩包类型 = [".7z", ".rar", ".zip"];
                 if (压缩包类型.Contains(extension))

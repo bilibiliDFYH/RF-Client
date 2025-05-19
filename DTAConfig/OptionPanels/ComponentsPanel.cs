@@ -103,18 +103,21 @@ namespace DTAConfig.OptionPanels
                 comboBoxtypes.SelectedIndexChanged += ComboBoxtypes_SelectedIndexChanged;
                 AddChild(comboBoxtypes);
 
-                var lblSearch = new XNALabel(WindowManager)
-                {
-                    Text = "Search".L10N("UI:DTAConfig:Search"),
-                    ClientRectangle = new Rectangle(comboBoxtypes.Right + 80, labeltypes.Y,0,0)
-                };
-                AddChild(lblSearch);
+                
 
                 textBoxSearch = new XNATextBox(WindowManager);
                 textBoxSearch.Name = nameof(textBoxSearch);
-                textBoxSearch.ClientRectangle = new Rectangle(lblSearch.Right + 50,comboBoxtypes.Y, 200, UIDesignConstants.BUTTON_HEIGHT);
-                textBoxSearch.TextChanged += ComboBoxtypes_SelectedIndexChanged;
+                textBoxSearch.ClientRectangle = new Rectangle(comboBoxtypes.Right + 80, comboBoxtypes.Y, 200, UIDesignConstants.BUTTON_HEIGHT);
+               
                 AddChild(textBoxSearch);
+
+                var btnSearch = new XNAClientButton(WindowManager)
+                {
+                    Text = "搜索".L10N("UI:DTAConfig:Search"),
+                    ClientRectangle = new Rectangle(textBoxSearch.Right + 30, labeltypes.Y - 2, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT)
+                };
+                btnSearch.LeftClick += ComboBoxtypes_SelectedIndexChanged;
+                AddChild(btnSearch);
 
                 CompList = new XNAMultiColumnListBox(WindowManager);
                 CompList.Name = nameof(CompList);

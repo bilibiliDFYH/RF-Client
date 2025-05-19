@@ -252,19 +252,23 @@ namespace DTAConfig.OptionPanels
 
             tbSearch = new XNASuggestionTextBox(WindowManager)
             {
-               
                 ClientRectangle = new Rectangle(ddStatus.Right + 30,ddStatus.Y, 130, 25),
                 Visible = false
             };
 
-            tbSearch.TextChanged += 筛选;
+            var btnSearch = new XNAClientButton(WindowManager)
+            {
+                Text = "搜索",
+                ClientRectangle = new Rectangle(tbSearch.Right + 20,tbSearch.Y -2,UIDesignConstants.BUTTON_WIDTH_75,UIDesignConstants.BUTTON_HEIGHT),
+                Visible = false
+            };
+            btnSearch.LeftClick += 筛选;
 
             var btnUpload = new XNAClientButton(WindowManager)
             {
                 Text = "Upload".L10N("UI:DTAConfig:ButtonUpload"),
-                X = tbSearch.Right + 50,
-                Y = tbSearch.Y,
-                Visible = false
+                ClientRectangle = new Rectangle(btnSearch.Right + 20, tbSearch.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
+                Visible = false,
             };
             btnUpload.LeftClick += 跳转上传窗口;
 
@@ -313,7 +317,7 @@ namespace DTAConfig.OptionPanels
                 _menu.Open(GetCursorPoint());
             };
                
-            WorkshopControls.AddRange([lblType,ddType, lblState,ddStatus, tbSearch, btnUpload,mlbWorkshop]);
+            WorkshopControls.AddRange([lblType,ddType, lblState,ddStatus, tbSearch,btnSearch, btnUpload,mlbWorkshop]);
             AddChild(WorkshopControls);
 
 

@@ -24,6 +24,9 @@ namespace Ra2Client.Domain
         public string FileName { get; private set; }
         public string GUIName { get; private set; }
 
+        public bool 透明迷雾 { get; set; }
+
+        public int 战役ID { get; set; }
         public string Mission { get; private set; }
 
         public string Game { get; private set; }

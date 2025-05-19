@@ -89,29 +89,38 @@ namespace ClientCore
 
         public static void 清理游戏目录(List<string> excludeFiles)
         {
+            // 写死的白名单（不区分大小写）
+            var 固定白名单 = new HashSet<string>
+                {
+                "KeyboardMD.ini",
+                "gamemd-spawn.exe"
+                };
+
             foreach (var file in Directory.GetFiles(游戏目录))
             {
-                if (!excludeFiles.Contains(Path.GetFileName(file)))
+                var 文件名 = Path.GetFileName(file);
+
+                // 如果在传入白名单或固定白名单中，就跳过
+                if (excludeFiles.Contains(文件名, StringComparer.OrdinalIgnoreCase) || 固定白名单.Contains(文件名))
+                    continue;
+
+                try
                 {
-                    try
-                    {
-                        // 获取文件的当前属性
-                        FileAttributes attributes = File.GetAttributes(file);
+                    // 获取文件属性
+                    var attributes = File.GetAttributes(file);
 
-                        // 如果文件是只读的，去除只读属性
-                        if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-                        {
-                            File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
-                        }
-
-                        // 删除文件
-                        File.Delete(file);
-                    }
-                    catch (Exception ex)
+                    // 去除只读属性
+                    if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
                     {
-                        // 处理异常，如文件被其他进程占用等
-                        Console.WriteLine($"无法删除文件 {file}: {ex.Message}");
+                        File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
                     }
+
+                    // 删除文件
+                    File.Delete(file);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"无法删除文件 {file}: {ex.Message}");
                 }
             }
         }
@@ -209,16 +218,23 @@ namespace ClientCore
         {
             try
             {
+                // 设置白名单，白名单中的文件不会被删除（大小写敏感）
+                var 白名单 = new HashSet<string>
+                {
+                "KeyboardMD.ini",
+                "gamemd-spawn.exe"
+                };
+
                 foreach (var file in Directory.GetFiles(游戏目录))
                 {
-                    File.Delete(file);
+                    var 文件名 = Path.GetFileName(file);
+                    if (!白名单.Contains(文件名))
+                    {
+                        File.Delete(file);
+                    }
                 }
 
-                //foreach (var dir in Directory.GetDirectories(游戏目录))
-                //{
-                //    Directory.Delete(dir, true);
-                //}
-
+                // 下面两个文件不在白名单里，所以尝试删除
                 File.Delete("spawn.ini");
                 File.Delete("spawnmap.ini");
 

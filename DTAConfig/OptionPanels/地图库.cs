@@ -87,6 +87,7 @@ namespace DTAConfig.OptionPanels
         public static bool 需要刷新 = false;
 
         private List<XNAClientButton> buttons = [];
+        private List<Maps> Maps = [];
         
         public override void Initialize()
         {
@@ -149,18 +150,7 @@ namespace DTAConfig.OptionPanels
 
 
 
-            for(int i = 0;i < _大小; i++)
-            {
-                var btn = new XNAClientButton(WindowManager);
-                btn.Width = UIDesignConstants.BUTTON_WIDTH_92;
-                btn.X = 804;
-                btn.Y = 25 + i * mapPanel.LineHeight;
-                btn.Text = "查看";
-              //  btn.LeftClick += (_, _) => { 查看地图(map.id, is安装); };
-   
-                buttons.Add(btn);
-                mapPanel.AddChild(btn);
-            }
+            
 
             
 
@@ -176,7 +166,7 @@ namespace DTAConfig.OptionPanels
 
             AddChild(_menu);
 
-            types = NetWorkINISettings.Get<string>("dict/getValue?section=map&key=type").Result.Item1.Split(',');
+            types = NetWorkINISettings.Get<string>("dict/getValue?section=map&key=type").Result.Item1?.Split(',') ?? [];
 
             ddType.AddItem("所有");
             foreach (var type in types)
@@ -237,6 +227,8 @@ namespace DTAConfig.OptionPanels
             AddChild(btnRight);
             AddChild(lblPage);
 
+            
+
             base.Initialize();
 
             // Reload();
@@ -266,10 +258,14 @@ namespace DTAConfig.OptionPanels
             }
         }
 
-        private void 查看地图(int id,bool is安装) 
-
+        private void 查看地图(int i) 
         {
-            var w = new 地图详细信息界面(WindowManager, id, types,is安装);
+            mapPanel.SelectedIndex = i;
+
+            var map = Maps[mapPanel.SelectedIndex];
+          
+
+            var w = new 地图详细信息界面(WindowManager, map.id, types, File.Exists(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map")));
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, w);
             w.EnabledChanged +=(_,_) => {
              //   if (Enabled == true)
@@ -301,12 +297,35 @@ namespace DTAConfig.OptionPanels
             总页数 = (int)r.Item1.pages;
 
             mapPanel.ClearItems();
-            
-         
+            buttons.ForEach(b => {
+                mapPanel.RemoveChild(b);
+                });
+            buttons.Clear();
 
-            r.Item1.records.ForEach(map =>
+            for (int i = 0; i < _大小; i++)
             {
-            List<XNAListBoxItem> items = [];
+                var btn = new XNAClientButton(WindowManager);
+                btn.Width = UIDesignConstants.BUTTON_WIDTH_92;
+                btn.X = 804;
+                btn.Y = 25 + i * mapPanel.LineHeight;
+                btn.Text = "查看";
+                btn.Tag = i;
+                btn.Visible = false;
+                btn.LeftClick += (_, _) => { 查看地图((int)(btn.Tag)); };
+                
+                buttons.Add(btn);
+                mapPanel.AddChild(btn);
+                
+            }
+
+            Maps = r.Item1?.records ?? [];
+
+
+            for (int i = 0; i < Maps.Count; i++)
+            {
+                var map = Maps[i];
+           
+                List<XNAListBoxItem> items = [];
                
                 var is安装 = File.Exists(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"));
                 items.Add(new XNAListBoxItem(map.name));
@@ -319,7 +338,8 @@ namespace DTAConfig.OptionPanels
                 items.Add(new XNAListBoxItem(string.Empty));
                 mapPanel.AddItem(items);
 
-            });
+                buttons[i].Visible = true;
+            }
         }
 
     }
@@ -486,7 +506,11 @@ namespace DTAConfig.OptionPanels
                 var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
                 var sectionName = "Maps/Multi/MapLibrary/" + map.id;
                 mapIni.SetValue(sectionName, "Description" , $"[{map.maxPlayers}]{map.name}");
+
                 mapIni.SetValue(sectionName, "Author", map.author);
+                var rules = map.rules?.Split(',') ?? [];
+                for (int i = 1; i <= rules.Length; i++)
+                    mapIni.SetValue(sectionName, $"Rule{i}", rules[i]);
                 mapIni.WriteIniFile();
 
                 地图库.需要刷新 = true;

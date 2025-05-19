@@ -250,6 +250,8 @@ namespace ClientGUI
             var game = spawn.GetValue("Settings", "Game", string.Empty);
 
             var mission = spawn.GetValue<string>("Settings", "Mission", null);
+            var 透明迷雾 = spawn.GetValue("Settings", "chkSatellite", false);
+            var 战役ID = spawn.GetValue("Settings", "CampaignID", -1);
             //if (mission != null)
             //    mission = Path.GetFileName(mission);
 
@@ -268,6 +270,9 @@ namespace ClientGUI
 
                 iniFile.SetValue(sectionName, "Game", game);
                 iniFile.SetValue(sectionName, "Mission", mission ?? string.Empty);
+                iniFile.SetValue(sectionName, "chkSatellite", 透明迷雾);
+                if(战役ID!=-1)
+                    iniFile.SetValue(sectionName, "CampaignID", 战役ID);
             }
             iniFile.WriteIniFile();
             
@@ -320,7 +325,7 @@ namespace ClientGUI
 
                 所有需要复制的文件.Add("TX");
                 所有需要复制的文件.Add("zh");
-                所有需要复制的文件.Add("gamemd-spawn.exe");
+               // 所有需要复制的文件.Add("gamemd-spawn.exe");
                 所有需要复制的文件.Add("cncnet5.dll");
                 所有需要复制的文件.Add(newGame);
                 if(newMission != newGame && newMission != string.Empty)
@@ -338,9 +343,9 @@ namespace ClientGUI
 
                 
 
-                var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
-                if (File.Exists(keyboardMD))
-                    所有需要复制的文件.Add(keyboardMD);
+                //var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
+                //if (File.Exists(keyboardMD))
+                //    所有需要复制的文件.Add(keyboardMD);
 
                 if (newSection.KeyExists("CampaignID") && newSection.GetValue("chkSatellite", false))
                 {
@@ -543,7 +548,7 @@ namespace ClientGUI
             proc.Exited -= Process_Exited;
             proc.Dispose();
             GameProcessExited?.Invoke();
-            var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
+            //var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
             //if (File.Exists(keyboardMD))
             //    File.Copy(keyboardMD, "KeyboardMD.ini", true);
 

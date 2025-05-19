@@ -144,8 +144,8 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(80, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
-                Text = "Yes".L10N("UI:Main:Yes")
+                ClientRectangle = new Rectangle(150, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
+                Text = "确认".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
             {

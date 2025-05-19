@@ -147,7 +147,9 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("Mission", newMission); 
 
             settings.SetValue("Ra2Mode",false);
-
+            settings.SetValue("chkSatellite",sg.透明迷雾);
+            if(sg.战役ID != -1)
+                settings.SetValue("CampaignID", sg.战役ID);
             settings.SetValue("Scenario", "spawnmap.ini");
             settings.SetValue("SaveGameName", sg.FileName);
             settings.SetValue("LoadSaveGame","Yes");
@@ -251,7 +253,9 @@ namespace Ra2Client.DXGUI.Generic
                     var sectionName = $"{Path.GetFileName(file.FullName)}-{Path.GetFileName(d)}";
                     var game = saveIni.GetValue(sectionName, "Game", string.Empty);
                     var mission = saveIni.GetValue(sectionName, "Mission", string.Empty);
-                    ParseSaveGame(file.FullName,game,mission);
+                    var 透明迷雾 = saveIni.GetValue(sectionName, "chkSatellite", false);
+                    var 战役ID = saveIni.GetValue(sectionName, "CampaignID", -1);
+                    ParseSaveGame(file.FullName,game,mission,透明迷雾,战役ID);
                 }
             }
 
@@ -267,12 +271,14 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void ParseSaveGame(string fileName,string game,string mission)
+        private void ParseSaveGame(string fileName,string game,string mission,bool 透明迷雾,int 战役ID)
         {
             string shortName = Path.GetFileName(fileName);
 
             SavedGame sg = new SavedGame(shortName, game, mission);
             sg.FilePath = fileName;
+            sg.透明迷雾 = 透明迷雾;
+            sg.战役ID = 战役ID;
             if (sg.ParseInfo())
                 savedGames.Add(sg);
         }

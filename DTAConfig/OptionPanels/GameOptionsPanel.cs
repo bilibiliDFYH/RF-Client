@@ -211,7 +211,7 @@ namespace DTAConfig.OptionPanels
             var btnRecover = new XNAClientButton(WindowManager);
             btnRecover.Name = nameof(btnRecover);
             btnRecover.ClientRectangle = new Rectangle(lblPlayerName.X, lblNotice.Bottom + 108, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
-            btnRecover.Text = "Clean up the game cache".L10N("UI:DTAConfig:CleanupGameCache");
+            btnRecover.Text = "清理游戏缓存".L10N("UI:DTAConfig:CleanupGameCache");
             btnRecover.SetToolTipText("If there is a problem with the game, you can click this button to try to fix it.".L10N("UI:DTAConfig:ButtonCleanupGameCache"));
             btnRecover.LeftClick += BtnRecover_LeftClick;
 
@@ -238,7 +238,7 @@ namespace DTAConfig.OptionPanels
       
         private void BtnRecover_LeftClick(object sender, EventArgs e)
         {
-            XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "Cleanup confirmation".L10N("UI:DTAConfig:CleanupConfirmation"), "Are you sure you want to clean up the file cache?".L10N("UI:DTAConfig:CleanupCacheTips"), XNAMessageBoxButtons.YesNo);
+            XNAMessageBox xNAMessageBox = new XNAMessageBox(WindowManager, "清理确认".L10N("UI:DTAConfig:CleanupConfirmation"), "Are you sure you want to clean up the file cache?".L10N("UI:DTAConfig:CleanupCacheTips"), XNAMessageBoxButtons.YesNo);
             xNAMessageBox.Show();
             xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), ProgramConstants.清理缓存()?"Cleanup successful!".L10N("UI:DTAConfig:CleanupSuccessful"):"If the cleanup fails, a file may be occupied".L10N("UI:DTAConfig:CleanupFailed")) ;
         }

@@ -435,21 +435,21 @@ namespace DTAConfig.OptionPanels
                 ClientRectangle = new Rectangle(地图评分内容.X, 地图评分内容.Bottom + 25, 0, 0)
             };
 
-            _ratingBox = new XNAClientRatingBox(WindowManager)
-            {
-                ClientRectangle = new Rectangle(下载次数.X, 下载次数内容.Bottom + 25, 100, 30),
-                Text = "打分".L10N("UI:Main:Rating"),
-            };
-            _ratingBox.CheckedChanged += RatingBox_CheckedChanged;
+            //_ratingBox = new XNAClientRatingBox(WindowManager)
+            //{
+            //    ClientRectangle = new Rectangle(下载次数.X, 下载次数内容.Bottom + 25, 100, 30),
+            //    Text = "打分".L10N("UI:Main:Rating"),
+            //};
+            //_ratingBox.CheckedChanged += RatingBox_CheckedChanged;
 
-            _btnRatingDone = new XNAClientButton(WindowManager)
-            {
-                Name = nameof(_btnRatingDone),
-                Text = "打分".L10N("UI:Main:Rating"),
-                ClientRectangle = new Rectangle(Right - 100, _ratingBox.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
-            };
+            //_btnRatingDone = new XNAClientButton(WindowManager)
+            //{
+            //    Name = nameof(_btnRatingDone),
+            //    Text = "打分".L10N("UI:Main:Rating"),
+            //    ClientRectangle = new Rectangle(Right - 100, _ratingBox.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            //};
 
-            _btnRatingDone.LeftClick += BtnRatingDone_LeftClick;
+            //_btnRatingDone.LeftClick += BtnRatingDone_LeftClick;
 
             var 地图介绍 = new XNATextBlock(WindowManager)
             {
@@ -502,15 +502,12 @@ namespace DTAConfig.OptionPanels
             AddChild(地图评分);
             AddChild(地图评分内容);  
             AddChild(下载次数);
-            AddChild(_ratingBox);
-            AddChild(_btnRatingDone);
+            //AddChild(_ratingBox);
+            //AddChild(_btnRatingDone);
             AddChild(下载次数内容);
             AddChild(地图介绍);
             AddChild(下载按钮);
             AddChild(关闭按钮);
-
-
-
 
             base.Initialize();
 

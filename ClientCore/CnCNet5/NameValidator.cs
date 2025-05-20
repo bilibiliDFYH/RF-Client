@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using Localization;
 
 namespace ClientCore.CnCNet5
 {
     public static class NameValidator
     {
+        private static readonly Encoding GBKEncoding = Encoding.GetEncoding("GBK");
+        private static readonly char[] AllowedAsciiCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_[]|\\{}^`".ToCharArray();
+
         /// <summary>
         /// Checks if the player's nickname is valid for CnCNet.
         /// </summary>
-        /// <returns>Null if the nickname is valid, otherwise a string that tells
-        /// what is wrong with the name.</returns>
         public static string IsNameValid(string name)
         {
             var profanityFilter = new ProfanityFilter();
@@ -26,24 +28,26 @@ namespace ClientCore.CnCNet5
 
             if (name[0] == '-')
                 return "The first character in the player name cannot be a dash ( - ).".L10N("UI:ClientCore:NameFirstIsDash");
-                
+
             if (name.Contains(' '))
                 return "The player name cannot contain spaces.".L10N("UI:ClientCore:NameHasSpace");
 
             if (name.EndsWith('_'))
                 return "The player name cannot end with an underline ( _ ).".L10N("UI:ClientCore:NameEndOfUnderline");
 
-            // Check that there are no invalid chars
-            char[] allowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_[]|\\{}^`".ToCharArray();
-            char[] nicknameChars = name.ToCharArray();
-
-            foreach (char nickChar in nicknameChars)
+            // 检查字符有效性（允许的ASCII字符或GBK中文）
+            foreach (char c in name)
             {
-                if (!allowedCharacters.Contains(nickChar))
+                // 检查是否是允许的ASCII字符
+                if (AllowedAsciiCharacters.Contains(c))
+                    continue;
+
+                // 检查是否是GBK编码的中文字符
+                byte[] bytes = GBKEncoding.GetBytes(new[] { c });
+                if (bytes.Length != 2 || bytes[0] < 0x81 || bytes[0] > 0xFE)
                 {
                     return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +
-                    "Since the Chinese nickname is currently an experimental feature, there may be some strange issues, so online use is temporarily disabled.".L10N("UI:ClientCore:NameInvalidChar2") + Environment.NewLine +
-                    "Allowed characters are anything from A to Z and numbers.".L10N("UI:ClientCore:NameInvalidChar3");
+                           "Allowed characters are anything from A to Z and numbers, as well as Chinese characters encoded in GBK.".L10N("UI:ClientCore:NameInvalidChar2");
                 }
             }
 

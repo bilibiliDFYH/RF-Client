@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,8 +24,8 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
 
 #if DEBUG
- //private const string Address = "https://api.yra2.com/";
-    private const string Address = "http://localhost:9088/";
+ private const string Address = "https://api.yra2.com/";
+  //  private const string Address = "http://localhost:9088/";
 #else
     private const string Address = "https://api.yra2.com/";
 #endif
@@ -33,7 +34,7 @@ public class NetWorkINISettings
 
     public IniFile SettingsIni { get; private set; }
 
-    public List<ServerMirror> UpdaterServers { get; private set; } = [];         //服务器更新列表
+    public List<UpdaterServer> UpdaterServers { get; private set; } = [];         //服务器更新列表
 
     protected NetWorkINISettings(IniFile iniFile)
     {
@@ -48,13 +49,14 @@ public class NetWorkINISettings
                 UpdaterServers.Clear();
                 for (int i = 0; i < serverGroup.Length; i++)
                 {
-                    var us = new ServerMirror()
-                    {
-                        Type = SettingsIni.GetIntValue(serverGroup[i], "Type", 0),
-                        Name = SettingsIni.GetStringValue(serverGroup[i], "Name", $"服务器#{i}"),
-                        Location = SettingsIni.GetStringValue(serverGroup[i], "Location", "Unkown"),
-                        URL = SettingsIni.GetStringValue(serverGroup[i], "Url", ""),
-                    };
+                    var us = new UpdaterServer(
+                        id: null,
+                        type: SettingsIni.GetIntValue(serverGroup[i], "Type", 0),
+                        name: SettingsIni.GetStringValue(serverGroup[i], "Name", $"服务器#{i}"),
+                        location: SettingsIni.GetStringValue(serverGroup[i], "Location", "Unkown"),
+                        url: SettingsIni.GetStringValue(serverGroup[i], "Url", "")
+                        );
+                    
                     UpdaterServers.Add(us);
                 }
             }
@@ -63,20 +65,7 @@ public class NetWorkINISettings
 
     protected NetWorkINISettings(List<UpdaterServer> uss)
     {
-        uss.ForEach(updaterServer =>
-        {
-            var us = new ServerMirror()
-            {
-                Type = updaterServer.type,
-                Name = updaterServer.name,
-                Location = updaterServer.location,
-                URL = updaterServer.url
-            };
-            UpdaterServers.Add(us);
-        });
-
-       
-        
+            UpdaterServers.AddRange(uss);
     }
 
     public static NetWorkINISettings Instance
@@ -163,7 +152,7 @@ public class NetWorkINISettings
                 ClientConfiguration.Instance.SettingsIniName,
                 ClientConfiguration.Instance.LocalGame,
                 SafePath.GetFile(ProgramConstants.StartupExecutable).Name);
-        Updater.ServerMirrors = _instance.UpdaterServers;
+        Updater.UpdaterServers = _instance.UpdaterServers;
         DownloadCompleted?.Invoke(null, EventArgs.Empty);
     }
 
@@ -182,7 +171,7 @@ public class NetWorkINISettings
 
     public void SetServerList()
     {
-        UpdaterServers = Updater.ServerMirrors;
+        UpdaterServers = Updater.UpdaterServers;
     }
 
     public static async Task<(T,string)> Post<T>(string url, object obj)

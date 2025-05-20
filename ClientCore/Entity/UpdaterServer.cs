@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ClientCore.Entity
 {
-    public record class UpdaterServer(
+    public readonly record struct UpdaterServer(
         int? id,
         string name,
         int type,

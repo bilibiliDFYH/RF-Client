@@ -1286,7 +1286,7 @@ namespace Ra2Client.DXGUI.Generic
         {
             WindowManager.progress.Report("检查更新...");
 
-            if (Updater.ServerMirrors == null || Updater.ServerMirrors.Count < 1)
+            if (Updater.UpdaterServers == null || Updater.UpdaterServers.Count < 1)
                 return;
 
             Updater.CheckForUpdates();

@@ -56,7 +56,7 @@ namespace DTAConfig.OptionPanels
 
         private FileIniDataParser iniParser;
 
-        private IniData _locIniData;
+        private IniFile _locIniData;
 
         private List<SectionData> buttons = new List<SectionData>();
 
@@ -187,7 +187,7 @@ namespace DTAConfig.OptionPanels
 
                 if (!File.Exists(componentnamePath))
                     File.Create(componentnamePath).Close();
-                _locIniData = iniParser.ReadFile(componentnamePath);
+                _locIniData = new IniFile(componentnamePath);
 
                 InitialComponets();
                 
@@ -313,13 +313,13 @@ namespace DTAConfig.OptionPanels
                 return state;
 
             state = new StateItem { Code = 0, Text = "Not installed".L10N("UI:DTAConfig:Notinstalled"), TextColor = Color.Orange };
-            foreach (SectionData locSec in _locIniData.Sections)
+            foreach (var locSec in _locIniData.GetSections())
             {
-                if (strid == locSec.SectionName)
+                if (strid == locSec)
                 {
                     state = new StateItem { Code = 1, Text = "Installed".L10N("UI:DTAConfig:Installed"), TextColor = Color.Green };
                     // 使用哈希校验比对是否有更新
-                    if (CheckVersionNew(locSec.Keys["hash"], comp.hash))
+                    if (CheckVersionNew(_locIniData.GetValue(locSec,"hash",string.Empty), comp.hash))
                     {
                         state = new StateItem { Code = 2, Text = "Updatable".L10N("UI:DTAConfig:Updatable"), TextColor = Color.AliceBlue };
                     }
@@ -577,17 +577,22 @@ namespace DTAConfig.OptionPanels
         {
             //写本地ini配置，确保可以加载
             string sectionName = _curComponent.id.ToString(); // 使用ID作为主键
-            _locIniData.Sections.AddSection(sectionName);
-            _locIniData[sectionName].AddKey("name", _curComponent.name);
-            _locIniData[sectionName].AddKey("version", _curComponent.version);
-            _locIniData[sectionName].AddKey("hash", _curComponent.hash);
-            StringBuilder sBuff = new StringBuilder();
+            if(!_locIniData.SectionExists(sectionName))
+                _locIniData.AddSection(sectionName);
+
+            _locIniData.SetValue(sectionName, "name", _curComponent.name);
+            _locIniData.SetValue(sectionName, "version", _curComponent.version);
+            _locIniData.SetValue(sectionName, "hash", _curComponent.hash);
+
+   
+            var sBuff = new StringBuilder();
             foreach (string strfile in files)
             {
                 sBuff.AppendFormat("{0},", strfile);
             }
-            _locIniData[_curComponent.id.ToString()].AddKey("Unload", sBuff.ToString().TrimEnd(','));
-            iniParser.WriteFile(componentnamePath, _locIniData);
+            _locIniData.SetValue(sectionName, "Unload", sBuff.ToString().TrimEnd(','));
+
+            _locIniData.WriteIniFile();
         }
 
 
@@ -641,10 +646,10 @@ namespace DTAConfig.OptionPanels
             RenderImage.CancelRendering();
             if (null == _curComponent)
                 return;
-            
-                var secData = _locIniData.Sections[_curComponent.id.ToString()];
+
+            var secData = _locIniData.GetSection(_curComponent.id.ToString());
             if (secData == null) return;
-                string strUnload = secData["Unload"].ToString();
+                string strUnload = secData.GetValue("Unload",string.Empty);
                 string[] lstDelfiles = strUnload.Split(',');
                 
                 foreach(string strfile in lstDelfiles)
@@ -666,8 +671,8 @@ namespace DTAConfig.OptionPanels
                     continue;
                 }
 
-                _locIniData.Sections.RemoveSection(_curComponent.id.ToString());
-                iniParser.WriteFile(componentnamePath, _locIniData);
+                _locIniData.RemoveSection(_curComponent.id.ToString());
+                _locIniData.WriteIniFile();
                 需要刷新 = true;
                 WindowManager.Report();
         }

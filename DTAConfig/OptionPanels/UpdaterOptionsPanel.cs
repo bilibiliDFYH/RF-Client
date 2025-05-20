@@ -96,12 +96,12 @@ namespace DTAConfig.OptionPanels
         {
             lbServerList.Items.Clear();
 
-            if (Updater.ServerMirrors != null && Updater.ServerMirrors.Count > 0)
+            if (Updater.UpdaterServers != null && Updater.UpdaterServers.Count > 0)
             {
-                var servers = Updater.ServerMirrors.Where(f => f.Type.Equals(ddBeta.SelectedIndex)).ToList();
+                var servers = Updater.UpdaterServers.Where(f => f.type.Equals(ddBeta.SelectedIndex)).ToList();
                 foreach (var server in servers)
                 {
-                    lbServerList.AddItem($"{server.Name}{(!string.IsNullOrEmpty(server.Location) ? $" ({server.Location})" : string.Empty)} - 延迟: N/A ms");
+                    lbServerList.AddItem($"{server.name}{(!string.IsNullOrEmpty(server.location) ? $" ({server.location})" : string.Empty)} - 延迟: N/A ms");
                 }
 
                 RefreshLatencies();
@@ -112,11 +112,11 @@ namespace DTAConfig.OptionPanels
         {
             Task.Run(() =>
             {
-                if (Updater.ServerMirrors == null)
+                if (Updater.UpdaterServers == null)
                     return;
 
-                var servers = Updater.ServerMirrors.Where(f => f.Type.Equals(ddBeta.SelectedIndex)).ToList();
-                var serverLatencies = new Dictionary<ServerMirror, long>();
+                var servers = Updater.UpdaterServers.Where(f => f.type.Equals(ddBeta.SelectedIndex)).ToList();
+                var serverLatencies = new Dictionary<ClientCore.Entity.UpdaterServer, long>();
                 List<string> updatedItems = new List<string>();
 
                 foreach (var server in servers)
@@ -124,10 +124,10 @@ namespace DTAConfig.OptionPanels
                     long latency = GetServerLatency(server);
                     serverLatencies[server] = latency;
                     string latencyText = latency >= 0 ? latency.ToString() : "--";
-                    updatedItems.Add($"{server.Name}{(!string.IsNullOrEmpty(server.Location) ? $" ({server.Location})" : string.Empty)} - 延迟: {latencyText} ms");
+                    updatedItems.Add($"{server.name}{(!string.IsNullOrEmpty(server.location) ? $" ({server.location})" : string.Empty)} - 延迟: {latencyText} ms");
                 }
 
-                ServerMirror? bestServer = null;
+                ClientCore.Entity.UpdaterServer? bestServer = null;
                 long bestLatency = long.MaxValue;
                 foreach (var kvp in serverLatencies)
                 {
@@ -147,8 +147,8 @@ namespace DTAConfig.OptionPanels
                     if (bestServer.HasValue)
                     {
                         var server = bestServer.Value;
-                        lblBestServer.Text = server.Name +
-                            (!string.IsNullOrEmpty(server.Location) ? $" ({server.Location})" : string.Empty) +
+                        lblBestServer.Text = server.name +
+                            (!string.IsNullOrEmpty(server.location) ? $" ({server.location})" : string.Empty) +
                             $" 延迟: {bestLatency}ms";
                     }
                     else
@@ -159,11 +159,11 @@ namespace DTAConfig.OptionPanels
             });
         }
 
-        private long GetServerLatency(ServerMirror server)
+        private long GetServerLatency(ClientCore.Entity.UpdaterServer server)
         {
             try
             {
-                string host = new Uri(server.URL).Host;
+                string host = new Uri(server.url).Host;
                 using (Ping ping = new Ping())
                 {
                     PingReply reply = ping.Send(host, 1000);
@@ -203,7 +203,7 @@ namespace DTAConfig.OptionPanels
         {
             base.Load();
 
-            if (Updater.ServerMirrors != null && Updater.ServerMirrors.Count > 0)
+            if (Updater.UpdaterServers != null && Updater.UpdaterServers.Count > 0)
             {
                 if (IniSettings.Beta != -1)
                     ddBeta.SelectedIndex = IniSettings.Beta.Value;

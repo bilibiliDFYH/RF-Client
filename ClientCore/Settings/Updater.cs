@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ClientCore.Entity;
 using Localization.Tools;
 using Rampastring.Tools;
 
@@ -51,14 +52,14 @@ public static class Updater
     /// <summary>
     /// 更新服务器组 (只读)
     /// </summary>
-    public static List<ServerMirror> ServerMirrors { get => serverMirrors; set => serverMirrors = value; }
+    public static List<UpdaterServer> UpdaterServers { get => serverMirrors; set => serverMirrors = value; }
 
     /// <summary>
     /// Update server URL for current update mirror if available.
     /// </summary>
     public static string CurrentUpdateServerURL
         => serverMirrors is { Count: > 0 }
-            ? serverMirrors[currentServerMirrorIndex].URL
+            ? serverMirrors[currentUpdaterServerIndex].url
             : null;
 
     private static VersionState _versionState = VersionState.UNKNOWN;
@@ -113,8 +114,8 @@ public static class Updater
 
     // Misc.
     private static IniFile settingsINI;
-    private static int currentServerMirrorIndex;
-    private static List<ServerMirror> serverMirrors;
+    private static int currentUpdaterServerIndex;
+    private static List<UpdaterServer> serverMirrors;
 
     public static VersionFileConfig serverVerCfg;
     public static VersionFileConfig clientVerCfg;
@@ -237,13 +238,13 @@ public static class Updater
     /// 根据指定更新通道返回实际延迟最低的服务器。
     /// </summary>
     /// <param name="channel">更新通道（例如：Stable=0，Insiders=1）</param>
-    public static ServerMirror? GetBestMirror(int channel)
+    public static UpdaterServer? GetBestMirror(int channel)
     {
-        var mirrors = serverMirrors.Where(m => m.Type == channel).ToList();
+        var mirrors = serverMirrors.Where(m => m.type == channel).ToList();
         if (mirrors.Count == 0)
             return null;
 
-        ServerMirror bestMirror = default;
+        UpdaterServer bestMirror = default;
         long bestLatency = long.MaxValue;
 
         foreach (var mirror in mirrors)
@@ -261,12 +262,12 @@ public static class Updater
     /// <summary>
     /// 使用 Ping 测试服务器延迟，返回往返时间（毫秒）。若测试失败则返回 -1。
     /// </summary>
-    private static long MeasureLatency(ServerMirror mirror)
+    private static long MeasureLatency(UpdaterServer mirror)
     {
         try
         {
             // 提取 URL 主机进行Ping测试
-            string host = new Uri(mirror.URL).Host;
+            string host = new Uri(mirror.url).Host;
             using var ping = new Ping();
             PingReply reply = ping.Send(host, 1000);
             if (reply.Status == IPStatus.Success)
@@ -360,7 +361,7 @@ public static class Updater
         try
         {
             versionState = VersionState.UPDATECHECKINPROGRESS;
-            if (ServerMirrors.Count == 0)
+            if (UpdaterServers.Count == 0)
             {
                 Logger.Log("更新：这不是合法的更新地址!");
             }
@@ -458,7 +459,7 @@ public static class Updater
             });
             await using (fileStream.ConfigureAwait(false))
             {
-                Stream stream = await SharedHttpClient.GetStreamAsync(ServerMirrors[currentServerMirrorIndex].URL + "updateexec").ConfigureAwait(false);
+                Stream stream = await SharedHttpClient.GetStreamAsync(UpdaterServers[currentUpdaterServerIndex].url + "updateexec").ConfigureAwait(false);
                 await using (stream.ConfigureAwait(false))
                 {
                     await stream.CopyToAsync(fileStream).ConfigureAwait(false);
@@ -800,9 +801,9 @@ public static class Updater
         FileInfo locFile = SafePath.GetFile(GamePath, prefixPath, strfile);
         try
         {
-            int currentServerMirrorId = currentServerMirrorIndex;
-            var serversCondi = ServerMirrors.Where(f => f.Type.Equals(UserINISettings.Instance.Beta.Value)).ToList();
-            var serverFile = (serversCondi[currentServerMirrorId].URL + strfile).Replace(@"\", "/", StringComparison.OrdinalIgnoreCase);
+            int currentUpdaterServerId = currentUpdaterServerIndex;
+            var serversCondi = UpdaterServers.Where(f => f.type.Equals(UserINISettings.Instance.Beta.Value)).ToList();
+            var serverFile = (serversCondi[currentUpdaterServerId].url + strfile).Replace(@"\", "/", StringComparison.OrdinalIgnoreCase);
             CreatePath(locFile.FullName);
             Logger.Log("更新：Downloading file " + strfile);
             var fileStream = new FileStream(locFile.FullName, new FileStreamOptions
@@ -907,7 +908,7 @@ public static class Updater
     private static void DoUpdateCompleted() => OnUpdateCompleted?.Invoke();
 }
 
-public readonly record struct ServerMirror(int Type, string Name, string Location, string URL);
+//public readonly record struct UpdaterServer(int Type, string Name, string Location, string URL);
 
 public readonly record struct VersionFileConfig(string Version, string UpdaterVersion, string ManualDownURL, string Package, string Hash, int Size, string Logs, string time);
 

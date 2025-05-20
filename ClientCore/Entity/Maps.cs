@@ -26,6 +26,10 @@ namespace ClientCore.Entity
         public string typeName { get; set; } = "";
         public string rules { get; set; }
 
+        public string enemyHouse { get; set; } = "";
+
+        public string allyHouse { get; set; } = "";
+
         public Maps() { }
     }
 

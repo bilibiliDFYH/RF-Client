@@ -42,7 +42,6 @@ namespace ClientCore
 
         public static readonly string MAP_PATH = Path.Combine(GamePath, "Maps\\Multi\\MapLibrary");
 
-
         public static string ClientUserFilesPath => SafePath.CombineDirectoryPath(GamePath, "Client");
 
         public static event EventHandler PlayerNameChanged;

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -351,6 +352,10 @@ namespace DTAConfig.OptionPanels
         private string[] types;
         private bool is下载;
         private XNAClientButton 下载按钮;
+        private int _scoreLevel = -1;
+        private readonly string SETTINGS_PATH = "Client\\MapSettings.ini";
+        private XNAClientRatingBox _ratingBox;
+        private XNAClientButton _btnRatingDone;
 
         public 地图详细信息界面(WindowManager windowManager,int mapID, string[] types,bool is下载 = true) : base(windowManager)
         {
@@ -362,7 +367,7 @@ namespace DTAConfig.OptionPanels
         public override void Initialize()
         {
 
-            ClientRectangle = new Rectangle(0, 0, 550, 300);
+            ClientRectangle = new Rectangle(0, 0, 550, 400);
 
             var 地图预览图 = new XNATextBlock(WindowManager)
             {
@@ -430,16 +435,33 @@ namespace DTAConfig.OptionPanels
                 ClientRectangle = new Rectangle(地图评分内容.X, 地图评分内容.Bottom + 25, 0, 0)
             };
 
-            var 地图介绍 = new XNALabel(WindowManager)
+            _ratingBox = new XNAClientRatingBox(WindowManager)
             {
-                Text = map.description,
-                ClientRectangle = new Rectangle(地图预览图.X, 地图预览图.Bottom + 25, 0, 0)
+                ClientRectangle = new Rectangle(下载次数.X, 下载次数内容.Bottom + 25, 100, 30),
+                Text = "打分".L10N("UI:Main:Rating"),
+            };
+            _ratingBox.CheckedChanged += RatingBox_CheckedChanged;
+
+            _btnRatingDone = new XNAClientButton(WindowManager)
+            {
+                Name = nameof(_btnRatingDone),
+                Text = "打分".L10N("UI:Main:Rating"),
+                ClientRectangle = new Rectangle(Right - 100, _ratingBox.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            };
+
+            _btnRatingDone.LeftClick += BtnRatingDone_LeftClick;
+
+            var 地图介绍 = new XNATextBlock(WindowManager)
+            {
+                Text = InsertLineBreaks(map.description, 35),
+                ClientRectangle = new Rectangle(地图预览图.X, 地图预览图.Bottom + 15, 530, 180),
+                FontIndex = 3
             };
 
             下载按钮 = new XNAClientButton(WindowManager)
             {
                 
-                ClientRectangle = new Rectangle(地图介绍.X, 地图介绍.Bottom + 70, 100, 30),
+                ClientRectangle = new Rectangle(地图介绍.X, 地图介绍.Bottom + 10, 100, 30),
                 IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
                 HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png")
             };
@@ -480,6 +502,8 @@ namespace DTAConfig.OptionPanels
             AddChild(地图评分);
             AddChild(地图评分内容);  
             AddChild(下载次数);
+            AddChild(_ratingBox);
+            AddChild(_btnRatingDone);
             AddChild(下载次数内容);
             AddChild(地图介绍);
             AddChild(下载按钮);
@@ -492,6 +516,83 @@ namespace DTAConfig.OptionPanels
 
             CenterOnParent();
             
+        }
+
+        string InsertLineBreaks(string text, int maxCharsPerLine)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            var sb = new StringBuilder();
+            int count = 0;
+            foreach (var ch in text)
+            {
+                sb.Append(ch);
+                count++;
+                if (count >= maxCharsPerLine)
+                {
+                    sb.Append('\n'); // 插入换行
+                    count = 0;
+                }
+            }
+            return sb.ToString();
+        }
+
+        private void BtnRatingDone_LeftClick(object sender, EventArgs e)
+        {
+            if (-1 == _scoreLevel)
+            {
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "You haven't scored it yet!".L10N("UI:Main:NotScored"));
+                return;
+            }
+
+            string missionName = map.id.ToString();
+            var missionPack = string.Empty;
+            var brief = string.Empty;
+            var ini = new IniFile(ProgramConstants.GamePath + SETTINGS_PATH);
+            if (!ini.SectionExists(missionName))
+                ini.AddSection(missionName);
+
+            int mark = ini.GetValue(missionName, "Mark", -1);
+            if (-1 != mark)
+                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "You've already scored this mission!".L10N("UI:Main:Scored"));
+            else
+            {
+                _ = Task.Run(async () =>
+                {
+                    await UploadScore(missionName, missionPack, brief, _scoreLevel);
+
+                    ini.SetValue(missionName, "Mark", _scoreLevel);
+                    ini.WriteIniFile();
+
+                    updateMark(missionName);
+                });
+
+            }
+        }
+
+        private void updateMark(string missionName)
+        {
+            _ = Task.Run(() =>
+            {
+
+            });
+        }
+
+        private void RatingBox_CheckedChanged(object sender, EventArgs e)
+        {
+          //  if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
+
+            XNAClientRatingBox ratingBox = (XNAClientRatingBox)sender;
+            if (null != ratingBox)
+            {
+                string name = map.id.ToString();
+                _scoreLevel = ratingBox.CheckedIndex + 1;
+                CDebugView.OutputDebugInfo("Mission: {0}, Rating: {1}".L10N("UI:Main:Rating2"), name, _scoreLevel);
+            }
+        }
+
+        private async Task UploadScore(string strName, string missionPack, string brief, int strScore)
+        {
         }
 
         private void 安装(object sender, EventArgs e)
@@ -508,9 +609,20 @@ namespace DTAConfig.OptionPanels
                 mapIni.SetValue(sectionName, "Description" , $"[{map.maxPlayers}]{map.name}");
 
                 mapIni.SetValue(sectionName, "Author", map.author);
+                
                 var rules = map.rules?.Split(';') ?? [];
                 for (int i = 1; i <= rules.Length; i++)
-                    mapIni.SetValue(sectionName, $"Rule{i}", rules[i]);
+                    mapIni.SetValue(sectionName, $"Rule{i}", rules[i - 1]);
+                
+
+                var enemyHouses = map.enemyHouse?.Split(';') ?? [];
+                for (int i = 1; i <= enemyHouses.Length; i++)
+                    mapIni.SetValue(sectionName, $"EnemyHouse{i}", enemyHouses[i - 1]);
+
+                var allyHouses = map.allyHouse?.Split(';') ?? [];
+                for (int i = 1; i <= allyHouses.Length; i++)
+                    mapIni.SetValue(sectionName, $"AllyHouse{i}", allyHouses[i - 1]);
+
                 mapIni.WriteIniFile();
 
                 地图库.需要刷新 = true;

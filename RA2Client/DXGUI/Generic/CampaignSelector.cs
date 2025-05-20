@@ -884,7 +884,6 @@ namespace Ra2Client.DXGUI.Generic
                 total = 1
             };
 
-          
             await NetWorkINISettings.Post<bool?>($"score/updateScore", score);
         }
 

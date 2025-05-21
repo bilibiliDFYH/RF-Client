@@ -18,7 +18,7 @@ namespace Ra2Client.DXGUI.Generic
                 var biosSerialNumber = GetBIOSSerialNumber();
                 var diskSerialNumber = GetDiskDriveSerialNumber();
                 var uuid = $"{cpuID}__{biosSerialNumber}__{diskSerialNumber}";
-          //  }
+            //}
             return uuid;
         }
 

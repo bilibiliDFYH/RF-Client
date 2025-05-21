@@ -32,19 +32,19 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.LoadTexture("updatequerybg.png");
 
             lblDescription = new XNALabel(WindowManager);
-            lblDescription.Name = "lblDescription";
+            lblDescription.Name = nameof(lblDescription);
             lblDescription.ClientRectangle = new Rectangle(12, 9, 0, 0);
             lblDescription.Text = ("Version {0} is available." + Environment.NewLine + Environment.NewLine +
                 "Manual download and installation is" + Environment.NewLine + "required.").L10N("UI:Main:ManualDownloadAvailable");
 
             var btnDownload = new XNAClientButton(WindowManager);
-            btnDownload.Name = "btnDownload";
+            btnDownload.Name = nameof(btnDownload);
             btnDownload.ClientRectangle = new Rectangle(12, 110, 110, 23);
             btnDownload.Text = "View Downloads".L10N("UI:Main:ButtonViewDownloads");
             btnDownload.LeftClick += BtnDownload_LeftClick;
 
             var btnClose = new XNAClientButton(WindowManager);
-            btnClose.Name = "btnClose";
+            btnClose.Name = nameof(btnClose);
             btnClose.ClientRectangle = new Rectangle(147, 110, 92, 23);
             btnClose.Text = "Close".L10N("UI:Main:ButtonClose");
             btnClose.LeftClick += BtnClose_LeftClick;

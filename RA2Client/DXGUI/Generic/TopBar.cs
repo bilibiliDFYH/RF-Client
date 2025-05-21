@@ -154,25 +154,25 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 128), 1, 1);
             DrawBorders = false;
             btnMainButton = new XNAClientButton(WindowManager);
-            btnMainButton.Name = "btnMainButton";
+            btnMainButton.Name = nameof(btnMainButton);
             btnMainButton.ClientRectangle = new Rectangle(12, 9, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
             btnMainButton.Text = "Main Menu (F2)".L10N("UI:Main:MainMenuF2");
             btnMainButton.LeftClick += BtnMainButton_LeftClick;
 
             btnCnCNetLobby = new XNAClientButton(WindowManager);
-            btnCnCNetLobby.Name = "btnCnCNetLobby";
+            btnCnCNetLobby.Name = nameof(btnCnCNetLobby);
             btnCnCNetLobby.ClientRectangle = new Rectangle(184, 9, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
             btnCnCNetLobby.Text = "CnCNet Lobby (F3)".L10N("UI:Main:LobbyF3");
             btnCnCNetLobby.LeftClick += BtnCnCNetLobby_LeftClick;
 
             btnPrivateMessages = new XNAClientButton(WindowManager);
-            btnPrivateMessages.Name = "btnPrivateMessages";
+            btnPrivateMessages.Name = nameof(btnPrivateMessages);
             btnPrivateMessages.ClientRectangle = new Rectangle(356, 9, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT);
             btnPrivateMessages.Text = DEFAULT_PM_BTN_LABEL;
             btnPrivateMessages.LeftClick += BtnPrivateMessages_LeftClick;
 
             lblDate = new XNALabel(WindowManager);
-            lblDate.Name = "lblDate";
+            lblDate.Name = nameof(lblDate);
             lblDate.FontIndex = 1;
             lblDate.Text = Renderer.GetSafeString(DateTime.Now.ToShortDateString(), lblDate.FontIndex);
             lblDate.ClientRectangle = new Rectangle(Width -
@@ -180,7 +180,7 @@ namespace Ra2Client.DXGUI.Generic
                 lblDate.Width, lblDate.Height);
 
             lblTime = new XNALabel(WindowManager);
-            lblTime.Name = "lblTime";
+            lblTime.Name = nameof(lblTime);
             lblTime.FontIndex = 1;
             lblTime.Text = Renderer.GetSafeString(new DateTime(1, 1, 1, 23, 59, 59).ToLongTimeString(), lblTime.FontIndex);
             lblTime.ClientRectangle = new Rectangle(Width -
@@ -188,7 +188,7 @@ namespace Ra2Client.DXGUI.Generic
                 lblTime.Width, lblTime.Height);
 
             btnLogout = new XNAClientButton(WindowManager);
-            btnLogout.Name = "btnLogout";
+            btnLogout.Name = nameof(btnLogout);
             btnLogout.ClientRectangle = new Rectangle(lblDate.X - 87, 9, 75, 23);
             btnLogout.FontIndex = 1;
             btnLogout.Text = "Log Out".L10N("UI:Main:LogOut");
@@ -198,13 +198,13 @@ namespace Ra2Client.DXGUI.Generic
 
 
             btnOptions = new XNAClientButton(WindowManager);
-            btnOptions.Name = "btnOptions";
+            btnOptions.Name = nameof(btnOptions);
             btnOptions.ClientRectangle = new Rectangle(btnLogout.X - 122, 9, 110, 23);
             btnOptions.Text = "Options (F12)".L10N("UI:Main:OptionsF12");
             btnOptions.LeftClick += BtnOptions_LeftClick;
 
             btnModManager = new XNAClientButton(WindowManager);
-            btnModManager.Name = "btnModManager";
+            btnModManager.Name = nameof(btnModManager);
             btnModManager.ClientRectangle = new Rectangle(btnOptions.X - 172, 9, UIDesignConstants.BUTTON_WIDTH_160, 23);
             btnModManager.Text = "ModManager (F11)".L10N("UI:Main:ModManagerF11");
             btnModManager.LeftClick += BtnModManager_LeftClick;

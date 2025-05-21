@@ -130,7 +130,7 @@ namespace Ra2Client.DXGUI.Generic
             VisibleChanged += StatisticsWindow_VisibleChanged;
 
             tabControl = new XNAClientTabControl(WindowManager);
-            tabControl.Name = "tabControl";
+            tabControl.Name = nameof(tabControl);
             tabControl.ClientRectangle = new Rectangle(12, 10, 0, 0);
             tabControl.ClickSound = new EnhancedSoundEffect("button.wav");
             tabControl.FontIndex = 1;
@@ -140,14 +140,14 @@ namespace Ra2Client.DXGUI.Generic
             tabControl.SelectedIndexChanged += TabControl_SelectedIndexChanged;
 
             XNALabel lblFilter = new XNALabel(WindowManager);
-            lblFilter.Name = "lblFilter";
+            lblFilter.Name = nameof(lblFilter);
             lblFilter.FontIndex = 1;
             lblFilter.Text = "FILTER:".L10N("UI:Main:Filter");
             lblFilter.ClientRectangle = new Rectangle(550, 12, 0, 0);
 
             cmbGameClassFilter = new XNAClientDropDown(WindowManager);
             cmbGameClassFilter.ClientRectangle = new Rectangle(585, 11, 105, 21);
-            cmbGameClassFilter.Name = "cmbGameClassFilter";
+            cmbGameClassFilter.Name = nameof(cmbGameClassFilter);
             cmbGameClassFilter.AddItem("All games".L10N("UI:Main:FilterAll"));
             cmbGameClassFilter.AddItem("Online games".L10N("UI:Main:FilterOnline"));
             cmbGameClassFilter.AddItem("Online PvP".L10N("UI:Main:FilterPvP"));

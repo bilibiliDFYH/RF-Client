@@ -95,7 +95,7 @@ namespace Ra2Client.DXGUI.Multiplayer
             var selectedItem = SelectedItem;
             var hoveredItem = HoveredItem;
 
-            Items.Clear();
+            Clear();
 
             GetSortedAndFilteredGames()
                 .ToList()

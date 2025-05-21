@@ -188,7 +188,6 @@ namespace Ra2Client.DXGUI.Generic
             _tbMissionDescriptionList.Alpha = 1.0f;
             _tbMissionDescriptionList.FontIndex = 1;
             _tbMissionDescriptionList.LineHeight = 20;
-            //_tbMissionDescriptionList.
             _tbMissionDescriptionList.BackgroundTexture = AssetLoader.CreateTexture(AssetLoader.GetColorFromString(ClientConfiguration.Instance.AltUIBackgroundColor),
                 _tbMissionDescriptionList.Width, _tbMissionDescriptionList.Height);
 

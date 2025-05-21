@@ -22,13 +22,13 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.LoadTexture("cheaterbg.png");
 
             var lblCheater = new XNALabel(WindowManager);
-            lblCheater.Name = "lblCheater";
+            lblCheater.Name = nameof(lblCheater);
             lblCheater.ClientRectangle = new Rectangle(0, 0, 0, 0);
             lblCheater.FontIndex = 1;
-            //      lblCheater.Text = "CHEATER!".L10N("UI:Main:Cheater");
+            // lblCheater.Text = "CHEATER!".L10N("UI:Main:Cheater");
 
             var lblDescription = new XNALabel(WindowManager);
-            lblDescription.Name = "lblDescription";
+            lblDescription.Name = nameof(lblDescription);
             lblDescription.ClientRectangle = new Rectangle(12, 40, 0, 0);
             // lblDescription.Text = ("Modified game files have been detected. They could affect" + Environment.NewLine + 
             //      "the game Beta." +
@@ -36,7 +36,7 @@ namespace Ra2Client.DXGUI.Generic
             //        "Do you really lack the skill for winning the Path without" + Environment.NewLine + "cheating?").L10N("UI:Main:CheaterText");
 
             var imagePanel = new XNAPanel(WindowManager);
-            imagePanel.Name = "imagePanel";
+            imagePanel.Name = nameof(imagePanel);
             imagePanel.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
             imagePanel.ClientRectangle = new Rectangle(lblDescription.X,
                 lblDescription.Bottom + 12, Width - 24,
@@ -44,14 +44,14 @@ namespace Ra2Client.DXGUI.Generic
             imagePanel.BackgroundTexture = AssetLoader.LoadTextureUncached("cheater.png");
 
             var btnCancel = new XNAClientButton(WindowManager);
-            btnCancel.Name = "btnCancel";
+            btnCancel.Name = nameof(btnCancel);
             btnCancel.ClientRectangle = new Rectangle(Width - 104,
                 Height - 35, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT);
             btnCancel.Text = "Cancel".L10N("UI:Main:ButtonCancel");
             btnCancel.LeftClick += BtnCancel_LeftClick;
 
             var btnYes = new XNAClientButton(WindowManager);
-            btnYes.Name = "btnYes";
+            btnYes.Name = nameof(btnYes);
             btnYes.ClientRectangle = new Rectangle(12, btnCancel.Y,
                 btnCancel.Width, btnCancel.Height);
             btnYes.Text = "Yes".L10N("UI:Main:ButtonYes");

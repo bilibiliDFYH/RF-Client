@@ -32,8 +32,8 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 128), 1, 1);
             AddColumn("Name".L10N("UI:Main:NameHeader"), 230);
             AddColumn("Official".L10N("UI:Main:OfficialHeader"), 70);
-            AddColumn("Ping".L10N("UI:Main:PingHeader"), 76);
-            AddColumn("Players".L10N("UI:Main:PlayersHeader"), 90);
+            AddColumn("Ping".L10N("UI:Main:PingHeader"), 68);
+            AddColumn("Players".L10N("UI:Main:PlayersHeader"), 98);
             AllowRightClickUnselect = false;
             AllowKeyboardInput = true;
         }

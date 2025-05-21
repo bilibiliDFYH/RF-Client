@@ -167,23 +167,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
 
         private Dictionary<string, XNAMessageBox> pendingMapTransferDialogs = new Dictionary<string, XNAMessageBox>();
-        //private HashSet<string> canceledMapRequests = new HashSet<string>();
 
         private void HandleMapDownloadNotice(object sender, EventArgs e)
         {
             string requester = sender as string;
             if (requester == null)
                 return;
-
-            // 下面被注释掉的部分有些小问题, 后续改进, 临时回滚之前的代码
-
-            // 如果该发起者不在房间中，则自动取消请求
-            //if (channel == null || channel.Users.Find(requester) == null)
-            //    return;
-
-            // 如果该请求已存在或已被取消，则忽略重复请求
-            //if (pendingMapTransferDialogs.ContainsKey(requester) || canceledMapRequests.Contains(requester))
-            //    return;
 
             // 如果该请求已存在，则忽略重复请求
             if (pendingMapTransferDialogs.ContainsKey(requester))
@@ -234,7 +223,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 finally
                 {
                     pendingMapTransferDialogs.Remove(requester);
-                    //canceledMapRequests.Add(requester);
                     messageBox.Dispose();
                 }
             };
@@ -242,7 +230,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             messageBox.NoClickedAction += (_) =>
             {
                 pendingMapTransferDialogs.Remove(requester);
-                //canceledMapRequests.Add(requester);
                 messageBox.Dispose();
             };
 

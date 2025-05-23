@@ -235,6 +235,23 @@ public static class Updater
     }
 
     /// <summary>
+    /// 获取并按延迟从低到高排序的服务器列表
+    /// </summary>
+    /// <param name="channel">更新通道</param>
+    /// <returns>排序后的服务器列表</returns>
+    private static List<UpdaterServer> GetSortedServersByLatency(int channel)
+    {
+        var mirrors = serverMirrors.Where(m => m.type == channel).ToList();
+        var latencyList = new List<(UpdaterServer server, long latency)>();
+        foreach (var mirror in mirrors)
+        {
+            long latency = MeasureLatency(mirror);
+            latencyList.Add((mirror, latency >= 0 ? latency : long.MaxValue));
+        }
+        return latencyList.OrderBy(t => t.latency).Select(t => t.server).ToList();
+    }
+
+    /// <summary>
     /// 根据指定更新通道返回实际延迟最低的服务器。
     /// </summary>
     /// <param name="channel">更新通道（例如：Stable=0，Insiders=1）</param>
@@ -669,23 +686,26 @@ public static class Updater
                 versionState = VersionState.OUTDATED;
                 ManualUpdateRequired = false;
                 terminateUpdate = false;
+                return;
             }
-            else
+
+            // 获取并排序服务器列表
+            var sortedServers = GetSortedServersByLatency(UserINISettings.Instance.Beta.Value);
+            if (sortedServers.Count == 0)
+                throw new("没有可用的更新服务器。");
+
+            Exception lastException = null;
+            bool downloadSuccess = false;
+
+            // 依次尝试每个服务器，每台服务器最多重试3次
+            foreach (var server in sortedServers)
             {
-                int num = 0;
-                if (terminateUpdate)
+                int serverRetry = 0;
+                Logger.Log($"更新：尝试服务器 {server.url}（延迟优先级）");
+                currentUpdaterServerIndex = UpdaterServers.FindIndex(s => s.url == server.url);
+
+                while (serverRetry < 3)
                 {
-                    Logger.Log("更新：Terminating update because of user request.");
-                    versionState = VersionState.OUTDATED;
-                    ManualUpdateRequired = false;
-                    terminateUpdate = false;
-                    return;
-                }
-                while (true)
-                {
-                    currentFilename = serverVerCfg.Package;
-                    currentFileSize += serverVerCfg.Size;
-                    bool flag = await DownloadFileAsync(currentFilename).ConfigureAwait(false);
                     if (terminateUpdate)
                     {
                         Logger.Log("更新：Terminating update because of user request.");
@@ -694,86 +714,100 @@ public static class Updater
                         terminateUpdate = false;
                         return;
                     }
-                    if (flag)
-                    {
-                        totalDownloadedKbs += currentFileSize;
-                        break;
-                    }
-                    num++;
-                    if (num == 2)
-                    {
-                        Logger.Log("更新：Too many retries for downloading file " + currentFilename + ". Update halted.");
-                        throw new("Too many retries for downloading file " + currentFilename);
-                    }
-                }
-                if (terminateUpdate)
-                {
-                    Logger.Log("更新：Terminating update because of user request.");
-                    versionState = VersionState.OUTDATED;
-                    ManualUpdateRequired = false;
-                    terminateUpdate = false;
-                }
-                else
-                {
-                    DirectoryInfo tmpDirInfo = SafePath.GetDirectory(GamePath, "Tmp");
+
+                    currentFilename = serverVerCfg.Package;
+                    currentFileSize = serverVerCfg.Size;
+
+                    bool flag = false;
                     try
                     {
-                        var pkgFile = SafePath.CombineFilePath(tmpDirInfo.FullName, currentFilename);
-                        if (!string.IsNullOrEmpty(serverVerCfg.Hash))
-                        {
-                            string strFileHash = Utilities.CalculateSHA1ForFile(pkgFile);
-                            if (serverVerCfg.Hash != strFileHash)
-                            {
-                                Logger.Log("更新：Terminating update because of file hash is incorrect.");
-                                versionState = VersionState.OUTDATED;
-                                ManualUpdateRequired = false;
-                                DoOnUpdateFailed("更新包校验不通过");
-                                return;
-                            }
-                        }
-                        RenderImage.CancelRendering();
-                        SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName);
+                        flag = await DownloadFileAsync(currentFilename).ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
-                        Logger.Log(ex.ToString());
+                        lastException = ex;
+                        Logger.Log($"更新：下载文件 {currentFilename} 时发生异常: {ex.Message}");
                     }
-                    tmpDirInfo.Refresh();
-                    if (tmpDirInfo.Exists)
+
+                    if (flag)
                     {
-                        DirectoryInfo curClientUpdaterDir = SafePath.GetDirectory(tmpDirInfo.FullName, "Resources", "Binaries");
-                        FileInfo curClientUpdater = SafePath.GetFile(curClientUpdaterDir.FullName, SECOND_STAGE_UPDATER);
-                        Logger.Log("更新：Checking & moving second-stage updater files.");
-                        FileInfo clientUpdaterFile = SafePath.GetFile(ResourcePath, "Binaries", SECOND_STAGE_UPDATER);
-                        Logger.Log("更新：Launching second-stage updater executable " + clientUpdaterFile.FullName + ".");
-                        string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
-                        if (!File.Exists(strDotnet))
-                        {
-                            Logger.Log("dotnet not exits.");
-                            DoOnUpdateFailed("dotnet.exe不存在");
-                            return;
-                        }
-                        using var _ = Process.Start(new ProcessStartInfo
-                        {
-                            FileName = strDotnet,
-                            Arguments = "\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"",
-                            UseShellExecute = true
-                        });
-                        Logger.Log("\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"");
-                        Environment.Exit(0);
-                        Restart?.Invoke(null, EventArgs.Empty);
+                        totalDownloadedKbs += currentFileSize;
+                        downloadSuccess = true;
+                        break;
                     }
-                    else
+
+                    serverRetry++;
+                    Logger.Log($"更新：服务器 {server.url} 下载失败，重试 {serverRetry}/3 ...");
+                    await Task.Delay(2000);
+                }
+
+                if (downloadSuccess)
+                    break;
+            }
+
+            if (!downloadSuccess)
+            {
+                Logger.Log("更新：所有服务器均下载失败。");
+                throw new("所有服务器均下载失败。" + (lastException != null ? $" 最后错误: {lastException.Message}" : ""));
+            }
+
+            DirectoryInfo tmpDirInfo = SafePath.GetDirectory(GamePath, "Tmp");
+            try
+            {
+                var pkgFile = SafePath.CombineFilePath(tmpDirInfo.FullName, currentFilename);
+                if (!string.IsNullOrEmpty(serverVerCfg.Hash))
+                {
+                    string strFileHash = Utilities.CalculateSHA1ForFile(pkgFile);
+                    if (serverVerCfg.Hash != strFileHash)
                     {
-                        Logger.Log("更新：Update completed successfully.");
-                        totalDownloadedKbs = 0;
-                        UpdateSizeInKb = 0;
-                        CheckLocalFileVersions();
-                        ServerGameVersion = "N/A";
-                        versionState = VersionState.UPTODATE;
-                        DoUpdateCompleted();
+                        Logger.Log("更新：Terminating update because of file hash is incorrect.");
+                        versionState = VersionState.OUTDATED;
+                        ManualUpdateRequired = false;
+                        DoOnUpdateFailed("更新包校验不通过");
+                        return;
                     }
                 }
+                RenderImage.CancelRendering();
+                SevenZip.ExtractWith7Zip(pkgFile, tmpDirInfo.FullName);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.ToString());
+            }
+            tmpDirInfo.Refresh();
+            if (tmpDirInfo.Exists)
+            {
+                DirectoryInfo curClientUpdaterDir = SafePath.GetDirectory(tmpDirInfo.FullName, "Resources", "Binaries");
+                FileInfo curClientUpdater = SafePath.GetFile(curClientUpdaterDir.FullName, SECOND_STAGE_UPDATER);
+                Logger.Log("更新：Checking & moving second-stage updater files.");
+                FileInfo clientUpdaterFile = SafePath.GetFile(ResourcePath, "Binaries", SECOND_STAGE_UPDATER);
+                Logger.Log("更新：Launching second-stage updater executable " + clientUpdaterFile.FullName + ".");
+                string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
+                if (!File.Exists(strDotnet))
+                {
+                    Logger.Log("dotnet not exits.");
+                    DoOnUpdateFailed("dotnet.exe不存在");
+                    return;
+                }
+                using var _ = Process.Start(new ProcessStartInfo
+                {
+                    FileName = strDotnet,
+                    Arguments = "\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"",
+                    UseShellExecute = true
+                });
+                Logger.Log("\"" + clientUpdaterFile.FullName + "\" " + CallingExecutableFileName + " \"" + GamePath + "\"");
+                Environment.Exit(0);
+                Restart?.Invoke(null, EventArgs.Empty);
+            }
+            else
+            {
+                Logger.Log("更新：Update completed successfully.");
+                totalDownloadedKbs = 0;
+                UpdateSizeInKb = 0;
+                CheckLocalFileVersions();
+                ServerGameVersion = "N/A";
+                versionState = VersionState.UPTODATE;
+                DoUpdateCompleted();
             }
         }
         catch (Exception ex)

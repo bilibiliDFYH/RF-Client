@@ -162,7 +162,7 @@ namespace Ra2Client
         }
 
         /// <summary>
-        /// 优化后的版本检测，3秒超时，主备并发
+        /// 版本检测，3秒超时，主备并发
         /// </summary>
         private static async Task<(bool canStart, int versionDigits)> CheckVersionFast()
         {

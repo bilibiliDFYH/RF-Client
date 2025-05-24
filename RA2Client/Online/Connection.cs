@@ -139,8 +139,6 @@ namespace Ra2Client.Online
         /// </summary>
         public void ConnectAsync()
         {
-            
-
             if (_isConnected)
                 throw new InvalidOperationException("The client is already connected!".L10N("UI:Main:ClientAlreadyConnected"));
 
@@ -156,7 +154,6 @@ namespace Ra2Client.Online
 
             Thread connection = new Thread(ConnectToServer);
             connection.Start();
-            
         }
 
         /// <summary>
@@ -169,7 +166,6 @@ namespace Ra2Client.Online
 
             foreach (Server server in sortedServerList)
             {
-                //  Console.WriteLine(server.Name);
                 try
                 {
                     for (int i = 0; i < server.Ports.Length; i++)
@@ -199,17 +195,8 @@ namespace Ra2Client.Online
                         Logger.Log("Successfully connected to " + server.Host + " on port " + server.Ports[i]);
                         client.EndConnect(result);
 
-                        _isConnected = true;
-                        _attemptingConnection = false;
-
-                        connectionManager.OnConnected();
-
-                        Thread sendQueueHandler = new Thread(RunSendQueue);
-                        sendQueueHandler.Start();
-
-                        tcpClient = client;
-                        serverStream = tcpClient.GetStream();
-                        sslStream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
+                        serverStream = client.GetStream();
+                        sslStream = new SslStream(serverStream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
                         try
                         {
                             sslStream.AuthenticateAsClient(server.Host, null, SslProtocols.Tls12, false);
@@ -221,7 +208,16 @@ namespace Ra2Client.Online
                         }
                         sslStream.ReadTimeout = 3000;
 
+                        tcpClient = client;
+                        _isConnected = true;
+                        _attemptingConnection = false;
                         currentConnectedServerIP = server.Host;
+
+                        connectionManager.OnConnected();
+
+                        Thread sendQueueHandler = new Thread(RunSendQueue);
+                        sendQueueHandler.Start();
+
                         HandleComm();
                         return;
                     }
@@ -243,11 +239,9 @@ namespace Ra2Client.Online
         // 验证IRC服务端的SSL/TLS证书是否有效
         public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            // 证书配置策略是否有误
+            // 证书配置策略是否有误(证书链和名称都必须通过)
             if (sslPolicyErrors == SslPolicyErrors.None)
-            {
                 return true;
-            }
 
             // 证书是否在有效期内
             DateTime now = DateTime.UtcNow;
@@ -258,15 +252,44 @@ namespace Ra2Client.Online
                 return false;
             }
 
-            // 证书颁发者在当前系统中是否可信
-            if (!chain.ChainElements.Cast<X509ChainElement>().Any(element => element.Certificate.Issuer == certificate.Issuer))
+            // 只允许特定主机名的名称不匹配(白名单)，否则拒绝
+            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
             {
-                Logger.Log($"Certificate issuer is not trusted: {certificate.Issuer}");
+                string[] allowedHosts = new[] {
+                "a-root.ad.cn.ru2023.top",
+                "b-root.wt.cn.ru2023.top",
+                "c-root.vb.cn.ru2023.top",
+                "d-root.bt.cn.ru2023.top",
+                "a6-root.ctzn.cn.ru2023.top",
+                "b6-root.cths.cn.ru2023.top",
+                //"c6-root.ctgg.cn.ru2023.top"
+                };
+
+                // 获取证书的CN和SAN
+                string subject = cert2?.GetNameInfo(X509NameType.DnsName, false) ?? "";
+                string subjectAltName = cert2?.Extensions
+                    .OfType<X509Extension>()
+                    .Where(e => e.Oid.Value == "2.5.29.17")
+                    .Select(e => e.Format(false))
+                    .FirstOrDefault() ?? "";
+
+                // 检查主机名是否在白名单且CN/SAN包含主机名
+                foreach (var host in allowedHosts)
+                {
+                    if ((subject != null && subject.Contains(host, StringComparison.OrdinalIgnoreCase)) ||
+                        (subjectAltName != null && subjectAltName.Contains(host, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        Logger.Log($"Allowing certificate name mismatch for trusted host: {host}; Issuer: {cert2?.Issuer}; Valid from {cert2?.NotBefore} to {cert2?.NotAfter}");
+                        return true;
+                    }
+                }
+
+                Logger.Log($"Certificate name mismatch and host not in whitelist. Subject: {subject}, SAN: {subjectAltName}");
                 return false;
             }
 
-            Logger.Log($"Certificate is valid. Issuer: {certificate.Issuer}, Valid from {cert2.NotBefore} to {cert2.NotAfter}");
-            return true;
+            Logger.Log($"Certificate error: {sslPolicyErrors}");
+            return false;
         }
 
         private void HandleComm()
@@ -544,7 +567,7 @@ namespace Ra2Client.Online
             // Sort the servers by latency.
             IOrderedEnumerable<Tuple<Server, long>>
                 sortedServerAndLatencyResults = pingTasks.Select(task => task.Result)              // Tuple<Server, Latency>
-                                                         .OrderBy(taskResult => taskResult.Item2); // Latency
+                                                     .OrderBy(taskResult => taskResult.Item2); // Latency
 
             // Do logging.
             foreach (Tuple<Server, long> serverAndLatencyResult in sortedServerAndLatencyResults)

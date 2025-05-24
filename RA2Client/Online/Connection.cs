@@ -164,8 +164,7 @@ namespace Ra2Client.Online
 
             // 获取当前Windows版本号
             Version osVersion = Environment.OSVersion.Version;
-            // Windows 10 1903 = 18362，1809 = 17763
-            bool isWin1903OrAbove = (osVersion.Major > 10) || (osVersion.Major == 10 && osVersion.Build >= 18362);
+            bool isWin1903OrAbove = (osVersion.Major >= 10 && osVersion.Build >= 18362);
 
             foreach (Server server in sortedServerList)
             {
@@ -202,7 +201,7 @@ namespace Ra2Client.Online
                         sslStream = new SslStream(serverStream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
 
                         bool sslConnected = false;
-                        //如果Windows版本高于或等于Win10 1903,优先使用TLS1.3协议连接,否则使用TLS1.2协议
+                        // 如果Windows版本高于或等于Win10 1903,优先使用TLS1.3协议连接,否则使用TLS1.2协议
                         SslProtocols[] tryProtocols = isWin1903OrAbove
                             ? new[] { SslProtocols.Tls13, SslProtocols.Tls12 }
                             : new[] { SslProtocols.Tls12 };

@@ -124,11 +124,27 @@ public static class Updater
     private static readonly List<UpdaterFileInfo> serverFileInfos = new();
     private static readonly List<UpdaterFileInfo> localFileInfos = new();
 
+    private static SslProtocols GetPreferredSslProtocols()
+    {
+        // 获取 Windows 版本号
+        Version osVersion = Environment.OSVersion.Version;
+
+        // 仅在 Windows 平台下判断
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            if (osVersion.Major >= 10 && osVersion.Build >= 18362)
+            {
+                return SslProtocols.Tls13 | SslProtocols.Tls12;
+            }
+        }
+        return SslProtocols.Tls12;
+    }
+
     private static readonly ProgressMessageHandler SharedProgressMessageHandler = new(new SocketsHttpHandler
     {
         PooledConnectionLifetime = TimeSpan.FromMinutes(15),
         AutomaticDecompression = DecompressionMethods.All,
-        SslOptions = { EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13 }
+        SslOptions = { EnabledSslProtocols = GetPreferredSslProtocols() }
     });
 
     private static readonly HttpClient SharedHttpClient = new(SharedProgressMessageHandler, true)

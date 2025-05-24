@@ -159,7 +159,8 @@ namespace Ra2Client.Domain.Multiplayer.CnCNet
             return Task.Factory.StartNew(() =>
             {
                 var tunnel = CurrentTunnel;
-                if (tunnel == null) return;
+                if (tunnel == null) 
+                    return;
 
                 tunnel.UpdatePing();
                 DoCurrentTunnelPinged();

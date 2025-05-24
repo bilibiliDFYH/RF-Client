@@ -28,13 +28,17 @@ namespace Ra2Client.Online
         private const int RECONNECT_WAIT_DELAY = 4000;
         private const int ID_LENGTH = 9;
         private const int MAXIMUM_LATENCY = 400;
+        private const int BYTE_ARRAY_MSG_LEN = 1024;
 
-        public Connection(IConnectionManager connectionManager)
+        public Connection(IConnectionManager connectionManager, Random random)
         {
             this.connectionManager = connectionManager;
+            this.Rng = random;
         }
 
         IConnectionManager connectionManager;
+
+        public Random Rng;
 
         /// <summary>
         /// The list of Reunion IRC servers to connect to.
@@ -61,12 +65,6 @@ namespace Ra2Client.Online
         public bool AttemptingConnection
         {
             get { return _attemptingConnection; }
-        }
-
-        Random _rng = new Random();
-        public Random Rng
-        {
-            get { return _rng; }
         }
 
         private List<QueuedMessage> MessageQueue = new List<QueuedMessage>();
@@ -164,6 +162,11 @@ namespace Ra2Client.Online
             WindowManager.progress.Report("正在连接联机大厅...");
             IList<Server> sortedServerList = GetServerListSortedByLatency();
 
+            // 获取当前Windows版本号
+            Version osVersion = Environment.OSVersion.Version;
+            // Windows 10 1903 = 18362，1809 = 17763
+            bool isWin1903OrAbove = (osVersion.Major > 10) || (osVersion.Major == 10 && osVersion.Build >= 18362);
+
             foreach (Server server in sortedServerList)
             {
                 try
@@ -189,7 +192,7 @@ namespace Ra2Client.Online
                         if (!success || !client.Connected)
                         {
                             Logger.Log("Connecting to " + server.Host + " port " + server.Ports[i] + " timed out!");
-                            continue; // Start all over again, using the next port
+                            continue; // 尝试使用下一个端口
                         }
 
                         Logger.Log("Successfully connected to " + server.Host + " on port " + server.Ports[i]);
@@ -197,15 +200,46 @@ namespace Ra2Client.Online
 
                         serverStream = client.GetStream();
                         sslStream = new SslStream(serverStream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
-                        try
+
+                        bool sslConnected = false;
+                        //如果Windows版本高于或等于Win10 1903,优先使用TLS1.3协议连接,否则使用TLS1.2协议
+                        SslProtocols[] tryProtocols = isWin1903OrAbove
+                            ? new[] { SslProtocols.Tls13, SslProtocols.Tls12 }
+                            : new[] { SslProtocols.Tls12 };
+
+                        foreach (var protocol in tryProtocols)
                         {
-                            sslStream.AuthenticateAsClient(server.Host, null, SslProtocols.Tls12, false);
+                            try
+                            {
+                                Logger.Log($"Trying TLS protocol: {protocol}");
+                                sslStream.AuthenticateAsClient(server.Host, null, protocol, false);
+                                sslConnected = true;
+                                // 记录TLS版本和加密算法
+                                Logger.Log(
+                                    $"TLS handshake succeeded with protocol: {sslStream.SslProtocol}, " +
+                                    $"CipherAlgorithm: {sslStream.CipherAlgorithm}, CipherStrength: {sslStream.CipherStrength}, " +
+                                    $"CipherSuite: {sslStream.NegotiatedCipherSuite}"
+                                );
+                                break;
+                            }
+                            catch (AuthenticationException ex)
+                            {
+                                Logger.Log($"TLS handshake failed with protocol {protocol}: {ex.Message}");
+                                // 如果是最后一个协议，才继续下一个服务器
+                                if (protocol == tryProtocols.Last())
+                                {
+                                    sslStream.Dispose();
+                                    sslStream = null;
+                                }
+                            }
                         }
-                        catch (AuthenticationException ex)
+
+                        if (!sslConnected)
                         {
-                            Logger.Log("TLS authentication failed: " + ex.Message);
-                            continue; // Try the next server
+                            Logger.Log("TLS authentication failed for all protocols.");
+                            continue; // 尝试下一个服务器
                         }
+
                         sslStream.ReadTimeout = 3000;
 
                         tcpClient = client;
@@ -295,7 +329,7 @@ namespace Ra2Client.Online
         private void HandleComm()
         {
             int errorTimes = 0;
-            byte[] message = new byte[1024];
+            byte[] message = new byte[BYTE_ARRAY_MSG_LEN];
 
             Register();
 
@@ -322,7 +356,7 @@ namespace Ra2Client.Online
 
                 try
                 {
-                    bytesRead = sslStream.Read(message, 0, 1024);
+                    bytesRead = sslStream.Read(message, 0, BYTE_ARRAY_MSG_LEN);
                 }
                 catch (Exception ex)
                 {
@@ -1025,7 +1059,7 @@ namespace Ra2Client.Online
         /// <param name="data">Just a dummy parameter so that this matches the delegate System.Threading.TimerCallback.</param>
         private void AutoPing(object data)
         {
-            SendMessage("PING LAG" + new Random().Next(100000, 999999));
+            SendMessage("PING LAG" + Rng.Next(100000, 999999));
         }
 
         /// <summary>

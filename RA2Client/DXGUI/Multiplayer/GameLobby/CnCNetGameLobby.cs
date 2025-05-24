@@ -48,6 +48,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private const string DICE_ROLL_MESSAGE = "DR";
         private const string CHANGE_TUNNEL_SERVER_MESSAGE = "CHTNL";
 
+        private Random random;
+
 
         public CnCNetGameLobby(
             WindowManager windowManager,
@@ -58,14 +60,17 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             CnCNetUserData cncnetUserData,
             MapLoader mapLoader,
             DiscordHandler discordHandler,
-            PrivateMessagingWindow pmWindow
-        ) : base(windowManager, "MultiplayerGameLobby", topBar, mapLoader, discordHandler, pmWindow)
+            PrivateMessagingWindow pmWindow,
+            Random random
+        ) : base(windowManager, "MultiplayerGameLobby", topBar, mapLoader, discordHandler, pmWindow, random)
         {
             this.connectionManager = connectionManager;
             localGame = ClientConfiguration.Instance.LocalGame;
             this.tunnelHandler = tunnelHandler;
             this.gameCollection = gameCollection;
             this.cncnetUserData = cncnetUserData;
+            this.pmWindow = pmWindow;
+            this.random = random;
 
             ctcpCommandHandlers =
             [  
@@ -396,7 +401,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (isHost)
             {
-                RandomSeed = new Random().Next();
+                RandomSeed = random.Next();
                 RefreshMapSelectionUI();
                 btnChangeTunnel.Enable();
             }
@@ -1448,7 +1453,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (IsHost)
             {
-                RandomSeed = new Random().Next();
+                RandomSeed = random.Next();
                 OnGameOptionChanged();
                 ClearReadyStatuses();
                 CopyPlayerDataToUI();

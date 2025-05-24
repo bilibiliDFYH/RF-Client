@@ -139,7 +139,7 @@ internal sealed class Program
                         Write($"更新文件 -> {relativeFileInfo}");
                         if (!CopyFileWithRetry(fileInfo, targetFile, maxRetry, retryDelay))
                         {
-                            Write($"文件 {relativeFileInfo} 更新失败，超过最大重试次数。", ConsoleColor.Red);
+                            Write($"文件 {relativeFileInfo} 更新失败，超过最大重试次数.", ConsoleColor.Red);
                             bUpdateSuc = false;
                             break;
                         }
@@ -186,7 +186,7 @@ internal sealed class Program
                 else
                 {
                     Write($"当前启动主程序：{launcherExeFile.FullName}");
-                    Write("没有找到启动主程序，更新器将不再进行任何程序的启动任务。", ConsoleColor.Yellow);
+                    Write("没有找到启动主程序，更新器将不再进行任何程序的启动任务.", ConsoleColor.Yellow);
                     Write("按任意键退出更新器.");
                     Console.ReadKey();
                     Environment.Exit(1);

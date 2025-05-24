@@ -1,5 +1,8 @@
 ﻿namespace ClientCore.Settings;
 
+using ClientCore.Entity;
+using Localization.Tools;
+using Rampastring.Tools;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,13 +14,11 @@ using System.Net.Http.Handlers;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ClientCore.Entity;
-using Localization.Tools;
-using Rampastring.Tools;
 
 public static class Updater
 {
@@ -126,7 +127,8 @@ public static class Updater
     private static readonly ProgressMessageHandler SharedProgressMessageHandler = new(new SocketsHttpHandler
     {
         PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-        AutomaticDecompression = DecompressionMethods.All
+        AutomaticDecompression = DecompressionMethods.All,
+        SslOptions = { EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13 }
     });
 
     private static readonly HttpClient SharedHttpClient = new(SharedProgressMessageHandler, true)

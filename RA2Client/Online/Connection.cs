@@ -1,3 +1,7 @@
+using ClientCore;
+using Localization;
+using Rampastring.Tools;
+using Rampastring.XNAUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,17 +9,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ClientCore;
-using Localization;
-using Rampastring.Tools;
-using Rampastring.XNAUI;
 
 namespace Ra2Client.Online
 {
@@ -29,6 +30,9 @@ namespace Ra2Client.Online
         private const int ID_LENGTH = 9;
         private const int MAXIMUM_LATENCY = 400;
         private const int BYTE_ARRAY_MSG_LEN = 1024;
+
+        private Dictionary<string, string> ipToDomainMap = null;
+        private string currentCertDomain = null;
 
         public Connection(IConnectionManager connectionManager, Random random)
         {
@@ -174,10 +178,18 @@ namespace Ra2Client.Online
                     {
                         TcpClient client;
                         IAsyncResult result;
+                        string certDomain = server.Host;
                         if (IPAddress.TryParse(server.Host, out IPAddress ipAddress))
                         {
                             client = new TcpClient(ipAddress.AddressFamily);
                             result = client.BeginConnect(ipAddress, server.Ports[i], null, null);
+                            lock (ipToDomainMap)
+                            {
+                                if (ipToDomainMap != null && ipToDomainMap.TryGetValue(server.Host, out var mappedDomain))
+                                {
+                                    certDomain = mappedDomain;
+                                }
+                            }
                         }
                         else
                         {
@@ -196,6 +208,9 @@ namespace Ra2Client.Online
 
                         Logger.Log("Successfully connected to " + server.Host + " on port " + server.Ports[i]);
                         client.EndConnect(result);
+
+                        // 记录当前用于证书校验的域名
+                        currentCertDomain = certDomain;
 
                         serverStream = client.GetStream();
                         sslStream = new SslStream(serverStream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
@@ -232,6 +247,10 @@ namespace Ra2Client.Online
                                 }
                             }
                         }
+
+                        // 证书校验后清理映射表
+                        ipToDomainMap = null;
+                        currentCertDomain = null;
 
                         if (!sslConnected)
                         {
@@ -270,59 +289,73 @@ namespace Ra2Client.Online
         }
 
         // 验证IRC服务端的SSL/TLS证书是否有效
-        public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            // 证书配置策略是否有误(证书链和名称都必须通过)
-            if (sslPolicyErrors == SslPolicyErrors.None)
-                return true;
+            // 证书链必须有效
+            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateChainErrors) != 0)
+            {
+                Logger.Log("Certificate chain is invalid.");
+                return false;
+            }
 
-            // 证书是否在有效期内
+            // 证书在有效期内
             DateTime now = DateTime.UtcNow;
             X509Certificate2 cert2 = certificate as X509Certificate2;
-            if (cert2 != null && (cert2.NotBefore > now || cert2.NotAfter < now))
+            if (cert2 == null || cert2.NotBefore > now || cert2.NotAfter < now)
             {
-                Logger.Log($"Certificate is not valid. Valid from {cert2.NotBefore} to {cert2.NotAfter}");
+                Logger.Log($"Certificate is not valid. Valid from {cert2?.NotBefore} to {cert2?.NotAfter}");
                 return false;
             }
 
-            // 只允许特定主机名的名称不匹配(白名单)，否则拒绝
-            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateNameMismatch) != 0)
+            // 使用当前记录的域名进行校验
+            string targetHost = currentCertDomain;
+            if (string.IsNullOrEmpty(targetHost))
             {
-                string[] allowedHosts = new[] {
-                "a-root.ad.cn.ru2023.top",
-                "b-root.wt.cn.ru2023.top",
-                "c-root.vb.cn.ru2023.top",
-                "d-root.bt.cn.ru2023.top",
-                "a6-root.ctzn.cn.ru2023.top",
-                "b6-root.cths.cn.ru2023.top",
-                //"c6-root.ctgg.cn.ru2023.top"
-                };
+                Logger.Log("Target host is not available for certificate validation.");
+                return false;
+            }
 
-                // 获取证书的CN和SAN
-                string subject = cert2?.GetNameInfo(X509NameType.DnsName, false) ?? "";
-                string subjectAltName = cert2?.Extensions
-                    .OfType<X509Extension>()
-                    .Where(e => e.Oid.Value == "2.5.29.17")
-                    .Select(e => e.Format(false))
-                    .FirstOrDefault() ?? "";
-
-                // 检查主机名是否在白名单且CN/SAN包含主机名
-                foreach (var host in allowedHosts)
+            // 校验CN或SAN包含当前域名
+            bool domainMatched = false;
+            // 检查SAN
+            foreach (var ext in cert2.Extensions)
+            {
+                if (ext.Oid.Value == "2.5.29.17") // Subject Alternative Name
                 {
-                    if ((subject != null && subject.Contains(host, StringComparison.OrdinalIgnoreCase)) ||
-                        (subjectAltName != null && subjectAltName.Contains(host, StringComparison.OrdinalIgnoreCase)))
+                    var asnData = new AsnEncodedData(ext.Oid, ext.RawData);
+                    string san = asnData.Format(true);
+                    if (san.IndexOf(targetHost, StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        Logger.Log($"Allowing certificate name mismatch for trusted host: {host}; Issuer: {cert2?.Issuer}; Valid from {cert2?.NotBefore} to {cert2?.NotAfter}");
-                        return true;
+                        domainMatched = true;
+                        break;
                     }
                 }
-
-                Logger.Log($"Certificate name mismatch and host not in whitelist. Subject: {subject}, SAN: {subjectAltName}");
+            }
+            // 检查CN
+            if (!domainMatched)
+            {
+                string cn = cert2.GetNameInfo(X509NameType.DnsName, false);
+                if (!string.IsNullOrEmpty(cn) && targetHost.EndsWith(cn, StringComparison.OrdinalIgnoreCase))
+                {
+                    domainMatched = true;
+                }
+            }
+            if (!domainMatched)
+            {
+                Logger.Log($"Certificate CN/SAN does not match the target host: {targetHost}");
                 return false;
             }
 
-            Logger.Log($"Certificate error: {sslPolicyErrors}");
-            return false;
+            // 证书颁发者在当前系统中可信
+            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateChainErrors) != 0 ||
+                (sslPolicyErrors & SslPolicyErrors.RemoteCertificateNotAvailable) != 0)
+            {
+                Logger.Log("Certificate issuer is not trusted.");
+                return false;
+            }
+
+            Logger.Log($"Certificate is valid. Issuer: {cert2.Issuer}, Subject: {cert2.Subject}, Valid from {cert2.NotBefore} to {cert2.NotAfter}");
+            return true;
         }
 
         private void HandleComm()
@@ -424,6 +457,9 @@ namespace Ra2Client.Online
         /// <returns>A list of Lobby servers sorted by latency.</returns>
         private IList<Server> GetServerListSortedByLatency()
         {
+            // 初始化临时映射表
+            ipToDomainMap = new Dictionary<string, string>();
+
             // Resolve the hostnames.
             ICollection<Task<IEnumerable<Tuple<IPAddress, string, int[]>>>>
                 dnsTasks = new List<Task<IEnumerable<Tuple<IPAddress, string, int[]>>>>(Servers.Count);
@@ -452,6 +488,10 @@ namespace Ra2Client.Online
                         foreach (IPAddress serverIPAddress in serverIPAddresses)
                         {
                             _serverInfos.Add(new Tuple<IPAddress, string, int[]>(serverIPAddress, serverName, serverPorts));
+                            lock (ipToDomainMap)
+                            {
+                                ipToDomainMap[serverIPAddress.ToString()] = serverHostnameOrIPAddress;
+                            }
                         }
                     }
                     catch (SocketException ex)

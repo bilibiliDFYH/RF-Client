@@ -397,7 +397,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             this.playerLimit = playerLimit;
             this.isCustomPassword = isCustomPassword;
             this.skillLevel = skillLevel;
-            //  this.password = password;
+            // this.password = password;
 
             if (isHost)
             {
@@ -735,7 +735,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 // Changing the map applies forced settings (co-op sides etc.) to the
                 // new player, and it also sends an options broadcast message
-                //CopyPlayerDataToUI(); This is also called by ChangeMap()
+                // CopyPlayerDataToUI(); This is also called by ChangeMap()
                 ChangeMap(GameModeMap);
                 BroadcastPlayerOptions();
                 BroadcastPlayerExtraOptions();

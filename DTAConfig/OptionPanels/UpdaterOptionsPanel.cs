@@ -69,7 +69,7 @@ namespace DTAConfig.OptionPanels
             ddBeta.Name = "ddBeta";
             ddBeta.ClientRectangle = new Rectangle(lblBeta.X + 80, lblBeta.Y, 100, 30);
             ddBeta.AddItem("Stable".L10N("UI:DTAConfig:UpdateChannelStable"));
-            ddBeta.AddItem("Insiders".L10N("UI:DTAConfig:UpdateChannelInsiders"));
+            ddBeta.AddItem("Insider".L10N("UI:DTAConfig:UpdateChannelInsider"));
             ddBeta.SelectedIndexChanged += DdBeta_SelectedIndexChanged;
 
             lbServerList = new XNAListBox(WindowManager);

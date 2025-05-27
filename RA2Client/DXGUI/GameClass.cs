@@ -250,6 +250,15 @@ namespace Ra2Client.DXGUI
             WindowControl.DisplayWindow(nShow); //Hidden Client
         }
 
+        private static Random GetRandom()
+        {
+            var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+            byte[] intBytes = new byte[sizeof(int)];
+            rng.GetBytes(intBytes);
+            int seed = BitConverter.ToInt32(intBytes, 0);
+            return new Random(seed);
+        }
+
         private IServiceProvider BuildServiceProvider(WindowManager windowManager)
         {
             // Create host - this allows for things like DependencyInjection
@@ -267,7 +276,8 @@ namespace Ra2Client.DXGUI
                             .AddSingleton<TunnelHandler>()
                             .AddSingleton<DiscordHandler>()
                             .AddSingleton<PrivateMessageHandler>()
-                            .AddSingleton<MapLoader>();
+                            .AddSingleton<MapLoader>()
+                            .AddSingleton<Random>(GetRandom());
 
                         // singleton xna controls - same instance on each request
                         services

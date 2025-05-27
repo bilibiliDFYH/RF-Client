@@ -5,6 +5,7 @@ using ClientGUI;
 using DTAConfig.Entity;
 using Localization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
@@ -19,7 +20,6 @@ using System.Threading.Tasks;
 
 namespace DTAConfig.OptionPanels
 {
-    
     public class 地图库 : XNAWindow
     {
         private static 地图库 _instance;
@@ -34,7 +34,7 @@ namespace DTAConfig.OptionPanels
         private int _大小 = 17;
 
         private XNALabel lblPage;
-        private XNAContextMenu _menu; 
+        private XNAContextMenu _menu;
 
         public int 当前页数
         {
@@ -62,7 +62,6 @@ namespace DTAConfig.OptionPanels
             }
         }
 
-
         // 私有构造函数，防止外部实例化
         private 地图库(WindowManager windowManager) : base(windowManager)
         {
@@ -89,7 +88,7 @@ namespace DTAConfig.OptionPanels
 
         private List<XNAClientButton> buttons = [];
         private List<Maps> Maps = [];
-        
+
         public override void Initialize()
         {
             Name = "地图库";
@@ -121,19 +120,19 @@ namespace DTAConfig.OptionPanels
             {
                 ClientRectangle = new Rectangle(380, 60, 150, 25),
                 Text = "地图类型"
-            };  
+            };
 
             // 地图列表容器
             mapPanel = new XNAMultiColumnListBox(WindowManager)
             {
                 ClientRectangle = new Rectangle(50, 100, 900, 540),
-            //    BackgroundColor = Color.Black * 0.5f // 半透明背景
+                // BackgroundColor = Color.Black * 0.5f // 半透明背景
             };
 
             mapPanel.DoubleLeftClick += 查看地图详细信息;
 
             mapPanel.LineHeight = 30;
-         //   mapPanel.AddColumn("预览图", 200);
+            // mapPanel.AddColumn("预览图", 200);
             mapPanel.AddColumn("地图名", 200);
             mapPanel.AddColumn("作者", 160);
             mapPanel.AddColumn("地图类型", 100);
@@ -148,20 +147,13 @@ namespace DTAConfig.OptionPanels
                 _menu.Open(GetCursorPoint());
             };
 
-
-
-
-            
-
-            
-
             _menu = new XNAContextMenu(WindowManager);
             _menu.Name = nameof(_menu);
             _menu.Width = 100;
-             
+
             _menu.AddItem(new XNAContextMenuItem
-            {    
-                Text = "刷新", 
+            {
+                Text = "刷新",
                 SelectAction = Reload
             });
 
@@ -182,7 +174,7 @@ namespace DTAConfig.OptionPanels
                 ClientRectangle = new Rectangle(mapPanel.X, mapPanel.Bottom + 10, 20, 20),
                 HoverTexture = AssetLoader.LoadTexture("left.png"),
                 IdleTexture = AssetLoader.LoadTexture("left.png"),
-            };  
+            };
             btnLeft.LeftClick += BtnLeft_LeftClick;
 
             lblPage = new XNALabel(WindowManager)
@@ -205,14 +197,14 @@ namespace DTAConfig.OptionPanels
                 Text = "关闭",
                 X = 820,
                 Y = 655,
-            //    ClientRectangle = new Rectangle(870, 620, 120, 40)
+                // ClientRectangle = new Rectangle(870, 620, 120, 40)
             };
             closeButton.LeftClick += (sender, args) => {
                 if (需要刷新)
                 {
                     UserINISettings.Instance.重新加载地图和任务包?.Invoke();
                 }
-                Disable(); 
+                Disable();
             };
 
             // 添加控件
@@ -227,8 +219,6 @@ namespace DTAConfig.OptionPanels
             AddChild(btnLeft);
             AddChild(btnRight);
             AddChild(lblPage);
-
-            
 
             base.Initialize();
 
@@ -259,18 +249,17 @@ namespace DTAConfig.OptionPanels
             }
         }
 
-        private void 查看地图(int i) 
+        private void 查看地图(int i)
         {
             mapPanel.SelectedIndex = i;
 
             var map = Maps[mapPanel.SelectedIndex];
-          
 
             var w = new 地图详细信息界面(WindowManager, map.id, types, File.Exists(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map")));
             DarkeningPanel.AddAndInitializeWithControl(WindowManager, w);
-            w.EnabledChanged +=(_,_) => {
-             //   if (Enabled == true)
-                    Reload();
+            w.EnabledChanged += (_, _) => {
+                // if (Enabled == true)
+                Reload();
             };
         }
 
@@ -278,8 +267,6 @@ namespace DTAConfig.OptionPanels
         {
             Reload();
         }
-
-
 
         private async void Reload()
         {
@@ -289,7 +276,7 @@ namespace DTAConfig.OptionPanels
 
             var r = await NetWorkINISettings.Get<Page<Maps>>($"map/getRelMapsByPage?search={search}&types={ts}&maxPlayers=&pageNum={当前页数}&pageSize={_大小}");
 
-            if(r.Item1 == null)
+            if (r.Item1 == null)
             {
                 XNAMessageBox.Show(WindowManager, "错误", r.Item2);
                 return;
@@ -300,7 +287,7 @@ namespace DTAConfig.OptionPanels
             mapPanel.ClearItems();
             buttons.ForEach(b => {
                 mapPanel.RemoveChild(b);
-                });
+            });
             buttons.Clear();
 
             for (int i = 0; i < _大小; i++)
@@ -313,21 +300,20 @@ namespace DTAConfig.OptionPanels
                 btn.Tag = i;
                 btn.Visible = false;
                 btn.LeftClick += (_, _) => { 查看地图((int)(btn.Tag)); };
-                
+
                 buttons.Add(btn);
                 mapPanel.AddChild(btn);
-                
+
             }
 
             Maps = r.Item1?.records ?? [];
 
-
             for (int i = 0; i < Maps.Count; i++)
             {
                 var map = Maps[i];
-           
+
                 List<XNAListBoxItem> items = [];
-               
+
                 var is安装 = File.Exists(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"));
                 items.Add(new XNAListBoxItem(map.name));
                 items.Add(new XNAListBoxItem(map.author));
@@ -342,12 +328,10 @@ namespace DTAConfig.OptionPanels
                 buttons[i].Visible = true;
             }
         }
-
     }
 
     public class 地图详细信息界面 : XNAWindow
     {
-
         private Maps map;
         private string[] types;
         private bool is下载;
@@ -356,22 +340,88 @@ namespace DTAConfig.OptionPanels
         private readonly string SETTINGS_PATH = "Client\\MapSettings.ini";
         private XNAClientRatingBox _ratingBox;
         private XNAClientButton _btnRatingDone;
+        private int mapID;
 
-        public 地图详细信息界面(WindowManager windowManager,int mapID, string[] types,bool is下载 = true) : base(windowManager)
+        public 地图详细信息界面(WindowManager windowManager, int mapID, string[] types, bool is下载 = true) : base(windowManager)
         {
-            map = NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={mapID}").Result.Item1;
+            this.mapID = mapID;
             this.types = types;
             this.is下载 = is下载;
         }
 
         public override void Initialize()
         {
-
             ClientRectangle = new Rectangle(0, 0, 550, 400);
 
+            // 先显示加载中
+            var loadingLabel = new XNALabel(WindowManager)
+            {
+                Text = "地图详情信息加载中,预计需要1-10秒左右...",
+                ClientRectangle = new Rectangle(140, 180, 200, 40)
+            };
+            AddChild(loadingLabel);
+            base.Initialize();
+            CenterOnParent();
+
+            // 异步加载地图数据和预览图
+            _ = LoadMapAndPreviewAsync(loadingLabel);
+        }
+
+        private async Task LoadMapAndPreviewAsync(XNALabel loadingLabel)
+        {
+            // 异步获取地图数据
+            var result = await NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={mapID}");
+            map = result.Item1;
+            if (map == null)
+            {
+                RemoveChild(loadingLabel);
+                var errorLabel = new XNALabel(WindowManager)
+                {
+                    Text = "加载失败",
+                    ClientRectangle = new Rectangle(270, 180, 200, 40)
+                };
+                AddChild(errorLabel);
+
+                var closeButton = new XNAClientButton(WindowManager)
+                {
+                    Text = "关闭",
+                    ClientRectangle = new Rectangle(260, 230, 100, 30),
+                    IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
+                    HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png")
+                };
+                closeButton.LeftClick += (sender, args) => { Disable(); };
+                AddChild(closeButton);
+
+                return;
+            }
+
+            // base64图片异步解码
+            Texture2D PreviewTexture = null;
+            if (!string.IsNullOrEmpty(map.base64))
+            {
+                try
+                {
+                    PreviewTexture = await Task.Run(() => AssetLoader.Base64ToTexture(map.base64));
+                }
+                catch
+                {
+                    PreviewTexture = null;
+                }
+            }
+
+            // UI更新需在主线程
+            WindowManager.AddCallback(new Action(() =>
+            {
+                RemoveChild(loadingLabel);
+                BuildDetailUI(PreviewTexture);
+            }));
+        }
+
+        private void BuildDetailUI(Texture2D PreviewTexture)
+        {
             var 地图预览图 = new XNATextBlock(WindowManager)
             {
-                BackgroundTexture = AssetLoader.Base64ToTexture(map.base64),
+                BackgroundTexture = PreviewTexture,
                 ClientRectangle = new Rectangle(10, 10, 256, 153)
             };
 
@@ -383,7 +433,7 @@ namespace DTAConfig.OptionPanels
 
             var 地图名内容 = new XNALabel(WindowManager)
             {
-                Text = map.name,
+                Text = map?.name ?? string.Empty,
                 ClientRectangle = new Rectangle(380, 10, 0, 0)
             };
 
@@ -395,7 +445,7 @@ namespace DTAConfig.OptionPanels
 
             var 地图作者内容 = new XNALabel(WindowManager)
             {
-                Text = map.author,
+                Text = map?.author ?? string.Empty,
                 ClientRectangle = new Rectangle(地图名内容.X, 地图名内容.Bottom + 25, 0, 0)
             };
 
@@ -407,7 +457,7 @@ namespace DTAConfig.OptionPanels
 
             var 地图类型内容 = new XNALabel(WindowManager)
             {
-                Text = types[map.type],
+                Text = (map != null && types != null && map.type >= 0 && map.type < types.Length) ? types[map.type] : string.Empty,
                 ClientRectangle = new Rectangle(地图名内容.X, 地图作者内容.Bottom + 25, 0, 0)
             };
 
@@ -419,7 +469,7 @@ namespace DTAConfig.OptionPanels
 
             var 地图评分内容 = new XNALabel(WindowManager)
             {
-                Text = map.score.ToString(),
+                Text = map?.score.ToString() ?? string.Empty,
                 ClientRectangle = new Rectangle(地图类型内容.X, 地图类型内容.Bottom + 25, 0, 0)
             };
 
@@ -431,7 +481,7 @@ namespace DTAConfig.OptionPanels
 
             var 下载次数内容 = new XNALabel(WindowManager)
             {
-                Text = map.downCount.ToString(),
+                Text = map?.downCount.ToString() ?? string.Empty,
                 ClientRectangle = new Rectangle(地图评分内容.X, 地图评分内容.Bottom + 25, 0, 0)
             };
 
@@ -453,14 +503,13 @@ namespace DTAConfig.OptionPanels
 
             var 地图介绍 = new XNATextBlock(WindowManager)
             {
-                Text = InsertLineBreaks(map.description, 35),
+                Text = InsertLineBreaks(map?.description ?? string.Empty, 35),
                 ClientRectangle = new Rectangle(地图预览图.X, 地图预览图.Bottom + 15, 530, 180),
                 FontIndex = 3
             };
 
             下载按钮 = new XNAClientButton(WindowManager)
             {
-                
                 ClientRectangle = new Rectangle(地图介绍.X, 地图介绍.Bottom + 10, 100, 30),
                 IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
                 HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png")
@@ -482,7 +531,7 @@ namespace DTAConfig.OptionPanels
             var 关闭按钮 = new XNAClientButton(WindowManager)
             {
                 Text = "关闭",
-                ClientRectangle = new Rectangle(Right - 110, 下载按钮.Y, 100, 30),
+                ClientRectangle = new Rectangle(ClientRectangle.Width - 110, 下载按钮.Y, 100, 30),
                 IdleTexture = AssetLoader.LoadTexture("75pxbtn.png"),
                 HoverTexture = AssetLoader.LoadTexture("75pxbtn_c.png")
             };
@@ -500,7 +549,7 @@ namespace DTAConfig.OptionPanels
             AddChild(地图类型);
             AddChild(地图类型内容);
             AddChild(地图评分);
-            AddChild(地图评分内容);  
+            AddChild(地图评分内容);
             AddChild(下载次数);
             //AddChild(_ratingBox);
             //AddChild(_btnRatingDone);
@@ -508,11 +557,6 @@ namespace DTAConfig.OptionPanels
             AddChild(地图介绍);
             AddChild(下载按钮);
             AddChild(关闭按钮);
-
-            base.Initialize();
-
-            CenterOnParent();
-            
         }
 
         string InsertLineBreaks(string text, int maxCharsPerLine)
@@ -577,7 +621,7 @@ namespace DTAConfig.OptionPanels
 
         private void RatingBox_CheckedChanged(object sender, EventArgs e)
         {
-          //  if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
+            // if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             XNAClientRatingBox ratingBox = (XNAClientRatingBox)sender;
             if (null != ratingBox)
@@ -603,14 +647,14 @@ namespace DTAConfig.OptionPanels
 
                 var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
                 var sectionName = "Maps/Multi/MapLibrary/" + map.id;
-                mapIni.SetValue(sectionName, "Description" , $"[{map.maxPlayers}]{map.name}");
+                mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
 
                 mapIni.SetValue(sectionName, "Author", map.author);
-                
+
                 var rules = map.rules?.Split(';') ?? [];
                 for (int i = 1; i <= rules.Length; i++)
                     mapIni.SetValue(sectionName, $"Rule{i}", rules[i - 1]);
-                
+
 
                 var enemyHouses = map.enemyHouse?.Split(';') ?? [];
                 for (int i = 1; i <= enemyHouses.Length; i++)
@@ -628,11 +672,11 @@ namespace DTAConfig.OptionPanels
                 下载按钮.LeftClick -= 安装;
                 下载按钮.LeftClick += 删除;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 XNAMessageBox.Show(WindowManager, "错误", ex.Message);
             }
-          
+
             下载按钮.Enabled = true;
         }
 

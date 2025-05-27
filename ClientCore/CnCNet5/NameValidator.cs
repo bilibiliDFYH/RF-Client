@@ -35,20 +35,34 @@ namespace ClientCore.CnCNet5
             if (name.EndsWith('_'))
                 return "The player name cannot end with an underline ( _ ).".L10N("UI:ClientCore:NameEndOfUnderline");
 
-            // 检查字符有效性（允许的ASCII字符或GBK中文）
+            // 检查字符有效性
             foreach (char c in name)
             {
                 // 检查是否是允许的ASCII字符
                 if (AllowedAsciiCharacters.Contains(c))
                     continue;
 
-                // 检查是否是GBK编码的中文字符
-                byte[] bytes = GBKEncoding.GetBytes(new[] { c });
-                if (bytes.Length != 2 || bytes[0] < 0x81 || bytes[0] > 0xFE)
+                // 检查是否是汉字(简体或繁体)
+                if ((c >= 0x4E00 && c <= 0x9FFF) || // CJK Unified Ideographs
+                    (c >= 0x3400 && c <= 0x4DBF) || // CJK Unified Ideographs Extension A
+                    (c >= 0x20000 && c <= 0x2A6DF) || // CJK Unified Ideographs Extension B
+                    (c >= 0x2A700 && c <= 0x2B73F) || // CJK Unified Ideographs Extension C
+                    (c >= 0x2B740 && c <= 0x2B81F) || // CJK Unified Ideographs Extension D
+                    (c >= 0x2B820 && c <= 0x2CEAF) || // CJK Unified Ideographs Extension E
+                    (c >= 0xF900 && c <= 0xFAFF)) // CJK Compatibility Ideographs
                 {
-                    return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +
-                           "Allowed characters are anything from A to Z and numbers, as well as Chinese characters encoded in GBK.".L10N("UI:ClientCore:NameInvalidChar2");
+                    byte[] bytes = GBKEncoding.GetBytes(new[] { c });
+                    // GBK编码的汉字为双字节，且首字节0x81-0xFE，尾字节0x40-0xFE(不含0x7F)
+                    if (bytes.Length == 2 &&
+                        bytes[0] >= 0x81 && bytes[0] <= 0xFE &&
+                        bytes[1] >= 0x40 && bytes[1] <= 0xFE && bytes[1] != 0x7F)
+                    {
+                        continue;
+                    }
                 }
+
+                return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +
+                       "Allowed characters are A-Z, numbers, and Chinese characters (Simplified/Traditional) encoded in GBK.".L10N("UI:ClientCore:NameInvalidChar2");
             }
 
             if (name.Length > ClientConfiguration.Instance.MaxNameLength)

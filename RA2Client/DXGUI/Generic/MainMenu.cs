@@ -60,7 +60,7 @@ namespace Ra2Client.DXGUI.Generic
             BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
             var tbxName = new XNASuggestionTextBox(WindowManager)
             {
-                ClientRectangle = new Rectangle(20, 50, 350, 25),
+                ClientRectangle = new Rectangle(20, 50, 275, 25),
                 Name = "nameTextBox",
                 Suggestion = "(cannot be empty, no more than 10 digits in length)".L10N("UI:Main:NameRequirements")
             };
@@ -68,7 +68,7 @@ namespace Ra2Client.DXGUI.Generic
             var btnConfirm = new XNAClientButton(WindowManager)
             {
                 ClientRectangle = new Rectangle(100, 90, UIDesignConstants.BUTTON_WIDTH_160, UIDesignConstants.BUTTON_HEIGHT),
-                Text = "Yes".L10N("UI:Main:Yes")
+                Text = "确认".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
             {

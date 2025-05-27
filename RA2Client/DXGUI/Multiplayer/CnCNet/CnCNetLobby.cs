@@ -40,7 +40,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             CnCNetGameLobby gameLobby, CnCNetGameLoadingLobby gameLoadingLobby,
             TopBar topBar, PrivateMessagingWindow pmWindow, TunnelHandler tunnelHandler,
             GameCollection gameCollection, CnCNetUserData cncnetUserData,
-            OptionsWindow optionsWindow)
+            OptionsWindow optionsWindow, Random random)
             : base(windowManager)
         {
             this.connectionManager = connectionManager;
@@ -52,6 +52,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             this.gameCollection = gameCollection;
             this.cncnetUserData = cncnetUserData;
             this.optionsWindow = optionsWindow;
+            this.random = random;
 
             ctcpCommandHandlers =
             [
@@ -142,6 +143,8 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         private InvitationIndex invitationIndex;
 
         private GameFiltersPanel panelGameFilters;
+
+        private Random random;
 
         private void GameList_ClientRectangleUpdated(object sender, EventArgs e)
         {
@@ -1133,14 +1136,17 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
         /// <returns>A random channel name based on the currently played game.</returns>
         private string RandomizeChannelName()
         {
-            while (true)
+            int maxTries = 10000;
+            for (int i = 0; i < maxTries; i++)
             {
                 //string channelName = string.Format("{0}-game{1}".L10N("UI:Main:RamdomChannelName"), gameCollection.GetGameChatChannelNameFromIdentifier(localGameID), new Random().Next(1000000, 9999999));
-                string channelName = gameCollection.GetGameChatChannelNameFromIdentifier(localGameID) + "-game" + new Random().Next(1000000, 9999999);
+                string channelName = gameCollection.GetGameChatChannelNameFromIdentifier(localGameID) + "-game" + random.Next(1000000, 9999999);
                 int index = lbGameList.HostedGames.FindIndex(c => ((HostedCnCNetGame)c).ChannelName == channelName);
                 if (index == -1)
                     return channelName;
             }
+
+            throw new Exception(string.Format("Could not find a random channel name after {0} retries", maxTries));
         }
 
         private void Gcw_Cancelled(object sender, EventArgs e) => gameCreationPanel.Hide();

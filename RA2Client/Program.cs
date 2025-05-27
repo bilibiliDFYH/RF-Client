@@ -55,7 +55,7 @@ namespace Ra2Client
         private static void Run(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
-          //  RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
+            //RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
             //System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             //var ini1 = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\spawnmap.ini");
             //var ini2 = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\Client\\custom_rules_all.ini");
@@ -92,12 +92,11 @@ namespace Ra2Client
 
             var parameters = new StartupParams(noAudio, multipleInstanceMode, unknownStartupParams);
 
-            bool canStart = false;
-            var checkVersionTask = Task.Run(async () => await CheckVersion().ConfigureAwait(false));
+            var checkVersionTask = Task.Run(async () => await CheckVersionFast().ConfigureAwait(false));
+            (bool canStart, int versionDigits) = (true, 0);
             try
             {
-                checkVersionTask.GetAwaiter().GetResult();
-                canStart = checkVersionTask.Result;
+                (canStart, versionDigits) = checkVersionTask.GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
@@ -107,7 +106,18 @@ namespace Ra2Client
 
             if (!canStart)
             {
-                MessageBox.Show("当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                if (versionDigits == 3)
+                {
+                    MessageBox.Show("当前正式版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
+                else if (versionDigits == 4)
+                {
+                    MessageBox.Show("当前测试版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来 官方QQ群/微信群 更新客户端以获得后续的技术支持\n\n(群号见重聚未来官网)", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
+                else
+                {
+                    MessageBox.Show("当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                }
             }
 
             if (multipleInstanceMode)
@@ -151,32 +161,74 @@ namespace Ra2Client
             }
         }
 
-        private static async Task<bool> CheckVersion()
+        /// <summary>
+        /// 版本检测，3秒超时，主备并发
+        /// </summary>
+        private static async Task<(bool canStart, int versionDigits)> CheckVersionFast()
+        {
+            using HttpClient client = new HttpClient();
+            var majorTask = client.GetStringAsync(MajorVerifyUrl);
+            var minorTask = client.GetStringAsync(MinorVerifyUrl);
+
+            var timeoutTask = Task.Delay(3000);
+            var completedTask = await Task.WhenAny(Task.WhenAny(majorTask, minorTask), timeoutTask).ConfigureAwait(false);
+
+            string content = null;
+            if (completedTask == timeoutTask)
+            {
+                Logger.Log("Warning: Version list check timed out!");
+                return (true, GetCurrentVersionDigits());
+            }
+
+            try
+            {
+                if (majorTask.IsCompletedSuccessfully)
+                    content = majorTask.Result;
+                else if (minorTask.IsCompletedSuccessfully)
+                    content = minorTask.Result;
+                else
+                    content = await (await Task.WhenAny(majorTask, minorTask)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("版本检查异常: " + ex.Message);
+                return (true, GetCurrentVersionDigits());
+            }
+
+            bool canStart = ParseVersionContent(content);
+            int versionDigits = GetCurrentVersionDigits();
+            return (canStart, versionDigits);
+        }
+
+        /// <summary>
+        /// 获取主程序的版本号位数
+        /// </summary>
+        private static int GetCurrentVersionDigits()
+        {
+            string version = GetMainProgramVersion();
+            return version.Split('.').Length;
+        }
+
+        /// <summary>
+        /// 获取主程序的版本号字符串
+        /// </summary>
+        private static string GetMainProgramVersion()
         {
             try
             {
-                using HttpClient client = new HttpClient();
-                string content = await client.GetStringAsync(MajorVerifyUrl).ConfigureAwait(false);
-                return ParseVersionContent(content);
+                return Assembly.GetAssembly(typeof(Program)).GetName().Version.ToString();
             }
-            catch (Exception MajorEx)
+            catch (Exception ex)
             {
-                Logger.Log("Failed to check version from Major Server. " + MajorEx.Message);
-                try
-                {
-                    using HttpClient client = new HttpClient();
-                    string content = await client.GetStringAsync(MinorVerifyUrl).ConfigureAwait(false);
-                    return ParseVersionContent(content);
-                }
-                catch (Exception MinorEx)
-                {
-                    Logger.Log("Failed to check version from Minor Server. " + MinorEx.Message);
-                }
+                Logger.Log("获取主程序版本失败: " + ex.Message);
+                // 返回一个默认值，避免异常
+                return "0.0.0";
             }
-
-            return true;
         }
 
+        /// <summary>
+        /// 检查服务器返回内容是否包含当前主程序版本
+        /// </summary>
         private static bool ParseVersionContent(string content)
         {
             string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);

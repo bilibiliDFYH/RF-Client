@@ -6,6 +6,7 @@ using System.Linq;
 using System.Resources;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Reunion
@@ -38,10 +39,45 @@ namespace Reunion
 
                 if (dotnetHost == null)
                 {
-                    var result = MessageBox.Show("检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?", "错误", MessageBoxButtons.OKCancel);
+                    string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
+                    string message;
+                    string url;
+
+                    // 获取国家代码，判断是否为中国大陆
+                    string countryCode = GetCountryCodeByIp();
+                    string domain;
+                    if (string.IsNullOrEmpty(countryCode))
+                    {
+                        domain = "alist.ru2023.top";
+                    }
+                    else
+                    {
+                        domain = (countryCode == "CN") ? "alist.yra2.com" : "alist-us.yra2.net";
+                    }
+
+                    switch (arch)
+                    {
+                        case "x86":
+                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            url = $"https://{domain}/.NET6/x86/windowsdesktop-runtime-6.0.36-win-x86.exe";
+                            break;
+                        case "x64":
+                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            url = $"https://{domain}/.NET6/x64/windowsdesktop-runtime-6.0.36-win-x64.exe";
+                            break;
+                        case "arm64":
+                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            url = $"https://{domain}/.NET6/arm64/windowsdesktop-runtime-6.0.36-win-arm64.exe";
+                            break;
+                        default:
+                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            url = "https://www.yra2.com/runtime#net6-download";
+                            break;
+                    }
+                    var result = MessageBox.Show(message, "错误", MessageBoxButtons.OKCancel);
                     if (result == DialogResult.OK)
                     {
-                        Process.Start("https://www.yra2.com/runtime#net6-download");
+                        Process.Start(url);
                     }
                     Environment.Exit(1);
                     return;
@@ -62,7 +98,6 @@ namespace Reunion
                 {
                     Environment.SetEnvironmentVariable("DOTNET_EnableWriteXorExecute", "0");
                 }
-
 
                 foreach (var zip in Directory.GetFiles("./", "Updater*.7z"))
                 {
@@ -110,12 +145,12 @@ namespace Reunion
             var dp = Path.Combine(dotnetPath, dotnet);
             if (!Directory.Exists(p))
             {
-                p = Path.Combine(dotnetPath,"x64",sharedPath64);
-                dp = Path.Combine(dotnetPath,"x64",dotnet);
+                p = Path.Combine(dotnetPath, "x64", sharedPath64);
+                dp = Path.Combine(dotnetPath, "x64", dotnet);
             }
 
             var r = FindDotNet6InPath(p);
-            if(r == null)
+            if (r == null)
             {
                 return null;
             }
@@ -123,8 +158,6 @@ namespace Reunion
             {
                 return dp;
             }
-
-           
         }
 
         private static string FindDotNet6InPath(string path)
@@ -149,6 +182,42 @@ namespace Reunion
                 }
             }
             return null; // 未找到符合条件的文件夹
+        }
+
+        /// <summary>
+        /// 通过 curl 获取本机IP的国家代码(countryCode)，CN为中国大陆，其他为港澳台及海外
+        /// </summary>
+        /// <returns>国家代码，如"CN"、"HK"、"US"等，获取失败返回空字符串</returns>
+        private static string GetCountryCodeByIp()
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "curl",
+                    Arguments = "-s https://api.mir6.com/api/ip_json?ip=myip",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using (var process = Process.Start(psi))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+
+                    // 提取 countryCode 字段
+                    var match = Regex.Match(output, @"""countryCode"":\s*""([^""]+)""");
+                    if (match.Success)
+                    {
+                        return match.Groups[1].Value;
+                    }
+                }
+            }
+            catch
+            {
+                // 忽略异常，默认返回空
+            }
+            return string.Empty;
         }
     }
 }

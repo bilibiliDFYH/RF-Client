@@ -1,3 +1,7 @@
+using ClientCore;
+using Localization;
+using Rampastring.Tools;
+using Rampastring.XNAUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -5,17 +9,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Net.Security;
+using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ClientCore;
-using Localization;
-using Rampastring.Tools;
-using Rampastring.XNAUI;
 
 namespace Ra2Client.Online
 {
@@ -28,13 +29,20 @@ namespace Ra2Client.Online
         private const int RECONNECT_WAIT_DELAY = 4000;
         private const int ID_LENGTH = 9;
         private const int MAXIMUM_LATENCY = 400;
+        private const int BYTE_ARRAY_MSG_LEN = 1024;
 
-        public Connection(IConnectionManager connectionManager)
+        private Dictionary<string, string> ipToDomainMap = null;
+        private string currentCertDomain = null;
+
+        public Connection(IConnectionManager connectionManager, Random random)
         {
             this.connectionManager = connectionManager;
+            this.Rng = random;
         }
 
         IConnectionManager connectionManager;
+
+        public Random Rng;
 
         /// <summary>
         /// The list of Reunion IRC servers to connect to.
@@ -61,12 +69,6 @@ namespace Ra2Client.Online
         public bool AttemptingConnection
         {
             get { return _attemptingConnection; }
-        }
-
-        Random _rng = new Random();
-        public Random Rng
-        {
-            get { return _rng; }
         }
 
         private List<QueuedMessage> MessageQueue = new List<QueuedMessage>();
@@ -139,8 +141,6 @@ namespace Ra2Client.Online
         /// </summary>
         public void ConnectAsync()
         {
-            
-
             if (_isConnected)
                 throw new InvalidOperationException("The client is already connected!".L10N("UI:Main:ClientAlreadyConnected"));
 
@@ -156,7 +156,6 @@ namespace Ra2Client.Online
 
             Thread connection = new Thread(ConnectToServer);
             connection.Start();
-            
         }
 
         /// <summary>
@@ -167,19 +166,30 @@ namespace Ra2Client.Online
             WindowManager.progress.Report("正在连接联机大厅...");
             IList<Server> sortedServerList = GetServerListSortedByLatency();
 
+            // 获取当前Windows版本号
+            Version osVersion = Environment.OSVersion.Version;
+            bool isWin1903OrAbove = (osVersion.Major >= 10 && osVersion.Build >= 18362);
+
             foreach (Server server in sortedServerList)
             {
-                //  Console.WriteLine(server.Name);
                 try
                 {
                     for (int i = 0; i < server.Ports.Length; i++)
                     {
                         TcpClient client;
                         IAsyncResult result;
+                        string certDomain = server.Host;
                         if (IPAddress.TryParse(server.Host, out IPAddress ipAddress))
                         {
                             client = new TcpClient(ipAddress.AddressFamily);
                             result = client.BeginConnect(ipAddress, server.Ports[i], null, null);
+                            lock (ipToDomainMap)
+                            {
+                                if (ipToDomainMap != null && ipToDomainMap.TryGetValue(server.Host, out var mappedDomain))
+                                {
+                                    certDomain = mappedDomain;
+                                }
+                            }
                         }
                         else
                         {
@@ -193,35 +203,73 @@ namespace Ra2Client.Online
                         if (!success || !client.Connected)
                         {
                             Logger.Log("Connecting to " + server.Host + " port " + server.Ports[i] + " timed out!");
-                            continue; // Start all over again, using the next port
+                            continue; // 尝试使用下一个端口
                         }
 
                         Logger.Log("Successfully connected to " + server.Host + " on port " + server.Ports[i]);
                         client.EndConnect(result);
 
+                        // 记录当前用于证书校验的域名
+                        currentCertDomain = certDomain;
+
+                        serverStream = client.GetStream();
+                        sslStream = new SslStream(serverStream, false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
+
+                        bool sslConnected = false;
+                        // 如果Windows版本高于或等于Win10 1903,优先使用TLS1.3协议连接,否则使用TLS1.2协议
+                        SslProtocols[] tryProtocols = isWin1903OrAbove
+                            ? new[] { SslProtocols.Tls13, SslProtocols.Tls12 }
+                            : new[] { SslProtocols.Tls12 };
+
+                        foreach (var protocol in tryProtocols)
+                        {
+                            try
+                            {
+                                Logger.Log($"Trying TLS protocol: {protocol}");
+                                sslStream.AuthenticateAsClient(server.Host, null, protocol, false);
+                                sslConnected = true;
+                                // 记录TLS版本和加密算法
+                                Logger.Log(
+                                    $"TLS handshake succeeded with protocol: {sslStream.SslProtocol}, " +
+                                    $"CipherAlgorithm: {sslStream.CipherAlgorithm}, CipherStrength: {sslStream.CipherStrength}, " +
+                                    $"CipherSuite: {sslStream.NegotiatedCipherSuite}"
+                                );
+                                break;
+                            }
+                            catch (AuthenticationException ex)
+                            {
+                                Logger.Log($"TLS handshake failed with protocol {protocol}: {ex.Message}");
+                                // 如果是最后一个协议，才继续下一个服务器
+                                if (protocol == tryProtocols.Last())
+                                {
+                                    sslStream.Dispose();
+                                    sslStream = null;
+                                }
+                            }
+                        }
+
+                        // 证书校验后清理映射表
+                        ipToDomainMap = null;
+                        currentCertDomain = null;
+
+                        if (!sslConnected)
+                        {
+                            Logger.Log("TLS authentication failed for all protocols.");
+                            continue; // 尝试下一个服务器
+                        }
+
+                        sslStream.ReadTimeout = 3000;
+
+                        tcpClient = client;
                         _isConnected = true;
                         _attemptingConnection = false;
+                        currentConnectedServerIP = server.Host;
 
                         connectionManager.OnConnected();
 
                         Thread sendQueueHandler = new Thread(RunSendQueue);
                         sendQueueHandler.Start();
 
-                        tcpClient = client;
-                        serverStream = tcpClient.GetStream();
-                        sslStream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate));
-                        try
-                        {
-                            sslStream.AuthenticateAsClient(server.Host, null, SslProtocols.Tls12, false);
-                        }
-                        catch (AuthenticationException ex)
-                        {
-                            Logger.Log("TLS authentication failed: " + ex.Message);
-                            continue; // Try the next server
-                        }
-                        sslStream.ReadTimeout = 3000;
-
-                        currentConnectedServerIP = server.Host;
                         HandleComm();
                         return;
                     }
@@ -241,38 +289,79 @@ namespace Ra2Client.Online
         }
 
         // 验证IRC服务端的SSL/TLS证书是否有效
-        public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            // 证书配置策略是否有误
-            if (sslPolicyErrors == SslPolicyErrors.None)
+            // 证书链必须有效
+            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateChainErrors) != 0)
             {
-                return true;
+                Logger.Log("Certificate chain is invalid.");
+                return false;
             }
 
-            // 证书是否在有效期内
+            // 证书在有效期内
             DateTime now = DateTime.UtcNow;
             X509Certificate2 cert2 = certificate as X509Certificate2;
-            if (cert2 != null && (cert2.NotBefore > now || cert2.NotAfter < now))
+            if (cert2 == null || cert2.NotBefore > now || cert2.NotAfter < now)
             {
-                Logger.Log($"Certificate is not valid. Valid from {cert2.NotBefore} to {cert2.NotAfter}");
+                Logger.Log($"Certificate is not valid. Valid from {cert2?.NotBefore} to {cert2?.NotAfter}");
                 return false;
             }
 
-            // 证书颁发者在当前系统中是否可信
-            if (!chain.ChainElements.Cast<X509ChainElement>().Any(element => element.Certificate.Issuer == certificate.Issuer))
+            // 使用当前记录的域名进行校验
+            string targetHost = currentCertDomain;
+            if (string.IsNullOrEmpty(targetHost))
             {
-                Logger.Log($"Certificate issuer is not trusted: {certificate.Issuer}");
+                Logger.Log("Target host is not available for certificate validation.");
                 return false;
             }
 
-            Logger.Log($"Certificate is valid. Issuer: {certificate.Issuer}, Valid from {cert2.NotBefore} to {cert2.NotAfter}");
+            // 校验CN或SAN包含当前域名
+            bool domainMatched = false;
+            // 检查SAN
+            foreach (var ext in cert2.Extensions)
+            {
+                if (ext.Oid.Value == "2.5.29.17") // Subject Alternative Name
+                {
+                    var asnData = new AsnEncodedData(ext.Oid, ext.RawData);
+                    string san = asnData.Format(true);
+                    if (san.IndexOf(targetHost, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        domainMatched = true;
+                        break;
+                    }
+                }
+            }
+            // 检查CN
+            if (!domainMatched)
+            {
+                string cn = cert2.GetNameInfo(X509NameType.DnsName, false);
+                if (!string.IsNullOrEmpty(cn) && targetHost.EndsWith(cn, StringComparison.OrdinalIgnoreCase))
+                {
+                    domainMatched = true;
+                }
+            }
+            if (!domainMatched)
+            {
+                Logger.Log($"Certificate CN/SAN does not match the target host: {targetHost}");
+                return false;
+            }
+
+            // 证书颁发者在当前系统中可信
+            if ((sslPolicyErrors & SslPolicyErrors.RemoteCertificateChainErrors) != 0 ||
+                (sslPolicyErrors & SslPolicyErrors.RemoteCertificateNotAvailable) != 0)
+            {
+                Logger.Log("Certificate issuer is not trusted.");
+                return false;
+            }
+
+            Logger.Log($"Certificate is valid. Issuer: {cert2.Issuer}, Subject: {cert2.Subject}, Valid from {cert2.NotBefore} to {cert2.NotAfter}");
             return true;
         }
 
         private void HandleComm()
         {
             int errorTimes = 0;
-            byte[] message = new byte[1024];
+            byte[] message = new byte[BYTE_ARRAY_MSG_LEN];
 
             Register();
 
@@ -299,7 +388,7 @@ namespace Ra2Client.Online
 
                 try
                 {
-                    bytesRead = sslStream.Read(message, 0, 1024);
+                    bytesRead = sslStream.Read(message, 0, BYTE_ARRAY_MSG_LEN);
                 }
                 catch (Exception ex)
                 {
@@ -368,6 +457,9 @@ namespace Ra2Client.Online
         /// <returns>A list of Lobby servers sorted by latency.</returns>
         private IList<Server> GetServerListSortedByLatency()
         {
+            // 初始化临时映射表
+            ipToDomainMap = new Dictionary<string, string>();
+
             // Resolve the hostnames.
             ICollection<Task<IEnumerable<Tuple<IPAddress, string, int[]>>>>
                 dnsTasks = new List<Task<IEnumerable<Tuple<IPAddress, string, int[]>>>>(Servers.Count);
@@ -396,6 +488,10 @@ namespace Ra2Client.Online
                         foreach (IPAddress serverIPAddress in serverIPAddresses)
                         {
                             _serverInfos.Add(new Tuple<IPAddress, string, int[]>(serverIPAddress, serverName, serverPorts));
+                            lock (ipToDomainMap)
+                            {
+                                ipToDomainMap[serverIPAddress.ToString()] = serverHostnameOrIPAddress;
+                            }
                         }
                     }
                     catch (SocketException ex)
@@ -544,7 +640,7 @@ namespace Ra2Client.Online
             // Sort the servers by latency.
             IOrderedEnumerable<Tuple<Server, long>>
                 sortedServerAndLatencyResults = pingTasks.Select(task => task.Result)              // Tuple<Server, Latency>
-                                                         .OrderBy(taskResult => taskResult.Item2); // Latency
+                                                     .OrderBy(taskResult => taskResult.Item2); // Latency
 
             // Do logging.
             foreach (Tuple<Server, long> serverAndLatencyResult in sortedServerAndLatencyResults)
@@ -1002,7 +1098,7 @@ namespace Ra2Client.Online
         /// <param name="data">Just a dummy parameter so that this matches the delegate System.Threading.TimerCallback.</param>
         private void AutoPing(object data)
         {
-            SendMessage("PING LAG" + new Random().Next(100000, 999999));
+            SendMessage("PING LAG" + Rng.Next(100000, 999999));
         }
 
         /// <summary>

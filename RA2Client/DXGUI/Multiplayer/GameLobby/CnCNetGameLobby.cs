@@ -48,6 +48,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private const string DICE_ROLL_MESSAGE = "DR";
         private const string CHANGE_TUNNEL_SERVER_MESSAGE = "CHTNL";
 
+        private Random random;
+
 
         public CnCNetGameLobby(
             WindowManager windowManager,
@@ -58,14 +60,17 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             CnCNetUserData cncnetUserData,
             MapLoader mapLoader,
             DiscordHandler discordHandler,
-            PrivateMessagingWindow pmWindow
-        ) : base(windowManager, "MultiplayerGameLobby", topBar, mapLoader, discordHandler, pmWindow)
+            PrivateMessagingWindow pmWindow,
+            Random random
+        ) : base(windowManager, "MultiplayerGameLobby", topBar, mapLoader, discordHandler, pmWindow, random)
         {
             this.connectionManager = connectionManager;
             localGame = ClientConfiguration.Instance.LocalGame;
             this.tunnelHandler = tunnelHandler;
             this.gameCollection = gameCollection;
             this.cncnetUserData = cncnetUserData;
+            this.pmWindow = pmWindow;
+            this.random = random;
 
             ctcpCommandHandlers =
             [  
@@ -167,23 +172,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
 
         private Dictionary<string, XNAMessageBox> pendingMapTransferDialogs = new Dictionary<string, XNAMessageBox>();
-        //private HashSet<string> canceledMapRequests = new HashSet<string>();
 
         private void HandleMapDownloadNotice(object sender, EventArgs e)
         {
             string requester = sender as string;
             if (requester == null)
                 return;
-
-            // 下面被注释掉的部分有些小问题, 后续改进, 临时回滚之前的代码
-
-            // 如果该发起者不在房间中，则自动取消请求
-            //if (channel == null || channel.Users.Find(requester) == null)
-            //    return;
-
-            // 如果该请求已存在或已被取消，则忽略重复请求
-            //if (pendingMapTransferDialogs.ContainsKey(requester) || canceledMapRequests.Contains(requester))
-            //    return;
 
             // 如果该请求已存在，则忽略重复请求
             if (pendingMapTransferDialogs.ContainsKey(requester))
@@ -234,7 +228,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 finally
                 {
                     pendingMapTransferDialogs.Remove(requester);
-                    //canceledMapRequests.Add(requester);
                     messageBox.Dispose();
                 }
             };
@@ -242,7 +235,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             messageBox.NoClickedAction += (_) =>
             {
                 pendingMapTransferDialogs.Remove(requester);
-                //canceledMapRequests.Add(requester);
                 messageBox.Dispose();
             };
 
@@ -405,11 +397,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             this.playerLimit = playerLimit;
             this.isCustomPassword = isCustomPassword;
             this.skillLevel = skillLevel;
-            //  this.password = password;
+            // this.password = password;
 
             if (isHost)
             {
-                RandomSeed = new Random().Next();
+                RandomSeed = random.Next();
                 RefreshMapSelectionUI();
                 btnChangeTunnel.Enable();
             }
@@ -743,7 +735,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 // Changing the map applies forced settings (co-op sides etc.) to the
                 // new player, and it also sends an options broadcast message
-                //CopyPlayerDataToUI(); This is also called by ChangeMap()
+                // CopyPlayerDataToUI(); This is also called by ChangeMap()
                 ChangeMap(GameModeMap);
                 BroadcastPlayerOptions();
                 BroadcastPlayerExtraOptions();
@@ -1461,7 +1453,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (IsHost)
             {
-                RandomSeed = new Random().Next();
+                RandomSeed = random.Next();
                 OnGameOptionChanged();
                 ClearReadyStatuses();
                 CopyPlayerDataToUI();

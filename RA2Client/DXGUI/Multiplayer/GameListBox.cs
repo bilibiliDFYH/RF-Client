@@ -254,7 +254,7 @@ namespace Ra2Client.DXGUI.Multiplayer
 
             if (hg.Game.InternalName != localGameIdentifier.ToLower())
                 lbItem.TextColor = UISettings.ActiveSettings.TextColor;
-            //else // made unnecessary by new Rampastring.XNAUI
+            // else made unnecessary by new Rampastring.XNAUI
             //    lbItem.TextColor = UISettings.ActiveSettings.AltColor;
 
             if (hg.Incompatible || hg.Locked)

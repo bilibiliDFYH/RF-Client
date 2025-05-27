@@ -30,17 +30,21 @@ namespace Ra2Client.DXGUI.Generic
             CnCNetManager cncnetManager,
             WindowManager windowManager,
             IServiceProvider serviceProvider,
-            MapLoader mapLoader
+            MapLoader mapLoader,
+            Random random
         ) : base(windowManager)
         {
             this.cncnetManager = cncnetManager;
             this.serviceProvider = serviceProvider;
             this.mapLoader = mapLoader;
+            this.random = random;
         }
 
         private static readonly object locker = new object();
 
         private MapLoader mapLoader;
+
+        private Random random;
 
         private bool visibleSpriteCursor;
 
@@ -80,7 +84,6 @@ namespace Ra2Client.DXGUI.Generic
 
                 if (UserINISettings.Instance.Random_wallpaper)
                 {
-                    var random = new Random();
                     int i = random.Next(0, Wallpaper.Length);
                     BackgroundTexture = AssetLoader.LoadTexture(Wallpaper[i]);
                 }

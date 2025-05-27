@@ -381,15 +381,15 @@ public class EditWindow(WindowManager windowManager, Music _music) : XNAWindow(w
             ClientRectangle = new Rectangle(20,30, 0, 0)
         };
 
-        var ctbName = new XNATextBox(WindowManager)
+        var ctbName = new XNATextBox(WindowManager) 
         {
             Name = "ctbName",
             Text = _music.CName,
             ClientRectangle = new Rectangle(lblName.Right + 50, lblName.Y, 100, 20)
-        };
+        }; 
 
         var lblSide = new XNALabel(WindowManager)
-        {
+        { 
             Name = "lblSide",
             Text = "阵营",
             ClientRectangle = new Rectangle(ctbName.Right + 35 , ctbName.Y, 0, 0)
@@ -398,7 +398,7 @@ public class EditWindow(WindowManager windowManager, Music _music) : XNAWindow(w
         var ddSide = new XNAClientDropDown(WindowManager)
         {
             Name = "ddSide",
-            Text = _music.CName,
+            Text = _music.Side,
             ClientRectangle = new Rectangle(lblSide.Right + 50, lblSide.Y, 100, 30)
         };
 

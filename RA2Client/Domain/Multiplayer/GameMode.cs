@@ -63,6 +63,8 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         private string mapCodeININame;
 
+        private string mapPath;
+
         /// <summary>
         /// 介绍
         /// </summary>

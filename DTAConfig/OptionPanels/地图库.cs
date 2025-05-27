@@ -648,8 +648,9 @@ namespace DTAConfig.OptionPanels
                 var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
                 var sectionName = "Maps/Multi/MapLibrary/" + map.id;
                 mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
-
+                mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
                 mapIni.SetValue(sectionName, "Author", map.author);
+                mapIni.SetValue(sectionName, "Briefing", map.description);
 
                 var rules = map.rules?.Split(';') ?? [];
                 for (int i = 1; i <= rules.Length; i++)

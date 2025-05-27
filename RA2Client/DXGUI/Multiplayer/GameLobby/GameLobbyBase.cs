@@ -575,7 +575,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             else
             {
-                XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "No duplicate maps found".L10N("UI:Main:NotFoundDuplicateMaps"));
+                XNAMessageBox.Show(WindowManager, "信息".L10N("UI:Main:Info"), "未找到重复的地图".L10N("UI:Main:NotFoundDuplicateMaps"));
             }
         }
 

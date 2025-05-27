@@ -67,12 +67,12 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         public Task LoadMapsAsync() => Task.Run(LoadMaps2);
      
-        private void LoadMultiMaps2(IniFile mpMapsIni, string file)
+        private void LoadMultiMaps2(IniFile mpMapsIni, string file,string gameMode = "")
         {
             var map = new Map(file);
 
 
-            if (!map.SetInfoFromMpMapsINI(mpMapsIni)) return;
+            if (!map.SetInfoFromMpMapsINI(mpMapsIni, gameMode)) return;
 
 
             AddMapToGameModes(map, false);
@@ -206,11 +206,13 @@ namespace Ra2Client.Domain.Multiplayer
 
                     var mpMapsIni = new IniFile(ini, Map.ANNOTATION);
 
+                    var 自定义 = map == "Maps\\Multi\\Custom" ? "自定义" : "";
+
                     Parallel.ForEach(files, parallelOptions, file =>
                     {
                         try
                         {
-                            LoadMultiMaps2(mpMapsIni, file);
+                            LoadMultiMaps2(mpMapsIni, file, 自定义);
                             Interlocked.Increment(ref 加载地图数量);
 
 
@@ -309,7 +311,7 @@ namespace Ra2Client.Domain.Multiplayer
                     {
                         try
                         {
-                            LoadMultiMaps2(mpMapsIni, file);
+                            LoadMultiMaps2(mpMapsIni, file,"自定义");
                             Interlocked.Increment(ref 加载地图数量);
 
 

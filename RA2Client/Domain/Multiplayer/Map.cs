@@ -315,7 +315,7 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         /// <param name="iniFile">The configuration file for the multiplayer maps.</param>
         /// <returns>True if loading the map succeeded, otherwise false.</returns>
-        public  bool SetInfoFromMpMapsINI(IniFile iniFile)
+        public  bool SetInfoFromMpMapsINI(IniFile iniFile,string gameMode)
         {
             if(iniFile == null) return false;
 
@@ -379,7 +379,11 @@ namespace Ra2Client.Domain.Multiplayer
                     section.SetValue("Author", Author);
                 }
 
-                GameModes = section.GetStringValue("GameModes", "常规作战").Split(',');
+                if(gameMode != "")
+                    GameModes = (section.GetStringValue("GameModes", "常规作战") + $",{gameMode}").Split(',') ;
+                else
+                    GameModes = (section.GetStringValue("GameModes", "常规作战")).Split(',');
+
                 Mission = section.GetStringValue("Mission", string.Empty);
                 if(!Directory.Exists(Mission))
                     section.RemoveKey("Mission");

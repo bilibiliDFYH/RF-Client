@@ -533,10 +533,20 @@ namespace DTAConfig.OptionPanels
                 await Task.Run(() =>
                 {
                     var TargetPath = "./";
+
+                    var files = SevenZip.GetFile(strLocPath);
+
                     if (_curComponent.typeName == "地图" || _curComponent.typeName == "地图包")
                     {
-                        TargetPath = "./Maps/Multi/WorkShop/";
-                        预写地图配置(_curComponent);
+
+                   
+                        foreach (var file in files)
+                        {
+                            _curComponent.file = Path.GetFileNameWithoutExtension(file);
+                            TargetPath = "./Maps/Multi/WorkShop/";
+                            预写地图配置(_curComponent);
+                        }
+
                     }
 
                     //正则匹配文件路径 类似 Mod&AI\Mod\...\expandmd97.mix 或 *.ini这样的
@@ -548,7 +558,7 @@ namespace DTAConfig.OptionPanels
                     });
 
                     TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
-                    WriteConponentConfig(SevenZip.GetFile(strLocPath));
+                    WriteConponentConfig(files);
                     try
                     {
                         File.Delete(strLocPath);
@@ -697,7 +707,8 @@ namespace DTAConfig.OptionPanels
                 ini.AddSection(sectionName);
             ini.SetValue(sectionName, "Description", component.name)
                 .SetValue(sectionName, "Author", component.author)
-                .SetValue(sectionName, "Mission", sectionName);
+                .SetValue(sectionName, "Mission", sectionName)
+                .SetValue(sectionName, "GameModes", "创意工坊,常规作战");
             ini.WriteIniFile();
         }
 

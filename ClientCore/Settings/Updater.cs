@@ -452,10 +452,18 @@ public static class Updater
         }
     }
 
+    /// <summary>
+    /// 版本比较逻辑，正式版 Revision 固定为 100，测试版按实际 Revision.
+    /// </summary>
     private static bool CheckHasNewVersion(string strSer, string strLoc)
     {
         Version v1 = new Version(strSer);
         Version v2 = new Version(strLoc);
+
+        // 正式版 Revision 固定为 100(因为本身就没有)，测试版用实际 Revision
+        int v1Revision = (v1.Revision == 0) ? 100 : v1.Revision;
+        int v2Revision = (v2.Revision == 0) ? 100 : v2.Revision;
+
         if (v1.Major > v2.Major)
             return true;
         if (v1.Major == v2.Major)
@@ -468,7 +476,7 @@ public static class Updater
                     return true;
                 if (v1.Build == v2.Build)
                 {
-                    if (v1.Revision > v2.Revision)
+                    if (v1Revision > v2Revision)
                         return true;
                 }
             }

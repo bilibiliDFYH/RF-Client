@@ -50,7 +50,7 @@ namespace ClientGUI
                 //RenderImage.CancelRendering();
 
             if (!加载模组文件(windowManager, iniFile)) return;
-                
+
 #if !DEBUG
             }
             catch(Exception ex)
@@ -59,7 +59,7 @@ namespace ClientGUI
                 return;
             }
 #endif
-
+          
             WindowManager.progress.Report("正在唤起游戏");
 
             Logger.Log("About to launch main game executable.");
@@ -471,12 +471,17 @@ namespace ClientGUI
         private static string 符号链接(List<string> 所有需要链接的文件)
         {
             Dictionary<string, string> 文件字典 = [];
+
             try
             {
                 foreach (var path in 所有需要链接的文件)
                 {
                     if (File.Exists(path))
                     {
+                        // 跳过 .csf 文件
+                        if (Path.GetExtension(path).Equals(".csf", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
                         string fileName = Path.GetFileName(path);
                         文件字典[fileName] = path;
                     }
@@ -485,6 +490,10 @@ namespace ClientGUI
                         var filesInDir = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
                         foreach (var file in filesInDir)
                         {
+                            // 跳过 .csf 文件
+                            if (Path.GetExtension(file).Equals(".csf", StringComparison.OrdinalIgnoreCase))
+                                continue;
+
                             string relativePath = Path.GetRelativePath(path, file);
                             文件字典[relativePath] = file;
                         }
@@ -499,8 +508,7 @@ namespace ClientGUI
                 foreach (var kv in 去重后的文件列表)
                 {
                     string targetPath = Path.Combine(ProgramConstants.游戏目录, kv.Key);
-                    string sourcePath = Path.Combine(ProgramConstants.GamePath,kv.Value);
-
+                    string sourcePath = Path.Combine(ProgramConstants.GamePath, kv.Value);
 
                     Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
 
@@ -508,16 +516,16 @@ namespace ClientGUI
                         File.Delete(targetPath);
 
                     File.CreateSymbolicLink(targetPath, sourcePath);
-
-
                 }
             }
             catch (Exception ex)
             {
                 return $"符号链接失败，原因：{ex.Message}";
             }
+
             return string.Empty;
         }
+
 
 
         private static void 复制CSF(string path)
@@ -533,7 +541,7 @@ namespace ClientGUI
                 if (UserINISettings.Instance.SimplifiedCSF.Value)
                     CSF.将繁体的CSF转化为简体CSF(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
                 else
-                    FileHelper.CopyFile(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf));
+                    File.Copy(csf, Path.Combine(ProgramConstants.游戏目录, tagCsf),true);
             }
         }
 

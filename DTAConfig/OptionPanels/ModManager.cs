@@ -217,9 +217,13 @@ public class ModManager : XNAWindow
         //   EnabledChanged += ModManager_EnabledChanged;
         //UserINISettings.Instance.重新加载地图和任务包 += 触发刷新;
         //DDModAI.SelectedIndex = 0;
-        ReLoad();
+        //ReLoad();
 
-       
+        DDModAI_SelectedIndexChanged(DDModAI, null);
+
+
+        LoadModInfo();
+
     }
 
     private void BtnDownload_LeftClick(object sender, EventArgs e)

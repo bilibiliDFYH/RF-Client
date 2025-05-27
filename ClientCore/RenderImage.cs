@@ -21,6 +21,8 @@ namespace ClientCore
         public static ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
         public static HashSet<string> 需要渲染的地图列表 = [];
+        public static HashSet<string> 正在渲染的地图列表 = [];
+
         public static bool RenderOneImage(string mapPath)
         {
             //if (!File.Exists(mapPath)) return false;
@@ -95,7 +97,7 @@ namespace ClientCore
         {
            
             if (需要渲染的地图列表.Count == 0) return;
-
+         
             IsCancelled = false; // 先清除取消标志
             RenderCount = 0;
 
@@ -116,12 +118,18 @@ namespace ClientCore
                         {
                             // 渲染任务
                             WindowManager.Report($"正在渲染地图:{map}");
+                            if(正在渲染的地图列表.Contains(map))
+                            {
+                                continue;
+                            }
+                            正在渲染的地图列表.Add(map);
                             RenderOneImage(map);
                             Interlocked.Increment(ref RenderCount);
                             TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
                             WindowManager.Report("");
                             lock (需要渲染的地图列表)
                             {
+                                正在渲染的地图列表.Remove(map);
                                 需要渲染的地图列表.Remove(map);
                             }
                         }
@@ -130,7 +138,7 @@ namespace ClientCore
                             Console.WriteLine($"渲染异常: {ex.Message}");
                         }
                     }
-
+                    IsCancelled = true;
                     TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
                     WindowManager.progress.Report(""); // 更新进度
                 });

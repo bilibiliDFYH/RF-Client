@@ -611,7 +611,7 @@ namespace DTAConfig.OptionPanels
         {
             if (UserINISettings.Instance.第一次下载扩展.Value)
             {
-                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "If you encounter problems during the game, please do not contact the original author directly, and give priority to the Reunion production team, and we will give feedback to the original author after detailed testing and verification, thank you for your understanding and cooperation\n\nFor China Telecom and China Mobile players: If you are experiencing the problem of getting the component link while downloading the component, please try to download it with multiple clicks or change the DNS.".L10N("UI:DTAConfig:FirstDownloadComponentTips"));
+                XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "If you encounter problems during the game, please do not contact the original author directly, and give priority to the Reunion production team, and we will give feedback to the original author after detailed testing and verification, thank you for your understanding and cooperation\n\nFor China Telecom and China Mobile players: If you are experiencing the problem of getting the component link while downloading the component, please try to download it with multiple clicks or change the DNS. If the problem cannot be solved, please contact the production team.".L10N("UI:DTAConfig:FirstDownloadComponentTips"));
                 UserINISettings.Instance.第一次下载扩展.Value = false;
                 UserINISettings.Instance.SaveSettings();
                 return;

@@ -173,8 +173,8 @@ namespace Reunion
                     // 解析版本号
                     if (Version.TryParse(folderName, out var version))
                     {
-                        // 版本号必须 >= 6.0.2
-                        if (version.Major == 6 && (version.Minor > 0 || version.Build >= 2))
+                        // 版本号必须 >= 6.0.11
+                        if (version.Major == 6 && (version.Minor > 0 || version.Build >= 11))
                         {
                             return dir;
                         }
@@ -205,8 +205,8 @@ namespace Reunion
                     string output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
 
-                    // 提取 countryCode 字段
-                    var match = Regex.Match(output, @"""countryCode"":\s*""([^""]+)""");
+                    // 提取 data 块里的 countryCode 字段
+                    var match = Regex.Match(output, @"""data""\s*:\s*\{[^}]*?""countryCode"":\s*""([^""]+)""");
                     if (match.Success)
                     {
                         return match.Groups[1].Value;

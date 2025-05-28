@@ -248,7 +248,7 @@ public static class Updater
     {
         serverFileInfos.Clear();
         localFileInfos.Clear();
-        GameVersion = "1.5.0.00";
+        //GameVersion = "1.5.0.00";
         //versionState = VersionState.UNKNOWN;
     }
 

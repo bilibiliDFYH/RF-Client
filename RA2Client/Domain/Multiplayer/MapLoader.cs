@@ -290,7 +290,7 @@ namespace Ra2Client.Domain.Multiplayer
                 {
                     TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
 
-                    var files = Directory.EnumerateFiles("./", "*.*", SearchOption.TopDirectoryOnly)
+                    var files = Directory.EnumerateFiles(ProgramConstants.GamePath, "*.*", SearchOption.TopDirectoryOnly)
                                      .Where(file => (file.ToLower().EndsWith(".map") ||
                                     file.ToLower().EndsWith(".yrm") ||
                                     file.ToLower().EndsWith(".mpr")

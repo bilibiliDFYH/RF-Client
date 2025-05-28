@@ -34,7 +34,7 @@ public class ModManager : XNAWindow
 
     //public XNADropDown AI;
 
-    private XNADropDown DDModAI;
+    public XNADropDown DDModAI;
     private XNAListBox ListBoxModAi;
     private XNAMultiColumnListBox _mcListBoxInfo;
     private ToolTip _tooltip;
@@ -330,6 +330,7 @@ public class ModManager : XNAWindow
         }
 
         ListBoxModAi.SelectedIndexChanged += ListBoxModAISelectedIndexChanged;
+        //ListBoxModAISelectedIndexChanged(null, null);
         ListBoxModAi.SelectedIndex = 0;
     }
 
@@ -1088,6 +1089,8 @@ public class ModManager : XNAWindow
         MissionPack.ReLoad();
 
         // listBoxModAI.Clear();
+
+
 
         DDModAI_SelectedIndexChanged(DDModAI, null);
 

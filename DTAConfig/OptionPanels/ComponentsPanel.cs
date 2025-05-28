@@ -542,7 +542,8 @@ namespace DTAConfig.OptionPanels
                    
                         foreach (var file in files)
                         {
-                            _curComponent.file = Path.GetFileNameWithoutExtension(file);
+                            _curComponent.name = Path.GetFileNameWithoutExtension(file);
+                            _curComponent.file = _curComponent.name;
                             TargetPath = "./Maps/Multi/WorkShop/";
                             预写地图配置(_curComponent);
                         }

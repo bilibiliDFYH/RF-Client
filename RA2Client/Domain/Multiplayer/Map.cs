@@ -339,15 +339,15 @@ namespace Ra2Client.Domain.Multiplayer
                 Official = whitelist.Any(sectionName.Contains);
 
                 #region 处理预览图
-                if(File.Exists($"{sectionName}.jpg"))
-                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.jpg"));
+                if(File.Exists($"{sectionName}.png"))
+                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
                 else 
                     {
-                    if (!File.Exists($"{sectionName}.png") && UserINISettings.Instance.RenderPreviewImage.Value)
+                    if (!File.Exists($"{sectionName}.jpg") && UserINISettings.Instance.RenderPreviewImage.Value)
                     {
                         RenderImage.需要渲染的地图列表.Add(BaseFilePath);
                     }
-                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
+                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.jpg"));
                     }
                     
                 

@@ -229,13 +229,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     Map.MinPlayers);
             }
 
+            if (totalPlayerCount > Map.MaxPlayers)
+            {
+                return String.Format("The selected map cannot be played with more than {0} players.".L10N("UI:Main:MapTooManyPlayers"),
+                    Map.MaxPlayers);
+            }
+
             if (Map.EnforceMaxPlayers)
             {
-                if (totalPlayerCount > Map.MaxPlayers)
-                {
-                    return String.Format("The selected map cannot be played with more than {0} players.".L10N("UI:Main:MapTooManyPlayers"),
-                        Map.MaxPlayers);
-                }
+                
 
                 IEnumerable<PlayerInfo> concatList = Players.Concat(AIPlayers);
 

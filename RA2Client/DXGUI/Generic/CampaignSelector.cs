@@ -791,13 +791,13 @@ namespace Ra2Client.DXGUI.Generic
 
             var missionPack = _screenMissions[_lbxCampaignList.SelectedIndex].MPack;
             if (missionPack == null) return;
-           
+
 
             //var index = _modManager.ListBoxModAi.Items.FindIndex(m => ((MissionPack)m.Tag).ID == missionPack.ID);
             //if (index == -1) return;
             //_modManager.ListBoxModAi.SelectedIndex = index;
 
-
+            _modManager.DDModAI.SelectedIndex = -1;
             _modManager.删除任务包(missionPack);
 
             
@@ -1018,6 +1018,9 @@ namespace Ra2Client.DXGUI.Generic
                     {
                         string img = Path.Combine(ProgramConstants.GamePath, mission.Path,
                             mission.Scenario[..mission.Scenario.LastIndexOf('.')] + ".png");
+                        if(!File.Exists(img))
+                            img = Path.Combine(ProgramConstants.GamePath, mission.Path,
+                            mission.Scenario[..mission.Scenario.LastIndexOf('.')] + ".jpg");
                         if (File.Exists(img))
                         {
                             // 加载图像

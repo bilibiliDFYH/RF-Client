@@ -356,7 +356,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                    e = 符号链接(所有需要复制的文件);
+                  e = 符号链接(所有需要复制的文件);
                 }
                 else
                 {

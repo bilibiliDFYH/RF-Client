@@ -51,9 +51,9 @@ namespace ClientCore
 
 
             string mapName = Path.GetFileNameWithoutExtension(mapPath);
-            string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.png");
-            string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.png");
-            string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --thumb-png --bkp ";
+            string inputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"thumb_{mapName}.jpg");
+            string outputPath = Path.Combine(Path.GetDirectoryName(mapPath), $"{mapName}.jpg");
+            string strCmdText = $"-i \"{mapPath}\" -o \"{mapName}\" -m \"{ProgramConstants.GamePath}{UserINISettings.Instance.YRPath}\" -Y -z +(1280,768) --bkp ";
 
             using Process process = new Process();
             process.StartInfo.FileName = $"{ProgramConstants.GamePath}Resources\\RandomMapGenerator_RA2\\Map Renderer\\CNCMaps.Renderer.exe";
@@ -110,7 +110,7 @@ namespace ClientCore
                     {
                         if (IsCancelled)
                         {
-                            Console.WriteLine("渲染任务已取消");
+                            //Console.WriteLine("渲染任务已取消");
                             break;
                         }
 

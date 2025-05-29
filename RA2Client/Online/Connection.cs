@@ -168,7 +168,7 @@ namespace Ra2Client.Online
 
             // 获取当前Windows版本号
             Version osVersion = Environment.OSVersion.Version;
-            bool isWin1903OrAbove = (osVersion.Major >= 10 && osVersion.Build >= 18362);
+            bool isWin1903OrAbove = (osVersion.Major > 10) || (osVersion.Major == 10 && osVersion.Build >= 18362);
 
             foreach (Server server in sortedServerList)
             {

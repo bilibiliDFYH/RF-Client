@@ -289,7 +289,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
                 if (Stop)
                 {
-                    var png = new FileInfo("Maps/Multi/Custom/随机地图.png");
+                    var png = new FileInfo("Maps/Multi/Custom/随机地图.jpg");
 
                     var map = new FileInfo("Maps/Multi/Custom/随机地图.map");
                     try
@@ -298,7 +298,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
                         lastName = $"Maps/Multi/Custom/随机地图{timestamp}";
                         // 构建文件名
-                        string pngName = $"{lastName}.png";
+                        string pngName = $"{lastName}.jpg";
 
                         string mapName = $"{lastName}.map";
 

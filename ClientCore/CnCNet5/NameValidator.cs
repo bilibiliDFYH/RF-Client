@@ -42,23 +42,31 @@ namespace ClientCore.CnCNet5
                 if (AllowedAsciiCharacters.Contains(c))
                     continue;
 
-                // 检查是否是汉字(简体或繁体)
-                if ((c >= 0x4E00 && c <= 0x9FFF) || // CJK Unified Ideographs
-                    (c >= 0x3400 && c <= 0x4DBF) || // CJK Unified Ideographs Extension A
-                    (c >= 0x20000 && c <= 0x2A6DF) || // CJK Unified Ideographs Extension B
-                    (c >= 0x2A700 && c <= 0x2B73F) || // CJK Unified Ideographs Extension C
-                    (c >= 0x2B740 && c <= 0x2B81F) || // CJK Unified Ideographs Extension D
-                    (c >= 0x2B820 && c <= 0x2CEAF) || // CJK Unified Ideographs Extension E
-                    (c >= 0xF900 && c <= 0xFAFF)) // CJK Compatibility Ideographs
+                byte[] bytes = GBKEncoding.GetBytes(new[] { c });
+                if (bytes.Length == 2)
                 {
-                    byte[] bytes = GBKEncoding.GetBytes(new[] { c });
-                    // GBK编码的汉字为双字节，且首字节0x81-0xFE，尾字节0x40-0xFE(不含0x7F)
-                    if (bytes.Length == 2 &&
-                        bytes[0] >= 0x81 && bytes[0] <= 0xFE &&
-                        bytes[1] >= 0x40 && bytes[1] <= 0xFE && bytes[1] != 0x7F)
-                    {
+                    byte b1 = bytes[0];
+                    byte b2 = bytes[1];
+
+                    // 简体中文 GB2312 范围
+                    bool isSimplified =
+                        (b1 >= 0xB0 && b1 <= 0xD6 && b2 >= 0xA1 && b2 <= 0xFE) ||
+                        (b1 == 0xD7 && b2 >= 0xA1 && b2 <= 0xF9) ||
+                        (b1 >= 0xD8 && b1 <= 0xF7 && b2 >= 0xA1 && b2 <= 0xFE);
+
+                    // 繁体中文 GBK 扩展区
+                    bool isTraditional =
+                        (b1 >= 0x81 && b1 <= 0xA0 && ((b2 >= 0x40 && b2 <= 0x7E) || (b2 >= 0x80 && b2 <= 0xFE))) ||
+                        (b1 >= 0xAA && b1 <= 0xFE && ((b2 >= 0x40 && b2 <= 0x7E) || (b2 >= 0x80 && b2 <= 0xA0)));
+
+                    // 主要GBK双字节范围
+                    bool isGBKMain = (b1 >= 0x81 && b1 <= 0xFE && b2 >= 0x40 && b2 <= 0xFE);
+
+                    // GBK扩展双字节范围
+                    bool isGBKExt = (b1 >= 0x81 && b1 <= 0xFE && b2 >= 0x80 && b2 <= 0xFE);
+
+                    if (isSimplified || isTraditional || isGBKMain || isGBKExt)
                         continue;
-                    }
                 }
 
                 return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +

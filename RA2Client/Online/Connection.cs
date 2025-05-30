@@ -25,8 +25,9 @@ namespace Ra2Client.Online
     /// </summary>
     public class Connection
     {
-        private const int MAX_RECONNECT_COUNT = 15;
-        private const int RECONNECT_WAIT_DELAY = 5000;
+        private const int MAX_RECONNECT_COUNT = 8;
+        private const int MAX_ERROR_COUNT = 30;
+        private const int RECONNECT_WAIT_DELAY = 4000;
         private const int ID_LENGTH = 9;
         private const int MAXIMUM_LATENCY = 400;
         private const int BYTE_ARRAY_MSG_LEN = 1024;
@@ -168,7 +169,7 @@ namespace Ra2Client.Online
 
             // 获取当前Windows版本号
             Version osVersion = Environment.OSVersion.Version;
-            bool isWin1903OrAbove = (osVersion.Major >= 10 && osVersion.Build >= 18362);
+            bool isWin1903OrAbove = (osVersion.Major > 10) || (osVersion.Major == 10 && osVersion.Build >= 18362);
 
             foreach (Server server in sortedServerList)
             {
@@ -384,23 +385,46 @@ namespace Ra2Client.Online
                     continue;
                 }
 
-                int bytesRead;
+                int bytesRead = 0;
 
                 try
                 {
                     bytesRead = sslStream.Read(message, 0, BYTE_ARRAY_MSG_LEN);
                 }
-                catch (Exception ex)
+                catch (IOException ex)
                 {
                     Logger.Log("Disconnected from CnCNet due to an unexpected error. message: " + ex.Message);
                     errorTimes++;
 
-                    if (errorTimes > MAX_RECONNECT_COUNT)
+                    if (errorTimes > MAX_ERROR_COUNT)
                     {
-                        const string errorMessage = "Disconnected from CnCNet after reaching the maximum number of connection retries.";
-                        Logger.Log(errorMessage);
+                        const string errorMessage = "Disconnected from CnCNet after not receiving a packet for too long.";
+                        Logger.Log(errorMessage + Environment.NewLine + "Message: " + ex.ToString());
                         failedServerIPs.Add(currentConnectedServerIP);
                         connectionManager.OnConnectionLost(errorMessage.L10N("UI:Main:ClientDisconnectedAfterRetries"));
+                        break;
+                    }
+
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    const string errorMessage = "Disconnected from CnCNet due to an internal error.";
+                    Logger.Log(errorMessage + Environment.NewLine + "Message: " + ex.ToString());
+                    failedServerIPs.Add(currentConnectedServerIP);
+                    connectionManager.OnConnectionLost(errorMessage.L10N("UI:Main:ClientDisconnectedAfterException"));
+                    break;
+                }
+
+                if (bytesRead == 0)
+                {
+                    errorTimes++;
+
+                    if (errorTimes > MAX_ERROR_COUNT)
+                    {
+                        Logger.Log("Disconnected from CnCNet.");
+                        failedServerIPs.Add(currentConnectedServerIP);
+                        connectionManager.OnConnectionLost("Server disconnected.".L10N("UI:Main:ServerDisconnected"));
                         break;
                     }
 

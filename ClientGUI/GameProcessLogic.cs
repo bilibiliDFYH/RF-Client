@@ -371,7 +371,7 @@ namespace ClientGUI
 
                     复制CSF(newGame);
                 if (newMission != newGame && newMission != string.Empty)
-                    复制CSF(newMission);
+                        复制CSF(newMission);
                 
                 iniFile.WriteIniFile(spawnerSettingsFile.FullName);
 

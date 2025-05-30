@@ -708,8 +708,9 @@ namespace DTAConfig.OptionPanels
                 ini.AddSection(sectionName);
             ini.SetValue(sectionName, "Description", component.name)
                 .SetValue(sectionName, "Author", component.author)
-                .SetValue(sectionName, "Mission", sectionName)
+        //        .SetValue(sectionName, "Mission", sectionName)
                 .SetValue(sectionName, "GameModes", "创意工坊,常规作战");
+            
             ini.WriteIniFile();
         }
 

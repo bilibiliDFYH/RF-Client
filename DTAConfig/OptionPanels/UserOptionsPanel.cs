@@ -266,7 +266,7 @@ namespace DTAConfig.OptionPanels
 
             var btnUpload = new XNAClientButton(WindowManager)
             {
-                Text = "Upload".L10N("UI:DTAConfig:ButtonUpload"),
+                Text = "上传".L10N("UI:DTAConfig:ButtonUpload"),
                 ClientRectangle = new Rectangle(btnSearch.Right + 20, tbSearch.Y, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
                 Visible = false,
             };
@@ -520,6 +520,9 @@ namespace DTAConfig.OptionPanels
 
         private void 跳转上传窗口(object sender, EventArgs e)
         {
+            XNAMessageBox.Show(WindowManager, "信息", "该模块正在修改中，计划采用网页上传，请等待。");
+            return;
+
             if(lblNameValue.Text == "点击登录或注册")
             {
                 tabControl.SelectedTab = 0;

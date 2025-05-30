@@ -857,12 +857,22 @@ public static class Updater
     {
         Logger.Log("更新：Initiliazing download of file " + strfile);
         UpdateDownloadProgress(0);
-        string prefixPath = "Tmp";
-        FileInfo locFile = SafePath.GetFile(GamePath, prefixPath, strfile);
+
+        string tmpDir = SafePath.CombineFilePath(GamePath, "Tmp");
+        string filePath = SafePath.CombineFilePath(tmpDir, strfile);
+        FileInfo locFile = new FileInfo(filePath);
+
         try
         {
             int currentUpdaterServerId = currentUpdaterServerIndex;
             var serversCondi = UpdaterServers.Where(f => f.type.Equals(UserINISettings.Instance.Beta.Value)).ToList();
+
+            if (currentUpdaterServerId < 0 || currentUpdaterServerId >= serversCondi.Count)
+            {
+                Logger.Log($"更新：Server index out of bounds，currentUpdaterServerId={currentUpdaterServerId}, serversCondi.Count={serversCondi.Count}");
+                return false;
+            }
+
             var serverFile = (serversCondi[currentUpdaterServerId].url + strfile).Replace(@"\", "/", StringComparison.OrdinalIgnoreCase);
             CreatePath(locFile.FullName);
             Logger.Log("更新：Downloading file " + strfile);

@@ -106,7 +106,7 @@ namespace Ra2Client.DXGUI.Generic
             if (Alpha <= 0.0)
                 Disable();
         }
-
+#nullable enable
         private void TimerCallback(object? sender, EventArgs e)
         {
             btnOK.Text = string.Format("请阅读以上内容({0})", CountSec);
@@ -119,5 +119,6 @@ namespace Ra2Client.DXGUI.Generic
                 btnOK.Enabled = true;
             }
         }
+#nullable restore
     }
 }

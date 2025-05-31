@@ -1296,7 +1296,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         }
 
         private CancellationTokenSource _cts;
-        private async void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
+        private void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
         {
             _cts?.Cancel();
             _cts?.Dispose();
@@ -1310,9 +1310,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             }
 
-           // ReloadAI();
+            // ReloadAI();
             ReloadMod();
-            
+
             XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
 
 

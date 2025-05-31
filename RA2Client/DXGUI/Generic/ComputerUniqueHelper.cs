@@ -21,7 +21,7 @@ namespace Ra2Client.DXGUI.Generic
             //}
             return uuid;
         }
-
+#nullable enable
         private static string? GetSmBIOSUUID()
         {
             var cmd = "wmic csproduct get UUID";
@@ -44,6 +44,7 @@ namespace Ra2Client.DXGUI.Generic
                 return cpuid;
             });
         }
+
         private static string? GetBIOSSerialNumber()
         {
             var cmd = "wmic bios get serialnumber";
@@ -53,6 +54,7 @@ namespace Ra2Client.DXGUI.Generic
                 return serialNumber;
             });
         }
+
         private static string? GetDiskDriveSerialNumber()
         {
             var cmd = "wmic diskdrive get serialnumber";
@@ -94,6 +96,7 @@ namespace Ra2Client.DXGUI.Generic
             process.Close();
             return filterFunc(output);
         }
+#nullable restore
     }
 
 }

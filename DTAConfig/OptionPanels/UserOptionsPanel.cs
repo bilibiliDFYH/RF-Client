@@ -69,7 +69,7 @@ namespace DTAConfig.OptionPanels
             }
         }
 
-        public override async void Initialize()
+        public override void Initialize()
         {
             Name = "UserOptionsPanel";
             base.Initialize();
@@ -153,7 +153,7 @@ namespace DTAConfig.OptionPanels
                 ClientRectangle = new Rectangle(徽章值.Right + 100, 徽章值.Y, 34, 17),
                 BackgroundTexture = AssetLoader.LoadTextureUncached("chat_ic_lv0.png"),
                 DrawBorders = false,
-            };  
+            };
 
             经验进度条 = new XNAProgressBar(WindowManager)
             {
@@ -205,8 +205,8 @@ namespace DTAConfig.OptionPanels
             };
             出题记录按钮.LeftClick += 跳转出题记录窗口;
 
-            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值, 等级图标, 经验进度条, 经验值, lblNameValue, lblSideValue, lblcertify,出题按钮,出题记录按钮]) ;
-        
+            UserControls.AddRange([btnImg, lblID, lblSide, lblName, lblIDValue, lbl徽章, 徽章值, dd徽章值, 等级图标, 经验进度条, 经验值, lblNameValue, lblSideValue, lblcertify, 出题按钮, 出题记录按钮]);
+
             AddChild(UserControls);
 
             #endregion
@@ -252,14 +252,14 @@ namespace DTAConfig.OptionPanels
 
             tbSearch = new XNASuggestionTextBox(WindowManager)
             {
-                ClientRectangle = new Rectangle(ddStatus.Right + 30,ddStatus.Y, 130, 25),
+                ClientRectangle = new Rectangle(ddStatus.Right + 30, ddStatus.Y, 130, 25),
                 Visible = false
             };
 
             var btnSearch = new XNAClientButton(WindowManager)
             {
                 Text = "搜索",
-                ClientRectangle = new Rectangle(tbSearch.Right + 20,tbSearch.Y -2,UIDesignConstants.BUTTON_WIDTH_75,UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(tbSearch.Right + 20, tbSearch.Y - 2, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
                 Visible = false
             };
             btnSearch.LeftClick += 筛选;
@@ -274,7 +274,7 @@ namespace DTAConfig.OptionPanels
 
             mlbWorkshop = new XNAMultiColumnListBox(WindowManager)
             {
-                ClientRectangle = new Rectangle(lblType.X, lblType.Y + 45,650,260),
+                ClientRectangle = new Rectangle(lblType.X, lblType.Y + 45, 650, 260),
                 Visible = false
             };
 
@@ -291,7 +291,8 @@ namespace DTAConfig.OptionPanels
             _menu.AddItem(new XNAContextMenuItem
             {
                 Text = "Refresh".L10N("UI:DTAConfig:Refresh"),
-                SelectAction = () => {
+                SelectAction = () =>
+                {
                     _ = 获取所有阵营类型();
                     获取该用户所有组件();
                 }
@@ -312,12 +313,13 @@ namespace DTAConfig.OptionPanels
 
             AddChild(_menu);
 
-            mlbWorkshop.RightClick += (_, _) => {
+            mlbWorkshop.RightClick += (_, _) =>
+            {
                 mlbWorkshop.SelectedIndex = mlbWorkshop.HoveredIndex;
                 _menu.Open(GetCursorPoint());
             };
-               
-            WorkshopControls.AddRange([lblType,ddType, lblState,ddStatus, tbSearch,btnSearch, btnUpload,mlbWorkshop]);
+
+            WorkshopControls.AddRange([lblType, ddType, lblState, ddStatus, tbSearch, btnSearch, btnUpload, mlbWorkshop]);
             AddChild(WorkshopControls);
 
 
@@ -325,7 +327,7 @@ namespace DTAConfig.OptionPanels
             #endregion
 
             #region 函数
-            
+
 
             void 添加组件类型筛选()
             {

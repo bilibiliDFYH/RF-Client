@@ -117,7 +117,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChatBoxCommand(new ChatBoxCommand("TUNNELINFO",
                 "View tunnel server information".L10N("UI:Main:TunnelInfo"), false, PrintTunnelServerInformation));
             AddChatBoxCommand(new ChatBoxCommand("GAMENAME",
-                "Change a game's name (game host only).\nExample: \"/gamename 2v2 3v3\"".L10N("UI:Main:ChangeGameNameCommand"), true, s => ChangeGameName(s)));
+                "Change a game's name (game host only). Example: \"/gamename 2v2 3v3\"".L10N("UI:Main:ChangeGameNameCommand"), true, s => ChangeGameName(s)));
             AddChatBoxCommand(new ChatBoxCommand("CHANGETUNNEL",
                 "Change the used CnCNet tunnel server (game host only)".L10N("UI:Main:ChangeTunnel"),
                 true, (s) => ShowTunnelSelectionWindow("Select tunnel server:".L10N("UI:Main:SelectTunnelServer"))));
@@ -501,7 +501,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             else
             {
-                AddNotice(string.Format("Current tunnel server: {0} {1} (Players: {2}/{3}) (Official: {4})".L10N("UI:Main:TunnelInfo"),
+                AddNotice(string.Format("Current tunnel server: \n{0}\nRegion: {1}\nPlayers: {2}/{3} | Official: {4}".L10N("UI:Main:TunnelInfo"),
                         tunnelHandler.CurrentTunnel.Name, tunnelHandler.CurrentTunnel.Country, tunnelHandler.CurrentTunnel.Clients, tunnelHandler.CurrentTunnel.MaxClients, tunnelHandler.CurrentTunnel.Official
                     ));
             }

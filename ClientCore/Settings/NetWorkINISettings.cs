@@ -18,10 +18,10 @@ public class NetWorkINISettings
 {
     private static NetWorkINISettings _instance;
 
-    //private const string locServerPath = "Resources/ServerList";                                              // 本地服务器列表路径
-    //private static string remoteFileUrl = "";                                                                 // 远程设置路径
-    private const string localFilePath = "Resources\\Settings";                                               // 本地设置路径
-    private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
+    //private const string locServerPath = "Resources/ServerList";  // 本地服务器列表路径
+    //private static string remoteFileUrl = "";                     // 远程设置路径
+    private const string localFilePath = "Resources\\Settings";     // 本地设置路径
+    private const string secUpdater = "Updater";                    // 更新段+组件段
 
 #if DEBUG
   private const string Address = "https://api.yra2.com/";
@@ -34,7 +34,7 @@ public class NetWorkINISettings
 
     public IniFile SettingsIni { get; private set; }
 
-    public List<UpdaterServer> UpdaterServers { get; private set; } = [];         //服务器更新列表
+    public List<UpdaterServer> UpdaterServers { get; private set; } = []; // 服务器更新列表
 
     protected NetWorkINISettings(IniFile iniFile)
     {
@@ -73,7 +73,7 @@ public class NetWorkINISettings
         get => _instance;
     }
 
-    public static async Task Initialize()
+    public static void Initialize()
     {
         //var remoteServerUrl = (await Get<string>("dict/GetValue?section=dln&key=main_address")).Item1 ?? "https://autopatch1-zh-tcdn.yra2.com/Client/ServerList";
 
@@ -104,7 +104,7 @@ public class NetWorkINISettings
         var uss = Get<List<UpdaterServer>>("updaterServer/getAllUpdaterServer").Result.Item1;
 
         //如果远程获取文件失败则读取本地配置
-        if (uss == null) 
+        if (uss == null)
         {
             var iniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, localFilePath));
             _instance = new NetWorkINISettings(iniFile);
@@ -145,7 +145,7 @@ public class NetWorkINISettings
                 }
                 iniFile.WriteIniFile();
             });
-            
+
         }
 
         Updater.Initialize(
@@ -331,7 +331,7 @@ public class NetWorkINISettings
             }
             else
             {
-                return (false, "用户信息过期，请重新登录。  ");
+                return (false, "用户信息过期, 请重新登录");
             }
         }
         catch (HttpRequestException ex)

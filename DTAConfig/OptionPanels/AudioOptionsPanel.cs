@@ -64,7 +64,7 @@ namespace DTAConfig.OptionPanels
             lblScoreVolumeValue = new XNALabel(WindowManager);
             lblScoreVolumeValue.Name = nameof(lblScoreVolumeValue);
             lblScoreVolumeValue.FontIndex = 1;
-            lblScoreVolumeValue.Text = "10";
+            lblScoreVolumeValue.Text = "0";
             lblScoreVolumeValue.ClientRectangle = new Rectangle(
                 Width - lblScoreVolumeValue.Width - PADDING_X,
                 lblScoreVolume.Y, 0, 0);

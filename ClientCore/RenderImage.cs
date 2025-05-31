@@ -93,11 +93,11 @@ namespace ClientCore
         }
 
         // 渲染多张图片的方法
-        public static async void RenderImages()
+        public static void RenderImages()
         {
-           
+
             if (需要渲染的地图列表.Count == 0) return;
-         
+
             IsCancelled = false; // 先清除取消标志
             RenderCount = 0;
 
@@ -114,11 +114,11 @@ namespace ClientCore
                             break;
                         }
 
-                        try 
+                        try
                         {
                             // 渲染任务
                             WindowManager.Report($"正在渲染地图:{map}");
-                            if(正在渲染的地图列表.Contains(map))
+                            if (正在渲染的地图列表.Contains(map))
                             {
                                 continue;
                             }
@@ -142,9 +142,9 @@ namespace ClientCore
                     TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
                     WindowManager.progress.Report(""); // 更新进度
                 });
-                
 
-                
+
+
             }
             catch (Exception ex)
             {

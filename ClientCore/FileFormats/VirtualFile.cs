@@ -165,7 +165,7 @@ namespace DTAConfig.Entity {
 			throw new NotSupportedException();
 		}
 
-		public void Dispose() {
+		public new void Dispose() {
 			base.Close();
 			BaseStream?.Close();
 		}

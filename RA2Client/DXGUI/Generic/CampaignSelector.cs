@@ -572,7 +572,8 @@ namespace Ra2Client.DXGUI.Generic
             base.OnSelectedChanged();
 
         }
-     //   IniFile infoini = null;
+
+        // IniFile infoini = null;
 
         private void 显示任务包TxT文件列表(string mpPath)
         {

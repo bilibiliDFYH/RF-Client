@@ -37,9 +37,9 @@ namespace DTAConfig.OptionPanels
         private int MaxMineCount = 192; // 地雷上限
 
 
-        private int FlagNum = 0;//可用旗帜数 逆推剩余雷数用
-                                //可以为负数 旗帜数量可以大于地雷数
-        private int Alpha = 5;//透明度
+        private int FlagNum = 0; //可用旗帜数 逆推剩余雷数用 可以为负数 旗帜数量可以大于地雷数
+
+        private new int Alpha = 5; //透明度
 
 
         private XNATrackbar trb_input1;
@@ -1068,7 +1068,7 @@ namespace DTAConfig.OptionPanels
         }
 
 
-        //绘制时钟
+        // 绘制时钟
         private void DrawDigitalClock(TimeSpan time, Vector2 position)
         {
             string timeString = $"{time.Hours:D2}:{time.Minutes:D2}:{time.Seconds:D2}";
@@ -1111,12 +1111,4 @@ namespace DTAConfig.OptionPanels
         }
 
     }
-
-
-
-
-    //class Tile
-    //{
-
-    //}
 }

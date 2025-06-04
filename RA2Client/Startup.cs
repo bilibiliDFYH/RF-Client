@@ -33,7 +33,7 @@ namespace Ra2Client
         /// <summary>
         /// The main method for startup and initialization.
         /// </summary>
-        public async void Execute()
+        public void Execute()
         {
             if (File.Exists(Path.Combine(ProgramConstants.GamePath, "update.bat")))
             {
@@ -42,7 +42,7 @@ namespace Ra2Client
                 // 配置进程启动信息
                 ProcessStartInfo startInfo = new ProcessStartInfo
                 {
-                    FileName = Path.Combine(ProgramConstants.GamePath,"update.bat"), // 指定要运行的程序路径
+                    FileName = Path.Combine(ProgramConstants.GamePath, "update.bat"), // 指定要运行的程序路径
                     UseShellExecute = true, // 使用系统外壳程序启动
                     Verb = "open" // 使用 "open" 命令打开程序（如果支持的话）
                 };
@@ -60,7 +60,7 @@ namespace Ra2Client
             string themePath = UserINISettings.Instance.ClientTheme;
 
             themePath ??= ClientConfiguration.Instance.GetThemeInfoFromIndex(1)[1];
-        
+
 
             ProgramConstants.RESOURCES_DIR = SafePath.CombineDirectoryPath(ProgramConstants.BASE_RESOURCE_PATH, themePath);
 
@@ -89,7 +89,7 @@ namespace Ra2Client
                 thread.Start();
             }
 
-            GenerateOnlineIdAsync();
+            _ = GenerateOnlineIdAsync();
 
             Task.Factory.StartNew(() => PruneFiles(SafePath.GetDirectory(ProgramConstants.GamePath, "Debug"), DateTime.Now.AddDays(-7)));
             Task.Factory.StartNew(MigrateOldLogFiles);
@@ -149,11 +149,11 @@ namespace Ra2Client
             {
                 gameClass.Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 PreStartup.LogException(ex);
                 CDebugView.OutputDebugInfo(ex.Message);
-            }    
+            }
         }
 
         private void UpdaterDel()

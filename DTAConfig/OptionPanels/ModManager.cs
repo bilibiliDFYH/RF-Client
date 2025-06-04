@@ -477,12 +477,13 @@ public class ModManager : XNAWindow
 
         ReLoad();
 
-        //渲染预览图
+       // 渲染预览图
        // if (UserINISettings.Instance.RenderPreviewImage.Value)
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 _ = RenderImage.RenderPreviewImageAsync(mapFiles.ToArray());
-           });
+                return Task.CompletedTask;
+            });
 
         触发刷新?.Invoke();
     }

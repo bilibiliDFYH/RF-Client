@@ -517,7 +517,7 @@ namespace Ra2Client.DXGUI.Generic
 
         }
 
-        private async void BtnRatingDone_LeftClick(object sender, EventArgs e)
+        private void BtnRatingDone_LeftClick(object sender, EventArgs e)
         {
             if (-1 == _scoreLevel)
             {
@@ -537,16 +537,16 @@ namespace Ra2Client.DXGUI.Generic
                 XNAMessageBox.Show(WindowManager, "Info".L10N("UI:Main:Info"), "You've already scored this mission!".L10N("UI:Main:Scored"));
             else
             {
-               _ = Task.Run(async() =>
-                {
-                    await UploadScore(missionName, missionPack, brief, _scoreLevel);
+                _ = Task.Run(async () =>
+                 {
+                     await UploadScore(missionName, missionPack, brief, _scoreLevel);
 
-                    ini.SetValue(missionName, "Mark", _scoreLevel);
-                    ini.WriteIniFile();
+                     ini.SetValue(missionName, "Mark", _scoreLevel);
+                     ini.WriteIniFile();
 
                     _ = updateMark(missionName);
-                });
-                
+                 });
+
             }
         }
 
@@ -572,7 +572,8 @@ namespace Ra2Client.DXGUI.Generic
             base.OnSelectedChanged();
 
         }
-     //   IniFile infoini = null;
+
+        // IniFile infoini = null;
 
         private void 显示任务包TxT文件列表(string mpPath)
         {
@@ -825,7 +826,7 @@ namespace Ra2Client.DXGUI.Generic
 
         }
 
-        private async Task updateMark(string name)
+        private Task updateMark(string name)
         {
             //显示远程总分数
             try
@@ -856,6 +857,8 @@ namespace Ra2Client.DXGUI.Generic
                 _ratingBox.Enabled = true;
                 _btnRatingDone.Visible = true;
             }
+
+            return Task.CompletedTask;
         }
 
         private void RatingBox_CheckedChanged(object sender, EventArgs e)
@@ -1089,7 +1092,7 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private async void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
+        private void LbxCampaignListSelectedIndexChanged(object sender, EventArgs e)
         {
 
 

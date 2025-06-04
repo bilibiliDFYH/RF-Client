@@ -258,7 +258,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (list.Select(p => p.ColorId).Distinct().Count() != list.Count())
             {
-                return "多个参战方不能选择相同的颜色";
+                return "Multiple participating parties cannot choose the same color.".L10N("UI:Main:ChooseSameColor");
             }
 
             if (Map.IsCoop && Players[0].SideId == ddPlayerSides[0].Items.Count - 1)

@@ -35,7 +35,9 @@ namespace Ra2Client.DXGUI.Multiplayer
             SkillLevelOptions = ClientConfiguration.Instance.SkillLevelOptions.Split(',');
         }
 
+#nullable enable
         private List<Texture2D?> txSkillLevelIcons = new();
+#nullable restore
 
         private int loadedGameTextWidth;
 
@@ -353,7 +355,10 @@ namespace Ra2Client.DXGUI.Multiplayer
                 else
                 {
                     Texture2D txSkillLevelIcon = txSkillLevelIcons[hostedGame.SkillLevel];
-                    if (txSkillLevelIcon != null)
+                    // nullable为false时不需要检查null(二选一)
+                    //if (txSkillLevelIcon != null)
+                    // nullable为true时需要检查null(二选一)
+                    if (txSkillLevelIcon is not null)
                     {
                         DrawTexture(txSkillLevelIcon,
                             new Rectangle(Width - txSkillLevelIcon.Width - TextBorderDistance - (scrollBarDrawn ? ScrollBar.Width : 0),

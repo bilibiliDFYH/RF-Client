@@ -718,7 +718,7 @@ public static class Updater
             // 获取并排序服务器列表
             var sortedServers = GetSortedServersByLatency(UserINISettings.Instance.Beta.Value);
             if (sortedServers.Count == 0)
-                throw new("没有可用的更新服务器。");
+                throw new("没有可用的更新服务器.");
 
             Exception lastException = null;
             bool downloadSuccess = false;
@@ -727,7 +727,7 @@ public static class Updater
             foreach (var server in sortedServers)
             {
                 int serverRetry = 0;
-                Logger.Log($"更新：尝试服务器 {server.url}（延迟优先级）");
+                Logger.Log($"更新：尝试服务器 {server.url} (延迟优先级)");
                 currentUpdaterServerIndex = UpdaterServers.FindIndex(s => s.url == server.url);
 
                 while (serverRetry < 3)
@@ -857,12 +857,22 @@ public static class Updater
     {
         Logger.Log("更新：Initiliazing download of file " + strfile);
         UpdateDownloadProgress(0);
-        string prefixPath = "Tmp";
-        FileInfo locFile = SafePath.GetFile(GamePath, prefixPath, strfile);
+
+        string tmpDir = SafePath.CombineFilePath(GamePath, "Tmp");
+        string filePath = SafePath.CombineFilePath(tmpDir, strfile);
+        FileInfo locFile = new FileInfo(filePath);
+
         try
         {
             int currentUpdaterServerId = currentUpdaterServerIndex;
             var serversCondi = UpdaterServers.Where(f => f.type.Equals(UserINISettings.Instance.Beta.Value)).ToList();
+
+            if (currentUpdaterServerId < 0 || currentUpdaterServerId >= serversCondi.Count)
+            {
+                Logger.Log($"更新：Server index out of bounds，currentUpdaterServerId={currentUpdaterServerId}, serversCondi.Count={serversCondi.Count}");
+                return false;
+            }
+
             var serverFile = (serversCondi[currentUpdaterServerId].url + strfile).Replace(@"\", "/", StringComparison.OrdinalIgnoreCase);
             CreatePath(locFile.FullName);
             Logger.Log("更新：Downloading file " + strfile);

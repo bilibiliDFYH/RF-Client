@@ -228,7 +228,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             var t = new Thread(() =>
             {
                 WindowManager.progress.Report("正在生成随机地图...");
-                string strCmdText;
+                //string strCmdText;
                 Random r = new Random();
                 string Generate = (string)ddClimate.SelectedItem.Tag;
                 if (ddClimate.SelectedIndex == 0)

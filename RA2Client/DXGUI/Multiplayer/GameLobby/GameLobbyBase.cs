@@ -603,9 +603,31 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             };
         }
 
+        private bool IsPlayerNameValidGH()
+        {
+            Mod selectedMod = cmbGame.SelectedItem?.Tag as Mod;
+            if (selectedMod?.ID == "GH")
+            {
+                // 检查玩家名称是否只包含英文和数字(仅共辉)
+                return System.Text.RegularExpressions.Regex.IsMatch(ProgramConstants.PLAYERNAME, @"^[a-zA-Z0-9]+$");
+            }
+            return true;
+        }
+
         public void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
+
+            if (mod.ID == "GH" || mod.Compatible == "GH")
+            {
+                // 检查玩家名称是否只包含英文和数字(仅共辉)
+                if (!IsPlayerNameValidGH())
+                {
+                    XNAMessageBox.Show(WindowManager,
+                        "Invalid Player Name".L10N("UI:Main:InvalidPlayerName"),
+                        "In Glory of the Republic, player names can only contain English letters and numbers.".L10N("UI:Main:InvalidPlayerNameGHText"));
+                }
+            }
 
             foreach (var chk in CheckBoxes)
             {
@@ -1274,7 +1296,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         }
 
         private CancellationTokenSource _cts;
-        private async void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
+        private void LbGameModeMapList_SelectedIndexChanged(object sender, EventArgs e)
         {
             _cts?.Cancel();
             _cts?.Dispose();
@@ -1288,9 +1310,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return;
             }
 
-           // ReloadAI();
+            // ReloadAI();
             ReloadMod();
-            
+
             XNAListBoxItem item = lbGameModeMapList.GetItem(1, lbGameModeMapList.SelectedIndex);
 
 
@@ -2522,6 +2544,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// </summary>
         protected virtual void StartGame()
         {
+            // 在启动游戏前检查玩家名称(仅共辉)
+            if (!IsPlayerNameValidGH())
+            {
+                XNAMessageBox.Show(WindowManager,
+                    "Cannot start the game".L10N("UI:Main:LaunchGameErrorTitle"),
+                    "In Glory of the Republic, player names can only contain English letters and numbers.".L10N("UI:Main:InvalidPlayerNameGHText"));
+                return;
+            }
+
             PlayerHouseInfo[] houseInfos = [];
 
             var spawnIni = new IniFile();

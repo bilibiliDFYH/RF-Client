@@ -167,25 +167,48 @@ internal sealed class Program
                     Write("更新失败");
                 }
 
-                string launcherExe = clientExecutable.Name;
-                FileInfo launcherExeFile = SafePath.GetFile(baseDirectory.FullName, "Resources", "Binaries", launcherExe);
+                // 直接通过Ra2Client.dll启动
+                // string launcherExe = clientExecutable.Name;
+                // FileInfo launcherExeFile = SafePath.GetFile(baseDirectory.FullName, "Resources", "Binaries", launcherExe);
 
-                if (launcherExeFile.Exists)
+                // if (launcherExeFile.Exists)
+                // {
+                //     Write("发现启动程序: " + launcherExeFile.FullName, ConsoleColor.Green);
+
+                //     string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
+                //     using var process = Process.Start(new ProcessStartInfo
+                //     {
+                //         FileName = strDotnet,
+                //         Arguments = "\"" + launcherExeFile.FullName + "\"",
+                //         CreateNoWindow = true,
+                //         UseShellExecute = false,
+                //     });
+                // }
+                // else
+                // {
+                //     Write($"当前启动主程序：{launcherExeFile.FullName}");
+                //     Write("没有找到启动主程序，更新器将不再进行任何程序的启动任务.", ConsoleColor.Yellow);
+                //     Write("按任意键退出更新器.");
+                //     Console.ReadKey();
+                //     Environment.Exit(1);
+                // }
+
+                // 通过Reunion.exe启动
+                string reunionExeName = "Reunion.exe";
+                FileInfo reunionExeFile = SafePath.GetFile(baseDirectory.FullName, reunionExeName);
+
+                if (reunionExeFile.Exists)
                 {
-                    Write("发现启动程序: " + launcherExeFile.FullName, ConsoleColor.Green);
+                    Write("发现启动程序: " + reunionExeFile.FullName, ConsoleColor.Green);
 
-                    string strDotnet = @"C:\Program Files\dotnet\dotnet.exe";
                     using var process = Process.Start(new ProcessStartInfo
                     {
-                        FileName = strDotnet,
-                        Arguments = "\"" + launcherExeFile.FullName + "\"",
-                        CreateNoWindow = true,
-                        UseShellExecute = false,
+                        FileName = reunionExeFile.FullName,
                     });
                 }
                 else
                 {
-                    Write($"当前启动主程序：{launcherExeFile.FullName}");
+                    Write($"当前启动主程序：{reunionExeFile.FullName}");
                     Write("没有找到启动主程序，更新器将不再进行任何程序的启动任务.", ConsoleColor.Yellow);
                     Write("按任意键退出更新器.");
                     Console.ReadKey();

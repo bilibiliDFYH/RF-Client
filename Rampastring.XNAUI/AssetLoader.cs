@@ -10,6 +10,8 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Globalization;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Rampastring.XNAUI;
 
@@ -368,6 +370,25 @@ public static class AssetLoader
         catch
         {
             throw new FormatException("AssetLoader.GetRGBAColorFromString: Failed to convert " + colorString + " to a valid color!");
+        }
+    }
+
+    public static async Task<Texture2D> LoadTextureFromUrl(string url)
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            var imageData = await httpClient.GetByteArrayAsync(url);
+
+            using var ms = new MemoryStream(imageData);
+            var texture = Texture2D.FromStream(graphicsDevice, ms);
+            PremultiplyAlpha(texture);
+            return texture;
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("AssetLoader.LoadTextureFromUrl: 下载或创建纹理失败！" + ex.Message);
+            return null;
         }
     }
 }

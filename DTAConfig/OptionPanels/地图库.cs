@@ -472,25 +472,27 @@ namespace DTAConfig.OptionPanels
 
                     // base64图片异步解码，支持取消
                     Texture2D PreviewTexture = null;
-                    if (!string.IsNullOrEmpty(map.base64))
-                    {
-                        try
-                        {
-                            PreviewTexture = await Task.Run(() =>
-                            {
-                                cancelToken.ThrowIfCancellationRequested();
-                                return AssetLoader.Base64ToTexture(map.base64);
-                            }, cancelToken);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            return;
-                        }
-                        catch
-                        {
-                            PreviewTexture = null;
-                        }
-                    }
+                    //if (!string.IsNullOrEmpty(map.base64))
+                    //{
+                    //    try
+                    //    {
+                    //        PreviewTexture = await Task.Run(() =>
+                    //        {
+                    //            cancelToken.ThrowIfCancellationRequested();
+                    //            return AssetLoader.LoadTexture(map.img);
+                    //        }, cancelToken);
+                    //    }
+                    //    catch (OperationCanceledException)
+                    //    {
+                    //        return;
+                    //    }
+                    //    catch
+                    //    {
+                    //        PreviewTexture = null;
+                    //    }
+                    //}
+
+                    PreviewTexture = await AssetLoader.LoadTextureFromUrl(NetWorkINISettings.Address + map.img);
 
                     // UI更新需在主线程
                     WindowManager.AddCallback(new Action(() =>

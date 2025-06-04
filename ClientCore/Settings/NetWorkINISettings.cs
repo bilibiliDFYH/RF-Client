@@ -24,12 +24,12 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                                                              //更新段                                                    //组件段
 
 #if DEBUG
-  private const string Address = "https://api.yra2.com/";
-  //  private const string Address = "http://localhost:9088/";
+    //public const string Address = "https://api.yra2.com/";
+    public const string Address = "http://localhost:9088/";
 #else
-    private const string Address = "https://api.yra2.com/";
+    public const string Address = "https://api.yra2.com/";
 #endif
-    
+
     public static event EventHandler DownloadCompleted;
 
     public IniFile SettingsIni { get; private set; }

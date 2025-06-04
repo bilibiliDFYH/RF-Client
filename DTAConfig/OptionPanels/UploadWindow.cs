@@ -11,6 +11,7 @@ using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -212,6 +213,8 @@ namespace DTAConfig.OptionPanels
 
         }
 
+
+
         private void Tab切换事件(object sender, EventArgs e)
         {
             
@@ -220,6 +223,7 @@ namespace DTAConfig.OptionPanels
                 case 0:
                     btnSelectOther.Text = "点击选择以上传附带的文件(如CSF等):";
                     切换到地图类型();
+
                     break;
                 case 1:
                     btnSelectOther.Text = "点击选择以上传任务压缩包:";

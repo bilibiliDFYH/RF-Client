@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter;
 using Rampastring.Tools;
+using System.Diagnostics;
 using System.Management;
 
 namespace Localization.Tools
@@ -57,6 +58,24 @@ namespace Localization.Tools
             catch (DecoderFallbackException)
             {
                 return false; // 发生解码异常，说明不是有效的 UTF-8
+            }
+        }
+
+        public static void OpenUrl(string url)
+        {
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true  // 必须设置为 true 才能用默认浏览器打开
+                };
+                Process.Start(psi);
+            }
+            catch (System.Exception ex)
+            {
+                // 处理异常
+                Console.WriteLine("打开网页失败: " + ex.Message);
             }
         }
 

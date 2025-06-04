@@ -4,6 +4,7 @@ using ClientCore.Settings;
 using ClientGUI;
 using DTAConfig.Entity;
 using Localization;
+using Localization.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Rampastring.Tools;
@@ -128,6 +129,13 @@ namespace DTAConfig.OptionPanels
                 Text = "地图类型"
             };
 
+            var 上传地图 = new XNAClientButton(WindowManager)
+            {
+                Text = "上传地图",
+                ClientRectangle = new Rectangle(ddType.Right + 25,ddType.Y,UIDesignConstants.BUTTON_WIDTH_92,UIDesignConstants.BUTTON_HEIGHT)
+            };
+            上传地图.LeftClick += (_, _) => { FunExtensions.OpenUrl("https://console.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token); };
+
             // 地图列表容器
             mapPanel = new XNAMultiColumnListBox(WindowManager)
             {
@@ -223,6 +231,7 @@ namespace DTAConfig.OptionPanels
             AddChild(closeButton);
             AddChild(btnSearch);
             AddChild(ddType);
+            AddChild(上传地图);
             AddChild(btnLeft);
             AddChild(btnRight);
             AddChild(lblPage);

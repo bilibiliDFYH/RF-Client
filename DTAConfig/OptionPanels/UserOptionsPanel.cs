@@ -22,6 +22,7 @@ using SharpDX.MediaFoundation;
 using System.Timers;
 
 
+
 namespace DTAConfig.OptionPanels
 {
     public class UserOptionsPanel(WindowManager windowManager, UserINISettings iniSettings) : XNAOptionsPanel(windowManager, iniSettings)
@@ -520,12 +521,15 @@ namespace DTAConfig.OptionPanels
 
         }
 
+
         private void 跳转上传窗口(object sender, EventArgs e)
         {
-            XNAMessageBox.Show(WindowManager, "信息", "该模块正在修改中，计划采用网页上传，请等待。");
+            //XNAMessageBox.Show(WindowManager, "信息", "该模块正在修改中，计划采用网页上传，请等待。");
+            //return;
+           FunExtensions.OpenUrl("https://console.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
             return;
 
-            if(lblNameValue.Text == "点击登录或注册")
+            if (lblNameValue.Text == "点击登录或注册")
             {
                 tabControl.SelectedTab = 0;
                 lblNameValue.OnLeftClick();

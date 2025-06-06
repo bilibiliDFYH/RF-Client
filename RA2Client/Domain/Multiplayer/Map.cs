@@ -339,18 +339,28 @@ namespace Ra2Client.Domain.Multiplayer
                 Official = whitelist.Any(sectionName.Contains);
 
                 #region 处理预览图
-                if(File.Exists($"{sectionName}.png"))
-                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.png"));
-                else 
+
+                if (section != null)
+                {
+                    string previewImage = section.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath));
+                    if (File.Exists($"{sectionName}.png"))
                     {
-                    if (!File.Exists($"{sectionName}.jpg") && UserINISettings.Instance.RenderPreviewImage.Value)
+                        PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{previewImage}.png"));
+                    }
+                    else
                     {
-                        RenderImage.需要渲染的地图列表.Add(BaseFilePath);
+                        if (!File.Exists($"{sectionName}.jpg") && UserINISettings.Instance.RenderPreviewImage.Value)
+                        {
+                            RenderImage.需要渲染的地图列表.Add(BaseFilePath);
+                        }
+                        PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{previewImage}.jpg"));
                     }
-                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{section?.GetStringValue("PreviewImage", Path.GetFileNameWithoutExtension(BaseFilePath))}.jpg"));
-                    }
-                    
-                
+                }
+                else
+                {
+                    PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{Path.GetFileNameWithoutExtension(BaseFilePath)}.jpg"));
+                }
+
                 #endregion
 
                 if (!iniFile.SectionExists(sectionName))

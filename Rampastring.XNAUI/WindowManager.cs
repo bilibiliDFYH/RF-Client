@@ -553,6 +553,11 @@ public class WindowManager : DrawableGameComponent
         Controls.Remove(control);
     }
 
+    public bool ExistsControl(XNAControl control)
+    {
+        return Controls.Contains(control);
+    }
+
     /// <summary>
     /// Enables or disables VSync.
     /// </summary>

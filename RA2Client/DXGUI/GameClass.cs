@@ -26,6 +26,7 @@ using DTAConfig;
 using DTAConfig.Settings;
 using DTAConfig.OptionPanels;
 using ClientGUI.IME;
+using System.Threading.Tasks;
 
 
 namespace Ra2Client.DXGUI
@@ -183,11 +184,11 @@ namespace Ra2Client.DXGUI
             wm.SetIcon(SafePath.CombineFilePath(ProgramConstants.GetBaseResourcePath(), "clienticon.ico"));
             wm.SetControlBox(true);
 
-            wm.Cursor.Textures = new Texture2D[]
-            {
+            wm.Cursor.Textures =
+            [
                 AssetLoader.LoadTexture("cursor.png"),
                 AssetLoader.LoadTexture("waitCursor.png")
-            };
+            ];
 
             FileInfo primaryNativeCursorPath = SafePath.GetFile(ProgramConstants.GetResourcePath(), "cursor.cur");
             FileInfo alternativeNativeCursorPath = SafePath.GetFile(ProgramConstants.GetBaseResourcePath(), "cursor.cur");
@@ -224,6 +225,11 @@ namespace Ra2Client.DXGUI
             wm.AddAndInitializeControl(ls);
             ls.ClientRectangle = new Rectangle((wm.RenderResolutionX - ls.Width) / 2,
                (wm.RenderResolutionY - ls.Height) / 2, ls.Width, ls.Height);
+
+            Task.Run(() =>
+            {
+                LocalHttpServer.Start(wm);
+            });
         }
 
         private void HotKey_OnHotkey(int nHotkeyId)

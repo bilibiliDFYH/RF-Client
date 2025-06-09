@@ -47,7 +47,7 @@ namespace Ra2Client
         /// </summary>
         [STAThread]
         static void Main(string[] args)
-        {
+       {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             Run(args);
         }
@@ -86,6 +86,9 @@ namespace Ra2Client
                         break;
                 }
             }
+
+            
+            
 
             if (!Directory.Exists("Resources/Dynamicbg"))
                 ProgramConstants.SkipLogo = true;

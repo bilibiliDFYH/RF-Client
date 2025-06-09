@@ -348,5 +348,44 @@ public class NetWorkINISettings
         }
     }
 
+    /// <summary>
+    /// 下载网络图片并保存为本地文件
+    /// </summary>
+    /// <param name="url">图片URL</param>
+    /// <param name="saveDir">保存目录</param>
+    /// <param name="fileName">重命名的文件名（不带扩展名）</param>
+    /// <returns>保存后的完整路径</returns>
+    public static async Task<string> DownloadImageAsync(string url, string saveDir, string fileName)
+    {
+        if (!Directory.Exists(saveDir))
+        {
+            Directory.CreateDirectory(saveDir);
+        }
+
+        using var httpClient = new HttpClient();
+
+        try
+        {
+            var response = await httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsByteArrayAsync();
+
+            // 获取扩展名（从 URL 或默认 jpg）
+            //var ext = Path.GetExtension(url);
+            //if (string.IsNullOrWhiteSpace(ext) || ext.Contains("?")) ext = ".jpg";
+
+            var fullPath = Path.Combine(saveDir, fileName);
+            await File.WriteAllBytesAsync(fullPath, content);
+
+            Console.WriteLine($"图片已保存到：{fullPath}");
+            return fullPath.Replace("\\", "/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("图片下载失败：" + ex.Message);
+            return null;
+        }
+    }
 
 }

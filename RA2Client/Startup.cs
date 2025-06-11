@@ -89,7 +89,7 @@ namespace Ra2Client
                 thread.Start();
             }
 
-             using var _ = GenerateOnlineIdAsync();
+            Task.Run(() => GenerateOnlineIdAsync());
 
             Task.Factory.StartNew(() => PruneFiles(SafePath.GetDirectory(ProgramConstants.GamePath, "Debug"), DateTime.Now.AddDays(-7)));
             Task.Factory.StartNew(MigrateOldLogFiles);

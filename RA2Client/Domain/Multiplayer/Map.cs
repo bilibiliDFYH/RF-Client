@@ -537,7 +537,10 @@ namespace Ra2Client.Domain.Multiplayer
 
                 if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
                 {
-                    MaxPlayers = GenerateWaypoints(iniFile, section, GetMapIni(BaseFilePath)) ?? MaxPlayers;
+                    var count = GenerateWaypoints(iniFile, section, GetMapIni(BaseFilePath),MaxPlayers);
+                    
+                    if(MaxPlayers == 0)
+                    iniFile.SetValue(section.SectionName, "MaxPlayers", MaxPlayers);
                 }
 
                 for (i = 0; i < MAX_PLAYERS; i++)
@@ -598,12 +601,15 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         /// <param name="iniFile"></param>
         /// <param name="section"></param>
-        public static int? GenerateWaypoints(IniFile iniFile, IniSection section, IniFile mapIni)
+        public static int? GenerateWaypoints(IniFile iniFile, IniSection section, IniFile mapIni,int maxPlayers)
         {
 
             var playerCount = 8;
 
-            for (int i = 1; i < 9; i++)
+            if (maxPlayers != 0)
+                playerCount = maxPlayers;
+
+            for (int i = 1; i <= playerCount; i++)
             {
                 var waypoint = mapIni.GetStringValue("Header", $"Waypoint{i}", string.Empty);
                 if (waypoint.Length == 0) continue;
@@ -635,8 +641,6 @@ namespace Ra2Client.Domain.Multiplayer
                     playerCount--;
                 }
             }
-
-            iniFile.SetValue(section.SectionName, "MaxPlayers", playerCount);
 
             return playerCount;
         }

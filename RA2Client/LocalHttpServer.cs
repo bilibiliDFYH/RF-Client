@@ -155,7 +155,7 @@ namespace Ra2Client
                     string sectionName = $"Maps/Multi/MapLibrary/{map.id}";
 
 
-
+                    mapIni.SetValue(sectionName, "MaxPlayers", map.maxPlayers);
                     mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
                     mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
                     mapIni.SetValue(sectionName, "Author", map.author);
@@ -182,8 +182,8 @@ namespace Ra2Client
                             File.WriteAllBytes(filePath, fileBytes);
 
                             // 路径使用正斜杠，符合配置格式
-                            string relativePath = $"Maps/Multi/MapLibrary/{map.id}/ra2md.csf";
-                            mapIni.SetValue(sectionName, "CSF", relativePath);
+                            string relativePath = $"Maps/Multi/MapLibrary/{map.id}";
+                            mapIni.SetValue(sectionName, "Mission", relativePath);
                         }
                         else
                         {
@@ -203,6 +203,9 @@ namespace Ra2Client
                     WriteListToIni(mapIni, sectionName, "Rule", map.rules);
                     WriteListToIni(mapIni, sectionName, "EnemyHouse", map.enemyHouse);
                     WriteListToIni(mapIni, sectionName, "AllyHouse", map.allyHouse);
+
+                    if (!string.IsNullOrEmpty(map.enemyHouse + map.allyHouse))
+                        mapIni.SetValue(sectionName, "IsCoopMission", true);
 
                     mapIni.WriteIniFile();
 
@@ -294,11 +297,11 @@ namespace Ra2Client
             var list = data?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
             for (int i = 0; i < list.Length; i++)
             {
-                ini.SetValue(section, $"{keyPrefix}{i + 1}", list[i]);
+                ini.SetValue(section, $"{keyPrefix}{i}",list[i]);
             }
         }
 
-        private static void RefreshInstalledMapIds()
+        public static void RefreshInstalledMapIds()
         {
             if (!Directory.Exists(ProgramConstants.MAP_PATH))
             {

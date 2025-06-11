@@ -903,6 +903,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public void 刷新地图列表()
         {
             MapLoader.AgainLoadMaps();
+            LocalHttpServer.RefreshInstalledMapIds();
             重新显示地图();
         }
 

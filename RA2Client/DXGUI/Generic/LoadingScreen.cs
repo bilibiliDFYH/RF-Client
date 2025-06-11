@@ -68,7 +68,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var tbp = new TaskbarProgress(WindowManager.GetWindowHandle());
 
-            if (!UserINISettings.Instance.video_wallpaper || ProgramConstants.SkipLogo)
+            if (!UserINISettings.Instance.video_wallpaper.Value || ProgramConstants.SkipLogo || UserINISettings.Instance.跳过启动动画.Value)
             {
                
                 string path = $"Resources/{UserINISettings.Instance.ClientTheme}Wallpaper";
@@ -200,7 +200,7 @@ namespace Ra2Client.DXGUI.Generic
 
         public override void Update(GameTime gameTime)
         {
-            if (UserINISettings.Instance.video_wallpaper && !ProgramConstants.SkipLogo)
+            if (UserINISettings.Instance.video_wallpaper && !ProgramConstants.SkipLogo && !UserINISettings.Instance.跳过启动动画.Value)
             {
                 if (time >= (index > 39 ? 3 : 5) && index < 123)//播放速度
                 {

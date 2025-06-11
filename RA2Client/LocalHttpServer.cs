@@ -141,6 +141,8 @@ namespace Ra2Client
                         string imageUrl = Path.Combine(NetWorkINISettings.Address, map.img).Replace("\\", "/");
                         string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.jpg");
                     }
+
+                    
                     //if (imageSavePath == null)
                     //{
                     //    Console.WriteLine("❌ 图片下载失败");
@@ -152,10 +154,51 @@ namespace Ra2Client
                     var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
                     string sectionName = $"Maps/Multi/MapLibrary/{map.id}";
 
+
+
                     mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
                     mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
                     mapIni.SetValue(sectionName, "Author", map.author);
                     mapIni.SetValue(sectionName, "Briefing", map.description);
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(map.csf))
+                        {
+                            string baseDir = Path.Combine("Maps", "Multi","MapLibrary", map.id.ToString());
+
+                            // 如果目录存在，删除整个目录及内容（慎用，确认安全）
+                            if (Directory.Exists(baseDir))
+                            {
+                                Directory.Delete(baseDir, recursive: true);
+                            }
+
+                            // 重新创建目录
+                            Directory.CreateDirectory(baseDir);
+
+                            byte[] fileBytes = Convert.FromBase64String(map.csf);
+
+                            string filePath = Path.Combine(baseDir, "ra2md.csf");
+
+                            File.WriteAllBytes(filePath, fileBytes);
+
+                            // 路径使用正斜杠，符合配置格式
+                            string relativePath = $"Maps/Multi/MapLibrary/{map.id}/ra2md.csf";
+                            mapIni.SetValue(sectionName, "CSF", relativePath);
+                        }
+                        else
+                        {
+                            Console.WriteLine("map.csf为空或null，跳过写文件");
+                        }
+                    }
+                    catch (FormatException fe)
+                    {
+                        Console.WriteLine("Base64格式错误: " + fe.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("写文件时出现异常: " + ex.Message);
+                    }
+
 
                     WriteListToIni(mapIni, sectionName, "Rule", map.rules);
                     WriteListToIni(mapIni, sectionName, "EnemyHouse", map.enemyHouse);

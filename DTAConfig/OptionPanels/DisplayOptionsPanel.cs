@@ -32,6 +32,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientDropDown ddRenderer;
         private XNAClientCheckBox chkWindowedMode;
         private XNAClientCheckBox chkBorderlessWindowedMode;
+        private XNAClientCheckBox chk跳过启动动画;
         private XNAClientCheckBox chkBackBufferInVRAM;
         private XNAClientPreferredItemDropDown ddClientResolution;
         private XNAClientCheckBox chkBorderlessClient;
@@ -212,6 +213,8 @@ namespace DTAConfig.OptionPanels
             chkBorderlessWindowedMode.AllowChecking = false;
             AddChild(chkBorderlessWindowedMode);
 
+     
+
             // 客户端全屏
             chkBorderlessClient = new XNAClientCheckBox(WindowManager);
             chkBorderlessClient.Name = nameof(chkBorderlessClient);
@@ -278,7 +281,16 @@ namespace DTAConfig.OptionPanels
             chkRandom_wallpaper.Text = "Random start cover".L10N("UI:Main:RanWall");
             chkRandom_wallpaper.Checked = false;
             AddChild(chkRandom_wallpaper);
-           
+
+            chk跳过启动动画 = new XNAClientCheckBox(WindowManager)
+            {
+                Name = nameof(chk跳过启动动画),
+                ClientRectangle = new Rectangle(chkBorderlessWindowedMode.X, chkRandom_wallpaper.Y, 0, 0),
+                Text = "跳过启动动画"
+            };
+
+            AddChild(chk跳过启动动画);
+
             // 随机启动封面->壁纸or视频
             var lblStart = new XNALabel(WindowManager);
             lblStart.Name = nameof(lblStart);
@@ -551,6 +563,7 @@ namespace DTAConfig.OptionPanels
 
             //随机壁纸
             chkRandom_wallpaper.Checked = UserINISettings.Instance.Random_wallpaper;
+            chk跳过启动动画.Checked = UserINISettings.Instance.跳过启动动画;
             ddStart.SelectedIndex = UserINISettings.Instance.video_wallpaper ? 1 : 0;
             int selectedLanguageIndex = ddLanguage.Items.FindIndex(
                 ddi => (string)ddi.Tag == UserINISettings.Instance.Language);
@@ -672,6 +685,8 @@ namespace DTAConfig.OptionPanels
             //随机壁纸
             IniSettings.Random_wallpaper.Value = chkRandom_wallpaper.Checked;
             IniSettings.BackBufferInVRAM.Value = chkBackBufferInVRAM.Checked;
+
+            IniSettings.跳过启动动画.Value = chk跳过启动动画.Checked;
 
             if (selectedRenderer != originalRenderer ||
                 !SafePath.GetFile(ProgramConstants.GamePath, selectedRenderer.ConfigFileName).Exists)

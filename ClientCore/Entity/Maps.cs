@@ -9,7 +9,7 @@ namespace ClientCore.Entity
     public class Maps
     {
         public string img { get; set; } = null;
-
+        public string csf { get; set; } = null;
         public int id { get; set; } = 0;
         public string name { get; set; } = null;
         public string maxPlayers { get; set; } = null;

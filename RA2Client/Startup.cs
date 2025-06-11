@@ -89,7 +89,7 @@ namespace Ra2Client
                 thread.Start();
             }
 
-            _ = GenerateOnlineIdAsync();
+             using var _ = GenerateOnlineIdAsync();
 
             Task.Factory.StartNew(() => PruneFiles(SafePath.GetDirectory(ProgramConstants.GamePath, "Debug"), DateTime.Now.AddDays(-7)));
             Task.Factory.StartNew(MigrateOldLogFiles);
@@ -138,6 +138,10 @@ namespace Ra2Client
             var gameClass = new GameClass();
             // UserINISettings.标题改变 += gameClass.ChangeTiTle;
 
+            gameClass.Exiting += (sender, e) =>
+            {
+                LocalHttpServer.Stop();
+            };
 
             int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             int currentHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;

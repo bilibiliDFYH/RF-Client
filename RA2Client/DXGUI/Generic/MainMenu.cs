@@ -618,7 +618,7 @@ namespace Ra2Client.DXGUI.Generic
             string s1;
             string description = string.Empty;
 
-            foreach (string s in content.Split("\\n"))
+            foreach (string s in content.Replace(" ", "").Split("\\n"))
             {
                 s1 = s + Environment.NewLine;
                 if (s1.Length > 13)

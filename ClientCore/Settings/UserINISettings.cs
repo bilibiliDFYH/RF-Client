@@ -146,6 +146,9 @@ namespace ClientCore
 
             //随机壁纸
             Random_wallpaper = new BoolSetting(iniFile, OPTIONS, "Random_wallpaper", false);
+
+            跳过启动动画 = new BoolSetting(iniFile, OPTIONS, "SkipAnimation", false);
+
             //壁纸or视频
             video_wallpaper = new BoolSetting(iniFile, OPTIONS, "video_wallpaper", false);
             IsFirstRun = new BoolSetting(iniFile, OPTIONS, "IsFirstRun", true);
@@ -300,6 +303,9 @@ namespace ClientCore
 
         //随机壁纸
         public BoolSetting Random_wallpaper { get; private set; }
+
+        public BoolSetting 跳过启动动画 { get; private set; }
+
 
         //壁纸或视频
         public BoolSetting video_wallpaper { get; private set; }

@@ -57,7 +57,7 @@ namespace Ra2Client
                             try
                             {
                                 var context = listener.GetContext();
-                                HandleRequest(wm,context);
+                                HandleRequest(wm, context).ConfigureAwait(false);
                             }
                             catch (HttpListenerException)
                             {
@@ -129,7 +129,7 @@ namespace Ra2Client
                         return;
                     }
 
-                   // Console.WriteLine($"✅ 收到地图下载请求：{map.name} ({map.id})");
+                    // Console.WriteLine($"✅ 收到地图下载请求：{map.name} ({map.id})");
 
                     // 1. 写入 map 文件
                     Directory.CreateDirectory(ProgramConstants.MAP_PATH);

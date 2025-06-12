@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Resources;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -18,10 +16,7 @@ namespace Reunion
         private const string Binaries = "Binaries";
 
         private static string dotnetPath = @"C:\Program Files\dotnet";
-
-        private static string sharedPath64 = $@"shared\Microsoft.WindowsDesktop.App";
-
-        private static string dotnet = $@"dotnet.exe";
+        private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
 
         private static string[] Args;
         static void Main(string[] args)
@@ -43,7 +38,7 @@ namespace Reunion
                     string message;
                     string url;
 
-                    // 获取国家代码，判断是否为中国大陆
+                    // 判断是否为中国大陆
                     string countryCode = GetCountryCodeByIp();
                     string domain;
                     if (string.IsNullOrEmpty(countryCode))
@@ -141,26 +136,26 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-            var p = Path.Combine(dotnetPath, sharedPath64);
-            var dp = Path.Combine(dotnetPath, dotnet);
-            if (!Directory.Exists(p))
+            string dotnetExePath = Path.Combine(dotnetPath, "dotnet.exe");
+            string fullSharedPath = Path.Combine(dotnetPath, sharedPath);
+
+            if (!File.Exists(dotnetExePath) || !Directory.Exists(fullSharedPath))
             {
-                p = Path.Combine(dotnetPath, "x64", sharedPath64);
-                dp = Path.Combine(dotnetPath, "x64", dotnet);
+                return null;
             }
 
-            var r = FindDotNet6InPath(p);
+            var r = FindDotNetInPath(fullSharedPath);
             if (r == null)
             {
                 return null;
             }
             else
             {
-                return dp;
+                return dotnetExePath;
             }
         }
 
-        private static string FindDotNet6InPath(string path)
+        private static string FindDotNetInPath(string path)
         {
             if (Directory.Exists(path))
             {
@@ -184,10 +179,6 @@ namespace Reunion
             return null; // 未找到符合条件的文件夹
         }
 
-        /// <summary>
-        /// 通过 curl 获取本机IP的国家代码(countryCode)，CN为中国大陆，其他为港澳台及海外
-        /// </summary>
-        /// <returns>国家代码，如"CN"、"HK"、"US"等，获取失败返回空字符串</returns>
         private static string GetCountryCodeByIp()
         {
             try

@@ -617,6 +617,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         public void CmbGame_SelectedChanged(object sender, EventArgs e)
         {
+            if (cmbGame.SelectedItem == null || cmbGame.SelectedItem.Tag == null)
+            {
+                Logger.Log("ComboBox Game selected item or tag is null.");
+                return;
+            }
+
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
 
             if (mod.ID == "GH" || mod.Compatible == "GH")

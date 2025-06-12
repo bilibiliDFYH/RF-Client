@@ -48,26 +48,26 @@ namespace Reunion
                     string domain;
                     if (string.IsNullOrEmpty(countryCode))
                     {
-                        domain = "alist.ru2023.top";
+                        domain = "files-cn-v4.ru2023.top/directlink-v2/x";
                     }
                     else
                     {
-                        domain = (countryCode == "CN") ? "alist.yra2.com" : "alist-us.yra2.net";
+                        domain = (countryCode == "CN") ? "files-cn-v4.yra2.com/directlink-v1/y" : "files-global-v4.yra2.net/directlink-v5/z";
                     }
 
                     switch (arch)
                     {
                         case "x86":
                             message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?";
-                            url = $"https://{domain}/.NET6/x86/windowsdesktop-runtime-6.0.36-win-x86.exe";
+                            url = $"https://{domain}/NET6/x86/windowsdesktop-runtime-6.0.36-win-x86.exe";
                             break;
                         case "x64":
                             message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?";
-                            url = $"https://{domain}/.NET6/x64/windowsdesktop-runtime-6.0.36-win-x64.exe";
+                            url = $"https://{domain}/NET6/x64/windowsdesktop-runtime-6.0.36-win-x64.exe";
                             break;
                         case "arm64":
                             message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?";
-                            url = $"https://{domain}/.NET6/arm64/windowsdesktop-runtime-6.0.36-win-arm64.exe";
+                            url = $"https://{domain}/NET6/arm64/windowsdesktop-runtime-6.0.36-win-arm64.exe";
                             break;
                         default:
                             message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?";

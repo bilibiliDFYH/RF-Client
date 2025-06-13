@@ -25,7 +25,7 @@ namespace Ra2Client
         public static int Port { get; private set; } = -1;
         public static bool IsRunning => listener != null && listener.IsListening;
 
-        private static HashSet<int> _installedMapIds = new();
+        private static Dictionary<int,string> _installedMapIds = [];
 
         private static XNAMessageBox messageBox;
 
@@ -160,6 +160,7 @@ namespace Ra2Client
                     mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
                     mapIni.SetValue(sectionName, "Author", map.author);
                     mapIni.SetValue(sectionName, "Briefing", map.description);
+                    mapIni.SetValue(sectionName, "UpdateTime", map.update_time);
                     try
                     {
                         if (!string.IsNullOrEmpty(map.csf))
@@ -252,11 +253,29 @@ namespace Ra2Client
                 {
                     if (int.TryParse(request.QueryString["id"], out int mapId))
                     {
-                        bool exists = _installedMapIds.Contains(mapId);
+                        int status = 0; // 未下载
+                       
+                        if (_installedMapIds.Keys.Contains(mapId))
+                        {
+                            if (_installedMapIds[mapId] != request.QueryString["updateTime"])
+                            {
+                                if (_installedMapIds[mapId] == string.Empty)
+                                    status = 1; //
+                                else
+                                {
+                                    status = 2; // 地图需要更新
+                                }
+                            }
+                            else
+                            {
+                                status = 1;
+                            }
+                        }
+                            
                         var result = new
                         {
                             code = "200",
-                            data = exists,
+                            status,
                         };
 
                         string jsonResult = JsonSerializer.Serialize(result);
@@ -308,11 +327,17 @@ namespace Ra2Client
                 _installedMapIds.Clear();
                 return;
             }
+
+            var ini = new IniFile(Path.Combine("Maps\\Multi\\MPMapsMapLibrary.ini"));
+
             _installedMapIds = Directory.GetFiles(ProgramConstants.MAP_PATH, "*.map")
                 .Select(f => Path.GetFileNameWithoutExtension(f))
                 .Select(idStr => int.TryParse(idStr, out var id) ? id : -1)
                 .Where(id => id != -1)
-                .ToHashSet();
+                .ToDictionary(
+                    id => id,
+                    id => ini.GetValue(id.ToString(), "updateTime", string.Empty)
+                );
         }
 
     }

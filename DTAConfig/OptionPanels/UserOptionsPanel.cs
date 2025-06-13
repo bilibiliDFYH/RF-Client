@@ -526,7 +526,11 @@ namespace DTAConfig.OptionPanels
         {
             //XNAMessageBox.Show(WindowManager, "信息", "该模块正在修改中，计划采用网页上传，请等待。");
             //return;
-           FunExtensions.OpenUrl("https://console.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
+#if DEBUG
+            FunExtensions.OpenUrl("http://localhost:83/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
+#else
+            FunExtensions.OpenUrl("https://console.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
+#endif
             return;
 
             if (lblNameValue.Text == "点击登录或注册")

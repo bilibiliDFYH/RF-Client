@@ -18,11 +18,13 @@ namespace ClientCore.Entity
         public string base64 { get; set; } = null;
         public string file { get; set; } = null;
         public string createTime { get; set; } = null;
+        public string update_time { get; set; } = null;
         public int createUser { get; set; } = 0;
         public int enable { get; set; } = 0;
         public long downCount { get; set; } = 0;
         public double score { get; set; } = 0.0;
         public string description { get; set; } = "";
+        public string sha1 { get; set; } = "";
         public string uploadUserName { get; set; } = "";
 
         public string typeName { get; set; } = "";

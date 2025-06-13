@@ -16,8 +16,6 @@ using NAudio.Vorbis;
 
 namespace DTAConfig
 {
-    
-
     public class MusicWindow(WindowManager windowManager) : XNAWindow(windowManager)
     {
         private XNAClientButton btnPlay;
@@ -28,7 +26,6 @@ namespace DTAConfig
         private XNAContextMenu _menu;
         private AudioFileReader audioFile;
         private WaveOutEvent outputDevice;
-        
 
         private const string MusicINI = "Resources/thememd/thememd.ini";
 
@@ -38,23 +35,27 @@ namespace DTAConfig
             ClientRectangle = new Rectangle(0, 0, 600, 450);
             BackgroundTexture = AssetLoader.LoadTextureUncached("hotkeyconfigbg.png");
 
-            btnPlay = new XNAClientButton(WindowManager){ Text = "播放",X = 30,Y = 20,Width = UIDesignConstants.BUTTON_WIDTH_92 };
+            btnPlay = new XNAClientButton(WindowManager) { Text = "播放", X = 30, Y = 20, Width = UIDesignConstants.BUTTON_WIDTH_92 };
             btnPlay.LeftClick += BtnPlay_LeftClick;
 
             btnStop = new XNAClientButton(WindowManager) { Text = "停止", X = btnPlay.Right + 20, Y = 20, Width = UIDesignConstants.BUTTON_WIDTH_92 };
             btnStop.LeftClick += BtnStop_LeftClick;
 
-            var btnAdd = new XNAClientButton(WindowManager) {Text = "添加",X = btnStop.Right + 20, Y = 20,Width = UIDesignConstants.BUTTON_WIDTH_92 };
+            var btnAdd = new XNAClientButton(WindowManager) { Text = "添加", X = btnStop.Right + 20, Y = 20, Width = UIDesignConstants.BUTTON_WIDTH_92 };
             btnAdd.LeftClick += BtnAdd_Click;
 
-            btnRemove = new XNAClientButton(WindowManager) { Text = "删除",X = btnAdd.Right + 20,Y = 20, Width = UIDesignConstants.BUTTON_WIDTH_92 };
+            btnRemove = new XNAClientButton(WindowManager) { Text = "删除", X = btnAdd.Right + 20, Y = 20, Width = UIDesignConstants.BUTTON_WIDTH_92 };
             btnRemove.LeftClick += BtnRemove_LeftClick;
 
             var btnReLoad = new XNAClientButton(WindowManager) { Text = "刷新", X = btnRemove.Right + 20, Y = 20, Width = UIDesignConstants.BUTTON_WIDTH_92 };
             btnReLoad.LeftClick += (_, _) => ReLoad();
 
-            listBox = new XNAListBox(WindowManager) { 
-                X = 30, Y = btnPlay.Bottom + 20, Width = UIDesignConstants.BUTTON_WIDTH_121, Height = 320,
+            listBox = new XNAListBox(WindowManager)
+            {
+                X = 30,
+                Y = btnPlay.Bottom + 20,
+                Width = UIDesignConstants.BUTTON_WIDTH_121,
+                Height = 320,
                 FontIndex = 1,
                 LineHeight = 25
             };
@@ -63,18 +64,22 @@ namespace DTAConfig
 
             listBox.RightClick += ListBox_RightClick;
 
-            multiColumnListBox = new XNAMultiColumnListBox(WindowManager) {
-                X = listBox.Right + 40, 
-                Y = btnPlay.Bottom + 20, 
-                Width = 350, 
-                Height = 320 }
+            multiColumnListBox = new XNAMultiColumnListBox(WindowManager)
+            {
+                X = listBox.Right + 40,
+                Y = btnPlay.Bottom + 20,
+                Width = 350,
+                Height = 320
+            }
                 .AddColumn("属性", 60)
                 .AddColumn("信息", 360);
 
-            var btnSave = new XNAClientButton(WindowManager) { 
-                Text = "返回", 
-                X = Right - UIDesignConstants.BUTTON_WIDTH_92 - 30, 
-                Y = Bottom - 40, Width = UIDesignConstants.BUTTON_WIDTH_92 
+            var btnSave = new XNAClientButton(WindowManager)
+            {
+                Text = "返回",
+                X = Right - UIDesignConstants.BUTTON_WIDTH_92 - 30,
+                Y = Bottom - 40,
+                Width = UIDesignConstants.BUTTON_WIDTH_92
             };
             btnSave.LeftClick += (_, _) => { btnStop.OnLeftClick(); Disable(); };
 
@@ -92,7 +97,8 @@ namespace DTAConfig
                     };
                     DarkeningPanel.AddAndInitializeWithControl(WindowManager, editWindow);
                     editWindow.EnabledChanged += (_, _) => ReLoad();
-                    editWindow.Enable(); }
+                    editWindow.Enable();
+                }
             });
 
             AddChild([btnPlay, btnStop, btnAdd, btnRemove, btnReLoad, listBox, multiColumnListBox, btnSave, _menu]);
@@ -124,7 +130,7 @@ namespace DTAConfig
         /// <param name="e"></param>
         private void BtnStop_LeftClick(object sender, EventArgs e)
         {
-            audioFile?.Dispose(); 
+            audioFile?.Dispose();
             outputDevice?.Stop();
             outputDevice?.Dispose();
         }
@@ -140,7 +146,7 @@ namespace DTAConfig
 
             var music = listBox.SelectedItem.Tag as Music;
 
-            var box = new XNAMessageBox(WindowManager, "信息", $"您确定要删除音乐 {music.CName} 吗？",XNAMessageBoxButtons.YesNo);
+            var box = new XNAMessageBox(WindowManager, "信息", $"您确定要删除音乐 {music.CName} 吗？", XNAMessageBoxButtons.YesNo);
             box.YesClickedAction += (_) =>
             {
                 try
@@ -158,7 +164,7 @@ namespace DTAConfig
                 {
                     XNAMessageBox.Show(WindowManager, "错误", "删除失败，可能是音乐文件被占用了。");
                 }
-                
+
             };
             box.Show();
         }
@@ -254,7 +260,8 @@ namespace DTAConfig
                 outputDevice.Init(audioFile);
                 outputDevice.Play();
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 XNAMessageBox.Show(WindowManager, "错误", $"播放失败：{ex}");
             }
         }
@@ -274,7 +281,7 @@ namespace DTAConfig
 
             multiColumnListBox.ClearItems();
             multiColumnListBox.
-                AddItem(["名称", music.CName],true).
+                AddItem(["名称", music.CName], true).
                 AddItem(["时长", music.Length], true).
                 AddItem(["大小", music.Size], true);
 
@@ -294,10 +301,8 @@ namespace DTAConfig
         /// </summary>
         private void ReLoad()
         {
-
             try
             {
-
                 if (!Directory.Exists($"{ProgramConstants.GamePath}Resources/thememd"))
                     Directory.CreateDirectory($"{ProgramConstants.GamePath}Resources/thememd");
 
@@ -320,13 +325,24 @@ namespace DTAConfig
                         var Path = string.Empty;
                         var Size = string.Empty;
                         var Length = inifile.GetValue(section, "Length", string.Empty);
+                        var Side = inifile.GetValue(section, "Side", string.Empty);
+
                         if (string.IsNullOrEmpty(Length))
                         {
                             var path = $"{ProgramConstants.GamePath}Resources/thememd/{Sound}.WAV";
                             if (File.Exists(path))
                             {
                                 Length = new AudioFileReader(path).TotalTime.ToString();
-                                Size = new FileInfo(path).Length.ToFileSizeString(2) + " MB";
+
+                                try
+                                {
+                                    Size = new FileInfo(path).Length.ToFileSizeString(2) + " MB";
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Log("MusicWindow", $"获取文件大小失败：{ex}");
+                                    Size = "未知";
+                                }
 
                                 Path = path;
                             }
@@ -342,7 +358,7 @@ namespace DTAConfig
                             Length = Length,
                             Size = Size,
                             Scenario = inifile.GetValue(section, "Scenario", string.Empty),
-                            Side = inifile.GetValue(section, "Side", string.Empty),
+                            Side = Side,
                             Repeat = inifile.GetValue(section, "Repeat", string.Empty),
                             Path = Path
                         };
@@ -354,109 +370,107 @@ namespace DTAConfig
                 multiColumnListBox.ClearItems();
                 ListBox_SelectedIndexChanged(null, null);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                XNAMessageBox.Show(WindowManager,"错误","载入音乐失败，详情可查看日志");
+                XNAMessageBox.Show(WindowManager, "错误", "载入音乐失败，详情可查看日志");
                 Logger.Log("MusicWindow", $"载入音乐失败：{ex}");
             }
         }
     }
-}
 
-public class EditWindow(WindowManager windowManager, Music _music) : XNAWindow(windowManager)
-{
-    private const string MusicINI = "Resources/thememd/thememd.ini";
-
-    public override void Initialize()
+    public class EditWindow(WindowManager windowManager, Music _music) : XNAWindow(windowManager)
     {
-        base.Initialize();
-        Name = "MusicWindow";
+        private const string MusicINI = "Resources/thememd/thememd.ini";
 
-        CenterOnParent();
-
-        var lblName = new XNALabel(WindowManager)
+        public override void Initialize()
         {
-            Name = "lblName",
-            Text = "名称",
-            ClientRectangle = new Rectangle(20,30, 0, 0)
-        };
+            base.Initialize();
+            Name = "MusicWindow";
 
-        var ctbName = new XNATextBox(WindowManager) 
-        {
-            Name = "ctbName",
-            Text = _music.CName,
-            ClientRectangle = new Rectangle(lblName.Right + 50, lblName.Y, 100, 20)
-        }; 
+            CenterOnParent();
 
-        var lblSide = new XNALabel(WindowManager)
-        { 
-            Name = "lblSide",
-            Text = "阵营",
-            ClientRectangle = new Rectangle(ctbName.Right + 35 , ctbName.Y, 0, 0)
-        };
-
-        var ddSide = new XNAClientDropDown(WindowManager)
-        {
-            Name = "ddSide",
-            Text = _music.Side,
-            ClientRectangle = new Rectangle(lblSide.Right + 50, lblSide.Y, 100, 30)
-        };
-
-        foreach (var side in new string[4] { "所有", "盟军", "苏军", "尤里" })
-            ddSide.AddItem(side);
-
-        ddSide.SelectedIndex = _music.Side switch
-        {
-            "GDI" => 1,
-            "NOD" => 2,
-            "ThirdSide" => 3,
-            _ => 0,
-        };
-
-        var btnOK = new XNAClientButton(WindowManager)
-        {
-            Name = "btnOK",
-            Text = "确定",
-            X = lblName.X, 
-            Y = ddSide.Bottom + 20
-        };
-
-        btnOK.LeftClick += (_, _) =>
-        {
-            //_music.CName = ctbName.Text;
-            var Side = string.Empty;
-
-            Side = ddSide.SelectedIndex switch
+            var lblName = new XNALabel(WindowManager)
             {
-                0 => string.Empty,
-                1 => "GDI",
-                2 => "NOD",
-                3 => "ThirdSide",
-                _ => throw new NotImplementedException(),
+                Name = "lblName",
+                Text = "名称",
+                ClientRectangle = new Rectangle(20, 30, 0, 0)
             };
 
-            var iniFile = new IniFile(MusicINI);
-            iniFile.SetValue(_music.Section, "CName", ctbName.Text);
-            if (Side == string.Empty)
-                iniFile.RemoveKey(_music.Section, "Side");
-            else iniFile.SetValue(_music.Section, "Side", Side);
-            iniFile.WriteIniFile();
+            var ctbName = new XNATextBox(WindowManager)
+            {
+                Name = "ctbName",
+                Text = _music.CName,
+                ClientRectangle = new Rectangle(lblName.Right + 50, lblName.Y, 100, 20)
+            };
 
-            Visible = false;
-        };
+            var lblSide = new XNALabel(WindowManager)
+            {
+                Name = "lblSide",
+                Text = "阵营",
+                ClientRectangle = new Rectangle(ctbName.Right + 35, ctbName.Y, 0, 0)
+            };
 
-        var btnCanael = new XNAClientButton(WindowManager)
-        {
-            Name = "btnCanael",
-            Text = "取消",
-            X = btnOK.Right + 40,
-            Y = btnOK.Y
-        };
+            var ddSide = new XNAClientDropDown(WindowManager)
+            {
+                Name = "ddSide",
+                Text = _music.Side,
+                ClientRectangle = new Rectangle(lblSide.Right + 50, lblSide.Y, 100, 30)
+            };
 
-        btnCanael.LeftClick += (_, _) => { Disable(); Dispose(); };
+            foreach (var side in new string[4] { "所有", "盟军", "苏军", "尤里" })
+                ddSide.AddItem(side);
 
-        AddChild([lblName,ctbName, lblSide, ddSide, btnOK, btnCanael]);
+            ddSide.SelectedIndex = _music.Side switch
+            {
+                "GDI" => 1,
+                "NOD" => 2,
+                "ThirdSide" => 3,
+                _ => 0,
+            };
 
+            var btnOK = new XNAClientButton(WindowManager)
+            {
+                Name = "btnOK",
+                Text = "确定",
+                X = lblName.X,
+                Y = ddSide.Bottom + 20
+            };
+
+            btnOK.LeftClick += (_, _) =>
+            {
+                var Side = string.Empty;
+
+                Side = ddSide.SelectedIndex switch
+                {
+                    0 => string.Empty,
+                    1 => "GDI",
+                    2 => "NOD",
+                    3 => "ThirdSide",
+                    _ => throw new NotImplementedException(),
+                };
+
+                var iniFile = new IniFile(MusicINI);
+                iniFile.SetValue(_music.Section, "CName", ctbName.Text);
+                if (Side == string.Empty)
+                    iniFile.RemoveKey(_music.Section, "Side");
+                else iniFile.SetValue(_music.Section, "Side", Side);
+                iniFile.WriteIniFile();
+
+                Visible = false;
+            };
+
+            var btnCanael = new XNAClientButton(WindowManager)
+            {
+                Name = "btnCanael",
+                Text = "取消",
+                X = btnOK.Right + 40,
+                Y = btnOK.Y
+            };
+
+            btnCanael.LeftClick += (_, _) => { Disable(); Dispose(); };
+
+            AddChild([lblName, ctbName, lblSide, ddSide, btnOK, btnCanael]);
+
+        }
     }
 }
-

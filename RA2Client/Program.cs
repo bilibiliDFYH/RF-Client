@@ -87,9 +87,6 @@ namespace Ra2Client
                 }
             }
 
-            
-            
-
             if (!Directory.Exists("Resources/Dynamicbg"))
                 ProgramConstants.SkipLogo = true;
 

@@ -168,8 +168,8 @@ namespace Reunion
                     // 解析版本号
                     if (Version.TryParse(folderName, out var version))
                     {
-                        // 版本号必须 >= 6.0.11
-                        if (version.Major == 6 && (version.Minor > 0 || version.Build >= 11))
+                        // 版本号必须 >= 6.0.7
+                        if (version.Major == 6 && (version.Minor >= 0 || version.Build >= 7))
                         {
                             return dir;
                         }

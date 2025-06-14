@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -11,12 +13,10 @@ namespace Reunion
 {
     internal class Program
     {
-        private const int DotNetMajorVersion = 6; // 客户端.Net 版本要求
         private const string Resources = "Resources";
         private const string Binaries = "Binaries";
 
         private static string dotnetPath = @"C:\Program Files\dotnet";
-        private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
 
         private static string[] Args;
         static void Main(string[] args)
@@ -53,19 +53,19 @@ namespace Reunion
                     switch (arch)
                     {
                         case "x86":
-                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = $"https://{domain}/NET6/x86/windowsdesktop-runtime-6.0.36-win-x86.exe";
                             break;
                         case "x64":
-                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = $"https://{domain}/NET6/x64/windowsdesktop-runtime-6.0.36-win-x64.exe";
                             break;
                         case "arm64":
-                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = $"https://{domain}/NET6/arm64/windowsdesktop-runtime-6.0.36-win-arm64.exe";
                             break;
                         default:
-                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = "https://www.yra2.com/runtime#net6-download";
                             break;
                     }
@@ -136,47 +136,41 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-            string fullSharedPath = Path.Combine(dotnetPath, sharedPath);
+            string basePath = dotnetPath;
+            string sharedRuntimePath = Path.Combine(basePath, "shared", "Microsoft.WindowsDesktop.App");
+            string dotnetExePath = Path.Combine(basePath, "dotnet.exe");
 
-            if (Directory.Exists(fullSharedPath))
+            // 检查 dotnet.exe 是否存在
+            if (!File.Exists(dotnetExePath))
             {
-                var r = FindDotNetInPath(fullSharedPath);
-                if (r != null)
+                return null;
+            }
+
+            // 检查运行时目录是否存在
+            if (!Directory.Exists(sharedRuntimePath))
+            {
+                return null;
+            }
+
+            // 遍历所有版本目录，检查是否符合要求的版本(6.0.10 ≤ version ≤ 6.0.36)
+            foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
+            {
+                string versionName = Path.GetFileName(versionDir);
+
+                if (Version.TryParse(versionName, out Version version) &&
+                    version.Major == 6 && version.Minor == 0 && version.Build >= 10 && version.Build <= 36)
                 {
-                    return Path.Combine(dotnetPath, "dotnet.exe");
+                    return dotnetExePath; // 返回有效的 dotnet.exe 路径
                 }
             }
 
-            return null;
+            return null; // 未找到符合条件的运行时
         }
 
-        private static string FindDotNetInPath(string path)
-        {
-            if (Directory.Exists(path))
-            {
-                var directories = Directory.GetDirectories(path);
-
-                foreach (var dir in directories)
-                {
-                    var folderName = Path.GetFileName(dir);
-
-                    // 解析版本号
-                    if (Version.TryParse(folderName, out var version))
-                    {
-                        // 检查版本是否在 6.0.7 到 6.0.36 之间
-                        Version minVersion = new Version(6, 0, 7);
-                        Version maxVersion = new Version(6, 0, 36);
-
-                        if (version >= minVersion && version <= maxVersion)
-                        {
-                            return dir;
-                        }
-                    }
-                }
-            }
-            return null; // 未找到符合条件的文件夹
-        }
-
+        /// <summary>
+        /// 通过 curl 获取本机IP的国家代码(countryCode)，CN为中国大陆，其他为港澳台及海外
+        /// </summary>
+        /// <returns>国家代码，如"CN"、"HK"、"US"等，获取失败返回空字符串</returns>
         private static string GetCountryCodeByIp()
         {
             try

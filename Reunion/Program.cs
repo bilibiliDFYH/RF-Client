@@ -136,23 +136,18 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-            string dotnetExePath = Path.Combine(dotnetPath, "dotnet.exe");
             string fullSharedPath = Path.Combine(dotnetPath, sharedPath);
 
-            if (!File.Exists(dotnetExePath) || !Directory.Exists(fullSharedPath))
+            if (Directory.Exists(fullSharedPath))
             {
-                return null;
+                var r = FindDotNetInPath(fullSharedPath);
+                if (r != null)
+                {
+                    return Path.Combine(dotnetPath, "dotnet.exe");
+                }
             }
 
-            var r = FindDotNetInPath(fullSharedPath);
-            if (r == null)
-            {
-                return null;
-            }
-            else
-            {
-                return dotnetExePath;
-            }
+            return null;
         }
 
         private static string FindDotNetInPath(string path)
@@ -168,8 +163,11 @@ namespace Reunion
                     // 解析版本号
                     if (Version.TryParse(folderName, out var version))
                     {
-                        // 版本号必须 >= 6.0.7
-                        if (version.Major == 6 && (version.Minor >= 0 || version.Build >= 7))
+                        // 检查版本是否在 6.0.7 到 6.0.36 之间
+                        Version minVersion = new Version(6, 0, 7);
+                        Version maxVersion = new Version(6, 0, 36);
+
+                        if (version >= minVersion && version <= maxVersion)
                         {
                             return dir;
                         }

@@ -17,6 +17,7 @@ namespace Reunion
         private const string Binaries = "Binaries";
 
         private static string dotnetPath = @"C:\Program Files\dotnet";
+        private static string dotnetPathA64 = @"C:\Program Files\dotnet\x64";
 
         private static string[] Args;
         static void Main(string[] args)
@@ -136,31 +137,45 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-            string basePath = dotnetPath;
-            string sharedRuntimePath = Path.Combine(basePath, "shared", "Microsoft.WindowsDesktop.App");
-            string dotnetExePath = Path.Combine(basePath, "dotnet.exe");
+            string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
 
-            // 检查 dotnet.exe 是否存在
-            if (!File.Exists(dotnetExePath))
+            var pathsToCheck = new List<string>();
+
+            // 对于x64架构添加两个检查路径
+            if (arch == "x64")
             {
-                return null;
+                pathsToCheck.Add(dotnetPath);
+                pathsToCheck.Add(dotnetPathA64);
+            }
+            else
+            {
+                pathsToCheck.Add(dotnetPath);
             }
 
-            // 检查运行时目录是否存在
-            if (!Directory.Exists(sharedRuntimePath))
+            // 遍历所有需要检查的路径
+            foreach (var basePath in pathsToCheck)
             {
-                return null;
-            }
+                string sharedRuntimePath = Path.Combine(basePath, "shared", "Microsoft.WindowsDesktop.App");
+                string dotnetExePath = Path.Combine(basePath, "dotnet.exe");
 
-            // 遍历所有版本目录，检查是否符合要求的版本(6.0.10 ≤ version ≤ 6.0.36)
-            foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
-            {
-                string versionName = Path.GetFileName(versionDir);
+                // 检查 dotnet.exe 是否存在
+                if (!File.Exists(dotnetExePath))
+                    continue;
 
-                if (Version.TryParse(versionName, out Version version) &&
-                    version.Major == 6 && version.Minor == 0 && version.Build >= 10 && version.Build <= 36)
+                // 检查运行时目录是否存在
+                if (!Directory.Exists(sharedRuntimePath))
+                    continue;
+
+                // 检查运行时版本 (6.0.10 ≤ version ≤ 6.0.36)
+                foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
                 {
-                    return dotnetExePath; // 返回有效的 dotnet.exe 路径
+                    string versionName = Path.GetFileName(versionDir);
+
+                    if (Version.TryParse(versionName, out Version version) &&
+                        version.Major == 6 && version.Minor == 0 && version.Build >= 10 && version.Build <= 36)
+                    {
+                        return dotnetExePath; // 返回有效的 dotnet.exe 路径
+                    }
                 }
             }
 

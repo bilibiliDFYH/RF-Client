@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net6.0-windows7.0</TargetFramework>
 	  <LangVersion>13.0</LangVersion>
-    <Title>Client GUI</Title>
+    <Title>ClientGUI</Title>
     <Description>Client GUI Library</Description>
-    <Company>Snowy</Company>
-    <Product>Client GUI</Product>
+    <Company>Snowy Studio</Company>
+    <Product>ClientGUI</Product>
     <Copyright>Copyright © Snowy Studio 2022-2025</Copyright>
     <Trademark>Snowy</Trademark>
     <Version>1.0.0.0</Version>

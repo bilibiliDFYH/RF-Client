@@ -158,7 +158,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     await response.Content.CopyToAsync(fs);
                 }
 
-                刷新地图列表();
+                鍒锋柊鍦板浘鍒楄〃();
                 //MapLoader.AgainLoadMaps();
 
                 GameModeMap = GameModeMaps.Find(gmm => gmm.Map.SHA1 == sha);
@@ -179,7 +179,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (requester == null)
                 return;
 
-            // 如果该请求已存在，则忽略重复请求
+            // 濡傛灉璇ヨ姹傚凡瀛樺湪锛屽垯蹇界暐閲嶅璇锋眰
             if (pendingMapTransferDialogs.ContainsKey(requester))
                 return;
 
@@ -192,7 +192,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             var messageBox = new XNAMessageBox(
                 WindowManager,
                 "Request a map transfer".L10N("UI:Main:RequestMapTransfer"),
-                $"{requester} 请求传输地图: {map.Name}",
+                $"{requester} 璇锋眰浼犺緭鍦板浘: {map.Name}",
                 XNAMessageBoxButtons.YesNo
             );
 
@@ -311,7 +311,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnChangeTunnel.Text = "Change Tunnel".L10N("UI:Main:ChangeTunnel");
 
-            //暂时修改测试
+            //鏆傛椂淇敼娴嬭瘯
             btnChangeTunnel.LeftClick += BtnChangeTunnel_LeftClick;
             //btnChangeTunnel.LeftClick += MapSharingConfirmationPanel_MapDownloadConfirmed;
             btnClosePass = new XNAClientButton(WindowManager);
@@ -1695,7 +1695,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 pInfo.HashReceived = true;
             CopyPlayerDataToUI();
 
-            /* 暂不对比文件差异 */
+            /* 鏆備笉瀵规瘮鏂囦欢宸紓 */
 
             //if (filesHash != gameFilesHash)
             //{

@@ -110,6 +110,9 @@ namespace DTAConfig.OptionPanels
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
             chkMultinuclear.Text = "System affinity enhancements".L10N("UI:DTAConfig:SystemAffinity");
 
+            bool isSupportedOS = Is24H2OrLater();
+            chkMultinuclear.AllowChecking = isSupportedOS;
+
             chkForceEnableGameOptions = new XNAClientCheckBox(WindowManager)
             {
                 Name = nameof(chkForceEnableGameOptions),
@@ -243,28 +246,30 @@ namespace DTAConfig.OptionPanels
             xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), ProgramConstants.清理缓存()?"Cleanup successful!".L10N("UI:DTAConfig:CleanupSuccessful"):"If the cleanup fails, a file may be occupied".L10N("UI:DTAConfig:CleanupFailed")) ;
         }
 
-        
+        private bool Is24H2OrLater()
+        {
+            return ProgramConstants.VersionValley.Contains(Environment.OSVersion.Version.Build);
+        }
 
         /// <summary>
-        /// 调用单核/多核 false/true
+        /// CPU亲和性增强 false/true
         /// </summary>
         /// <param name="TF"></param>
-        private void Multinuclear(bool TF) { 
-
-        string ddrawPath = Path.Combine(ProgramConstants.GamePath, "Resources\\Render",UserINISettings.Instance.Renderer.Value, "ddraw.ini");
-            if (File.Exists(ddrawPath)) {
-
+        private void Multinuclear(bool TF)
+        {
+            string ddrawPath = Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value, "ddraw.ini");
+            if (File.Exists(ddrawPath))
+            {
                 var iniFile = new Rampastring.Tools.IniFile(ddrawPath);
-                foreach(var s in iniFile.GetSections())
+                foreach (var s in iniFile.GetSections())
                 {
-                    if (iniFile.KeyExists(s, "singlecpu"))
+                    if (iniFile.KeyExists("singlecpu", s))
                         iniFile.SetBooleanValue(s, "singlecpu", !TF);
                 }
                 iniFile.WriteIniFile();
-             }
+            }
         }
 
- 
         private void BtnConfigureHotkeys_LeftClick(object sender, EventArgs e)
         {
             hotkeyConfigWindow.Enable();
@@ -300,7 +305,14 @@ namespace DTAConfig.OptionPanels
             }
 
             chkIMEEnable.Checked = UserINISettings.Instance.IMEEnabled.Value;
-            chkMultinuclear.Checked = UserINISettings.Instance.Multinuclear;
+            if (Is24H2OrLater())
+            {
+                chkMultinuclear.Checked = UserINISettings.Instance.Multinuclear.Value;
+            }
+            else
+            {
+                chkMultinuclear.Checked = false; // 非兼容系统强制禁用
+            }
             chkRenderPreviewImage.Checked = UserINISettings.Instance.RenderPreviewImage;
             chkSimplifiedCSF.Checked = UserINISettings.Instance.SimplifiedCSF;
             tbPlayerName.Text = UserINISettings.Instance.PlayerName;
@@ -348,12 +360,14 @@ namespace DTAConfig.OptionPanels
                 restartRequired = true;
                 IniSettings.IMEEnabled.Value = chkIMEEnable.Checked;
             }
-            IniSettings.Multinuclear.Value = chkMultinuclear.Checked;
+            if (Is24H2OrLater())
+            {
+                IniSettings.Multinuclear.Value = chkMultinuclear.Checked;
+            }
             IniSettings.RenderPreviewImage.Value = chkRenderPreviewImage.Checked;
             IniSettings.SimplifiedCSF.Value = chkSimplifiedCSF.Checked;
             IniSettings.ForceEnableGameOptions.Value = chkForceEnableGameOptions.Checked;
             ClientConfiguration.Instance.ExtraExeCommandLineParameters = tbStartCommand.Text;
-      
 
             return restartRequired;
         }

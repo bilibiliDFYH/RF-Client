@@ -179,8 +179,8 @@ namespace ClientCore
 
             Mod_cath = new BoolSetting(iniFile, OPTIONS, "Mod_cath", true);
             //Logger(Environment.OSVersion.Version.Build);
-            
-            Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", ProgramConstants.Version_24H2.Contains(Environment.OSVersion.Version.Build));
+
+            Multinuclear = new BoolSetting(iniFile, OPTIONS, "Multinuclear", false);
             //StartCap = new BoolSetting(iniFile, OPTIONS, "StartCap", true);
 
             第一次下载扩展 = new BoolSetting(iniFile, OPTIONS, "FirstDownload", true);

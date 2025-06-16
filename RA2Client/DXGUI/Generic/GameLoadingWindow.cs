@@ -141,15 +141,15 @@ namespace Ra2Client.DXGUI.Generic
 
             var settings = new IniSection("Settings");
 
-            //Ğ´ÈëĞÂÓÎÏ·
+            //å†™å…¥æ–°æ¸¸æˆ
             settings.SetValue("Game", newGame);
 
             settings.SetValue("Mission", newMission); 
 
             settings.SetValue("Ra2Mode",false);
-            settings.SetValue("chkSatellite",sg.Í¸Ã÷ÃÔÎí);
-            if(sg.Õ½ÒÛID != -1)
-                settings.SetValue("CampaignID", sg.Õ½ÒÛID);
+            settings.SetValue("chkSatellite",sg.é€æ˜è¿·é›¾);
+            if(sg.æˆ˜å½¹ID != -1)
+                settings.SetValue("CampaignID", sg.æˆ˜å½¹ID);
             settings.SetValue("Scenario", "spawnmap.ini");
             settings.SetValue("SaveGameName", sg.FileName);
             settings.SetValue("LoadSaveGame","Yes");
@@ -177,7 +177,7 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
-            File.Copy(sg.FilePath,Path.Combine(ProgramConstants.´æµµÄ¿Â¼,sg.FileName),true);
+            File.Copy(sg.FilePath,Path.Combine(ProgramConstants.å­˜æ¡£ç›®å½•,sg.FileName),true);
 
             GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
         }
@@ -206,9 +206,9 @@ namespace Ra2Client.DXGUI.Generic
         {
             SavedGame sg = savedGames[lbSaveGameList.SelectedIndex];
 
-            Logger.Log("É¾³ı´æµµÎÄ¼ş" + sg.FilePath);
+            Logger.Log("åˆ é™¤å­˜æ¡£æ–‡ä»¶" + sg.FilePath);
             SafePath.DeleteFileIfExists(sg.FilePath);
-            var saveIni = new IniFile(Path.Combine(ProgramConstants.´æµµÄ¿Â¼, "Save.ini"));
+            var saveIni = new IniFile(Path.Combine(ProgramConstants.å­˜æ¡£ç›®å½•, "Save.ini"));
             saveIni.RemoveSection($"{sg.FileName}-{Path.GetFileName(Path.GetDirectoryName(sg.FilePath))}");
             saveIni.WriteIniFile();
             ListSaves();
@@ -230,11 +230,11 @@ namespace Ra2Client.DXGUI.Generic
             savedGames.Clear();
             lbSaveGameList.ClearItems();
             lbSaveGameList.SelectedIndex = -1;
-            if (!Directory.Exists(ProgramConstants.´æµµÄ¿Â¼)) return;
+            if (!Directory.Exists(ProgramConstants.å­˜æ¡£ç›®å½•)) return;
 
-            var saveIni = new IniFile(Path.Combine(ProgramConstants.´æµµÄ¿Â¼, "Save.ini"));
+            var saveIni = new IniFile(Path.Combine(ProgramConstants.å­˜æ¡£ç›®å½•, "Save.ini"));
 
-            foreach (var d in Directory.GetDirectories(ProgramConstants.´æµµÄ¿Â¼))
+            foreach (var d in Directory.GetDirectories(ProgramConstants.å­˜æ¡£ç›®å½•))
             {
                 DirectoryInfo savedGamesDirectoryInfo = SafePath.GetDirectory(d);
 
@@ -253,9 +253,9 @@ namespace Ra2Client.DXGUI.Generic
                     var sectionName = $"{Path.GetFileName(file.FullName)}-{Path.GetFileName(d)}";
                     var game = saveIni.GetValue(sectionName, "Game", string.Empty);
                     var mission = saveIni.GetValue(sectionName, "Mission", string.Empty);
-                    var Í¸Ã÷ÃÔÎí = saveIni.GetValue(sectionName, "chkSatellite", false);
-                    var Õ½ÒÛID = saveIni.GetValue(sectionName, "CampaignID", -1);
-                    ParseSaveGame(file.FullName,game,mission,Í¸Ã÷ÃÔÎí,Õ½ÒÛID);
+                    var é€æ˜è¿·é›¾ = saveIni.GetValue(sectionName, "chkSatellite", false);
+                    var æˆ˜å½¹ID = saveIni.GetValue(sectionName, "CampaignID", -1);
+                    ParseSaveGame(file.FullName,game,mission,é€æ˜è¿·é›¾,æˆ˜å½¹ID);
                 }
             }
 
@@ -271,14 +271,14 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void ParseSaveGame(string fileName,string game,string mission,bool Í¸Ã÷ÃÔÎí,int Õ½ÒÛID)
+        private void ParseSaveGame(string fileName,string game,string mission,bool é€æ˜è¿·é›¾,int æˆ˜å½¹ID)
         {
             string shortName = Path.GetFileName(fileName);
 
             SavedGame sg = new SavedGame(shortName, game, mission);
             sg.FilePath = fileName;
-            sg.Í¸Ã÷ÃÔÎí = Í¸Ã÷ÃÔÎí;
-            sg.Õ½ÒÛID = Õ½ÒÛID;
+            sg.é€æ˜è¿·é›¾ = é€æ˜è¿·é›¾;
+            sg.æˆ˜å½¹ID = æˆ˜å½¹ID;
             if (sg.ParseInfo())
                 savedGames.Add(sg);
         }

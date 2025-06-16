@@ -62,7 +62,7 @@ public class IniSection : IIniSection
             Keys.Add(new KeyValuePair<string, string>(keyName, value));
     }
 
-    public void AddOrReplaceKey(int i,string keyName, string value)
+    public void AddOrReplaceKey(int i, string keyName, string value)
     {
         if (keyName == null || value == null)
             throw new ArgumentException("INI keys cannot have null key names or values.");
@@ -71,7 +71,7 @@ public class IniSection : IIniSection
         if (index > -1)
             Keys[index] = new KeyValuePair<string, string>(keyName, value);
         else
-            Keys.Insert(i,new KeyValuePair<string, string>(keyName, value));
+            Keys.Insert(i, new KeyValuePair<string, string>(keyName, value));
     }
 
 
@@ -95,7 +95,7 @@ public class IniSection : IIniSection
     /// <returns>The given key's value if the section and key was found. Otherwise the given defaultValue.</returns>
     public string GetStringValue(string key, string defaultValue)
     {
-        KeyValuePair<string,string> kvp = Keys.Find(k => k.Key == key);
+        KeyValuePair<string, string> kvp = Keys.Find(k => k.Key == key);
 
         if (kvp.Value == null)
             return defaultValue;
@@ -227,9 +227,9 @@ public class IniSection : IIniSection
         AddOrReplaceKey(key, value);
     }
 
-    public void SetStringValue(int i,string key, string value)
+    public void SetStringValue(int i, string key, string value)
     {
-        AddOrReplaceKey(i,key, value);
+        AddOrReplaceKey(i, key, value);
     }
 
     /// <summary>

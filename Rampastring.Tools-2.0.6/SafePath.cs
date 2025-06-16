@@ -51,7 +51,7 @@ public static class SafePath
     /// <returns>A <see cref="FileInfo"/> instance representing the combined directory path and file name of all <paramref name="paths"/>.</returns>
     public static FileInfo GetFile(params string[] paths)
     {
-        if (paths is null || paths.Length == 0) 
+        if (paths is null || paths.Length == 0)
             return null;
         return new FileInfo(CombineFilePath(paths));
     }

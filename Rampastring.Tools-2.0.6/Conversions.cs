@@ -174,7 +174,7 @@ public static class Conversions
         {
             if (boolArray[i])
             {
-                bytes[byteIndex] |= (byte)(((byte)1) << optionIndex);
+                bytes[byteIndex] |= (byte)((1) << optionIndex);
             }
 
             optionIndex++;

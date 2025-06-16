@@ -166,13 +166,13 @@ namespace Reunion
                 if (!Directory.Exists(sharedRuntimePath))
                     continue;
 
-                // 检查运行时版本 (6.0.10 ≤ version ≤ 6.0.36)
+                // 检查运行时版本 (6.0.8 ≤ version ≤ 6.0.36)
                 foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
                 {
                     string versionName = Path.GetFileName(versionDir);
 
                     if (Version.TryParse(versionName, out Version version) &&
-                        version.Major == 6 && version.Minor == 0 && version.Build >= 10 && version.Build <= 36)
+                        version.Major == 6 && version.Minor == 0 && version.Build >= 8)
                     {
                         return dotnetExePath; // 返回有效的 dotnet.exe 路径
                     }
@@ -192,8 +192,8 @@ namespace Reunion
             {
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "curl",
-                    Arguments = "-s https://api.mir6.com/api/ip_json?ip=myip",
+                    FileName = "cmd.exe",
+                    Arguments = "/c curl -s https://api.mir6.com/api/ip_json?ip=myip",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true

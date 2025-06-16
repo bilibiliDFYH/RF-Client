@@ -23,6 +23,7 @@ namespace DTAConfig.OptionPanels
         private const int TRACKBAR_HEIGHT = 22;
         private const int CHECKBOX_SPACING = 12;
         private const int GROUP_SPACING = 22;
+        private const float VOLUME_EPSILON = 0.001f; // 用于浮点数比较的容差值
 
         public AudioOptionsPanel(WindowManager windowManager, UserINISettings iniSettings)
             : base(windowManager, iniSettings)
@@ -50,8 +51,6 @@ namespace DTAConfig.OptionPanels
 
         public override void Initialize()
         {
-
-
             base.Initialize();
 
             Name = "AudioOptionsPanel";
@@ -64,7 +63,7 @@ namespace DTAConfig.OptionPanels
             lblScoreVolumeValue = new XNALabel(WindowManager);
             lblScoreVolumeValue.Name = nameof(lblScoreVolumeValue);
             lblScoreVolumeValue.FontIndex = 1;
-            lblScoreVolumeValue.Text = "0";
+            lblScoreVolumeValue.Text = "5";
             lblScoreVolumeValue.ClientRectangle = new Rectangle(
                 Width - lblScoreVolumeValue.Width - PADDING_X,
                 lblScoreVolume.Y, 0, 0);
@@ -91,7 +90,7 @@ namespace DTAConfig.OptionPanels
             lblSoundVolumeValue = new XNALabel(WindowManager);
             lblSoundVolumeValue.Name = nameof(lblSoundVolumeValue);
             lblSoundVolumeValue.FontIndex = 1;
-            lblSoundVolumeValue.Text = "10";
+            lblSoundVolumeValue.Text = "8";
             lblSoundVolumeValue.ClientRectangle = new Rectangle(
                 lblScoreVolumeValue.X,
                 lblSoundVolume.Y, 0, 0);
@@ -118,7 +117,7 @@ namespace DTAConfig.OptionPanels
             lblVoiceVolumeValue = new XNALabel(WindowManager);
             lblVoiceVolumeValue.Name = nameof(lblVoiceVolumeValue);
             lblVoiceVolumeValue.FontIndex = 1;
-            lblVoiceVolumeValue.Text = "10";
+            lblVoiceVolumeValue.Text = "8";
             lblVoiceVolumeValue.ClientRectangle = new Rectangle(
                 lblScoreVolumeValue.X,
                 lblVoiceVolume.Y, 0, 0);
@@ -145,7 +144,7 @@ namespace DTAConfig.OptionPanels
             lblClientVolumeValue = new XNALabel(WindowManager);
             lblClientVolumeValue.Name = nameof(lblClientVolumeValue);
             lblClientVolumeValue.FontIndex = 1;
-            lblClientVolumeValue.Text = "0";
+            lblClientVolumeValue.Text = "3";
             lblClientVolumeValue.ClientRectangle = new Rectangle(
                 lblVoiceVolumeValue.X,
                 lblClientVolume.Y, 0, 0);
@@ -224,11 +223,9 @@ namespace DTAConfig.OptionPanels
                 X = lblScoreVolume.X,
                 Y = chkStopMusicOnMenu.Y + 60,
                 Text = "Manage in-game music".L10N("UI:DTAConfig:ManageingameMusic"),
-
             };
             btnMusicWindow.LeftClick += (_, _) => { musicWindow.Enable(); };
 
-           
             AddChild(lblScoreVolume);
             AddChild(lblScoreVolumeValue);
             AddChild(trbScoreVolume);
@@ -248,24 +245,17 @@ namespace DTAConfig.OptionPanels
 
         private void LblVoice_DoubleLeftClick(object sender, EventArgs e)
         {
-
-                string folderPath = $"{ProgramConstants.GamePath}/Resources/Voice";
-                if (!Directory.Exists(folderPath))
-                {
-                    Directory.CreateDirectory(folderPath);
-                }
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
-                {
-                    FileName = folderPath,
-                    UseShellExecute = true,
-                    Verb = "open"
-                });
-
-        }
-
-        private EventHandler chkMusicWindow_LeftClick()
-        {
-            throw new NotImplementedException();
+            string folderPath = $"{ProgramConstants.GamePath}/Resources/Voice";
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo()
+            {
+                FileName = folderPath,
+                UseShellExecute = true,
+                Verb = "open"
+            });
         }
 
         private void ChkMainMenuMusic_CheckedChanged(object sender, EventArgs e)
@@ -292,52 +282,86 @@ namespace DTAConfig.OptionPanels
         private void TrbClientVolume_ValueChanged(object sender, EventArgs e)
         {
             lblClientVolumeValue.Text = trbClientVolume.Value.ToString();
-            WindowManager.SoundPlayer.SetVolume(trbClientVolume.Value / (float)VOLUME_SCALE);
+            float volume = ConvertToVolumeFloat(trbClientVolume.Value);
+            WindowManager.SoundPlayer?.SetVolume(volume);
         }
 
         public override void Load()
         {
             base.Load();
 
-            trbScoreVolume.Value = (int)(IniSettings.ScoreVolume * VOLUME_SCALE);
-            trbSoundVolume.Value = (int)(IniSettings.SoundVolume * VOLUME_SCALE);
-            trbVoiceVolume.Value = (int)(IniSettings.VoiceVolume * VOLUME_SCALE);
+            trbScoreVolume.Value = ConvertToTrackbarValue(IniSettings.ScoreVolume);
+            trbSoundVolume.Value = ConvertToTrackbarValue(IniSettings.SoundVolume);
+            trbVoiceVolume.Value = ConvertToTrackbarValue(IniSettings.VoiceVolume);
+            trbClientVolume.Value = ConvertToTrackbarValue(IniSettings.ClientVolume);
+
+            ApplyInitialClientVolume();
+
+            lblScoreVolumeValue.Text = trbScoreVolume.Value.ToString();
+            lblSoundVolumeValue.Text = trbSoundVolume.Value.ToString();
+            lblVoiceVolumeValue.Text = trbVoiceVolume.Value.ToString();
+            lblClientVolumeValue.Text = trbClientVolume.Value.ToString();
 
             chkScoreShuffle.Checked = IniSettings.IsScoreShuffle;
-
-            trbClientVolume.Value = (int)(IniSettings.ClientVolume * VOLUME_SCALE);
-
             chkMainMenuMusic.Checked = IniSettings.PlayMainMenuMusic;
             chkStopMusicOnMenu.Checked = IniSettings.StopMusicOnMenu;
             chkStopGameLobbyMessageAudio.Checked = IniSettings.StopGameLobbyMessageAudio;
 
-            var i = ddVoice.Items.FindIndex(item => item.Text == UserINISettings.Instance.Voice.Value);
-            if(i >= 0)
+            var voiceValue = UserINISettings.Instance.Voice.Value;
+            var i = ddVoice.Items.FindIndex(item => item.Text == voiceValue);
+            if (i >= 0)
                 ddVoice.SelectedIndex = i;
             else
                 ddVoice.SelectedIndex = 0;
+        }
 
+        private void ApplyInitialClientVolume()
+        {
+            float clientVolume = ConvertToVolumeFloat(trbClientVolume.Value);
+            WindowManager.SoundPlayer?.SetVolume(clientVolume);
         }
 
         public override bool Save()
         {
             bool restartRequired = base.Save();
 
-            IniSettings.ScoreVolume.Value = trbScoreVolume.Value / (double)VOLUME_SCALE;
-            IniSettings.SoundVolume.Value = trbSoundVolume.Value / (double)VOLUME_SCALE;
-            IniSettings.VoiceVolume.Value = trbVoiceVolume.Value / (double)VOLUME_SCALE;
+            IniSettings.ScoreVolume.Value = ConvertToVolumeFloat(trbScoreVolume.Value);
+            IniSettings.SoundVolume.Value = ConvertToVolumeFloat(trbSoundVolume.Value);
+            IniSettings.VoiceVolume.Value = ConvertToVolumeFloat(trbVoiceVolume.Value);
+            IniSettings.ClientVolume.Value = ConvertToVolumeFloat(trbClientVolume.Value);
 
             IniSettings.IsScoreShuffle.Value = chkScoreShuffle.Checked;
-
-            IniSettings.ClientVolume.Value = trbClientVolume.Value / (double)VOLUME_SCALE;
-
             IniSettings.PlayMainMenuMusic.Value = chkMainMenuMusic.Checked;
             IniSettings.StopMusicOnMenu.Value = chkStopMusicOnMenu.Checked;
             IniSettings.StopGameLobbyMessageAudio.Value = chkStopGameLobbyMessageAudio.Checked;
-
             UserINISettings.Instance.Voice.Value = ddVoice.SelectedItem?.Text;
 
             return restartRequired;
+        }
+
+        // 从轨道条值转换为浮点数音量
+        private float ConvertToVolumeFloat(int trackbarValue)
+        {
+            // 处理边界值
+            if (trackbarValue <= VOLUME_MIN) return 0f;
+            if (trackbarValue >= VOLUME_MAX) return 1f;
+
+            // 使用精确的浮点转换
+            float volume = trackbarValue / (float)VOLUME_SCALE;
+
+            // 四舍五入保留一位小数
+            return (float)Math.Round(volume, 1);
+        }
+
+        // 从浮点数音量转换为轨道条值
+        private int ConvertToTrackbarValue(double volumeValue)
+        {
+            // 处理边界情况
+            if (volumeValue < VOLUME_EPSILON) return VOLUME_MIN;
+            if (volumeValue > 1.0 - VOLUME_EPSILON) return VOLUME_MAX;
+
+            // 四舍五入到最近的整数
+            return (int)Math.Round(volumeValue * VOLUME_SCALE);
         }
     }
 }

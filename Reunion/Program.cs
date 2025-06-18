@@ -16,8 +16,10 @@ namespace Reunion
         private const string Resources = "Resources";
         private const string Binaries = "Binaries";
 
-        private static string dotnetPath = @"C:\Program Files\dotnet";
-        private static string dotnetPathA64 = @"C:\Program Files\dotnet\x64";
+        // 动态获取系统盘符, 防止多系统情况下无法启动
+        private static readonly string SystemDrive = Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
+        private static readonly string dotnetPath = Path.Combine(SystemDrive, "Program Files", "dotnet");
+        private static readonly string dotnetPathA64 = Path.Combine(SystemDrive, "Program Files", "dotnet", "x64");
 
         private static string[] Args;
         static void Main(string[] args)
@@ -166,13 +168,13 @@ namespace Reunion
                 if (!Directory.Exists(sharedRuntimePath))
                     continue;
 
-                // 检查运行时版本 (6.0.8 ≤ version ≤ 6.0.36)
+                // 检查运行时版本 (6.0.10 ≤ version ≤ 6.0.36)
                 foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
                 {
                     string versionName = Path.GetFileName(versionDir);
 
                     if (Version.TryParse(versionName, out Version version) &&
-                        version.Major == 6 && version.Minor == 0 && version.Build >= 8)
+                        version.Major == 6 && version.Minor == 0 && version.Build >= 10)
                     {
                         return dotnetExePath; // 返回有效的 dotnet.exe 路径
                     }

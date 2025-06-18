@@ -86,10 +86,8 @@ namespace ClientCore
             Game = new StringSetting(iniFile, OPTIONS, "Game", "SkirmishLobby");
             YRPath = new StringSetting(iniFile, OPTIONS, "YRPath", "YR");
             IMEEnabled = new BoolSetting(iniFile, OPTIONS, "IMEEnabled", true);
-            Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer",
-                Environment.OSVersion.Version.Major == 5 ? "Default" :
-                Environment.OSVersion.Version.Major == 6 ? "CnC_DDraw2" : "CnC_DDraw");
-      
+            Renderer = new StringSetting(iniFile, COMPATIBILITY, "Renderer", string.Empty);
+
             WindowedMode = new BoolSetting(iniFile, VIDEO, WINDOWED_MODE_KEY, false);
             BorderlessWindowedMode = new BoolSetting(iniFile, VIDEO, "NoWindowFrame", false);
             CustonIngameResolution = new BoolSetting(iniFile, VIDEO, "CustonIngameResolution", false);

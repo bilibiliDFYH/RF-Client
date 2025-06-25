@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -15,6 +16,8 @@ namespace Reunion
     {
         private const string Resources = "Resources";
         private const string Binaries = "Binaries";
+        private const string RequiredFile = "使用前必读.txt";
+        private const string ExpectedHash = "5a6ea2cb7ad25f7c565b3d62395f878a92385f3bb6263be301b3525f98afa6af";
 
         // 动态获取系统盘符, 防止多系统情况下无法启动
         private static readonly string SystemDrive = Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
@@ -25,8 +28,60 @@ namespace Reunion
         static void Main(string[] args)
         {
             Args = args;
+
+            if (!CheckRequiredFile())
+            {
+                return;
+            }
+
             StartProcess(GetClientProcessPath("Ra2Client.dll"));
         }
+
+        private static bool CheckRequiredFile()
+        {
+            if (!File.Exists(RequiredFile))
+            {
+                MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            try
+            {
+                // 计算文件哈希值
+                string actualHash = ComputeFileSHA256(RequiredFile);
+
+                // 比较哈希值(不区分大小写)
+                if (!actualHash.Equals(ExpectedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"文件校验出错: {ex.Message}", "错误",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 计算文件的SHA256哈希值
+        /// </summary>
+        private static string ComputeFileSHA256(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
         private static string GetClientProcessPath(string file) => $"{Resources}\\{Binaries}\\{file}";
 
         private static void StartProcess(string relPath)

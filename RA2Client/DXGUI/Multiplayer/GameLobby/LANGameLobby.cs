@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Net.NetworkInformation;
 using ClientCore;
 using Ra2Client.Domain;
 using Ra2Client.Domain.LAN;
@@ -80,6 +81,37 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             this.random = random;
         }
 
+        // 获取本机首个物理网卡的IPv4地址，排除虚拟网卡和回环地址
+        private static string GetLocalLANIPAddress()
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                    ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    if (ni.OperationalStatus != OperationalStatus.Up)
+                        continue;
+
+                    string desc = ni.Description.ToLower();
+                    if (desc.Contains("virtual") || desc.Contains("vmware") || desc.Contains("tunnel") || desc.Contains("tap") || desc.Contains("loopback") || desc.Contains("parallels") || desc.Contains("hyper-v"))
+                        continue;
+
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
+                            !IPAddress.IsLoopback(ip.Address))
+                        {
+                            string ipStr = ip.Address.ToString();
+                            if (ipStr.StartsWith("10.") || ipStr.StartsWith("192.168.") ||
+                                (ipStr.StartsWith("172.") && int.TryParse(ipStr.Split('.')[1], out int sec) && sec >= 16 && sec <= 31))
+                                return ipStr;
+                        }
+                    }
+                }
+            }
+            return "127.0.0.1";
+        }
+
         private void WindowManager_GameClosing(object sender, EventArgs e)
         {
             if (client != null && client.Connected)
@@ -147,8 +179,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 Thread thread = new Thread(ListenForClients);
                 thread.Start();
 
+                // 房主使用真实内网IP连接自己
+                string localIp = GetLocalLANIPAddress();
                 this.client = new TcpClient();
-                this.client.Connect("127.0.0.1", ProgramConstants.LAN_GAME_LOBBY_PORT);
+                this.client.Connect(localIp, ProgramConstants.LAN_GAME_LOBBY_PORT);
 
                 byte[] buffer = encoding.GetBytes(PLAYER_JOIN_COMMAND +
                     ProgramConstants.LAN_DATA_SEPARATOR + ProgramConstants.PLAYERNAME);
@@ -508,7 +542,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     sb.Append(2);
                 else
                     sb.Append(Convert.ToInt32(pInfo.IsAI || pInfo.Ready));
-                sb.Append(pInfo.IPAddress);
+                // 房主使用真实内网IP
+                if (pInfo.Name == ProgramConstants.PLAYERNAME && IsHost)
+                    sb.Append(GetLocalLANIPAddress());
+                else
+                    sb.Append(pInfo.IPAddress);
                 if (pInfo.IsAI)
                     sb.Append(pInfo.AILevel);
                 else
@@ -595,12 +633,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected override void ClearPingIndicators()
         {
-            
+
         }
 
         protected override void UpdatePlayerPingIndicator(PlayerInfo pInfo)
         {
-           
+
         }
 
         /// <summary>
@@ -763,7 +801,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 Players.ForEach(p => sbPlayers.Append(p.Name + ","));
                 if (sbPlayers.Length > 0)
-                sbPlayers.Length--;
+                    sbPlayers.Length--;
             }
             sb.Append(sbPlayers.ToString());
             sb.Append(Convert.ToInt32(Locked));
@@ -925,6 +963,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (team < 0 || team > 4)
                     return;
 
+                // 如果收到的IP是127.0.0.1，替换为hostEndPoint的真实IP
                 if (ipAddress == "127.0.0.1")
                     ipAddress = hostEndPoint.Address.ToString();
 
@@ -1011,7 +1050,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (!string.IsNullOrEmpty(mapSHA1))
                     AddNotice("The game host has selected a map that doesn't exist on your installation.".L10N("UI:Main:MapNotExist") + " " +
                         "The host needs to change the map or you won't be able to play.".L10N("UI:Main:HostNeedChangeMapForYou"));
-                        
+
                 return;
             }
 

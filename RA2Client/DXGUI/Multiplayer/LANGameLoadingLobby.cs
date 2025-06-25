@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Net.NetworkInformation;
 using ClientCore;
 using Ra2Client.Domain;
 using Ra2Client.Domain.LAN;
@@ -98,6 +99,37 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         private bool started = false;
 
+        // 获取本机首个物理网卡的IPv4地址，排除虚拟网卡和回环地址
+        private static string GetLocalLANIPAddress()
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                    ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    if (ni.OperationalStatus != OperationalStatus.Up)
+                        continue;
+
+                    string desc = ni.Description.ToLower();
+                    if (desc.Contains("virtual") || desc.Contains("vmware") || desc.Contains("tunnel") || desc.Contains("tap") || desc.Contains("loopback") || desc.Contains("parallels") || desc.Contains("hyper-v"))
+                        continue;
+
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
+                            !IPAddress.IsLoopback(ip.Address))
+                        {
+                            string ipStr = ip.Address.ToString();
+                            if (ipStr.StartsWith("10.") || ipStr.StartsWith("192.168.") ||
+                                (ipStr.StartsWith("172.") && int.TryParse(ipStr.Split('.')[1], out int sec) && sec >= 16 && sec <= 31))
+                                return ipStr;
+                        }
+                    }
+                }
+            }
+            return "127.0.0.1";
+        }
+
         public void SetUp(bool isHost,
             IPEndPoint hostEndPoint, TcpClient client,
             int loadedGameId)
@@ -115,8 +147,10 @@ namespace Ra2Client.DXGUI.Multiplayer
                 Thread thread = new Thread(ListenForClients);
                 thread.Start();
 
+                // 房主使用真实内网IP连接自己
+                string localIp = GetLocalLANIPAddress();
                 this.client = new TcpClient();
-                this.client.Connect("127.0.0.1", ProgramConstants.LAN_GAME_LOBBY_PORT);
+                this.client.Connect(localIp, ProgramConstants.LAN_GAME_LOBBY_PORT);
 
                 byte[] buffer = encoding.GetBytes(PLAYER_JOIN_COMMAND +
                     ProgramConstants.LAN_DATA_SEPARATOR + ProgramConstants.PLAYERNAME +

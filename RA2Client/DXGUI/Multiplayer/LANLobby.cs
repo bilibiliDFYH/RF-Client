@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Net.NetworkInformation;
 using ClientCore;
 using ClientCore.CnCNet5;
 using ClientGUI;
@@ -103,8 +104,39 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         bool initSuccess = false;
 
+        // 获取本机首个物理网卡的IPv4地址，排除虚拟网卡和回环地址
+        private static string GetLocalLANIPAddress()
+        {
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                    ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                {
+                    if (ni.OperationalStatus != OperationalStatus.Up)
+                        continue;
+
+                    string desc = ni.Description.ToLower();
+                    if (desc.Contains("virtual") || desc.Contains("vmware") || desc.Contains("tunnel") || desc.Contains("tap") || desc.Contains("loopback") || desc.Contains("parallels") || desc.Contains("hyper-v"))
+                        continue;
+
+                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
+                            !IPAddress.IsLoopback(ip.Address))
+                        {
+                            string ipStr = ip.Address.ToString();
+                            if (ipStr.StartsWith("10.") || ipStr.StartsWith("192.168.") ||
+                                (ipStr.StartsWith("172.") && int.TryParse(ipStr.Split('.')[1], out int sec) && sec >= 16 && sec <= 31))
+                                return ipStr;
+                        }
+                    }
+                }
+            }
+            return "127.0.0.1";
+        }
+
         //public string GetSwitchName() => "Game Lobby".L10N("UI:Main:GameLobby");
-        
+
         public override void Initialize()
         {
             Name = "LANLobby";
@@ -312,8 +344,9 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         private void GameCreationWindow_LoadGame(object sender, GameLoadEventArgs e)
         {
+            // 用真实内网IP作为房主端点
             lanGameLoadingLobby.SetUp(true,
-                new IPEndPoint(IPAddress.Loopback, ProgramConstants.LAN_GAME_LOBBY_PORT),
+                new IPEndPoint(IPAddress.Parse(GetLocalLANIPAddress()), ProgramConstants.LAN_GAME_LOBBY_PORT),
                 null, e.LoadedGameID);
 
             lanGameLoadingLobby.Enable();
@@ -321,13 +354,12 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         private void GameCreationWindow_NewGame(object sender, EventArgs e)
         {
+            // 用真实内网IP作为房主端点
             lanGameLobby.SetUp(true,
-                new IPEndPoint(IPAddress.Loopback, ProgramConstants.LAN_GAME_LOBBY_PORT), null);
+                new IPEndPoint(IPAddress.Parse(GetLocalLANIPAddress()), ProgramConstants.LAN_GAME_LOBBY_PORT), null);
 
             lanGameLobby.Enable();
         }
-
-
 
         private void SetChatColor()
         {
@@ -572,14 +604,19 @@ namespace Ra2Client.DXGUI.Multiplayer
 
             if (hg.GameVersion != ProgramConstants.GAME_VERSION)
             {
-                
+
             }
 
             lbChatMessages.AddMessage(string.Format("Attempting to join game {0} ...".L10N("UI:Main:AttemptJoin"), hg.RoomName));
 
             try
             {
-                var client = new TcpClient(hg.EndPoint.Address.ToString(), ProgramConstants.LAN_GAME_LOBBY_PORT);
+                // 如果房主端点是127.0.0.1，自动替换为物理网卡IP
+                string hostIp = hg.EndPoint.Address.ToString();
+                if (hostIp == "127.0.0.1" || hg.EndPoint.Address.Equals(IPAddress.Loopback))
+                    hostIp = GetLocalLANIPAddress();
+
+                var client = new TcpClient(hostIp, ProgramConstants.LAN_GAME_LOBBY_PORT);
 
                 byte[] buffer;
 

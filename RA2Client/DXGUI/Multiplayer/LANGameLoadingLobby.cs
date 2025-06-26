@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Net.NetworkInformation;
 using ClientCore;
 using Ra2Client.Domain;
 using Ra2Client.Domain.LAN;
@@ -16,6 +15,7 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
+using System.Management; // 需要添加 System.Management.dll 引用
 
 namespace Ra2Client.DXGUI.Multiplayer
 {
@@ -99,35 +99,51 @@ namespace Ra2Client.DXGUI.Multiplayer
 
         private bool started = false;
 
-        // 获取本机首个物理网卡的IPv4地址，排除虚拟网卡和回环地址
-        private static string GetLocalLANIPAddress()
+        // 获取所有物理网卡的 NetworkInterface Id 列表（通过WMI PhysicalAdapter）
+        private static HashSet<string> GetPhysicalNetworkInterfaceIds()
         {
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            var physicalIds = new HashSet<string>();
+            try
             {
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
-                    ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
+                // 只选取 PhysicalAdapter 且 PNPDeviceID 以 "PCI\" 开头的网卡
+                using (var searcher = new ManagementObjectSearcher(
+                    "SELECT * FROM Win32_NetworkAdapter WHERE PhysicalAdapter = True AND PNPDeviceID LIKE 'PCI%'"))
                 {
-                    if (ni.OperationalStatus != OperationalStatus.Up)
-                        continue;
-
-                    string desc = ni.Description.ToLower();
-                    if (desc.Contains("virtual") || desc.Contains("vmware") || desc.Contains("tunnel") || desc.Contains("tap") || desc.Contains("loopback") || desc.Contains("parallels") || desc.Contains("hyper-v"))
-                        continue;
-
-                    foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                    foreach (ManagementObject obj in searcher.Get())
                     {
-                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork &&
-                            !IPAddress.IsLoopback(ip.Address))
-                        {
-                            string ipStr = ip.Address.ToString();
-                            if (ipStr.StartsWith("10.") || ipStr.StartsWith("192.168.") ||
-                                (ipStr.StartsWith("172.") && int.TryParse(ipStr.Split('.')[1], out int sec) && sec >= 16 && sec <= 31))
-                                return ipStr;
-                        }
+                        var guid = obj["GUID"] as string;
+                        if (!string.IsNullOrEmpty(guid))
+                            physicalIds.Add(guid.ToLower());
                     }
                 }
             }
-            return "127.0.0.1";
+            catch
+            {
+                // 如果WMI不可用，返回空，后续降级为Loopback
+            }
+            return physicalIds;
+        }
+
+        // 获取本机物理网卡的首个IPv4地址（基于PnpInstanceID/物理网卡）
+        private IPAddress GetLocalLANIPAddress()
+        {
+            var physicalIds = GetPhysicalNetworkInterfaceIds();
+            foreach (var ni in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (!physicalIds.Contains(ni.Id.ToLower()))
+                    continue;
+                if (ni.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up)
+                    continue;
+
+                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
+                {
+                    if (ua.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        return ua.Address;
+                    }
+                }
+            }
+            return IPAddress.Loopback;
         }
 
         public void SetUp(bool isHost,
@@ -147,10 +163,10 @@ namespace Ra2Client.DXGUI.Multiplayer
                 Thread thread = new Thread(ListenForClients);
                 thread.Start();
 
-                // 房主使用真实内网IP连接自己
-                string localIp = GetLocalLANIPAddress();
+                // 使用物理网卡IP而不是127.0.0.1
+                var localIP = GetLocalLANIPAddress();
                 this.client = new TcpClient();
-                this.client.Connect(localIp, ProgramConstants.LAN_GAME_LOBBY_PORT);
+                this.client.Connect(localIP.ToString(), ProgramConstants.LAN_GAME_LOBBY_PORT);
 
                 byte[] buffer = encoding.GetBytes(PLAYER_JOIN_COMMAND +
                     ProgramConstants.LAN_DATA_SEPARATOR + ProgramConstants.PLAYERNAME +

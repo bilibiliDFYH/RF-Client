@@ -15,7 +15,7 @@ namespace Ra2Client.Domain.Multiplayer.LAN
 
         public string Name { get; private set; }
         public Texture2D GameTexture { get; private set; }
-        public IPEndPoint EndPoint { get; private set; }
+        public IPEndPoint EndPoint { get; set; }
         public TimeSpan TimeWithoutRefresh { get; set; }
     }
 }

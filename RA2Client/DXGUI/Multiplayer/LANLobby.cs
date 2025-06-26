@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Net.NetworkInformation;
+using System.Management;
 using ClientCore;
 using ClientCore.CnCNet5;
 using ClientGUI;
@@ -26,8 +28,6 @@ using SixLabors.ImageSharp;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Ra2Client.DXGUI.Multiplayer.CnCNet;
-using System.Net.NetworkInformation;
-using System.Management; // 需要添加 System.Management.dll 引用
 
 namespace Ra2Client.DXGUI.Multiplayer
 {

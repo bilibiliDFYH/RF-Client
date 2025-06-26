@@ -136,7 +136,7 @@ namespace Ra2Client.DXGUI.Multiplayer
                     new Vector2(x, height),
                     user.IsAdmin ? Color.Red : lbItem.TextColor);
 
-                height += LineHeight;
+                height += lbItem.TextLines.Count * LineHeight;
             }
 
             if (DrawBorders)

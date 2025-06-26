@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Management;
 using ClientCore;
 using Ra2Client.Domain;
 using Ra2Client.Domain.LAN;
@@ -15,7 +16,6 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
-using System.Management; // 需要添加 System.Management.dll 引用
 
 namespace Ra2Client.DXGUI.Multiplayer
 {

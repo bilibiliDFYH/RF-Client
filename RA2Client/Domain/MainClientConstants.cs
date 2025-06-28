@@ -9,12 +9,12 @@ namespace Ra2Client.Domain
         //public const string CNCNET_TUNNEL_LIST_URL = "http://cncnet.org/master-list";
 
         public static readonly Dictionary<string, string> TunnelServerUrls = new Dictionary<string, string>
-    {
-        { "仅重聚官方自建", "http://tunnel.ru2023.top/my/" },
-        { "仅中国内地", "http://tunnel.ru2023.top/cn/" },
-        { "仅中国内地+港澳台", "http://tunnel.ru2023.top/zh/" },
-        { "原服务器列表", "http://tunnel.ru2023.top/list/" }
-    };
+        {
+            { "仅重聚官方自建", "http://tunnel.ru2023.top/my/" },
+            { "仅中国内地", "http://tunnel.ru2023.top/cn/" },
+            { "仅中国内地+港澳台", "http://tunnel.ru2023.top/zh/" },
+            { "原服务器列表", "http://tunnel.ru2023.top/list/" }
+        };
 
         public static string CurrentTunnelServerUrl = TunnelServerUrls["仅重聚官方自建"];
 

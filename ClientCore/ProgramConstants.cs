@@ -25,7 +25,7 @@ namespace ClientCore
 
         public static readonly List<int> VersionValley = [22000, 22621, 22631, 26100, 26120, 26200];
 
-        public static string CUR_SERVER_URL = "";
+        public static string CUR_SERVER_URL = "https://autopatch1-zh-tcdn.yra2.com";
 
         public static bool SkipLogo = false;
 

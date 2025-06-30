@@ -9,7 +9,6 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-
 using Microsoft.VisualBasic.Logging;
 using Rampastring.Tools;
 using RandomMapGenerator;
@@ -23,13 +22,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private XNALabel lblTitle;
 
-        private XNALabel lblClimate; //气候
+        private XNALabel lblClimate;        // 气候
         private XNAClientDropDown ddClimate;
 
-        private XNALabel lblPeople; //人数
+        private XNALabel lblPeople;         // 人数
         private XNAClientDropDown ddPeople;
 
-        private XNAClientCheckBox cbDamage; //建筑物损伤
+        private XNAClientCheckBox cbDamage; // 建筑物损伤
 
         private XNALabel lblSize;
         private XNAClientDropDown ddSize;
@@ -297,6 +296,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
                         lastName = $"Maps/Multi/Custom/随机地图{timestamp}";
+
                         // 构建文件名
                         string pngName = $"{lastName}.jpg";
 

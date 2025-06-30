@@ -13,7 +13,6 @@ using System.Linq;
 using DTAConfig.Entity;
 using ClientCore;
 using System.Threading.Tasks;
-
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Diagnostics;
@@ -175,7 +174,7 @@ public class ModManager : XNAWindow
         _btnReturn = new XNAClientButton(WindowManager)
         {
             Text = "Yes".L10N("UI:Main:ButtonYes"),
-            ClientRectangle = new Rectangle(280, 340, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(340, 350, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         _btnReturn.LeftClick += BtnReturn_LeftClick;
         AddChild(_btnReturn);
@@ -1344,14 +1343,14 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         var btnFold = new XNAClientButton(windowManager)
         {
             Text = "Import from folder".L10N("UI:DTAConfig:ImportFromFolder"),
-            ClientRectangle = new Rectangle(20, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(40, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnFold.LeftClick += BtnFold_LeftClick;
 
         var btnZip = new XNAClientButton(windowManager)
         {
             Text = "Import from compressed package".L10N("UI:DTAConfig:ImportFromCompressedPackage"),
-            ClientRectangle = new Rectangle(140, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
+            ClientRectangle = new Rectangle(160, 20, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT),
             
         };
         btnZip.LeftClick += BtnZip_LeftClick;
@@ -1378,20 +1377,20 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
         lblPath = new XNALabel(windowManager)
         {
             Text = string.Empty,  
-            ClientRectangle = new Rectangle(20, 125, 0, 0)
+            ClientRectangle = new Rectangle(40, 120, 0, 0)
         };
 
         btnCancel = new XNAClientButton(windowManager)
         {
             Text = "Cancel".L10N("UI:DTAConfig:ButtonCancel"),
-            ClientRectangle = new Rectangle(20, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(160, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
         btnCancel.LeftClick += BtnCancel_LeftClick;
 
         btnOk = new XNAClientButton(windowManager)
         {
             Text = "Yes".L10N("UI:Main:ButtonYes"),
-            ClientRectangle = new Rectangle(130, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
+            ClientRectangle = new Rectangle(40, 150, UIDesignConstants.BUTTON_WIDTH_92, UIDesignConstants.BUTTON_HEIGHT)
         };
 
         btnOk.LeftClick += BtnOk_LeftClick;

@@ -53,10 +53,13 @@ namespace Ra2Client
             Application.ThreadException += (sender, args) => HandleException(sender, args.Exception);
             AppDomain.CurrentDomain.UnhandledException += (sender, args) => HandleException(sender, (Exception)args.ExceptionObject);
 
-            DirectoryInfo gameDirectory = SafePath.GetDirectory(ProgramConstants.GamePath);
+            //DirectoryInfo gameDirectory = SafePath.GetDirectory(ProgramConstants.GamePath);
+            var gameDirectory = new DirectoryInfo(ProgramConstants.GamePath);
             Environment.CurrentDirectory = gameDirectory.FullName;
 
-            DirectoryInfo clientUserFilesDirectory = SafePath.GetDirectory(ProgramConstants.ClientUserFilesPath);
+            //var clientUserFilesPath = new DirectoryInfo(ProgramConstants.ClientUserFilesPath);
+
+            DirectoryInfo clientUserFilesDirectory = new DirectoryInfo(ProgramConstants.ClientUserFilesPath);
             if (!clientUserFilesDirectory.Exists)
                 clientUserFilesDirectory.Create();
 

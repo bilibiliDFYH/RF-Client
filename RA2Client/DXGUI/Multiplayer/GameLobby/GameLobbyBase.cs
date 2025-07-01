@@ -367,7 +367,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 SelectAction = btnLoadMaps.OnLeftClick
             });
             
-            mapContextMenu.AddItem("Delete Map".L10N("UI:Main:DeleteMap"), DeleteMapConfirmation, null, CanDeleteMap);
+            mapContextMenu.AddItem("删除地图".L10N("UI:Main:DeleteMap"), DeleteMapConfirmation, null, CanDeleteMap);
 
             mapContextMenu.AddItem(new XNAContextMenuItem
             {

@@ -55,12 +55,6 @@ namespace Ra2Client
         private static void Run(string[] args)
         {
             CDebugView.SetDebugName("Ra2Client");
-            //RenderImage.RenderOneImage("E:\\Downloads\\致命节奏1.2.1\\all03umd.map");
-            //System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-            //var ini1 = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\spawnmap.ini");
-            //var ini2 = new IniFile("E:\\Documents\\file\\RF-Client\\Bin\\Client\\custom_rules_all.ini");
-            //IniFile.ConsolidateIniFiles(ini1,ini2);
-            //ini1.WriteIniFile("E:\\Documents\\file\\RF-Client\\Bin\\test2.ini",Encoding.GetEncoding("Big5"));
 
             bool noAudio = false;
             bool multipleInstanceMode = false;

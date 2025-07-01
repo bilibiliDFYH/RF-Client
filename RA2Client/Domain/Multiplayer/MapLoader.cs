@@ -444,16 +444,28 @@ namespace Ra2Client.Domain.Multiplayer
         public void DeleteCustomMap(GameModeMap gameModeMap)
         {
             Logger.Log("Deleting map " + gameModeMap.Map.Name);
-            if(File.Exists(gameModeMap.Map.CompleteFilePath))
-                File.Delete(gameModeMap.Map.CompleteFilePath);
-            string pngFilePath = Path.ChangeExtension(gameModeMap.Map.CompleteFilePath, ".png");
-            if (File.Exists(pngFilePath)) File.Delete(pngFilePath);
 
+            // 删除主地图文件
+            if (File.Exists(gameModeMap.Map.CompleteFilePath))
+                File.Delete(gameModeMap.Map.CompleteFilePath);
+
+            // 删除图片预览文件（.png 和 .jpg）
+            string baseFilePath = Path.ChangeExtension(gameModeMap.Map.CompleteFilePath, null);
+            string[] extensions = { ".png", ".jpg"}; // 可扩展
+            foreach (string ext in extensions)
+            {
+                string imagePath = baseFilePath + ext;
+                if (File.Exists(imagePath))
+                    File.Delete(imagePath);
+            }
+
+            // 从各个模式中移除该地图
             foreach (GameMode gameMode in GameModeMaps.GameModes)
             {
                 gameMode.Maps.Remove(gameModeMap.Map);
             }
 
+            // 从总列表中移除 GameModeMap
             GameModeMaps.Remove(gameModeMap);
         }
 

@@ -80,7 +80,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnCancel = new XNAClientButton(WindowManager);
             btnCancel.Name = "btnCancel";
-            btnCancel.ClientRectangle = new Rectangle(40, 460, 100, 20);
+            btnCancel.ClientRectangle = new Rectangle(660, 460, 100, 20);
             btnCancel.Text = "Cancel".L10N("UI:Main:ButtonCancel");
             btnCancel.IdleTexture = AssetLoader.LoadTexture("92pxbtn.png");
             btnCancel.HoverTexture = AssetLoader.LoadTexture("92pxbtn_c.png");
@@ -88,7 +88,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnSave = new XNAClientButton(WindowManager);
             btnSave.Name = "btnSave";
-            btnSave.ClientRectangle = new Rectangle(660, 460, 100, 20);
+            btnSave.ClientRectangle = new Rectangle(40, 460, 100, 20);
             btnSave.Text = "Save".L10N("UI:Main:ButtonSave");
             btnSave.IdleTexture = AssetLoader.LoadTexture("92pxbtn.png");
             btnSave.HoverTexture = AssetLoader.LoadTexture("92pxbtn_c.png");

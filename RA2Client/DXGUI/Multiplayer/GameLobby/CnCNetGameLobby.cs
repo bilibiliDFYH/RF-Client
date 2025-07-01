@@ -22,9 +22,6 @@ using Rampastring.XNAUI.XNAControls;
 using ClientCore.Settings;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Net;
-using System.Windows.Forms;
-using System.Net.NetworkInformation;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -128,16 +125,24 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private async void HandleMapDownload(object sender, EventArgs e)
         {
-            var s = (sender as string).Split(";");
-            if (s.Length != 2) return;
+            var s = (sender as string)?.Split(";");
+            if (s == null || s.Length != 2) return;
 
             var sha = s[1];
             var name = s[0];
 
-            var baseUrl = $"{ProgramConstants.CUR_SERVER_URL}/Client/Custom_Map/{sha}.map";
+            char replaceUnsafeCharactersWith = '-';
+            HashSet<char> invalidChars = new HashSet<char>(Path.GetInvalidFileNameChars());
+            string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+            string safeName = $"{timestamp}_{new string(name.Select(c => invalidChars.Contains(c) ? replaceUnsafeCharactersWith : c).ToArray())}";
 
-            string strDownPath = string.Empty;
-            string strLocPath = $"Maps/Multi/Custom/{name}";
+            var baseUrl = $"{ProgramConstants.CUR_SERVER_URL}/Client/Custom_Map/{sha}.map";
+            string strLocPath = Path.Combine(ProgramConstants.GamePath, "Maps", "Multi", "Custom", safeName);
+            string dir = Path.GetDirectoryName(strLocPath);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
 
             try
             {
@@ -147,13 +152,21 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (!Directory.Exists(strTmp))
                     Directory.CreateDirectory(strTmp);
 
+                // 如果文件已存在，尝试删除，失败则跳过
                 if (File.Exists(strLocPath))
-                    File.Delete(strLocPath);
+                {
+                    try { File.Delete(strLocPath); }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("删除旧地图文件失败: " + ex);
+                        return;
+                    }
+                }
 
                 var response = await httpClient.GetAsync(baseUrl);
                 response.EnsureSuccessStatusCode();
 
-                using (var fs = new FileStream(strLocPath, FileMode.CreateNew))
+                using (var fs = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     await response.Content.CopyToAsync(fs);
                 }
@@ -166,6 +179,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             catch (Exception ex)
             {
+                AddNotice("地图下载失败: " + ex.Message, Color.Red);
                 Console.WriteLine(ex);
             }
         }
@@ -212,17 +226,31 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                     var task = Task.Run(async () =>
                     {
-                        var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
-                        string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1}";
-                        connectionManager.SendCustomMessage(new QueuedMessage(
-                            "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
-                        ));
+                        try
+                        {
+                            var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
+                            if (string.IsNullOrEmpty(result.Item1))
+                            {
+                                AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
+                                return;
+                            }
+                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1}";
+                            connectionManager.SendCustomMessage(new QueuedMessage(
+                                "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+                            ));
+                        }
+                        catch (Exception ex)
+                        {
+                            AddNotice("地图上传失败: " + ex.Message, Color.Red);
+                            Console.WriteLine(ex);
+                        }
                     });
 
                     task.Wait();
                 }
                 catch (Exception ex)
                 {
+                    AddNotice("地图上传失败: " + ex.Message, Color.Red);
                     Console.WriteLine(ex);
                 }
                 finally
@@ -1951,6 +1979,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private void MapSharer_HandleMapUploadComplete(MapEventArgs e)
         {
             hostUploadedMaps.Add(e.Map.SHA1);
+            uploadingMaps.Remove(e.Map.SHA1);
 
             AddNotice(string.Format("Uploading map {0} to the CnCNet map database complete.".L10N("UI:Main:UpdateMapToDBSuccess"), e.Map.Name));
             if (e.Map == Map)
@@ -1959,6 +1988,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
         }
 
+        private HashSet<string> uploadingMaps = new HashSet<string>();
+
         /// <summary>
         /// Handles a map upload request sent by a player.
         /// </summary>
@@ -1966,18 +1997,18 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <param name="mapSHA1">The SHA1 of the requested map.</param>
         private void HandleMapUploadRequest(string sender, string mapSHA1)
         {
-            if (hostUploadedMaps.Contains(mapSHA1))
+            // 已上传或正在上传，直接通知请求者去服务器下载
+            if (hostUploadedMaps.Contains(mapSHA1) || uploadingMaps.Contains(mapSHA1))
             {
-                Logger.Log("HandleMapUploadRequest: Map " + mapSHA1 + " is already uploaded!");
+                Logger.Log($"HandleMapUploadRequest: Map {mapSHA1} is already uploaded or uploading, notify {sender} to download from server.");
+                channel.SendCTCPMessage(MAP_SHARING_DOWNLOAD_REQUEST + " " + mapSHA1, QueuedMessageType.SYSTEM_MESSAGE, 9);
                 return;
             }
 
             Map map = null;
-
             foreach (GameMode gm in GameModeMaps.GameModes)
             {
                 map = gm.Maps.Find(m => m.SHA1 == mapSHA1);
-
                 if (map != null)
                     break;
             }
@@ -1991,21 +2022,23 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (map.Official)
             {
                 Logger.Log("HandleMapUploadRequest: Map is official, so skip request");
-
                 AddNotice(string.Format(("{0} doesn't have the map '{1}' on their local installation. " +
                     "The map needs to be changed or {0} is unable to participate in the match.").L10N("UI:Main:PlayerMissingMap"),
                     sender, map.Name));
-
                 return;
             }
 
             if (!IsHost)
                 return;
 
+            // 标记为正在上传
+            uploadingMaps.Add(mapSHA1);
+
             AddNotice(string.Format(("{0} doesn't have the map '{1}' on their local installation. " +
                 "Attempting to upload the map to the CnCNet map database.").L10N("UI:Main:UpdateMapToDBPrompt"),
                 sender, map.Name));
 
+            // 上传地图
             MapSharer.UploadMap(map, localGame);
         }
 

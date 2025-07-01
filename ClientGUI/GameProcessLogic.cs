@@ -517,6 +517,14 @@ namespace ClientGUI
 
                     File.CreateSymbolicLink(targetPath, sourcePath);
                 }
+
+                string gamemd_spawn = Path.Combine(ProgramConstants.游戏目录);
+                gamemd_spawn = gamemd_spawn.Substring(0, gamemd_spawn.Length - 3);
+                gamemd_spawn = gamemd_spawn + "gamemd-spawn.exe";//获取gamemd-spawn.exe的位置
+
+                string targetPath1 = Path.Combine(ProgramConstants.游戏目录 + "\\gamemd-spawn.exe");
+                Directory.CreateDirectory(Path.GetDirectoryName(targetPath1)!);
+                FileHelper.CopyFile(gamemd_spawn, targetPath1);//复制gamemd-spawn.exe到run
             }
             catch (Exception ex)
             {

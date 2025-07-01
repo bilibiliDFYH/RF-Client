@@ -924,21 +924,20 @@ public class XNAListBox : XNAPanel
         for (int i = drawInfo.TopIndex; i < Items.Count; i++)
         {
             XNAListBoxItem lbItem = Items[i];
+            int itemHeight = lbItem.TextLines.Count * LineHeight;
 
             if (!lbItem.Visible)
                 continue;
 
-            height += lbItem.TextLines.Count * LineHeight;
-
-            if (height > mouseLocation.Y)
+            if (mouseLocation.Y >= height && mouseLocation.Y < height + itemHeight)
             {
                 return i;
             }
 
+            height += itemHeight;
+
             if (height > Height)
-            {
-                return -1;
-            }
+                break;
         }
 
         return -1;
@@ -961,10 +960,10 @@ public class XNAListBox : XNAPanel
         int h = 0;
         for (int i = 0; i < Items.Count; i++)
         {
-            int heightIncrease = Items[i].TextLines.Count * LineHeight;
-            if (h + heightIncrease > ViewTop)
+            int itemHeight = Items[i].TextLines.Count * LineHeight;
+            if (h + itemHeight > ViewTop)
                 return new ListBoxItemDrawInfo(i, h - ViewTop);
-            h += heightIncrease;
+            h += itemHeight;
         }
 
         return new ListBoxItemDrawInfo(Items.Count, 0);

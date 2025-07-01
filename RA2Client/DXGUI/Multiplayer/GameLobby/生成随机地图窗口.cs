@@ -9,7 +9,6 @@ using Localization;
 using Microsoft.Xna.Framework;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-
 using Microsoft.VisualBasic.Logging;
 using Rampastring.Tools;
 using RandomMapGenerator;
@@ -23,13 +22,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private XNALabel lblTitle;
 
-        private XNALabel lblClimate; //气候
+        private XNALabel lblClimate;        // 气候
         private XNAClientDropDown ddClimate;
 
-        private XNALabel lblPeople; //人数
+        private XNALabel lblPeople;         // 人数
         private XNAClientDropDown ddPeople;
 
-        private XNAClientCheckBox cbDamage; //建筑物损伤
+        private XNAClientCheckBox cbDamage; // 建筑物损伤
 
         private XNALabel lblSize;
         private XNAClientDropDown ddSize;
@@ -81,7 +80,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnCancel = new XNAClientButton(WindowManager);
             btnCancel.Name = "btnCancel";
-            btnCancel.ClientRectangle = new Rectangle(40, 460, 100, 20);
+            btnCancel.ClientRectangle = new Rectangle(660, 460, 100, 20);
             btnCancel.Text = "Cancel".L10N("UI:Main:ButtonCancel");
             btnCancel.IdleTexture = AssetLoader.LoadTexture("92pxbtn.png");
             btnCancel.HoverTexture = AssetLoader.LoadTexture("92pxbtn_c.png");
@@ -89,7 +88,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnSave = new XNAClientButton(WindowManager);
             btnSave.Name = "btnSave";
-            btnSave.ClientRectangle = new Rectangle(660, 460, 100, 20);
+            btnSave.ClientRectangle = new Rectangle(40, 460, 100, 20);
             btnSave.Text = "Save".L10N("UI:Main:ButtonSave");
             btnSave.IdleTexture = AssetLoader.LoadTexture("92pxbtn.png");
             btnSave.HoverTexture = AssetLoader.LoadTexture("92pxbtn_c.png");
@@ -297,6 +296,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                         var timestamp = DateTime.Now.ToString("yyyyMMddHHmmss");
                         lastName = $"Maps/Multi/Custom/随机地图{timestamp}";
+
                         // 构建文件名
                         string pngName = $"{lastName}.jpg";
 

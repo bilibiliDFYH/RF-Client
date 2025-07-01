@@ -685,16 +685,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 ddPlayerColor.Items.Clear();
                 ddPlayerColor.AddItem(MultiplayerColor.GetRandomColorLabel(), AssetLoader.GetColorFromString(randomColor));
-                    foreach (MultiplayerColor mpColor in MPColors)
+                    foreach (var mpColor in MPColors)
                     {
-                        if (mpColor.Name.StartsWith("$"))
-                            ddPlayerColor.AddItem(new XNADropDownItem()
-                            {
-                                Text = mpColor.Name.TrimStart('$'),
-                                Texture = AssetLoader.CreateTexture(mpColor.XnaColor, ddPlayerColor.ItemHeight - 2, ddPlayerColor.ItemHeight - 2),
-                            });
-                        else
-                            ddPlayerColor.AddItem(mpColor.Name, mpColor.XnaColor);
+                        var colorName = mpColor.Name.StartsWith("$") ? mpColor.Name.TrimStart('$') : mpColor.Name;
+                        var item = new XNADropDownItem()
+                        {
+                            Text = colorName,
+                            Texture = mpColor.Name.StartsWith("$") ? AssetLoader.CreateTexture(mpColor.XnaColor, ddPlayerColor.ItemHeight - 2, ddPlayerColor.ItemHeight - 2) : null,
+                            TextColor = mpColor.XnaColor
+                        };
+                        ddPlayerColor.AddItem(item);
                     }
 
                     // ddPlayerColor.AllowDropDown = false;
@@ -1500,14 +1500,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     foreach (var mpColor in MPColors)
                     {
-                        if (mpColor.Name.StartsWith("$"))
-                            ddPlayerColor.AddItem(new XNADropDownItem()
-                            {
-                                Text = mpColor.Name.TrimStart('$'),
-                                Texture = AssetLoader.CreateTexture(mpColor.XnaColor, ddPlayerColor.ItemHeight - 2, ddPlayerColor.ItemHeight - 2),
-                            });
-                        else
-                            ddPlayerColor.AddItem(mpColor.Name, mpColor.XnaColor);
+                        var colorName = mpColor.Name.StartsWith("$") ? mpColor.Name.TrimStart('$') : mpColor.Name;
+                        var item = new XNADropDownItem()
+                        {
+                            Text = colorName,
+                            Texture = mpColor.Name.StartsWith("$") ? AssetLoader.CreateTexture(mpColor.XnaColor, ddPlayerColor.ItemHeight - 2, ddPlayerColor.ItemHeight - 2) : null,
+                            TextColor = mpColor.XnaColor
+                        };
+                        ddPlayerColor.AddItem(item);
                     }
                 }
 
@@ -2015,7 +2015,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             string newMission = Map?.Mission ?? string.Empty;
 
-            if (Map.IsCoop)
+            if (Map != null && Map.IsCoop)
             {
                 foreach (PlayerInfo pInfo in Players)
                     pInfo.TeamId = 1;

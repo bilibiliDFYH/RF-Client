@@ -260,14 +260,16 @@ namespace RandomMapGenerator
                     mapFile.ChangeName(fullPath, internalNameRandom);
                 }
 
-                /* if (option.NoThumbnailOutput)
+                /* 
+                 if (option.NoThumbnailOutput)
                  {
                      mapFile.GeneratePreview(fullPath);
                      option.NoThumbnail = true;
-                 }*/
+                 }
+                */
 
                 //if (!option.NoThumbnail)
-                //    mapFile.RenderMap(fullPath);
+                //   mapFile.RenderMap(fullPath);
 
 
 

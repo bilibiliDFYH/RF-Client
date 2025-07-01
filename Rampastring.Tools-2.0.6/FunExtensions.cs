@@ -113,6 +113,7 @@ namespace Localization.Tools
                     return false; // 非法字节
                 }
             }
+
             return true;
         }
 
@@ -238,7 +239,10 @@ namespace Localization.Tools
                         return value.ToString().Trim();
                 }
             }
-            catch { }
+            catch
+            {
+            }
+
             return "";
         }
 
@@ -275,7 +279,8 @@ namespace Localization.Tools
 
         public static (int R, int G, int B) ConvertHSVToRGB(int H, int S, int V)
         {
-            if (H == 360) H = 359; // 360为全黑，原因不明
+            if (H == 360)
+                H = 359; // 360为全黑，原因不明
             float R = 0f, G = 0f, B = 0f;
 
             if (S == 0)
@@ -329,6 +334,5 @@ namespace Localization.Tools
             TimeSpan ts = DateTime.Now - DateTime.UnixEpoch;
             return Convert.ToInt64(ts.TotalSeconds).ToString();
         }
-
     }
 }

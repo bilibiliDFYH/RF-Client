@@ -144,7 +144,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnConfirm = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(150, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(30, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
                 Text = "确认".L10N("UI:Main:Yes")
             };
             btnConfirm.LeftClick += (sender, e) =>
@@ -164,7 +164,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnCancel = new XNAClientButton(WindowManager)
             {
-                ClientRectangle = new Rectangle(10, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
+                ClientRectangle = new Rectangle(145, 90, UIDesignConstants.BUTTON_WIDTH_75, UIDesignConstants.BUTTON_HEIGHT),
                 Text = "取消".L10N("UI:Main:Cancel")
             };
             btnCancel.LeftClick += (_, _) =>
@@ -193,10 +193,10 @@ namespace Ra2Client.DXGUI.Generic
             var mapEditorProcess = new Process();
             mapEditorProcess.StartInfo.FileName = Path.Combine(ProgramConstants.GamePath, "Resources\\FinalAlert2SP\\FinalAlert2SP.exe");
             mapEditorProcess.StartInfo.WorkingDirectory = Path.Combine(ProgramConstants.GamePath,"Resources\\FinalAlert2SP");
-            mapEditorProcess.StartInfo.UseShellExecute = false;   //是否使用操作系统shell启动 
+            mapEditorProcess.StartInfo.UseShellExecute = false; //是否使用操作系统shell启动 
             mapEditorProcess.StartInfo.CreateNoWindow = true;   //是否在新窗口中启动该进程的值 (不显示程序窗口)
             mapEditorProcess.Start();
-            mapEditorProcess.WaitForExit();  //等待程序执行完退出进程
+            mapEditorProcess.WaitForExit();                     //等待程序执行完退出进程
             mapEditorProcess.Close();
         }
 

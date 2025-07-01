@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net6.0-windows7.0</TargetFramework>
 	  <LangVersion>13.0</LangVersion>
-    <Title>DTA Config</Title>
+    <Title>DTAConfig</Title>
     <Description>DTA Config Library</Description>
-    <Company>CnCNet</Company>
-    <Product>DTA Config</Product>
+    <Company>Snowy Studio</Company>
+    <Product>DTAConfig</Product>
     <Copyright>Copyright © Snowy Studio 2022-2025</Copyright>
     <Trademark>Snowy</Trademark>
     <Version>1.0.0.0</Version>

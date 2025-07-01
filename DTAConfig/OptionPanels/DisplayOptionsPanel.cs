@@ -32,7 +32,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientDropDown ddRenderer;
         private XNAClientCheckBox chkWindowedMode;
         private XNAClientCheckBox chkBorderlessWindowedMode;
-        private XNAClientCheckBox chkÌø¹ıÆô¶¯¶¯»­;
+        private XNAClientCheckBox chkè·³è¿‡å¯åŠ¨åŠ¨ç”»;
         private XNAClientCheckBox chkBackBufferInVRAM;
         private XNAClientPreferredItemDropDown ddClientResolution;
         private XNAClientCheckBox chkBorderlessClient;
@@ -57,7 +57,7 @@ namespace DTAConfig.OptionPanels
 
             Name = "DisplayOptionsPanel";
 
-            //ÓÎÏ··Ö±æÂÊ
+            //æ¸¸æˆåˆ†è¾¨ç‡
             var lblIngameResolution = new XNALabel(WindowManager);
             lblIngameResolution.Name = nameof(lblIngameResolution);
             lblIngameResolution.ClientRectangle = new Rectangle(12, 14, 0, 0);
@@ -109,7 +109,7 @@ namespace DTAConfig.OptionPanels
             chkCustomIngameResolution.Checked = false;
             AddChild(chkCustomIngameResolution);
 
-            // ¿Í»§¶Ë·Ö±æÂÊ
+            // å®¢æˆ·ç«¯åˆ†è¾¨ç‡
             var lblClientResolution = new XNALabel(WindowManager);
             lblClientResolution.Name = nameof(lblClientResolution);
             lblClientResolution.ClientRectangle = new Rectangle(ddIngameResolution.Right + 120, ddIngameResolution.Top, 0, 0);
@@ -156,7 +156,7 @@ namespace DTAConfig.OptionPanels
                     ddClientResolution.PreferredItemIndexes.Add(index);
             }
 
-            // »­Ãæ¾«Ï¸¶È
+            // ç”»é¢ç²¾ç»†åº¦
             var lblDetailLevel = new XNALabel(WindowManager);
             lblDetailLevel.Name = nameof(lblDetailLevel);
             lblDetailLevel.ClientRectangle = new Rectangle(lblIngameResolution.X, lblIngameResolution.Bottom + 48, 0, 0);
@@ -171,7 +171,7 @@ namespace DTAConfig.OptionPanels
             ddDetailLevel.AddItem("High".L10N("UI:DTAConfig:DetailLevelHigh"));
             AddChild(ddDetailLevel);
 
-            // äÖÈ¾Æ÷(ddraw)
+            // æ¸²æŸ“å™¨(ddraw)
             var lblRenderer = new XNALabel(WindowManager);
             lblRenderer.Name = nameof(lblRenderer);
             lblRenderer.ClientRectangle = new Rectangle(ddDetailLevel.Right + 120, ddDetailLevel.Top, 0, 0);
@@ -197,7 +197,7 @@ namespace DTAConfig.OptionPanels
                 }
             }
 
-            // ´°¿ÚÄ£Ê½
+            // çª—å£æ¨¡å¼
             chkWindowedMode = new XNAClientCheckBox(WindowManager);
             chkWindowedMode.Name = nameof(chkWindowedMode);
             chkWindowedMode.ClientRectangle = new Rectangle(lblDetailLevel.X, lblDetailLevel.Bottom + 16, 0, 0);
@@ -205,7 +205,7 @@ namespace DTAConfig.OptionPanels
             chkWindowedMode.CheckedChanged += ChkWindowedMode_CheckedChanged;
             AddChild(chkWindowedMode);
            
-            // ÎŞ´°¿ÚÄ£Ê½
+            // æ— çª—å£æ¨¡å¼
             chkBorderlessWindowedMode = new XNAClientCheckBox(WindowManager);
             chkBorderlessWindowedMode.Name = nameof(chkBorderlessWindowedMode);
             chkBorderlessWindowedMode.ClientRectangle = new Rectangle(lblRenderer.X, lblRenderer.Bottom + 16, 0, 0);
@@ -215,7 +215,7 @@ namespace DTAConfig.OptionPanels
 
      
 
-            // ¿Í»§¶ËÈ«ÆÁ
+            // å®¢æˆ·ç«¯å…¨å±
             chkBorderlessClient = new XNAClientCheckBox(WindowManager);
             chkBorderlessClient.Name = nameof(chkBorderlessClient);
             chkBorderlessClient.ClientRectangle = new Rectangle(lblClientResolution.X, lblClientResolution.Bottom + 16, 0, 0);
@@ -224,7 +224,7 @@ namespace DTAConfig.OptionPanels
             chkBorderlessClient.Checked = true;
             AddChild(chkBorderlessClient);
 
-            // ÓïÑÔ
+            // è¯­è¨€
             var lblLanguage = new XNALabel(WindowManager);
             lblLanguage.Name = nameof(lblLanguage);
             lblLanguage.ClientRectangle = new Rectangle(chkBorderlessWindowedMode.X, chkBorderlessWindowedMode.Bottom + 16, 0, 0);
@@ -250,7 +250,7 @@ namespace DTAConfig.OptionPanels
                 ddLanguage.AddItem(item1);
             }
 
-            // Ö÷Ìâ
+            // ä¸»é¢˜
             var lblClientTheme = new XNALabel(WindowManager);
             lblClientTheme.Name = nameof(lblClientTheme);
             lblClientTheme.ClientRectangle = new Rectangle(lblLanguage.X, lblLanguage.Bottom + 16, 0, 0);
@@ -274,7 +274,7 @@ namespace DTAConfig.OptionPanels
                     ddClientTheme.AddItem(item1);
             }
 
-            // Ëæ»úÆô¶¯·âÃæ
+            // éšæœºå¯åŠ¨å°é¢
             chkRandom_wallpaper = new XNAClientCheckBox(WindowManager);
             chkRandom_wallpaper.Name = nameof(chkRandom_wallpaper);
             chkRandom_wallpaper.ClientRectangle = new Rectangle(chkWindowedMode.X, chkWindowedMode.Bottom + 16, 0, 0);
@@ -282,16 +282,16 @@ namespace DTAConfig.OptionPanels
             chkRandom_wallpaper.Checked = false;
             AddChild(chkRandom_wallpaper);
 
-            chkÌø¹ıÆô¶¯¶¯»­ = new XNAClientCheckBox(WindowManager)
+            chkè·³è¿‡å¯åŠ¨åŠ¨ç”» = new XNAClientCheckBox(WindowManager)
             {
-                Name = nameof(chkÌø¹ıÆô¶¯¶¯»­),
+                Name = nameof(chkè·³è¿‡å¯åŠ¨åŠ¨ç”»),
                 ClientRectangle = new Rectangle(chkBorderlessWindowedMode.X, chkRandom_wallpaper.Y, 0, 0),
-                Text = "Ìø¹ıÆô¶¯¶¯»­"
+                Text = "è·³è¿‡å¯åŠ¨åŠ¨ç”»"
             };
 
-            AddChild(chkÌø¹ıÆô¶¯¶¯»­);
+            AddChild(chkè·³è¿‡å¯åŠ¨åŠ¨ç”»);
 
-            // Ëæ»úÆô¶¯·âÃæ->±ÚÖ½orÊÓÆµ
+            // éšæœºå¯åŠ¨å°é¢->å£çº¸orè§†é¢‘
             var lblStart = new XNALabel(WindowManager);
             lblStart.Name = nameof(lblStart);
             lblStart.Text = "Load:".L10N("UI:Main:Load");
@@ -316,7 +316,7 @@ namespace DTAConfig.OptionPanels
             AddChild(btnOpen);
             btnOpen.Visible = false;
 
-            // Ë«»º³åÄ£Ê½
+            // åŒç¼“å†²æ¨¡å¼
             chkBackBufferInVRAM = new XNAClientCheckBox(WindowManager);
             chkBackBufferInVRAM.Name = nameof(chkBackBufferInVRAM);
             chkBackBufferInVRAM.ClientRectangle = new Rectangle(chkRandom_wallpaper.X, chkRandom_wallpaper.Bottom + 16, 0, 0);
@@ -525,7 +525,7 @@ namespace DTAConfig.OptionPanels
                 ddIngameResolution.SelectedIndex = index > -1 ? index : 0;
             }
 
-            // Wonder what this "Win8CompatMode" actually does..
+            // Wonder what this "Win8CompatMode" actually does...
             // Disabling it used to be TS-DDRAW only, but it was never enabled after 
             // you had tried TS-DDRAW once, so most players probably have it always
             // disabled anyway
@@ -561,9 +561,9 @@ namespace DTAConfig.OptionPanels
                 chkBorderlessWindowedMode.Checked = UserINISettings.Instance.BorderlessWindowedMode;
             }
 
-            //Ëæ»ú±ÚÖ½
+            //éšæœºå£çº¸
             chkRandom_wallpaper.Checked = UserINISettings.Instance.Random_wallpaper;
-            chkÌø¹ıÆô¶¯¶¯»­.Checked = UserINISettings.Instance.Ìø¹ıÆô¶¯¶¯»­;
+            chkè·³è¿‡å¯åŠ¨åŠ¨ç”».Checked = UserINISettings.Instance.è·³è¿‡å¯åŠ¨åŠ¨ç”»;
             ddStart.SelectedIndex = UserINISettings.Instance.video_wallpaper ? 1 : 0;
             int selectedLanguageIndex = ddLanguage.Items.FindIndex(
                 ddi => (string)ddi.Tag == UserINISettings.Instance.Language);
@@ -611,8 +611,8 @@ namespace DTAConfig.OptionPanels
             IniSettings.IngameScreenWidth.Value = ingameRes[0];
             IniSettings.IngameScreenHeight.Value = ingameRes[1];
 
-            //Í¬²½RFºÍMDÅäÖÃÎÄ¼şÅäÖÃ·Ö±æÂÊ²»Ò»ÖÂÎÊÌâ By ±ËµÃÍÃ 2024/01/06
-            //var mdIniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.ÓÎÏ·Ä¿Â¼, "RA2RF.ini"));
+            //åŒæ­¥RFå’ŒMDé…ç½®æ–‡ä»¶é…ç½®åˆ†è¾¨ç‡ä¸ä¸€è‡´é—®é¢˜ By å½¼å¾—å…” 2024/01/06
+            //var mdIniFile = new IniFile(SafePath.CombineFilePath(ProgramConstants.æ¸¸æˆç›®å½•, "RA2RF.ini"));
             //var videoSec = mdIniFile.GetSection("Video");
             //videoSec.SetIntValue("ScreenWidth", IniSettings.IngameScreenWidth.Value);
             //videoSec.SetIntValue("ScreenHeight", IniSettings.IngameScreenHeight.Value);
@@ -682,11 +682,11 @@ namespace DTAConfig.OptionPanels
 
             IniSettings.ClientTheme.Value = (string)ddClientTheme.SelectedItem.Tag;
 
-            //Ëæ»ú±ÚÖ½
+            //éšæœºå£çº¸
             IniSettings.Random_wallpaper.Value = chkRandom_wallpaper.Checked;
             IniSettings.BackBufferInVRAM.Value = chkBackBufferInVRAM.Checked;
 
-            IniSettings.Ìø¹ıÆô¶¯¶¯»­.Value = chkÌø¹ıÆô¶¯¶¯»­.Checked;
+            IniSettings.è·³è¿‡å¯åŠ¨åŠ¨ç”».Value = chkè·³è¿‡å¯åŠ¨åŠ¨ç”».Checked;
 
             if (selectedRenderer != originalRenderer ||
                 !SafePath.GetFile(ProgramConstants.GamePath, selectedRenderer.ConfigFileName).Exists)

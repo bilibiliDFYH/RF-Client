@@ -82,7 +82,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                         gm.Map.GameModes = [.. gm.Map.GameModes, 游戏模式选项框.SelectedItem.Text];
                         });
 
-                //var maps = mapLoader.GameModes.Find(gm => gm.Name == 游戏模式选项框.SelectedItem.Text).Maps;
+                // var maps = mapLoader.GameModes.Find(gm => gm.Name == 游戏模式选项框.SelectedItem.Text).Maps;
 
                 // mapLoader.GameModes.Find(gm => gm.Name == 游戏模式选项框.SelectedItem.Text).Maps = [.. maps, map];
 

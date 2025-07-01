@@ -3,10 +3,10 @@
     <TargetFramework>net6.0-windows7.0</TargetFramework>
 	  <LangVersion>13.0</LangVersion>
     <OutputType>Exe</OutputType>
-    <Title></Title>
+    <Title>ClientUpdater</Title>
     <Description>Ra2Client Updater</Description>
-    <Company></Company>
-    <Product></Product>
+    <Company>Snowy Studio</Company>
+    <Product>ClientUpdater</Product>
     <Copyright>Copyright © Snowy Studio 2022-2025</Copyright>
     <Trademark>Snowy</Trademark>
     <AssemblyName>ClientUpdater</AssemblyName>

@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Resources;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -11,19 +14,74 @@ namespace Reunion
 {
     internal class Program
     {
-        private const int DotNetMajorVersion = 6; // 客户端.Net 版本要求
         private const string Resources = "Resources";
         private const string Binaries = "Binaries";
+        private const string RequiredFile = "使用前必读.txt";
+        private const string ExpectedHash = "5a6ea2cb7ad25f7c565b3d62395f878a92385f3bb6263be301b3525f98afa6af";
 
-        private static string dotnetPath = @"C:\Program Files\dotnet";
-        private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
+        // 动态获取系统盘符, 防止多系统情况下无法启动
+        private static readonly string SystemDrive = Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
+        private static readonly string dotnetPath = Path.Combine(SystemDrive, "Program Files", "dotnet");
+        private static readonly string dotnetPathA64 = Path.Combine(SystemDrive, "Program Files", "dotnet", "x64");
 
         private static string[] Args;
         static void Main(string[] args)
         {
             Args = args;
+
+            if (!CheckRequiredFile())
+            {
+                return;
+            }
+
             StartProcess(GetClientProcessPath("Ra2Client.dll"));
         }
+
+        private static bool CheckRequiredFile()
+        {
+            if (!File.Exists(RequiredFile))
+            {
+                MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            try
+            {
+                // 计算文件哈希值
+                string actualHash = ComputeFileSHA256(RequiredFile);
+
+                // 比较哈希值(不区分大小写)
+                if (!actualHash.Equals(ExpectedHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"文件校验出错: {ex.Message}", "错误",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 计算文件的SHA256哈希值
+        /// </summary>
+        private static string ComputeFileSHA256(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] hashBytes = sha256.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
         private static string GetClientProcessPath(string file) => $"{Resources}\\{Binaries}\\{file}";
 
         private static void StartProcess(string relPath)
@@ -53,19 +111,19 @@ namespace Reunion
                     switch (arch)
                     {
                         case "x86":
-                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = $"https://{domain}/NET6/x86/windowsdesktop-runtime-6.0.36-win-x86.exe";
                             break;
                         case "x64":
-                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = $"https://{domain}/NET6/x64/windowsdesktop-runtime-6.0.36-win-x64.exe";
                             break;
                         case "arm64":
-                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = $"https://{domain}/NET6/arm64/windowsdesktop-runtime-6.0.36-win-arm64.exe";
                             break;
                         default:
-                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?";
+                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
                             url = "https://www.yra2.com/runtime#net6-download";
                             break;
                     }
@@ -136,57 +194,63 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-            string dotnetExePath = Path.Combine(dotnetPath, "dotnet.exe");
-            string fullSharedPath = Path.Combine(dotnetPath, sharedPath);
+            string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
 
-            if (!File.Exists(dotnetExePath) || !Directory.Exists(fullSharedPath))
-            {
-                return null;
-            }
+            var pathsToCheck = new List<string>();
 
-            var r = FindDotNetInPath(fullSharedPath);
-            if (r == null)
+            // 对于x64架构添加两个检查路径
+            if (arch == "x64")
             {
-                return null;
+                pathsToCheck.Add(dotnetPath);
+                pathsToCheck.Add(dotnetPathA64);
             }
             else
             {
-                return dotnetExePath;
+                pathsToCheck.Add(dotnetPath);
             }
-        }
 
-        private static string FindDotNetInPath(string path)
-        {
-            if (Directory.Exists(path))
+            // 遍历所有需要检查的路径
+            foreach (var basePath in pathsToCheck)
             {
-                var directories = Directory.GetDirectories(path);
+                string sharedRuntimePath = Path.Combine(basePath, "shared", "Microsoft.WindowsDesktop.App");
+                string dotnetExePath = Path.Combine(basePath, "dotnet.exe");
 
-                foreach (var dir in directories)
+                // 检查 dotnet.exe 是否存在
+                if (!File.Exists(dotnetExePath))
+                    continue;
+
+                // 检查运行时目录是否存在
+                if (!Directory.Exists(sharedRuntimePath))
+                    continue;
+
+                // 检查运行时版本 (6.0.10 ≤ version ≤ 6.0.36)
+                foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
                 {
-                    var folderName = Path.GetFileName(dir);
+                    string versionName = Path.GetFileName(versionDir);
 
-                    // 解析版本号
-                    if (Version.TryParse(folderName, out var version))
+                    if (Version.TryParse(versionName, out Version version) &&
+                        version.Major == 6 && version.Minor == 0 && version.Build >= 10)
                     {
-                        // 版本号必须 >= 6.0.7
-                        if (version.Major == 6 && (version.Minor >= 0 || version.Build >= 7))
-                        {
-                            return dir;
-                        }
+                        return dotnetExePath; // 返回有效的 dotnet.exe 路径
                     }
                 }
             }
-            return null; // 未找到符合条件的文件夹
+
+            return null; // 未找到符合条件的运行时
         }
 
+        /// <summary>
+        /// 通过 curl 获取本机IP的国家代码(countryCode)，CN为中国大陆，其他为港澳台及海外
+        /// </summary>
+        /// <returns>国家代码，如"CN"、"HK"、"US"等，获取失败返回空字符串</returns>
         private static string GetCountryCodeByIp()
         {
             try
             {
                 var psi = new ProcessStartInfo
                 {
-                    FileName = "curl",
-                    Arguments = "-s https://api.mir6.com/api/ip_json?ip=myip",
+                    FileName = "cmd.exe",
+                    Arguments = "/c curl -s https://api.mir6.com/api/ip_json?ip=myip",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true

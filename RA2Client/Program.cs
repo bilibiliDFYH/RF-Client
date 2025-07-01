@@ -106,7 +106,7 @@ namespace Ra2Client
                 }
                 else if (versionDigits == 4)
                 {
-                    MessageBox.Show("当前测试版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来 官方QQ群/微信群 更新客户端以获得后续的技术支持\n\n(群号见重聚未来官网)", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                    MessageBox.Show("当前测试版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来 官方QQ群/微信群 更新客户端以获得后续的技术支持\n\n(群号见重聚未来官网: www.yra2.com)", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
                 }
                 else
                 {

@@ -57,7 +57,7 @@ namespace ClientCore
                 "chingchong",
                 "slanty",
                 "zipperhead",
-                "gook"
+                "gook",
             };
         }
 

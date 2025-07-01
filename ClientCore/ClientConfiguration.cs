@@ -425,10 +425,6 @@ namespace ClientCore
                     {
                         return OSVersion.Windows11_23H2;
                     }
-                    else if (version.Build == 22635)
-                    {
-                        return OSVersion.Windows11_23H2_Beta;
-                    }
                     else if (version.Build == 26100)
                     {
                         return OSVersion.Windows11_24H2_LTSC2024_SERVER2025;
@@ -439,14 +435,8 @@ namespace ClientCore
                     }
                     else if (version.Build == 26200)
                     {
-                        return OSVersion.Windows11_24H2_Dev;
+                        return OSVersion.Windows11_25H2;
                     }
-                    //等待Windows11 25H2发布并确定具体内核版本
-                    //else if (version.Build == 26200)
-                    //{
-                    //    return OSVersion.Windows11_25H2;
-                    //}
-                    //等待Windows11 30H1发布并确定具体内核版本
                     //else if (version.Build == 27817)
                     //{
                     //    return OSVersion.Windows11_30H1;

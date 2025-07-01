@@ -20,21 +20,21 @@ namespace Ra2Client
 {
     public static class LocalHttpServer
     {
-        private static HttpListener? listener;
-        private static Thread? listenerThread;
+        private static HttpListener listener;
+        private static Thread listenerThread;
         public static int Port { get; private set; } = -1;
         public static bool IsRunning => listener != null && listener.IsListening;
 
-        private static Dictionary<int,string> _installedMapIds = [];
+        private static Dictionary<int, string> _installedMapIds = [];
 
         private static XNAMessageBox messageBox;
 
-        public static void Start(WindowManager wm,int startPort = 27123, int maxTries = 10)
+        public static void Start(WindowManager wm, int startPort = 27123, int maxTries = 10)
         {
             if (IsRunning) return;
 
             int tryPort = startPort;
-            Exception? lastEx = null;
+            Exception lastEx = null;
             RefreshInstalledMapIds();
            
             for (int i = 0; i < maxTries; i++)
@@ -94,7 +94,7 @@ namespace Ra2Client
             Console.WriteLine("🛑 本地服务已停止");
         }
 
-        private static async Task HandleRequest(WindowManager wm,HttpListenerContext context)
+        private static async Task HandleRequest(WindowManager wm, HttpListenerContext context)
         {
             var request = context.Request;
             var response = context.Response;
@@ -165,7 +165,7 @@ namespace Ra2Client
                     {
                         if (!string.IsNullOrEmpty(map.csf))
                         {
-                            string baseDir = Path.Combine("Maps", "Multi","MapLibrary", map.id.ToString());
+                            string baseDir = Path.Combine("Maps", "Multi", "MapLibrary", map.id.ToString());
 
                             // 如果目录存在，删除整个目录及内容（慎用，确认安全）
                             if (Directory.Exists(baseDir))
@@ -309,14 +309,14 @@ namespace Ra2Client
         }
 
         /// <summary>
-        /// 将字符串用 ; 分隔后写入 INI
+        /// 将字符串用";"分隔后写入 INI
         /// </summary>
-        private static void WriteListToIni(IniFile ini, string section, string keyPrefix, string? data)
+        private static void WriteListToIni(IniFile ini, string section, string keyPrefix, string data)
         {
             var list = data?.Split(';', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
             for (int i = 0; i < list.Length; i++)
             {
-                ini.SetValue(section, $"{keyPrefix}{i}",list[i]);
+                ini.SetValue(section, $"{keyPrefix}{i}", list[i]);
             }
         }
 

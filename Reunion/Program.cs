@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace Reunion
 {
@@ -16,8 +17,13 @@ namespace Reunion
     {
         private const string Resources = "Resources";
         private const string Binaries = "Binaries";
+        private const string LicenseFile = "License-GPLv3.txt";
         private const string RequiredFile = "使用前必读.txt";
-        private const string ExpectedHash = "5a6ea2cb7ad25f7c565b3d62395f878a92385f3bb6263be301b3525f98afa6af";
+        private const string FreeFile = "本程序完全免费，倒卖者s全家.txt";
+
+        private const string ExpectedHash_LicenseFile = "dc447a64136642636d7aa32e50c76e2465801c5f";
+        private const string ExpectedHash_RequiredFile = "3890356c3f346e72d5feab11dbea71c26ce3c22879b2fe8d580fe3edc7a29462";
+        private const string ExpectedHash_FreeFile = "3f4f36d5bc8d62a18e9fce9bc67744320afb46bfd49de32bc99277bb84916410";
 
         // 动态获取系统盘符, 防止多系统情况下无法启动
         private static readonly string SystemDrive = Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
@@ -39,7 +45,7 @@ namespace Reunion
 
         private static bool CheckRequiredFile()
         {
-            if (!File.Exists(RequiredFile))
+            if (!File.Exists(RequiredFile) || !File.Exists(FreeFile) || !File.Exists(LicenseFile))
             {
                 MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -48,11 +54,24 @@ namespace Reunion
 
             try
             {
-                // 计算文件哈希值
-                string actualHash = ComputeFileSHA256(RequiredFile);
+                string actualHash1 = ComputeFileSHA256(RequiredFile);
+                if (!actualHash1.Equals(ExpectedHash_RequiredFile, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
 
-                // 比较哈希值(不区分大小写)
-                if (!actualHash.Equals(ExpectedHash, StringComparison.OrdinalIgnoreCase))
+                string actualHash2 = ComputeFileSHA3_256(FreeFile);
+                if (!actualHash2.Equals(ExpectedHash_FreeFile, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                string actualHash3 = ComputeFileSHA1(LicenseFile);
+                if (!actualHash3.Equals(ExpectedHash_LicenseFile, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -70,6 +89,19 @@ namespace Reunion
         }
 
         /// <summary>
+        /// 计算文件的SHA1哈希值
+        /// </summary>
+        private static string ComputeFileSHA1(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (SHA1 sha1 = SHA1.Create())
+            {
+                byte[] hashBytes = sha1.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
         /// 计算文件的SHA256哈希值
         /// </summary>
         private static string ComputeFileSHA256(string filePath)
@@ -79,6 +111,26 @@ namespace Reunion
             {
                 byte[] hashBytes = sha256.ComputeHash(stream);
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
+        /// 计算文件的SHA3_256哈希值
+        /// </summary>
+        private static string ComputeFileSHA3_256(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            {
+                var sha3 = new Sha3Digest(256);
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    sha3.BlockUpdate(buffer, 0, bytesRead);
+                }
+                byte[] result = new byte[sha3.GetDigestSize()];
+                sha3.DoFinal(result, 0);
+                return BitConverter.ToString(result).Replace("-", "").ToLowerInvariant();
             }
         }
 

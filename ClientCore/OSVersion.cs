@@ -26,11 +26,10 @@
     Windows11_21H2,
     Windows11_22H2,
     Windows11_23H2,
-    Windows11_23H2_Beta,
     Windows11_24H2_LTSC2024_SERVER2025,
     Windows11_24H2_Beta,
-    Windows11_24H2_Dev,
     Windows11_25H2,
+    Windows11_25H2_Dev,
     Windows11_30H1,
     Experimental_Version_Of_Windows,
     UNIX

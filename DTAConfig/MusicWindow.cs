@@ -27,7 +27,7 @@ namespace DTAConfig
         private AudioFileReader audioFile;
         private WaveOutEvent outputDevice;
 
-        private const string MusicINI = "Resources/thememd/thememd.ini";
+        private string GetMusicIniPath() => Path.Combine(ProgramConstants.GamePath, "Resources/thememd/thememd.ini");
 
         public override void Initialize()
         {
@@ -61,7 +61,6 @@ namespace DTAConfig
             };
 
             listBox.SelectedIndexChanged += ListBox_SelectedIndexChanged;
-
             listBox.RightClick += ListBox_RightClick;
 
             multiColumnListBox = new XNAMultiColumnListBox(WindowManager)
@@ -101,7 +100,15 @@ namespace DTAConfig
                 }
             });
 
-            AddChild([btnPlay, btnStop, btnAdd, btnRemove, btnReLoad, listBox, multiColumnListBox, btnSave, _menu]);
+            AddChild(btnPlay);
+            AddChild(btnStop);
+            AddChild(btnAdd);
+            AddChild(btnRemove);
+            AddChild(btnReLoad);
+            AddChild(listBox);
+            AddChild(multiColumnListBox);
+            AddChild(btnSave);
+            AddChild(_menu);
 
             ReLoad();
 
@@ -130,9 +137,18 @@ namespace DTAConfig
         /// <param name="e"></param>
         private void BtnStop_LeftClick(object sender, EventArgs e)
         {
-            audioFile?.Dispose();
-            outputDevice?.Stop();
-            outputDevice?.Dispose();
+            try
+            {
+                outputDevice?.Stop();
+                outputDevice?.Dispose();
+                outputDevice = null;
+                audioFile?.Dispose();
+                audioFile = null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("MusicWindow", $"停止播放时出错：{ex}");
+            }
         }
 
         /// <summary>
@@ -153,7 +169,7 @@ namespace DTAConfig
                 {
                     if (File.Exists(music.Path))
                         File.Delete(music.Path);
-                    new IniFile(MusicINI)
+                    new IniFile(GetMusicIniPath())
                         .RemoveKey("Themes", music.Section)
                         .RemoveSection(music.Section)
                         .WriteIniFile();
@@ -184,10 +200,10 @@ namespace DTAConfig
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                string targetDirectory = "Resources/thememd"; // 设置目标目录
-                Directory.CreateDirectory(targetDirectory); // 确保目录存在
+                string targetDirectory = Path.Combine(ProgramConstants.GamePath, "Resources/thememd");
+                Directory.CreateDirectory(targetDirectory);
 
-                var inifile = new IniFile(MusicINI);
+                var inifile = new IniFile(GetMusicIniPath());
 
                 foreach (string sourceFilePath in openFileDialog.FileNames)
                 {
@@ -210,6 +226,7 @@ namespace DTAConfig
                     catch (Exception ex)
                     {
                         XNAMessageBox.Show(WindowManager, "转换音频出错", $"文件: {fileName}\n错误信息: {ex.Message}");
+                        Logger.Log("MusicWindow", $"转换音频出错: {ex}");
                         continue; // 继续处理下一个文件
                     }
 
@@ -251,18 +268,29 @@ namespace DTAConfig
         /// <param name="e"></param>
         private void BtnPlay_LeftClick(object sender, EventArgs e)
         {
-            outputDevice?.Stop();
             try
             {
-                audioFile = new AudioFileReader(((Music)(listBox.SelectedItem.Tag)).Path);
-                outputDevice = new WaveOutEvent();
+                if (listBox.SelectedItem == null || listBox.SelectedItem.Tag is not Music music || string.IsNullOrEmpty(music.Path) || !File.Exists(music.Path))
+                {
+                    XNAMessageBox.Show(WindowManager, "错误", "请选择有效的音乐项");
+                    return;
+                }
+                // 先释放旧资源
+                outputDevice?.Stop();
+                outputDevice?.Dispose();
+                outputDevice = null;
+                audioFile?.Dispose();
+                audioFile = null;
 
+                audioFile = new AudioFileReader(music.Path);
+                outputDevice = new WaveOutEvent();
                 outputDevice.Init(audioFile);
                 outputDevice.Play();
             }
             catch (Exception ex)
             {
-                XNAMessageBox.Show(WindowManager, "错误", $"播放失败：{ex}");
+                XNAMessageBox.Show(WindowManager, "错误", $"播放失败：{ex.Message}");
+                Logger.Log("MusicWindow", $"播放失败：{ex}");
             }
         }
 
@@ -303,17 +331,18 @@ namespace DTAConfig
         {
             try
             {
-                if (!Directory.Exists($"{ProgramConstants.GamePath}Resources/thememd"))
-                    Directory.CreateDirectory($"{ProgramConstants.GamePath}Resources/thememd");
+                string musicDir = Path.Combine(ProgramConstants.GamePath, "Resources/thememd");
+                if (!Directory.Exists(musicDir))
+                    Directory.CreateDirectory(musicDir);
 
-                if (Directory.GetFiles($"{ProgramConstants.GamePath}Resources/thememd").Length == 0)
-                    Mix.UnPackMix($"{ProgramConstants.GamePath}Resources/thememd/", $"{ProgramConstants.GamePath}thememd.mix");
+                if (Directory.GetFiles(musicDir).Length == 0)
+                    Mix.UnPackMix(musicDir + "/", Path.Combine(ProgramConstants.GamePath, "thememd.mix"));
 
                 listBox.Clear();
 
                 UserINISettings.Instance.MusicNameDictionary = [];
-                var inifile = new IniFile(MusicINI);
-                var csfDictionary = new CSF($"{ProgramConstants.GamePath}ra2md.csf").GetCsfDictionary();
+                var inifile = new IniFile(GetMusicIniPath());
+                var csfDictionary = new CSF(Path.Combine(ProgramConstants.GamePath, "ra2md.csf")).GetCsfDictionary();
                 var iniSection = inifile.GetSectionValues("Themes");
                 if (iniSection != null)
                     foreach (var section in iniSection)
@@ -322,29 +351,27 @@ namespace DTAConfig
 
                         var Sound = inifile.GetValue(section, "Sound", section);
 
-                        var Path = string.Empty;
+                        var PathStr = string.Empty;
                         var Size = string.Empty;
                         var Length = inifile.GetValue(section, "Length", string.Empty);
                         var Side = inifile.GetValue(section, "Side", string.Empty);
 
                         if (string.IsNullOrEmpty(Length))
                         {
-                            var path = $"{ProgramConstants.GamePath}Resources/thememd/{Sound}.WAV";
+                            var path = Path.Combine(musicDir, Sound + ".wav");
                             if (File.Exists(path))
                             {
-                                Length = new AudioFileReader(path).TotalTime.ToString();
-
                                 try
                                 {
+                                    Length = new AudioFileReader(path).TotalTime.ToString();
                                     Size = new FileInfo(path).Length.ToFileSizeString(2) + " MB";
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.Log("MusicWindow", $"获取文件大小失败：{ex}");
+                                    Logger.Log("MusicWindow", $"获取文件信息失败：{ex}");
                                     Size = "未知";
                                 }
-
-                                Path = path;
+                                PathStr = path;
                             }
                         }
 
@@ -360,7 +387,7 @@ namespace DTAConfig
                             Scenario = inifile.GetValue(section, "Scenario", string.Empty),
                             Side = Side,
                             Repeat = inifile.GetValue(section, "Repeat", string.Empty),
-                            Path = Path
+                            Path = PathStr
                         };
 
                         listBox.AddItem(music.CName, tag: music);
@@ -380,7 +407,7 @@ namespace DTAConfig
 
     public class EditWindow(WindowManager windowManager, Music _music) : XNAWindow(windowManager)
     {
-        private const string MusicINI = "Resources/thememd/thememd.ini";
+        private string GetMusicIniPath() => Path.Combine(ProgramConstants.GamePath, "Resources/thememd/thememd.ini");
 
         public override void Initialize()
         {
@@ -449,14 +476,15 @@ namespace DTAConfig
                     _ => throw new NotImplementedException(),
                 };
 
-                var iniFile = new IniFile(MusicINI);
+                var iniFile = new IniFile(GetMusicIniPath());
                 iniFile.SetValue(_music.Section, "CName", ctbName.Text);
                 if (Side == string.Empty)
                     iniFile.RemoveKey(_music.Section, "Side");
                 else iniFile.SetValue(_music.Section, "Side", Side);
                 iniFile.WriteIniFile();
 
-                Visible = false;
+                Disable();
+                Dispose();
             };
 
             var btnCanael = new XNAClientButton(WindowManager)
@@ -469,8 +497,12 @@ namespace DTAConfig
 
             btnCanael.LeftClick += (_, _) => { Disable(); Dispose(); };
 
-            AddChild([lblName, ctbName, lblSide, ddSide, btnOK, btnCanael]);
-
+            AddChild(lblName);
+            AddChild(ctbName);
+            AddChild(lblSide);
+            AddChild(ddSide);
+            AddChild(btnOK);
+            AddChild(btnCanael);
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ClientCore.Entity
 {
     public readonly record struct UpdaterServer(
-        int? id,
+        string? id,
         string name,
         int type,
         string location,

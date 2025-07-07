@@ -364,7 +364,7 @@ namespace DTAConfig.OptionPanels
                 await NetWorkINISettings.Post<bool?>("user/updUserBadge", new BadgeDto()
                 {
                     userId = user.id,
-                    badgeId = (int)dd徽章值.SelectedItem.Tag
+                    badgeId = (string)dd徽章值.SelectedItem.Tag
                 });
                 徽章值.Text = dd徽章值.SelectedItem.Text;
             反转徽章显示状态(null, null);
@@ -666,7 +666,7 @@ namespace DTAConfig.OptionPanels
 
         private void 登录成功(User user)
         {
-            if (0 == user.id && null == user.username)
+            if ("0" == user.id && null == user.username)
                 return;
 
             Task.Run(() =>
@@ -1753,7 +1753,7 @@ namespace DTAConfig.OptionPanels
 
     public record class ChangePwdDto
     {
-        public int id { get; set; }
+        public string id { get; set; }
         public string oldPwd { get; set; }
         public string newPwd { get; set; }
     }

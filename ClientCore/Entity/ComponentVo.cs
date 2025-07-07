@@ -6,7 +6,7 @@ namespace DTAConfig.Entity;
 
 public class ComponentVo
 {
-    public int id { get; set; }              // 组件ID
+    public string id { get; set; }              // 组件ID
     public string name { get; set; }            // 组件名称
 
     public string author { get; set; }          // 作者
@@ -26,7 +26,7 @@ public class ComponentVo
 
     public string uploadTime { get; set; }
 
-    public int uploadUser { get; set; }
+    public string uploadUser { get; set; }
     public string uploadUserName { get; set; }
 
     public List<string> apply { get; set; }

@@ -8,7 +8,7 @@ namespace DTAConfig.Entity
 {
     public record class Component
     {
-        public int id { get; set; }
+        public string id { get; set; }
 
         public string name { get; set; }
 
@@ -25,7 +25,7 @@ namespace DTAConfig.Entity
 
         public string uploadTime { get; set; }
 
-        public int uploadUser { get; set; }
+        public string uploadUser { get; set; }
 
         public string passTime { get; set; }
 

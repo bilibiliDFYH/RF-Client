@@ -8,7 +8,7 @@ namespace ClientCore.Entity
 {
     public class BadgeDto
     {
-        public int userId { get; set; }
-        public int badgeId { get; set; }
+        public string userId { get; set; }
+        public string badgeId { get; set; }
     }
 }

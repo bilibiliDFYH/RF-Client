@@ -41,7 +41,7 @@ namespace DTAConfig.OptionPanels
         private int _reloadToken = 0; // 用于标记本次加载
 
         // 缓存已安装地图ID，减少磁盘IO
-        private HashSet<int> _installedMapIds = new();
+        private HashSet<string> _installedMapIds = new();
 
         public int 当前页数
         {
@@ -252,8 +252,8 @@ namespace DTAConfig.OptionPanels
             }
             _installedMapIds = Directory.GetFiles(ProgramConstants.MAP_PATH, "*.map")
                 .Select(f => Path.GetFileNameWithoutExtension(f))
-                .Select(idStr => int.TryParse(idStr, out var id) ? id : -1)
-                .Where(id => id != -1)
+                .Select(idStr => idStr)
+                .Where(id => id != "-1")
                 .ToHashSet();
         }
 
@@ -394,10 +394,10 @@ namespace DTAConfig.OptionPanels
             private readonly string SETTINGS_PATH = "Client\\MapSettings.ini";
             private XNAClientRatingBox _ratingBox;
             private XNAClientButton _btnRatingDone;
-            private int mapID;
+            private string mapID;
             private CancellationTokenSource _cts;
 
-            public 地图详细信息界面(WindowManager windowManager, int mapID, string[] types, bool is下载 = true) : base(windowManager)
+            public 地图详细信息界面(WindowManager windowManager, string mapID, string[] types, bool is下载 = true) : base(windowManager)
             {
                 this.mapID = mapID;
                 this.types = types;

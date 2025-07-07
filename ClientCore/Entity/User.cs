@@ -4,7 +4,7 @@ namespace ClientCore.Entity
 {
     public record class User
     {
-        public int id { get; set; }
+        public string id { get; set; }
         public string username { get; set; } = string.Empty;
         public string password { get; set; } = string.Empty;
         public string allow_time { get; set; } = string.Empty;
@@ -12,7 +12,7 @@ namespace ClientCore.Entity
         public string role { get; set; } = string.Empty;
         public string tag { get; set; } = string.Empty;
         public int side { get; set; } = 3;
-        public int badge { get; set; } = 0;
+        public string badge { get; set; } = "0";
         public string mac { get; set; }
     }
 }

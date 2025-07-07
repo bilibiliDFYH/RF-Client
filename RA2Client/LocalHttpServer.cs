@@ -25,7 +25,7 @@ namespace Ra2Client
         public static int Port { get; private set; } = -1;
         public static bool IsRunning => listener != null && listener.IsListening;
 
-        private static Dictionary<int, string> _installedMapIds = [];
+        private static Dictionary<string, string> _installedMapIds = [];
 
         private static XNAMessageBox messageBox;
 
@@ -115,8 +115,8 @@ namespace Ra2Client
             // ===== 下载地图处理逻辑 =====
             if (request.HttpMethod == "POST" && request.Url.AbsolutePath == "/downloadMap")
             {
-                try
-                {
+                //try
+                //{
                     using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
                     string requestBody = await reader.ReadToEndAsync();
 
@@ -132,8 +132,16 @@ namespace Ra2Client
                     // Console.WriteLine($"✅ 收到地图下载请求：{map.name} ({map.id})");
 
                     // 1. 写入 map 文件
-                    Directory.CreateDirectory(ProgramConstants.MAP_PATH);
-                    File.WriteAllText(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"), map.file);
+                    if (map.file.StartsWith('u'))
+                    {
+                        string imageUrl = Path.Combine(NetWorkINISettings.Address, map.file).Replace("\\", "/");
+                        string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.map");
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(ProgramConstants.MAP_PATH);
+                        File.WriteAllText(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"), map.file);
+                    }
 
                     // 2. 下载图片
                     if (map.img != null)
@@ -160,9 +168,9 @@ namespace Ra2Client
                     mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
                     mapIni.SetValue(sectionName, "Author", map.author);
                     mapIni.SetValue(sectionName, "Briefing", map.description);
-                    mapIni.SetValue(sectionName, "UpdateTime", map.update_time);
-                    try
-                    {
+                    mapIni.SetValue(sectionName, "UpdateTime", map.update_time??"");
+                    //try
+                    //{
                         if (!string.IsNullOrEmpty(map.csf))
                         {
                             string baseDir = Path.Combine("Maps", "Multi", "MapLibrary", map.id.ToString());
@@ -176,29 +184,32 @@ namespace Ra2Client
                             // 重新创建目录
                             Directory.CreateDirectory(baseDir);
 
-                            byte[] fileBytes = Convert.FromBase64String(map.csf);
+                            //byte[] fileBytes = Convert.FromBase64String(map.csf);
 
-                            string filePath = Path.Combine(baseDir, "ra2md.csf");
+                            //string filePath = Path.Combine(baseDir, "ra2md.csf");
 
-                            File.WriteAllBytes(filePath, fileBytes);
+                            //File.WriteAllBytes(filePath, fileBytes);
+                            
 
                             // 路径使用正斜杠，符合配置格式
                             string relativePath = $"Maps/Multi/MapLibrary/{map.id}";
                             mapIni.SetValue(sectionName, "Mission", relativePath);
-                        }
+                    string csfURL = Path.Combine(NetWorkINISettings.Address, map.csf).Replace("\\", "/");
+                    string imageSavePath = await NetWorkINISettings.DownloadImageAsync(csfURL, relativePath, "ra2md.csf");
+                }
                         else
                         {
                             Console.WriteLine("map.csf为空或null，跳过写文件");
                         }
-                    }
-                    catch (FormatException fe)
-                    {
-                        Console.WriteLine("Base64格式错误: " + fe.Message);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("写文件时出现异常: " + ex.Message);
-                    }
+                    //}
+                    //catch (FormatException fe)
+                    //{
+                    //    Console.WriteLine("Base64格式错误: " + fe.Message);
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    Console.WriteLine("写文件时出现异常: " + ex.Message);
+                    //}
 
 
                     WriteListToIni(mapIni, sectionName, "Rule", map.rules);
@@ -230,29 +241,28 @@ namespace Ra2Client
                     response.ContentType = "application/json";
                     response.ContentLength64 = buffer.Length;
                     await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                }
-                catch (JsonException ex)
-                {
-                    Console.WriteLine("❌ JSON解析错误：" + ex.Message);
-                    response.StatusCode = 400;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("❌ 处理地图下载请求时发生错误：" + ex.Message);
-                    response.StatusCode = 500;
-                }
-                finally
-                {
-                    response.ContentType = "application/json";
-                    response.Close(); // 一定要关闭响应
-                }
+                //}
+                //catch (JsonException ex)
+                //{
+                //    Console.WriteLine("❌ JSON解析错误：" + ex.Message);
+                //    response.StatusCode = 400;
+                //}
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine("❌ 处理地图下载请求时发生错误：" + ex.Message);
+                //    response.StatusCode = 500;
+                //}
+                //finally
+                //{
+                //    response.ContentType = "application/json";
+                //    response.Close(); // 一定要关闭响应
+                //}
             }
             else if (request.HttpMethod == "GET" && request.Url.AbsolutePath == "/mapExists")
             {
                 try
                 {
-                    if (int.TryParse(request.QueryString["id"], out int mapId))
-                    {
+                    var mapId = request.QueryString["id"];
                         int status = 0; // 未下载
                        
                         if (_installedMapIds.Keys.Contains(mapId))
@@ -284,12 +294,7 @@ namespace Ra2Client
                         response.ContentLength64 = buffer.Length;
                         await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
                         response.StatusCode = 200;
-                    }
-                    else
-                    {
-                        Console.WriteLine("❌ 无效的地图ID");
-                        response.StatusCode = 400;
-                    }
+                   
                 }
                 catch (Exception ex)
                 {
@@ -332,8 +337,8 @@ namespace Ra2Client
 
             _installedMapIds = Directory.GetFiles(ProgramConstants.MAP_PATH, "*.map")
                 .Select(f => Path.GetFileNameWithoutExtension(f))
-                .Select(idStr => int.TryParse(idStr, out var id) ? id : -1)
-                .Where(id => id != -1)
+                .Select(idStr => idStr)
+                .Where(id => id != "-1")
                 .ToDictionary(
                     id => id,
                     id => ini.GetValue(id.ToString(), "updateTime", string.Empty)

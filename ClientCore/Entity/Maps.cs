@@ -10,7 +10,7 @@ namespace ClientCore.Entity
     {
         public string img { get; set; } = null;
         public string csf { get; set; } = null;
-        public int id { get; set; } = 0;
+        public string id { get; set; } = "0";
         public string name { get; set; } = null;
         public string maxPlayers { get; set; } = null;
         public string author { get; set; } = null;
@@ -19,9 +19,9 @@ namespace ClientCore.Entity
         public string file { get; set; } = null;
         public string createTime { get; set; } = null;
         public string update_time { get; set; } = null;
-        public int createUser { get; set; } = 0;
+        public string createUser { get; set; } = "0";
         public int enable { get; set; } = 0;
-        public long downCount { get; set; } = 0;
+        public string downCount { get; set; } = "0";
         public double score { get; set; } = 0.0;
         public string description { get; set; } = "";
         public string sha1 { get; set; } = "";

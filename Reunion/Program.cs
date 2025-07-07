@@ -9,7 +9,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Org.BouncyCastle.Crypto.Digests;
 
 namespace Reunion
 {
@@ -19,11 +18,11 @@ namespace Reunion
         private const string Binaries = "Binaries";
         private const string LicenseFile = "License-GPLv3.txt";
         private const string RequiredFile = "使用前必读.txt";
-        private const string FreeFile = "本程序完全免费，倒卖者s全家.txt";
+        private const string FreeFile = "本游戏完全免费，祝倒卖的寿比昙花.txt";
 
         private const string ExpectedHash_LicenseFile = "dc447a64136642636d7aa32e50c76e2465801c5f";
-        private const string ExpectedHash_RequiredFile = "3890356c3f346e72d5feab11dbea71c26ce3c22879b2fe8d580fe3edc7a29462";
-        private const string ExpectedHash_FreeFile = "3f4f36d5bc8d62a18e9fce9bc67744320afb46bfd49de32bc99277bb84916410";
+        private const string ExpectedHash_RequiredFile = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
+        private const string ExpectedHash_FreeFile = "80a2028eb8ec8b738d5f89ec42b2f7a6";
 
         // 动态获取系统盘符, 防止多系统情况下无法启动
         private static readonly string SystemDrive = Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
@@ -62,7 +61,7 @@ namespace Reunion
                     return false;
                 }
 
-                string actualHash2 = ComputeFileSHA3_256(FreeFile);
+                string actualHash2 = ComputeFileMD5(FreeFile);
                 if (!actualHash2.Equals(ExpectedHash_FreeFile, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
@@ -89,6 +88,19 @@ namespace Reunion
         }
 
         /// <summary>
+        /// 计算文件的MD5哈希值
+        /// </summary>
+        private static string ComputeFileMD5(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hashBytes = md5.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
         /// 计算文件的SHA1哈希值
         /// </summary>
         private static string ComputeFileSHA1(string filePath)
@@ -111,26 +123,6 @@ namespace Reunion
             {
                 byte[] hashBytes = sha256.ComputeHash(stream);
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
-            }
-        }
-
-        /// <summary>
-        /// 计算文件的SHA3_256哈希值
-        /// </summary>
-        private static string ComputeFileSHA3_256(string filePath)
-        {
-            using (FileStream stream = File.OpenRead(filePath))
-            {
-                var sha3 = new Sha3Digest(256);
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    sha3.BlockUpdate(buffer, 0, bytesRead);
-                }
-                byte[] result = new byte[sha3.GetDigestSize()];
-                sha3.DoFinal(result, 0);
-                return BitConverter.ToString(result).Replace("-", "").ToLowerInvariant();
             }
         }
 

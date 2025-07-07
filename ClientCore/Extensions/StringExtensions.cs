@@ -9,17 +9,22 @@ namespace ClientCore.Extensions
             if (string.IsNullOrWhiteSpace(text))
                 return null;
 
-            int index = text.IndexOf("http://", StringComparison.Ordinal);
-            if (index == -1)
-                index = text.IndexOf("ftp://", StringComparison.Ordinal);
-            if (index == -1)
-                index = text.IndexOf("https://", StringComparison.Ordinal);
+            // 支持的协议列表
+            string[] protocols = {"http://", "https://", "ftp://", "sftp://", "ws://", "wss://"};
+            int index = -1;
+
+            foreach (var protocol in protocols)
+            {
+                index = text.IndexOf(protocol, StringComparison.OrdinalIgnoreCase);
+                if (index != -1)
+                    break;
+            }
 
             if (index == -1)
-                return null; // No link found
+                return null; // 未找到链接
 
             string link = text.Substring(index);
-            return link.Split(' ')[0]; // Nuke any words coming after the link
+            return link.Split(' ')[0]; // 截取链接，去除后续单词
         }
     }
 }

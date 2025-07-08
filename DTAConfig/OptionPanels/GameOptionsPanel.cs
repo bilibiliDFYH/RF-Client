@@ -110,7 +110,7 @@ namespace DTAConfig.OptionPanels
             chkMultinuclear.ClientRectangle = new Rectangle(lblGameMod.X + 60, chkTargetLines.Y, 150, 20);
             chkMultinuclear.Text = "System affinity enhancements".L10N("UI:DTAConfig:SystemAffinity");
 
-            bool isSupportedOS = IsValleyOrLater() || IsXOrLater();
+            bool isSupportedOS = IsWinValleyOrLater() || IsWinX();
             chkMultinuclear.AllowChecking = isSupportedOS;
 
             chkForceEnableGameOptions = new XNAClientCheckBox(WindowManager)
@@ -246,12 +246,12 @@ namespace DTAConfig.OptionPanels
             xNAMessageBox.YesClickedAction += (e) => XNAMessageBox.Show(WindowManager,"Tips".L10N("UI:Main:Tips"), ProgramConstants.清理缓存()?"Cleanup successful!".L10N("UI:DTAConfig:CleanupSuccessful"):"If the cleanup fails, a file may be occupied".L10N("UI:DTAConfig:CleanupFailed")) ;
         }
 
-        private bool IsValleyOrLater()
+        private bool IsWinValleyOrLater()
         {
             return ProgramConstants.VersionValley.Contains(Environment.OSVersion.Version.Build);
         }
 
-        private bool IsXOrLater()
+        private bool IsWinX()
         {
             return ProgramConstants.VersionX.Contains(Environment.OSVersion.Version.Build);
         }
@@ -310,7 +310,7 @@ namespace DTAConfig.OptionPanels
             }
 
             chkIMEEnable.Checked = UserINISettings.Instance.IMEEnabled.Value;
-            if (IsValleyOrLater() || IsXOrLater())
+            if (IsWinValleyOrLater() || IsWinX())
             {
                 chkMultinuclear.Checked = UserINISettings.Instance.Multinuclear.Value;
             }
@@ -365,7 +365,7 @@ namespace DTAConfig.OptionPanels
                 restartRequired = true;
                 IniSettings.IMEEnabled.Value = chkIMEEnable.Checked;
             }
-            if (IsValleyOrLater() || IsXOrLater())
+            if (IsWinValleyOrLater() || IsWinX())
             {
                 IniSettings.Multinuclear.Value = chkMultinuclear.Checked;
             }

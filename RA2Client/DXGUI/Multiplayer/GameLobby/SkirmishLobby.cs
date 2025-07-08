@@ -19,6 +19,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
     public class SkirmishLobby : GameLobbyBase, ISwitchable
     {
+        public static XNAClientCheckBox chkTerrain;   //åˆ›å»ºchkTerrain//chkå¯ç”¨åœ°å½¢æ‰©å±•
+
         private const string SETTINGS_PATH = "Client/SkirmishSettings.ini";
 
         public SkirmishLobby(WindowManager windowManager, TopBar topBar, MapLoader mapLoader, DiscordHandler discordHandler, Random random)
@@ -70,6 +72,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             ReloadMod();
 
             CmbGame_SelectedChanged(cmbGame, null);
+
+            chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");    //ç”ŸæˆchkTerrain//chkå¯ç”¨åœ°å½¢æ‰©å±•
+            GameProcessLogic.SkirmishLobby_chkTerrain = chkTerrain;
         }
 
         protected override void ChangeMap(GameModeMap gameModeMap)
@@ -135,14 +140,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     }
                 }
 
-                // ·ÖÅäÍÅ¶Ó£¨Ö±½Ó´« Map.Rules£©
+                // åˆ†é…å›¢é˜Ÿï¼ˆç›´æ¥ä¼  Map.Rulesï¼‰
                 var teamMap = TeamAssignmentHelper.Assign(8, Map.Rules);
 
-                // Ó¦ÓÃÍÅ¶Ó±àºÅ
+                // åº”ç”¨å›¢é˜Ÿç¼–å·
                 for (int j = 0; j < 8; j++)
                 {
                     ddPlayerTeams[j].SelectedIndex = teamMap[j];
-                    Console.WriteLine($"Íæ¼Ò {j} ±»·ÖÅäµ½¶ÓÎé {teamMap[j]}");
+                    Console.WriteLine($"ç©å®¶ {j} è¢«åˆ†é…åˆ°é˜Ÿä¼ {teamMap[j]}");
                 }
             }
 
@@ -266,13 +271,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return "Co-op missions cannot be spectated. You'll have to show a bit more effort to cheat here.".L10N("UI:Main:CoOpMissionSpectatorPrompt");
             }
 
-            //¼ì²é¹ú¼Ò
+            //æ£€æŸ¥å›½å®¶
             foreach (PlayerInfo pInfo in Players)
             {
 
                 if (pInfo.SideId >= ddPlayerSides[0].Items.Count)
                 {
-                    return "ÇëÑ¡ÔñÒ»¸ö¹ú¼Ò";
+                    return "è¯·é€‰æ‹©ä¸€ä¸ªå›½å®¶";
                 }
             }
 
@@ -288,30 +293,30 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             switch (rule.Requirement)
             {
                 case PositionRequirement.Player:
-                    if (seat1?.IsAI != false)  // Íæ¼ÒÓ¦¸ÃÊÇIsAI = false
+                    if (seat1?.IsAI != false)  // ç©å®¶åº”è¯¥æ˜¯IsAI = false
                     {
-                        return $"Î»ÖÃ{rule.Position1}±ØĞëÊÇÍæ¼Ò";
+                        return $"ä½ç½®{rule.Position1}å¿…é¡»æ˜¯ç©å®¶";
                     }
                     break;
 
                 case PositionRequirement.AI:
-                    if (seat1?.IsAI != true)  // AIÓ¦¸ÃÊÇIsAI = true
+                    if (seat1?.IsAI != true)  // AIåº”è¯¥æ˜¯IsAI = true
                     {
-                        return $"Î»ÖÃ{rule.Position1}±ØĞëÊÇAI";
+                        return $"ä½ç½®{rule.Position1}å¿…é¡»æ˜¯AI";
                     }
                     break;
 
                 case PositionRequirement.SameTeam:
                     if (seat1?.TeamId > 0 == false || seat2?.TeamId > 0 == false || seat1?.TeamId != seat2?.TeamId)
                     {
-                        return $"Î»ÖÃ{rule.Position1}ºÍÎ»ÖÃ{rule.Position2}±ØĞëÍ¬Ò»¶Ó";
+                        return $"ä½ç½®{rule.Position1}å’Œä½ç½®{rule.Position2}å¿…é¡»åŒä¸€é˜Ÿ";
                     }
                     break;
 
                 case PositionRequirement.DifferentTeam:
                     if (seat1?.TeamId < 0 == false && seat2?.TeamId < 0 == false && seat1?.TeamId == seat2?.TeamId)
                     {
-                        return $"Î»ÖÃ{rule.Position1}ºÍÎ»ÖÃ{rule.Position2}±ØĞë²»Í¬¶Ó";
+                        return $"ä½ç½®{rule.Position1}å’Œä½ç½®{rule.Position2}å¿…é¡»ä¸åŒé˜Ÿ";
                     }
                     break;
                 default:
@@ -324,7 +329,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected override void BtnLaunchGame_LeftClick(object sender, EventArgs e)
         {
-            
+            GameProcessLogic.gamemode = "Skirmish";
             List<PlayerInfo> AllPlayers = [..Players, .. AIPlayers];
 
             for (int i = 0; i < Map.Rules.Count; i++)
@@ -340,12 +345,12 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     if (rule.Type == RuleType.Mandatory)
                     {
-                        XNAMessageBox.Show(WindowManager, "ÎŞ·¨Æô¶¯ÓÎÏ·".L10N("UI:Main:LaunchGameErrorTitle"), err);
+                        XNAMessageBox.Show(WindowManager, "æ— æ³•å¯åŠ¨æ¸¸æˆ".L10N("UI:Main:LaunchGameErrorTitle"), err);
                         return;
                     }
                     else
                     {
-                        var mbox = new XNAMessageBox(WindowManager, "½¨Òé", e + "\nÈ·¶¨Òª¼ÌĞøÓÎÏ·Âğ£¿", XNAMessageBoxButtons.YesNo);
+                        var mbox = new XNAMessageBox(WindowManager, "å»ºè®®", e + "\nç¡®å®šè¦ç»§ç»­æ¸¸æˆå—ï¼Ÿ", XNAMessageBoxButtons.YesNo);
 
                         mbox.NoClickedAction += (_) => { return; };
 
@@ -492,7 +497,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
 
                 skirmishSettingsIni.WriteIniFile();
-                Logger.Log("±£´æÔâÓöÕ½ÓÎÏ·ÉèÖÃ!");
+                Logger.Log("ä¿å­˜é­é‡æˆ˜æ¸¸æˆè®¾ç½®!");
             }
             catch (Exception ex)
             {
@@ -507,13 +512,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             if (!SafePath.GetFile(ProgramConstants.GamePath, SETTINGS_PATH).Exists )
             {
-                Logger.Log("ÔâÓöÕ½ÅäÖÃÎÄ¼ş²»´æÔÚ,ÔØÈëÄ¬ÈÏÅäÖÃ!");
+                Logger.Log("é­é‡æˆ˜é…ç½®æ–‡ä»¶ä¸å­˜åœ¨,è½½å…¥é»˜è®¤é…ç½®!");
                 InitDefaultSettings();
                 return;
             }
 
            // disableGameOptionUpdateBroadcast = true;
-            Logger.Log("ÔØÈëÔâÓöÕ½ÅäÖÃ!");
+            Logger.Log("è½½å…¥é­é‡æˆ˜é…ç½®!");
 
             var skirmishSettingsIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, SETTINGS_PATH));
 
@@ -596,7 +601,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (ClientConfiguration.Instance.SaveSkirmishGameOptions)
             {
 
-                Logger.Log("ÔØÈëÓÎÏ·Ñ¡ÏîÉèÖÃ!");
+                Logger.Log("è½½å…¥æ¸¸æˆé€‰é¡¹è®¾ç½®!");
 
                 foreach (GameLobbyDropDown dd in DropDowns)
                 {

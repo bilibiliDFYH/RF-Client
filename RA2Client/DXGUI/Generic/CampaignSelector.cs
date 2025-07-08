@@ -74,6 +74,8 @@ namespace Ra2Client.DXGUI.Generic
         private XNALabel _lblRatingResult;
         private ModManager _modManager;
 
+        public static XNAClientCheckBox chkTerrain;   //创建chkTerrain//chk启用地形扩展
+
         private CheaterWindow _cheaterWindow;
 
         private List<string> _difficultyList = [];
@@ -404,6 +406,9 @@ namespace Ra2Client.DXGUI.Generic
             _cmbGameSpeed = FindChild<GameLobbyDropDown>("cmbGameSpeed");
 
             _cmbCredits = FindChild<GameLobbyDropDown>("cmbCredits");
+
+            chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");    //生成chkTerrain//chk启用地形扩展
+            GameProcessLogic.CampaignSelector_chkTerrain = chkTerrain;
 
             _lbxInforBox.ClientRectangle = new Rectangle(_gameOptionsPanel.X, _mapPreviewBox.Y + 25, 345, _mapPreviewBox.Height - 185);
             _lbxInforBox.FontIndex = 1;
@@ -1127,6 +1132,7 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnLaunch_LeftClick(object sender, EventArgs e)
         {
+            GameProcessLogic.gamemode = "Mission";
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             int selectedMissionId = _lbxCampaignList.SelectedIndex;

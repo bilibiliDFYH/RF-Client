@@ -22,6 +22,10 @@ namespace ClientGUI
     /// </summary>
     public static class GameProcessLogic
     {
+        public static XNAClientCheckBox CampaignSelector_chkTerrain;    //战役的地形扩展复选框
+        public static XNAClientCheckBox SkirmishLobby_chkTerrain;   //遭遇战的地形扩展复选框
+        public static string gamemode;
+
         public static event Action GameProcessStarted;
 
         public static event Action GameProcessStarting;
@@ -323,7 +327,7 @@ namespace ClientGUI
                     所有需要复制的文件.Add(sourceFile);
                 }
 
-                所有需要复制的文件.Add("TX");
+               // 所有需要复制的文件.Add("TX");先注释了，改成只有启用地形扩展时再添加
                 所有需要复制的文件.Add("zh");
                // 所有需要复制的文件.Add("gamemd-spawn.exe");
                 所有需要复制的文件.Add("cncnet5.dll");
@@ -353,6 +357,23 @@ namespace ClientGUI
                 }
 
                 var e = string.Empty;
+
+                if (gamemode == "Skirmish")
+                {
+                    if (SkirmishLobby_chkTerrain.Checked == true)
+                    {
+                        int zh_location = 所有需要复制的文件.IndexOf("zh");
+                        所有需要复制的文件.Insert(zh_location, "TX");
+                    }
+                }
+                if (gamemode == "Mission")
+                {
+                    if (CampaignSelector_chkTerrain.Checked == true)
+                    {
+                        int zh_location = 所有需要复制的文件.IndexOf("zh");
+                        所有需要复制的文件.Insert(zh_location, "TX");
+                    }
+                }
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
@@ -422,6 +443,7 @@ namespace ClientGUI
 
         private static string 复制文件(List<string> 所有需要复制的文件)
         {
+            所有需要复制的文件.Add("gamemd-spawn.exe");
             Dictionary<string, string> 文件字典 = [];
 
             try

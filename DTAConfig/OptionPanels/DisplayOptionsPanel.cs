@@ -57,7 +57,7 @@ namespace DTAConfig.OptionPanels
 
             Name = "DisplayOptionsPanel";
 
-            //游戏分辨率
+            // 游戏分辨率
             var lblIngameResolution = new XNALabel(WindowManager);
             lblIngameResolution.Name = nameof(lblIngameResolution);
             lblIngameResolution.ClientRectangle = new Rectangle(12, 14, 0, 0);
@@ -561,7 +561,7 @@ namespace DTAConfig.OptionPanels
                 chkBorderlessWindowedMode.Checked = UserINISettings.Instance.BorderlessWindowedMode;
             }
 
-            //随机壁纸
+            // 随机壁纸
             chkRandom_wallpaper.Checked = UserINISettings.Instance.Random_wallpaper;
             chk跳过启动动画.Checked = UserINISettings.Instance.跳过启动动画;
             ddStart.SelectedIndex = UserINISettings.Instance.video_wallpaper ? 1 : 0;

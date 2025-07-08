@@ -23,6 +23,8 @@ namespace ClientCore
 
         public static readonly string 存档目录 = Path.Combine(SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName), "Run\\Saved Games");
 
+        public static readonly List<int> VersionX = [10240, 10586, 14393, 15063, 16299, 17134, 17763, 18362, 18363, 19041, 19042, 19043, 19044, 19045, 20348];
+
         public static readonly List<int> VersionValley = [22000, 22621, 22631, 26100, 26120, 26200];
 
         public static string CUR_SERVER_URL = "https://autopatch1-zh-tcdn.yra2.com";

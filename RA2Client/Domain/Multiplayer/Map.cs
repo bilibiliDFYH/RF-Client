@@ -242,7 +242,7 @@ namespace Ra2Client.Domain.Multiplayer
         public string customMapFilePath;
 
         [JsonInclude]
-        public List<string> waypoints = new List<string>();
+        public List<string> Waypoint = new List<string>();
 
         [JsonInclude]
         public string Mission = string.Empty;
@@ -409,7 +409,7 @@ namespace Ra2Client.Domain.Multiplayer
                 if (MaxPlayers == 0)
                 {
                     for (int j = 0; j < 8; j++)
-                        if (iniFile.GetStringValue("Waypoints", j.ToString(), string.Empty) == string.Empty)
+                        if (section.GetValue($"Waypoint{j}", string.Empty) != string.Empty)
                             MaxPlayers++;
                         else
                             break;
@@ -537,13 +537,16 @@ namespace Ra2Client.Domain.Multiplayer
 
                 if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
                 {
-                    var count = GenerateWaypoints(iniFile, section, GetMapIni(BaseFilePath),MaxPlayers);
-                    
-                    if(MaxPlayers == 0)
-                    iniFile.SetValue(section.SectionName, "MaxPlayers", MaxPlayers);
+                    var count = GenerateWaypoint(iniFile, section, GetMapIni(BaseFilePath));
+
+                    if (MaxPlayers == 0)
+                    {
+                        MaxPlayers = count;
+                        iniFile.SetValue(section.SectionName, "MaxPlayers", count);
+                    }
                 }
 
-                for (i = 0; i < MAX_PLAYERS; i++)
+                for (i = 0; i < MaxPlayers; i++)
                 {
                     string waypoint = section.GetStringValue("Waypoint" + i, string.Empty);
 
@@ -551,7 +554,7 @@ namespace Ra2Client.Domain.Multiplayer
                         break;
 
                     Debug.Assert(int.TryParse(waypoint, out _), $"waypoint should be a number, got {waypoint}");
-                    waypoints.Add(waypoint);
+                    Waypoint.Add(waypoint);
                 }
 
                 Name = section.GetValueOrSetDefault("Description", () => $"[{MaxPlayers}]{Path.GetFileNameWithoutExtension(BaseFilePath)}");
@@ -601,18 +604,19 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         /// <param name="iniFile"></param>
         /// <param name="section"></param>
-        public static int? GenerateWaypoints(IniFile iniFile, IniSection section, IniFile mapIni,int maxPlayers)
+        public static int GenerateWaypoint(IniFile iniFile, IniSection section, IniFile mapIni)
         {
 
-            var playerCount = 8;
+            var playerCount = MAX_PLAYERS;
 
-            if (maxPlayers != 0)
-                playerCount = maxPlayers;
-
-            for (int i = 1; i <= playerCount; i++)
+            for (int i = 1; i <= MAX_PLAYERS; i++)
             {
                 var waypoint = mapIni.GetStringValue("Header", $"Waypoint{i}", string.Empty);
-                if (waypoint.Length == 0) continue;
+                if (waypoint.Length == 0 || waypoint == "0,0") {
+
+                    playerCount--;
+                    continue;
+                }
 
                 var parts = waypoint.Split('=', ',');
                 int x = int.Parse(parts[0]);
@@ -680,7 +684,7 @@ namespace Ra2Client.Domain.Multiplayer
             {
                 startingLocations = new List<Point>();
 
-                foreach (string waypoint in waypoints)
+                foreach (string waypoint in Waypoint)
                 {
                     if (MainClientConstants.USE_ISOMETRIC_CELLS)
                         startingLocations.Add(GetIsometricWaypointCoords(waypoint, actualSize, localSize, previewSize));
@@ -749,7 +753,7 @@ namespace Ra2Client.Domain.Multiplayer
             customMapIni.AddSection("Basic");
             customMapIni.SetBooleanValue("Basic", "EnforceMaxPlayers", false);
             customMapIni.AddSection("Map");
-            customMapIni.AddSection("Waypoints");
+            customMapIni.AddSection("Waypoint");
             customMapIni.AddSection("Preview");
             customMapIni.AddSection("PreviewPack");
             customMapIni.AddSection("ForcedOptions");
@@ -887,12 +891,12 @@ namespace Ra2Client.Domain.Multiplayer
                 for (int i = 0; i < MAX_PLAYERS; i++)
                 {
 
-                    string waypoint = GetCustomMapIniFile().GetStringValue("Waypoints", i.ToString(CultureInfo.InvariantCulture), string.Empty);
+                    string waypoint = GetCustomMapIniFile().GetStringValue("Waypoint", i.ToString(CultureInfo.InvariantCulture), string.Empty);
 
                     if (string.IsNullOrEmpty(waypoint))
                         break;
 
-                    waypoints.Add(waypoint);
+                    Waypoint.Add(waypoint);
                 }
 
                 GetTeamStartMappingPresets(basicSection);
@@ -1114,7 +1118,7 @@ namespace Ra2Client.Domain.Multiplayer
             if (waypointCoordsInt < 0)
                 return new Point(0, 0);
 
-            // https://modenc.renegadeprojects.com/Waypoints
+            // https://modenc.renegadeprojects.com/Waypoint
             int waypointX = waypointCoordsInt % MainClientConstants.TDRA_WAYPOINT_COEFFICIENT;
             int waypointY = waypointCoordsInt / MainClientConstants.TDRA_WAYPOINT_COEFFICIENT;
 

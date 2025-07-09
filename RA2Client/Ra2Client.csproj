@@ -46,7 +46,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
 		<PackageReference Include="Microsoft.NETCore.App" Version="2.1.30" />
 		<PackageReference Include="Microsoft.NETCore.Jit" Version="2.0.8" />
-		<PackageReference Include="OpenMcdf" Version="3.0.1" />
+		<PackageReference Include="OpenMcdf" Version="2.4.1" />
 		<PackageReference Include="Sdcb.FFmpeg" Version="7.0.0" />
 		<PackageReference Include="SendGrid" Version="9.29.3" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />

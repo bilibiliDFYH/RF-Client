@@ -178,24 +178,30 @@ namespace DTAConfig.OptionPanels
             ddAllowPrivateMessagesFrom.Name = nameof(ddAllowPrivateMessagesFrom);
             ddAllowPrivateMessagesFrom.ClientRectangle = new Rectangle(
                 lblAllPrivateMessagesFrom.Right,
-                lblAllPrivateMessagesFrom.Y - 2, 70, 0);
+                lblAllPrivateMessagesFrom.Y - 2, 115, 0);
 
             ddAllowPrivateMessagesFrom.AddItem(new XNADropDownItem()
             {
                 Text = "All".L10N("UI:DTAConfig:PMAll"),
-                Tag = AllowPrivateMessagesFromEnum.All
+                Tag = AllowPrivateMessagesFromEnum.All,
+            });
+
+            ddAllowPrivateMessagesFrom.AddItem(new XNADropDownItem()
+            {
+                Text = "Current channel".L10N("Client:DTAConfig:PMCurrentChannel"),
+                Tag = AllowPrivateMessagesFromEnum.CurrentChannel,
             });
 
             ddAllowPrivateMessagesFrom.AddItem(new XNADropDownItem()
             {
                 Text = "Friends".L10N("UI:DTAConfig:PMFriends"),
-                Tag = AllowPrivateMessagesFromEnum.Friends
+                Tag = AllowPrivateMessagesFromEnum.Friends,
             });
 
             ddAllowPrivateMessagesFrom.AddItem(new XNADropDownItem()
             {
                 Text = "None".L10N("UI:DTAConfig:PMNone"),
-                Tag = AllowPrivateMessagesFromEnum.None
+                Tag = AllowPrivateMessagesFromEnum.None,
             });
 
             AddChild(ddAllowPrivateMessagesFrom);

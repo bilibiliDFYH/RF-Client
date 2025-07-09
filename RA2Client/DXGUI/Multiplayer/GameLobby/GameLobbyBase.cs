@@ -1136,7 +1136,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             lbGameModeMapList.SelectedIndex = -1;
 
             int mapIndex = -1;
-            int skippedMapsCount = 0;
 
             var isFavoriteMapsSelected = IsFavoriteMapsSelected();
             var maps = GetSortedGameModeMaps();
@@ -1145,18 +1144,46 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             
             bool gameModeMapChanged = false;
 
-            for (int i = 0; i < maps.Count; i++)
-            {
-                var gameModeMap = maps[i];
+            List<GameModeMap> filteredMaps;
 
-                if (tbMapSearch.Text != tbMapSearch.Suggestion)
+            if (tbMapSearch.Text != tbMapSearch.Suggestion)
+            {
+                string search = tbMapSearch.Text.Trim();
+                string[] searchWords = search.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                // Equals entire search string
+                var exactMatches = maps.Where(gmm =>
+                    gmm.Map.Name.Equals(search, StringComparison.CurrentCultureIgnoreCase) ||
+                    gmm.Map.Name.Equals(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+                // Contains entire search string
+                var substringMatches = maps.Except(exactMatches).Where(gmm =>
+                    gmm.Map.Name.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                    gmm.Map.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+                // Contains all search words. It matches with "AND" logic: Word1 AND Word2 AND Word3
+                var multiWordMatches = maps.Except(exactMatches).Except(substringMatches).Where(gmm =>
                 {
-                    if (!gameModeMap.Map.Name.ToUpper().Contains(tbMapSearch.Text.ToUpper()))
-                    {
-                        skippedMapsCount++;
-                        continue;
-                    }
-                }
+                    bool allInTranslated = searchWords.All(word =>
+                        gmm.Map.Name.Contains(word, StringComparison.CurrentCultureIgnoreCase));
+
+
+                    bool allInUntranslated = searchWords.All(word =>
+                        gmm.Map.Name.Contains(word, StringComparison.InvariantCultureIgnoreCase));
+
+                    return allInTranslated || allInUntranslated;
+                }).ToList();
+
+                filteredMaps = [.. exactMatches, .. substringMatches, .. multiWordMatches];
+            }
+            else
+            {
+                filteredMaps = maps;
+            }
+
+            for (int i = 0; i < filteredMaps.Count; i++)
+            {
+                var gameModeMap = filteredMaps[i];
 
                 XNAListBoxItem rankItem = new XNAListBoxItem();
                 if (gameModeMap?.Map?.IsCoop??false)
@@ -1193,7 +1220,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 if (gameModeMap == GameModeMap)
                 {
-                    mapIndex = i - skippedMapsCount;
+                    mapIndex = i;
                     gameModeMapChanged = false;
                 }
             }

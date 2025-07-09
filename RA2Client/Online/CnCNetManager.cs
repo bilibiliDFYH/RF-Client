@@ -70,7 +70,7 @@ namespace Ra2Client.Online
                 new IRCColor("Lime Green".L10N("UI:Main:ColorLimeGreen"), true, Color.LimeGreen, 9),
                 new IRCColor("Turquoise".L10N("UI:Main:ColorTurquoise"), true, Color.Turquoise, 10),
                 new IRCColor("Sky Blue".L10N("UI:Main:ColorSkyBlue"), true, Color.LightSkyBlue, 11),
-                new IRCColor("Blue".L10N("UI:Main:ColorRoyalBlue"), true, Color.RoyalBlue, 12),
+                new IRCColor("Blue".L10N("UI:Main:ColorBlue"), true, Color.RoyalBlue, 12),
                 new IRCColor("Pink".L10N("UI:Main:ColorPink"), true, Color.DeepPink, 13),
                 new IRCColor("Metalic".L10N("UI:Main:ColorLightGrayMetalic"), true, Color.LightGray, 14),
                 new IRCColor("Gray".L10N("UI:Main:ColorGray"), false, Color.Gray, 15)

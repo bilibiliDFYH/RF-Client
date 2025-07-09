@@ -202,7 +202,7 @@ namespace Ra2Client.DXGUI.Multiplayer
                 new LANColor("Pink".L10N("UI:Main:ColorPink"), Color.DeepPink),
                 new LANColor("Purple".L10N("UI:Main:ColorPurple"), Color.MediumPurple),
                 new LANColor("Sky Blue".L10N("UI:Main:ColorSkyBlue"), Color.LightSkyBlue),
-                new LANColor("Blue".L10N("UI:Main:ColorBlue"), Color.Blue),
+                new LANColor("Blue".L10N("UI:Main:ColorBlue"), Color.RoyalBlue),
                 new LANColor("Brown".L10N("UI:Main:ColorBrown"), Color.SaddleBrown),
                 new LANColor("Teal".L10N("UI:Main:ColorTeal"), Color.Teal)
             };

@@ -22,9 +22,7 @@ namespace ClientGUI
     /// </summary>
     public static class GameProcessLogic
     {
-        public static XNAClientCheckBox CampaignSelector_chkTerrain;    //战役的地形扩展复选框
-        public static XNAClientCheckBox SkirmishLobby_chkTerrain;   //遭遇战的地形扩展复选框
-        public static string gamemode;
+        public static bool game_chkTerrain_bool;
 
         public static event Action GameProcessStarted;
 
@@ -277,6 +275,7 @@ namespace ClientGUI
                 iniFile.SetValue(sectionName, "chkSatellite", 透明迷雾);
                 if(战役ID!=-1)
                     iniFile.SetValue(sectionName, "CampaignID", 战役ID);
+             //   iniFile.SetValue(sectionName, "chkTerrain", game_chkTerrain_bool);dfyh
             }
             iniFile.WriteIniFile();
             
@@ -358,21 +357,10 @@ namespace ClientGUI
 
                 var e = string.Empty;
 
-                if (gamemode == "Skirmish")
+                if (game_chkTerrain_bool)
                 {
-                    if (SkirmishLobby_chkTerrain.Checked == true)
-                    {
-                        int zh_location = 所有需要复制的文件.IndexOf("zh");
-                        所有需要复制的文件.Insert(zh_location, "TX");
-                    }
-                }
-                if (gamemode == "Mission")
-                {
-                    if (CampaignSelector_chkTerrain.Checked == true)
-                    {
-                        int zh_location = 所有需要复制的文件.IndexOf("zh");
-                        所有需要复制的文件.Insert(zh_location, "TX");
-                    }
+                    int zh_location = 所有需要复制的文件.IndexOf("zh");
+                    所有需要复制的文件.Insert(zh_location, "TX");
                 }
 
                 if (IsNtfs(ProgramConstants.GamePath))
@@ -448,7 +436,6 @@ namespace ClientGUI
 
             try
             {
-
                 foreach (var path in 所有需要复制的文件)
                 {
                     if (File.Exists(path))

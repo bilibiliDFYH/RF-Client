@@ -5,16 +5,17 @@ using System.Linq;
 using ClientCore;
 using ClientGUI;
 using Ra2Client.Domain;
+using DTAConfig;
+using DTAConfig.Entity;
+using DTAConfig.OptionPanels;
 using Localization;
+using Localization.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using NAudio.Wave;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-using DTAConfig.Entity;
-using DTAConfig;
-using DTAConfig.OptionPanels;
-using Localization.Tools;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -255,7 +256,8 @@ namespace Ra2Client.DXGUI.Generic
                     var mission = saveIni.GetValue(sectionName, "Mission", string.Empty);
                     var 透明迷雾 = saveIni.GetValue(sectionName, "chkSatellite", false);
                     var 战役ID = saveIni.GetValue(sectionName, "CampaignID", -1);
-                    ParseSaveGame(file.FullName,game,mission,透明迷雾,战役ID);
+                    var chkTerrain_bool = saveIni.GetValue(sectionName, "chkTerrain", false);     //输入载入存档时是否启用地形扩展
+                    ParseSaveGame(file.FullName, game, mission, 透明迷雾, 战役ID, chkTerrain_bool);
                 }
             }
 
@@ -271,7 +273,7 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void ParseSaveGame(string fileName,string game,string mission,bool 透明迷雾,int 战役ID)
+        private void ParseSaveGame(string fileName, string game, string mission, bool 透明迷雾, int 战役ID, bool chkTerrain_bool)
         {
             string shortName = Path.GetFileName(fileName);
 
@@ -281,6 +283,8 @@ namespace Ra2Client.DXGUI.Generic
             sg.战役ID = 战役ID;
             if (sg.ParseInfo())
                 savedGames.Add(sg);
+            GameProcessLogic.game_chkTerrain_bool = chkTerrain_bool;     //输入载入存档时是否启用地形扩展
+            Logger.Log("dfyh——打开存档");
         }
     }
 }

@@ -32,6 +32,8 @@ namespace Ra2Client.DXGUI.Generic
 {
     public class CampaignSelector(WindowManager windowManager, DiscordHandler discordHandler) : INItializableXNAWindow(windowManager)
     {
+        private XNAClientCheckBox chkTerrain; // 地形扩展选项       ——dfyh
+
         private const int DefaultWidth = 650;
         private const int DefaultHeight = 600;
 
@@ -73,9 +75,6 @@ namespace Ra2Client.DXGUI.Generic
         private XNAClientButton _btnRatingDone;
         private XNALabel _lblRatingResult;
         private ModManager _modManager;
-
-        public static XNAClientCheckBox chkTerrain;   //创建chkTerrain//chk启用地形扩展
-
         private CheaterWindow _cheaterWindow;
 
         private List<string> _difficultyList = [];
@@ -407,8 +406,12 @@ namespace Ra2Client.DXGUI.Generic
 
             _cmbCredits = FindChild<GameLobbyDropDown>("cmbCredits");
 
-            chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");    //生成chkTerrain//chk启用地形扩展
-            GameProcessLogic.CampaignSelector_chkTerrain = chkTerrain;
+            chkTerrain = new XNAClientCheckBox(WindowManager);  // 地形扩展选项       ——dfyh
+            chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+            chkTerrain.X = FindChild<XNAClientCheckBox>("chkSatellite").X;
+            chkTerrain.Y = FindChild<XNAClientCheckBox>("chkCorr").Y + 25;
+            chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
+            _gameOptionsPanel.AddChild(chkTerrain);     // 添加地形扩展选项到游戏选项面板      ——dfyh
 
             _lbxInforBox.ClientRectangle = new Rectangle(_gameOptionsPanel.X, _mapPreviewBox.Y + 25, 345, _mapPreviewBox.Height - 185);
             _lbxInforBox.FontIndex = 1;
@@ -1132,7 +1135,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnLaunch_LeftClick(object sender, EventArgs e)
         {
-            GameProcessLogic.gamemode = "Mission";
+            GameProcessLogic.game_chkTerrain_bool = chkTerrain.Checked; // 获取是否启用地形扩展选项       ——dfyh
+            Logger.Log("dfyh——打开战役");
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             int selectedMissionId = _lbxCampaignList.SelectedIndex;
@@ -1326,6 +1330,8 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("BuildOffAlly", mission.BuildOffAlly);
             settings.SetValue("DifficultyModeHuman", (mission.PlayerAlwaysOnNormalDifficulty ? "1" : _trbDifficultySelector.Value.ToString()));
             settings.SetValue("DifficultyModeComputer", GetComputerDifficulty());
+            settings.SetValue("chkTerrain", chkTerrain.Checked);
+
             spawnIni.AddSection(settings);
 
             UserINISettings.Instance.Difficulty.Value = _trbDifficultySelector.Value;

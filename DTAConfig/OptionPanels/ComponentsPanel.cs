@@ -9,6 +9,7 @@ using IniParser.Model;
 using Localization;
 using Localization.SevenZip;
 using Localization.Tools;
+using Microsoft.VisualBasic.Devices;
 using Microsoft.Xna.Framework;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
@@ -379,7 +380,7 @@ namespace DTAConfig.OptionPanels
                 mainButton.Visible = false;
         }
 
-        private void UpdateUserAgent(HttpClient httpClient)
+        private static void UpdateUserAgent(HttpClient httpClient)
         {
             httpClient.DefaultRequestHeaders.UserAgent.Clear();
 
@@ -472,54 +473,14 @@ namespace DTAConfig.OptionPanels
                         downloadUrl = downloadUrl.Replace("autopatch1-zh-tcdn.yra2.com", "autopatch4-cn-ucdn.yra2.com");
                     }
 
-                    using HttpClient httpClient = new HttpClient();
-                    UpdateUserAgent(httpClient);
-
-                    TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
-
-                    using var response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
-                    response.EnsureSuccessStatusCode();
-
-                    using var contentStream = await response.Content.ReadAsStreamAsync();
-                    using var fileStream = new FileStream(strLocPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
-
-                    var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-                    long totalRead = 0L;
-                    var buffer = new byte[131072]; // 128KB缓冲区
-                    bool isMoreToRead = true;
-                    int lastProgress = 0;
-
-                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-
-                    while (isMoreToRead)
-                    {
-                        int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                        if (read == 0)
+                    downloadSuccess = await NetWorkINISettings.DownloadFileAsync(
+                        downloadUrl,
+                        strLocPath,
+                        (progress, speedStr) =>
                         {
-                            isMoreToRead = false;
-                            continue;
-                        }
-                        await fileStream.WriteAsync(buffer.AsMemory(0, read));
-                        totalRead += read;
-
-                        if (totalBytes > 0)
-                        {
-                            int progress = (int)((totalRead * 100) / totalBytes);
-                            if (progress - lastProgress >= 1)
-                            {
-                                progressBar.Value = progress;
-                                double seconds = stopwatch.Elapsed.TotalSeconds;
-                                double kbSpeed = seconds > 0 ? totalRead / 1024d / seconds : 0;
-                                string speedStr = kbSpeed >= 1024 ? $"{(kbSpeed / 1024):F2} MB/s" : $"{kbSpeed:F2} KB/s";
-
-                                lbprogress.Text = $"{progress}%   {speedStr}";
-                                TaskbarProgress.Instance.SetValue(progress, 100);
-                                lastProgress = progress;
-                            }
-                        }
-                    }
-
-                    downloadSuccess = true;
+                            progressBar.Value = progress;
+                            lbprogress.Text = $"{progress}%   {speedStr}";
+                        });
                 }
                 catch (Exception innerEx)
                 {

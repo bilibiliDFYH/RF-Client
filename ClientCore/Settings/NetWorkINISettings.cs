@@ -7,6 +7,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using ClientCore.Entity;
 using ClientCore.Enums;
 using DTAConfig.Entity;
@@ -385,6 +386,71 @@ public class NetWorkINISettings
         {
             Console.WriteLine("图片下载失败：" + ex.Message);
             return null;
+        }
+    }
+
+    public static async Task<bool> DownloadFileAsync(
+        string downloadUrl,
+        string localPath,
+        Action<int, string>? onProgress = null)
+    {
+        try
+        {
+            using HttpClient httpClient = new HttpClient();
+
+            TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Normal);
+
+            using var response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            using var contentStream = await response.Content.ReadAsStreamAsync();
+            using var fileStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
+
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            long totalRead = 0L;
+            var buffer = new byte[131072];
+            bool isMoreToRead = true;
+            int lastProgress = 0;
+
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            while (isMoreToRead)
+            {
+                int read = await contentStream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                if (read == 0)
+                {
+                    isMoreToRead = false;
+                    continue;
+                }
+
+                await fileStream.WriteAsync(buffer.AsMemory(0, read));
+                totalRead += read;
+
+                if (totalBytes > 0)
+                {
+                    int progress = (int)((totalRead * 100) / totalBytes);
+                    if (progress - lastProgress >= 1)
+                    {
+                        double seconds = stopwatch.Elapsed.TotalSeconds;
+                        double kbSpeed = seconds > 0 ? totalRead / 1024d / seconds : 0;
+                        string speedStr = kbSpeed >= 1024
+                            ? $"{(kbSpeed / 1024):F2} MB/s"
+                            : $"{kbSpeed:F2} KB/s";
+
+                        onProgress?.Invoke(progress, speedStr);
+                        TaskbarProgress.Instance.SetValue(progress, 100);
+
+                        lastProgress = progress;
+                    }
+                }
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"下载失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return false;
         }
     }
 

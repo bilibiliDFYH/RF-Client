@@ -340,7 +340,7 @@ public class ModManager : XNAWindow
     /// </summary>
     /// <param name="modPath">mod原路径</param>
     /// <param name="mod">mod信息</param>
-    private void 整合Mod文件(string startPath,string modPath, Mod mod, bool deepImport = false)
+    private static void 整合Mod文件(string startPath,string modPath, Mod mod, bool deepImport = false)
     {
         #region 导入Mod文件
 
@@ -357,13 +357,14 @@ public class ModManager : XNAWindow
         }
         catch (Exception ex)
         {
-            XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), $"File operation failed, reason: {ex}".L10N("UI:Main:FileOperationFailed"));
+            Logger.Log(ex.ToString());
+            return;
         }
 
         #endregion
     }
 
-    private void CopyFiles(string sourceDir, string targetDir, bool needRecursion = false)
+    private static void CopyFiles(string sourceDir, string targetDir, bool needRecursion = false)
     {
         // 复制当前目录下的文件
         foreach (var file in Directory.GetFiles(sourceDir))
@@ -403,7 +404,7 @@ public class ModManager : XNAWindow
             }
     }
 
-    private  void 整合任务包文件(string startPath,string MissionPackPath, MissionPack missionPack, bool deepImport = false)
+    private static void 整合任务包文件(string startPath,string MissionPackPath, MissionPack missionPack, bool deepImport = false)
     {
         var tagerPath = Path.Combine(startPath, missionPack.FilePath);
         if (!Directory.Exists(tagerPath))
@@ -487,7 +488,7 @@ public class ModManager : XNAWindow
         触发刷新?.Invoke();
     }
 
-    public MissionPack 导入具体任务包(bool copyFile, bool deepImport, string missionPath,bool muVisible = false, string startPath = null)
+    public static MissionPack 导入具体任务包(bool copyFile, bool deepImport, string missionPath,bool muVisible = false, string startPath = null,MissionPack m = null)
     {
         if(missionPath == null) return null;
 
@@ -503,18 +504,19 @@ public class ModManager : XNAWindow
         {
             id = DateTime.Now.ToString("yyyyMMddHHmmss");
         }
-
+        
         var missionPack = new MissionPack
         {
-            ID = id,
+            ID = m?.ID ?? id,
             FilePath = missionPath,
             FileName = Path.Combine(startPath,$"Maps/Cp/battle{id}.ini"),
             Name = Path.GetFileName(missionPath),
             YR = isYR,
             Other = true,
-            LongDescription = Path.GetFileName(missionPath),
+            LongDescription = m?.LongDescription ?? Path.GetFileName(missionPath),
             Mod = isYR ? "YR" : "RA2",
-            DefaultMod = isYR ? "YR+" : "RA2+"
+            DefaultMod = isYR ? "YR+" : "RA2+",
+            UpdateTime = m?.UpdateTime ?? ""
         };
 
         missionPack.DefaultMod = missionPack.Mod;
@@ -538,7 +540,7 @@ public class ModManager : XNAWindow
         return missionPack;
     }
 
-   private readonly Dictionary<string, string> 默认战役名称 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+   private static readonly Dictionary<string, string> 默认战役名称 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "Name:TRN01", "新兵训练营 - 第一天" },
                 { "Name:TRN02", "新兵训练营 - 第二天" },
@@ -586,7 +588,7 @@ public class ModManager : XNAWindow
 
             };
 
-    private void 写入任务INI(MissionPack missionPack,string startPath)
+    private static void 写入任务INI(MissionPack missionPack,string startPath)
     {
         var tagerPath = Path.Combine(startPath, missionPack.FilePath);
         var maps = Directory.GetFiles(tagerPath, "*.map").ToList();
@@ -788,7 +790,7 @@ public class ModManager : XNAWindow
 
     }
 
-    public Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true,string startPath = null)
+    public static Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true,string startPath = null)
     {
         startPath ??= ProgramConstants.GamePath;
         var md = isYR ? "md" : null;

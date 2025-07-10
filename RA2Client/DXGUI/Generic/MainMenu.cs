@@ -806,14 +806,14 @@ namespace Ra2Client.DXGUI.Generic
 
                 var XNAMessageBox = new XNAMessageBox(WindowManager, "Tips".L10N("UI:Main:Tips"), "Mods or mission packs detected.\nClick Yes to import by mod. Click No to import by task package.".L10N("UI:Main:DetectedModOrMission"), XNAMessageBoxButtons.YesNo);
                 XNAMessageBox.YesClickedAction += (_) => {
-                    modManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
+                    ModManager.导入具体Mod(ProgramConstants.GamePath,true, false,true);
                     清理根目录();
                     modManager.刷新并渲染([]);
                     if (_timer != null)
                         _timer.Elapsed += TimerElapsedHandler;
                 };
                 XNAMessageBox.NoClickedAction += (_) => {
-                    var m = modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
+                    var m = ModManager.导入具体任务包(true, false, ProgramConstants.GamePath);
                     if (m != null)
                     {
                         清理根目录();
@@ -826,7 +826,7 @@ namespace Ra2Client.DXGUI.Generic
             }
             else if (ModManager.判断是否为任务包(ProgramConstants.GamePath))
             {
-                var m = modManager.导入具体任务包(true, false, ProgramConstants.GamePath);
+                var m = ModManager.导入具体任务包(true, false, ProgramConstants.GamePath);
                 if (m != null)
                 {
                     清理根目录();

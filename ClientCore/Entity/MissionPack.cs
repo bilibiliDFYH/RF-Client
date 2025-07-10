@@ -41,7 +41,8 @@ public class MissionPack : InfoBaseClass
             );
         Description = iniFile.GetValue(ID, "Description", iniFile.GetValue(ID, "Name", ID));
         FilePath = iniFile.GetValue(ID, "Mission", ID);
-       // FileName = iniFile.FileName;
+        UpdateTime = iniFile.GetValue(ID, "UpdateTime", string.Empty);
+        // FileName = iniFile.FileName;
         Sides = iniFile.GetValue(ID, "SideName", string.Empty);
         Difficulty = iniFile.GetValue(ID, "Difficulty", "中等");
 
@@ -124,7 +125,9 @@ public class MissionPack : InfoBaseClass
             .SetValue(ID, "Other", Other)
             .SetValue(ID, "Author", Author)
             .SetValue(ID, "MissionPack", ID)
-            .SetValue(ID, "BuildOffAlly", true);
+            .SetValue(ID, "BuildOffAlly", true)
+            .SetValue(ID, "UpdateTime", true)
+            ;
 
         if (Sides != null)
             iniFile.SetValue(ID, "Sides", Sides);
@@ -210,6 +213,8 @@ public class MissionPack : InfoBaseClass
     /// 是否为玩家自行导入的任务包
     /// </summary>
     public bool Other { get; set; }
+
+    public string UpdateTime { get; set; }
 
     public List<Mission> Missions { get; set; } = [];
 

@@ -15,6 +15,9 @@ using Rampastring.Tools;
 using ClientCore.Settings;
 using ClientGUI;
 using Rampastring.XNAUI;
+using Localization.Tools;
+using DTAConfig.OptionPanels;
+using DTAConfig.Entity;
 
 namespace Ra2Client
 {
@@ -115,8 +118,9 @@ namespace Ra2Client
             // ===== 下载地图处理逻辑 =====
             if (request.HttpMethod == "POST" && request.Url.AbsolutePath == "/downloadMap")
             {
-                //try
-                //{
+                #region 下载地图
+                try
+                {
                     using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
                     string requestBody = await reader.ReadToEndAsync();
 
@@ -132,94 +136,7 @@ namespace Ra2Client
                     // Console.WriteLine($"✅ 收到地图下载请求：{map.name} ({map.id})");
 
                     // 1. 写入 map 文件
-                    if (map.file.StartsWith('u'))
-                    {
-                        string imageUrl = Path.Combine(NetWorkINISettings.Address, map.file).Replace("\\", "/");
-                        string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.map");
-                    }
-                    else
-                    {
-                        Directory.CreateDirectory(ProgramConstants.MAP_PATH);
-                        File.WriteAllText(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"), map.file);
-                    }
-
-                    // 2. 下载图片
-                    if (map.img != null)
-                    {
-                        string imageUrl = Path.Combine(NetWorkINISettings.Address, map.img).Replace("\\", "/");
-                        string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.jpg");
-                    }
-
-                    
-                    //if (imageSavePath == null)
-                    //{
-                    //    Console.WriteLine("❌ 图片下载失败");
-                    //    response.StatusCode = 500;
-                    //    return;
-                    //}
-
-                    // 3. 写入 INI 配置
-                    var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
-                    string sectionName = $"Maps/Multi/MapLibrary/{map.id}";
-
-
-                    mapIni.SetValue(sectionName, "MaxPlayers", map.maxPlayers);
-                    mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
-                    mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
-                    mapIni.SetValue(sectionName, "Author", map.author);
-                    mapIni.SetValue(sectionName, "Briefing", map.description);
-                    mapIni.SetValue(sectionName, "UpdateTime", map.update_time??"");
-                    //try
-                    //{
-                        if (!string.IsNullOrEmpty(map.csf))
-                        {
-                            string baseDir = Path.Combine("Maps", "Multi", "MapLibrary", map.id.ToString());
-
-                            // 如果目录存在，删除整个目录及内容（慎用，确认安全）
-                            if (Directory.Exists(baseDir))
-                            {
-                                Directory.Delete(baseDir, recursive: true);
-                            }
-
-                            // 重新创建目录
-                            Directory.CreateDirectory(baseDir);
-
-                            //byte[] fileBytes = Convert.FromBase64String(map.csf);
-
-                            //string filePath = Path.Combine(baseDir, "ra2md.csf");
-
-                            //File.WriteAllBytes(filePath, fileBytes);
-                            
-
-                            // 路径使用正斜杠，符合配置格式
-                            string relativePath = $"Maps/Multi/MapLibrary/{map.id}";
-                            mapIni.SetValue(sectionName, "Mission", relativePath);
-                    string csfURL = Path.Combine(NetWorkINISettings.Address, map.csf).Replace("\\", "/");
-                    string imageSavePath = await NetWorkINISettings.DownloadImageAsync(csfURL, relativePath, "ra2md.csf");
-                }
-                        else
-                        {
-                            Console.WriteLine("map.csf为空或null，跳过写文件");
-                        }
-                    //}
-                    //catch (FormatException fe)
-                    //{
-                    //    Console.WriteLine("Base64格式错误: " + fe.Message);
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    Console.WriteLine("写文件时出现异常: " + ex.Message);
-                    //}
-
-
-                    WriteListToIni(mapIni, sectionName, "Rule", map.rules);
-                    WriteListToIni(mapIni, sectionName, "EnemyHouse", map.enemyHouse);
-                    WriteListToIni(mapIni, sectionName, "AllyHouse", map.allyHouse);
-
-                    if (!string.IsNullOrEmpty(map.enemyHouse + map.allyHouse))
-                        mapIni.SetValue(sectionName, "IsCoopMission", true);
-
-                    mapIni.WriteIniFile();
+                    await 写入地图(map);
 
                     response.StatusCode = 200;
                     RefreshInstalledMapIds();
@@ -241,60 +158,83 @@ namespace Ra2Client
                     response.ContentType = "application/json";
                     response.ContentLength64 = buffer.Length;
                     await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                //}
-                //catch (JsonException ex)
-                //{
-                //    Console.WriteLine("❌ JSON解析错误：" + ex.Message);
-                //    response.StatusCode = 400;
-                //}
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine("❌ 处理地图下载请求时发生错误：" + ex.Message);
-                //    response.StatusCode = 500;
-                //}
-                //finally
-                //{
-                //    response.ContentType = "application/json";
-                //    response.Close(); // 一定要关闭响应
-                //}
+                }
+                catch (JsonException ex)
+                {
+                    Console.WriteLine("❌ JSON解析错误：" + ex.Message);
+                    response.StatusCode = 400;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("❌ 处理地图下载请求时发生错误：" + ex.Message);
+                    response.StatusCode = 500;
+                }
+                finally
+                {
+                    response.ContentType = "application/json";
+                    response.Close(); // 一定要关闭响应
+                }
+                #endregion
+            }
+            else if (request.HttpMethod == "POST" && request.Url.AbsolutePath == "/downloadMissionPack")
+            {
+                #region 下载任务包
+                using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+                string requestBody = await reader.ReadToEndAsync();
+
+                var missionPackVo = JsonSerializer.Deserialize<MissionPackVo>(requestBody);
+
+                await 写入任务包(missionPackVo);
+
+                var result = new
+                {
+                    code = "200",
+                };
+                response.StatusCode = 200;
+                string jsonResult = JsonSerializer.Serialize(result);
+                byte[] buffer = Encoding.UTF8.GetBytes(jsonResult);
+                response.ContentType = "application/json";
+                response.ContentLength64 = buffer.Length;
+                await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                #endregion
             }
             else if (request.HttpMethod == "GET" && request.Url.AbsolutePath == "/mapExists")
             {
                 try
                 {
                     var mapId = request.QueryString["id"];
-                        int status = 0; // 未下载
-                       
-                        if (_installedMapIds.Keys.Contains(mapId))
+                    int status = 0; // 未下载
+
+                    if (_installedMapIds.Keys.Contains(mapId))
+                    {
+                        if (_installedMapIds[mapId] != request.QueryString["updateTime"])
                         {
-                            if (_installedMapIds[mapId] != request.QueryString["updateTime"])
-                            {
-                                if (_installedMapIds[mapId] == string.Empty)
-                                    status = 1; //
-                                else
-                                {
-                                    status = 2; // 地图需要更新
-                                }
-                            }
+                            if (_installedMapIds[mapId] == string.Empty)
+                                status = 1; //
                             else
                             {
-                                status = 1;
+                                status = 2; // 地图需要更新
                             }
                         }
-                            
-                        var result = new
+                        else
                         {
-                            code = "200",
-                            status,
-                        };
+                            status = 1;
+                        }
+                    }
 
-                        string jsonResult = JsonSerializer.Serialize(result);
-                        byte[] buffer = Encoding.UTF8.GetBytes(jsonResult);
-                        response.ContentType = "application/json";
-                        response.ContentLength64 = buffer.Length;
-                        await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                        response.StatusCode = 200;
-                   
+                    var result = new
+                    {
+                        code = "200",
+                        status,
+                    };
+
+                    string jsonResult = JsonSerializer.Serialize(result);
+                    byte[] buffer = Encoding.UTF8.GetBytes(jsonResult);
+                    response.ContentType = "application/json";
+                    response.ContentLength64 = buffer.Length;
+                    await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                    response.StatusCode = 200;
+
                 }
                 catch (Exception ex)
                 {
@@ -306,6 +246,37 @@ namespace Ra2Client
                     response.Close();
                 }
             }
+            else if(request.HttpMethod == "GET" && request.Url.AbsolutePath == "/missionPackExists")
+            {
+                var missionPackID = request.QueryString["id"];
+                int status = 0; // 未下载
+
+                var missionPack = MissionPack.MissionPacks.Find(m => m.ID == missionPackID);
+                if(missionPack != null)
+                {
+                    if(missionPack.UpdateTime == request.QueryString["updateTime"])
+                    {
+                        status = 1; // 已安装
+                    }
+                    else
+                    {
+                        status = 2; // 需要更新
+                    }
+                }
+        
+                var result = new
+                {
+                    code = "200",
+                    status,
+                };
+
+                string jsonResult = JsonSerializer.Serialize(result);
+                byte[] buffer = Encoding.UTF8.GetBytes(jsonResult);
+                response.ContentType = "application/json";
+                response.ContentLength64 = buffer.Length;
+                await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                response.StatusCode = 200;
+            }
             else
             {
                 response.StatusCode = 404;
@@ -313,6 +284,105 @@ namespace Ra2Client
             }
         }
 
+        private static async Task 写入地图(Maps map)
+        {
+            if (map.file.StartsWith('u'))
+            {
+                string imageUrl = Path.Combine(NetWorkINISettings.Address, map.file).Replace("\\", "/");
+                string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.map");
+            }
+            else
+            {
+                Directory.CreateDirectory(ProgramConstants.MAP_PATH);
+                File.WriteAllText(Path.Combine(ProgramConstants.MAP_PATH, $"{map.id}.map"), map.file);
+            }
+
+            // 2. 下载图片
+            if (map.img != null)
+            {
+                string imageUrl = Path.Combine(NetWorkINISettings.Address, map.img).Replace("\\", "/");
+                string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.jpg");
+            }
+
+
+            //if (imageSavePath == null)
+            //{
+            //    Console.WriteLine("❌ 图片下载失败");
+            //    response.StatusCode = 500;
+            //    return;
+            //}
+
+            // 3. 写入 INI 配置
+            var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
+            string sectionName = $"Maps/Multi/MapLibrary/{map.id}";
+
+
+            mapIni.SetValue(sectionName, "MaxPlayers", map.maxPlayers);
+            mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
+            mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
+            mapIni.SetValue(sectionName, "Author", map.author);
+            mapIni.SetValue(sectionName, "Briefing", map.description);
+            mapIni.SetValue(sectionName, "UpdateTime", map.update_time ?? "");
+            try
+            {
+                if (!string.IsNullOrEmpty(map.csf))
+                {
+                    string baseDir = Path.Combine("Maps", "Multi", "MapLibrary", map.id.ToString());
+
+                    // 如果目录存在，删除整个目录及内容（慎用，确认安全）
+                    if (Directory.Exists(baseDir))
+                    {
+                        Directory.Delete(baseDir, recursive: true);
+                    }
+
+                    // 重新创建目录
+                    Directory.CreateDirectory(baseDir);
+
+                    //byte[] fileBytes = Convert.FromBase64String(map.csf);
+
+                    //string filePath = Path.Combine(baseDir, "ra2md.csf");
+
+                    //File.WriteAllBytes(filePath, fileBytes);
+
+
+                    // 路径使用正斜杠，符合配置格式
+                    string relativePath = $"Maps/Multi/MapLibrary/{map.id}";
+                    mapIni.SetValue(sectionName, "Mission", relativePath);
+                    string csfURL = Path.Combine(NetWorkINISettings.Address, map.csf).Replace("\\", "/");
+                    string imageSavePath = await NetWorkINISettings.DownloadImageAsync(csfURL, relativePath, "ra2md.csf");
+                }
+                else
+                {
+                    Console.WriteLine("map.csf为空或null，跳过写文件");
+                }
+            }
+            catch (FormatException fe)
+            {
+                Console.WriteLine("Base64格式错误: " + fe.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("写文件时出现异常: " + ex.Message);
+            }
+
+
+            WriteListToIni(mapIni, sectionName, "Rule", map.rules);
+            WriteListToIni(mapIni, sectionName, "EnemyHouse", map.enemyHouse);
+            WriteListToIni(mapIni, sectionName, "AllyHouse", map.allyHouse);
+
+            if (!string.IsNullOrEmpty(map.enemyHouse + map.allyHouse))
+                mapIni.SetValue(sectionName, "IsCoopMission", true);
+
+            mapIni.WriteIniFile();
+        }
+
+        private static async Task 写入任务包(MissionPackVo missionPack)
+        {
+            var r = NetWorkINISettings.DownloadFileAsync(Path.Combine(NetWorkINISettings.Address, missionPack.file),"/tmp/missionPack.7z");
+
+            SevenZip.ExtractWith7Zip("/tmp/missionPack.7z", "/tmp/missionPack");
+            ModManager.导入具体Mod("/tmp/missionPack",true,true,muVisible:false,isYR:missionPack.gameType);
+        }
         /// <summary>
         /// 将字符串用";"分隔后写入 INI
         /// </summary>

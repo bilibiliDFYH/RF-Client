@@ -1003,7 +1003,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 for (int i = 0; i < checkBox.ControlName.Count; i++)
                 {
-
                     if (checkBox.Checked)
                     {
                         GameLobbyCheckBox otherChk = CheckBoxes.Find(chk => chk.Name == checkBox.ControlName[i]);
@@ -2078,6 +2077,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             settings.SetValue("CustomLoadScreen", LoadingScreenController.GetLoadScreenName(houseInfos[myIndex].InternalSideIndex.ToString()));
             settings.SetValue("AIPlayers", AIPlayers.Count);
             settings.SetValue("Seed", RandomSeed);
+
+            settings.SetValue("chkTerrain", FindChild<GameLobbyCheckBox>("chkTerrain").Checked);
 
             var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
             if (cmbSw != null && cmbSw.SelectedIndex == 0 && mod.SuperWeaponBuildings == string.Empty)

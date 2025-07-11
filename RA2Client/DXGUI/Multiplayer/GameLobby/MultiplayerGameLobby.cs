@@ -25,7 +25,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
     /// </summary>
     public abstract class MultiplayerGameLobby : GameLobbyBase, ISwitchable
     {
-        private XNAClientCheckBox chkTerrain;
+        private GameLobbyCheckBox chkTerrain;
 
         private const int MAX_DICE = 10;
         private const int MAX_DIE_SIDES = 100;
@@ -204,10 +204,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnRandomMap.ClientRectangle = new Rectangle(btnLockGame.Right  + 200, btnLockGame.Y, btnLockGame.Width, btnLockGame.Height);
 
-            chkTerrain = new XNAClientCheckBox(WindowManager);
+            chkTerrain = new GameLobbyCheckBox(WindowManager);
             chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
-            chkTerrain.X = FindChild<XNAClientCheckBox>("chkCorr").X;
-            chkTerrain.Y = FindChild<XNAClientCheckBox>("chkRuins").Y + 25;
+            chkTerrain.X = FindChild<GameLobbyCheckBox>("chkCorr").X;
+            chkTerrain.Y = FindChild<GameLobbyCheckBox>("chkRuins").Y + 25;
             chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
 
             FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);

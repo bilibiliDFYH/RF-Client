@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -275,7 +275,7 @@ namespace ClientGUI
                 iniFile.SetValue(sectionName, "chkSatellite", 透明迷雾);
                 if(战役ID!=-1)
                     iniFile.SetValue(sectionName, "CampaignID", 战役ID);
-             //   iniFile.SetValue(sectionName, "chkTerrain", game_chkTerrain_bool);dfyh
+                iniFile.SetValue(sectionName, "chkTerrain", game_chkTerrain_bool);//保存chkTerrain的设置    ——dfyh
             }
             iniFile.WriteIniFile();
             

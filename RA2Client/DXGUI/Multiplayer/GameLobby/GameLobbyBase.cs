@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -2077,7 +2077,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             settings.SetValue("CustomLoadScreen", LoadingScreenController.GetLoadScreenName(houseInfos[myIndex].InternalSideIndex.ToString()));
             settings.SetValue("AIPlayers", AIPlayers.Count);
             settings.SetValue("Seed", RandomSeed);
-
             settings.SetValue("chkTerrain", FindChild<GameLobbyCheckBox>("chkTerrain").Checked);
 
             var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
@@ -2603,6 +2602,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
             GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
+            GameProcessLogic.game_chkTerrain_bool = FindChild<GameLobbyCheckBox>("chkTerrain").Checked;
             UpdateDiscordPresence(true);
         }
 

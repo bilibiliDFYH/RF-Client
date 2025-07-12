@@ -72,6 +72,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             CmbGame_SelectedChanged(cmbGame, null);
 
+            if (FindChild<GameLobbyCheckBox>("chkTerrain") != null)
+            {
+                chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");
+            }
+            else
+            {
+                FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
+            }
+
             chkTerrain = new XNAClientCheckBox(WindowManager);
             chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
             chkTerrain.X = FindChild<XNAClientCheckBox>("chkCorr").X;

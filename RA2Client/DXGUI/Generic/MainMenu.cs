@@ -164,9 +164,8 @@ namespace Ra2Client.DXGUI.Generic
                 var iniFile = new IniFile();
                 iniFile.AddSection("Settings");
                 iniFile.SetValue("Settings","Game", mod.FilePath);
+                iniFile.SetValue("Settings", "chkTerrain", chkTerrain.Checked);
 
-                GameProcessLogic.game_chkTerrain_bool = chkTerrain.Checked;     //地编是否启用
-                Logger.Log("dfyh——打开地编" + chkTerrain.Checked);
                 GameProcessLogic.加载模组文件(WindowManager, iniFile);
 
                 LaunchMapEditor();

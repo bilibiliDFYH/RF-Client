@@ -2579,6 +2579,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// </summary>
         protected virtual void StartGame()
         {
+            var settings = new IniSection("Settings");
+            var chkTerrain_Checked = FindChild<XNAClientCheckBox>("chkTerrain").Checked;
+            settings.SetValue("chkTerrain", chkTerrain_Checked);
+
             // 在启动游戏前检查玩家名称(仅共辉)
             if (!IsPlayerNameValidGH())
             {
@@ -2601,8 +2605,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
+            spawnIni.AddSection(settings);
             GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
-            GameProcessLogic.game_chkTerrain_bool = FindChild<GameLobbyCheckBox>("chkTerrain").Checked;
             UpdateDiscordPresence(true);
         }
 

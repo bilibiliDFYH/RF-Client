@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1135,8 +1135,6 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnLaunch_LeftClick(object sender, EventArgs e)
         {
-            GameProcessLogic.game_chkTerrain_bool = chkTerrain.Checked; // 获取是否启用地形扩展选项       ——dfyh
-            Logger.Log("dfyh——打开战役");
             if (_lbxCampaignList.SelectedIndex == -1 || _lbxCampaignList.SelectedIndex >= _screenMissions.Count) return;
 
             int selectedMissionId = _lbxCampaignList.SelectedIndex;

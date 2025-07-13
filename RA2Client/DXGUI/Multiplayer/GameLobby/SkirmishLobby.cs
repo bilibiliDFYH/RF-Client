@@ -78,16 +78,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
             else
             {
+                chkTerrain = new XNAClientCheckBox(WindowManager);
+                chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+                chkTerrain.X = FindChild<XNAClientCheckBox>("chkCorr").X;
+                chkTerrain.Y = FindChild<XNAClientCheckBox>("chkRuins").Y + 25;
+                chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
                 FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
             }
-
-            chkTerrain = new XNAClientCheckBox(WindowManager);
-            chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
-            chkTerrain.X = FindChild<XNAClientCheckBox>("chkCorr").X;
-            chkTerrain.Y = FindChild<XNAClientCheckBox>("chkRuins").Y + 25;
-            chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
-
-            FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
         }
 
         protected override void ChangeMap(GameModeMap gameModeMap)
@@ -342,8 +339,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected override void BtnLaunchGame_LeftClick(object sender, EventArgs e)
         {
-            GameProcessLogic.game_chkTerrain_bool = chkTerrain.Checked;
-
             List<PlayerInfo> AllPlayers = [..Players, .. AIPlayers];
 
             for (int i = 0; i < Map.Rules.Count; i++)

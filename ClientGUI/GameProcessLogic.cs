@@ -356,15 +356,6 @@ namespace ClientGUI
 
                 var e = string.Empty;
 
-                if (newSection.KeyExists("chkTerrain"))
-                {
-                    Logger.Log("dfyh——chkTerrain存在");
-                }
-                else
-                {
-                    Logger.Log("dfyh——chkTerrain没有");
-                }
-
                 if (newSection.GetValue("chkTerrain", false))
                 {
                     int zh_location = 所有需要复制的文件.IndexOf("zh");

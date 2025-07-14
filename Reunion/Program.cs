@@ -19,17 +19,16 @@ namespace Reunion
         private const string LicenseFile = "License-GPLv3.txt";
         private const string RequiredFile = "使用前必读.txt";
         private const string FreeFile = "本游戏完全免费，祝倒卖的寿比昙花.txt";
-
+        
         private const string ExpectedHash_LicenseFile = "dc447a64136642636d7aa32e50c76e2465801c5f";
         private const string ExpectedHash_RequiredFile = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
         private const string ExpectedHash_FreeFile = "80a2028eb8ec8b738d5f89ec42b2f7a6";
 
-        // 动态获取系统盘符, 防止多系统情况下无法启动
-        private static readonly string SystemDrive = Environment.GetEnvironmentVariable("SystemDrive") ?? "C:";
-        private static readonly string dotnetPath = Path.Combine(SystemDrive, "Program Files", "dotnet");
-        private static readonly string dotnetPathA64 = Path.Combine(SystemDrive, "Program Files", "dotnet", "x64");
+        private static readonly string dotnetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet");
+        private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
 
         private static string[] Args;
+
         static void Main(string[] args)
         {
             Args = args;
@@ -50,7 +49,6 @@ namespace Reunion
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-
             try
             {
                 string actualHash1 = ComputeFileSHA256(RequiredFile);
@@ -60,7 +58,6 @@ namespace Reunion
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-
                 string actualHash2 = ComputeFileMD5(FreeFile);
                 if (!actualHash2.Equals(ExpectedHash_FreeFile, StringComparison.OrdinalIgnoreCase))
                 {
@@ -68,7 +65,6 @@ namespace Reunion
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-
                 string actualHash3 = ComputeFileSHA1(LicenseFile);
                 if (!actualHash3.Equals(ExpectedHash_LicenseFile, StringComparison.OrdinalIgnoreCase))
                 {
@@ -83,7 +79,6 @@ namespace Reunion
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
-
             return true;
         }
 
@@ -126,14 +121,13 @@ namespace Reunion
             }
         }
 
-        private static string GetClientProcessPath(string file) => $"{Resources}\\{Binaries}\\{file}";
+        private static string GetClientProcessPath(string file) => Path.Combine(Resources, Binaries, file);
 
         private static void StartProcess(string relPath)
         {
             try
             {
                 var dotnetHost = CheckAndRetrieveDotNetHost();
-
                 if (dotnetHost == null)
                 {
                     string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
@@ -143,6 +137,7 @@ namespace Reunion
                     // 判断是否为中国大陆
                     string countryCode = GetCountryCodeByIp();
                     string domain;
+
                     if (string.IsNullOrEmpty(countryCode))
                     {
                         domain = "files-cn-v4.ru2023.top/directlink-v2/x";
@@ -155,22 +150,23 @@ namespace Reunion
                     switch (arch)
                     {
                         case "x86":
-                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
+                            message = "检测到缺少所需的.NET6 x86运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.12 - v6.0.36";
                             url = $"https://{domain}/NET6/x86/windowsdesktop-runtime-6.0.36-win-x86.exe";
                             break;
                         case "x64":
-                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
+                            message = "检测到缺少所需的.NET6 x64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.12 - v6.0.36";
                             url = $"https://{domain}/NET6/x64/windowsdesktop-runtime-6.0.36-win-x64.exe";
                             break;
                         case "arm64":
-                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
+                            message = "检测到缺少所需的.NET6 ARM64运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.12 - v6.0.36";
                             url = $"https://{domain}/NET6/arm64/windowsdesktop-runtime-6.0.36-win-arm64.exe";
                             break;
                         default:
-                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.10 - v6.0.36";
+                            message = "检测到缺少所需的.NET6运行环境, 是否立即跳转到重聚未来官网进行下载?\n\n所需运行时版本要求: v6.0.12 - v6.0.36";
                             url = "https://www.yra2.com/runtime#net6-download";
                             break;
                     }
+
                     var result = MessageBox.Show(message, "错误", MessageBoxButtons.OKCancel);
                     if (result == DialogResult.OK)
                     {
@@ -180,8 +176,7 @@ namespace Reunion
                     return;
                 }
 
-                string absPath = $"{Environment.CurrentDirectory}\\{relPath}";
-
+                string absPath = Path.Combine(Environment.CurrentDirectory, relPath);
                 if (!File.Exists(absPath))
                 {
                     _ = MessageBox.Show($"客户端入口 ({relPath}) 不存在!", "客户端启动异常");
@@ -201,15 +196,15 @@ namespace Reunion
                     ZIP.SevenZip.ExtractWith7Zip(zip, "./", needDel: true);
                 }
 
-                var Arguments = "\"" + absPath + "\" " + GetArguments(Args);
+                var arguments = $"\"{absPath}\" {GetArguments(Args)}";
 
                 Console.WriteLine(dotnetHost);
-                Console.WriteLine(Arguments);
+                Console.WriteLine(arguments);
 
                 Process p = Process.Start(new ProcessStartInfo
                 {
                     FileName = dotnetHost,
-                    Arguments = Arguments,
+                    Arguments = arguments,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     Verb = "runas",
@@ -230,7 +225,7 @@ namespace Reunion
             // 使用 foreach 代替 LINQ 的 Select
             foreach (var arg in args)
             {
-                result += "\"" + arg + "\" ";
+                result += $"\"{arg}\" ";
             }
 
             return result.Trim(); // 去掉最后的空格
@@ -238,55 +233,54 @@ namespace Reunion
 
         private static string CheckAndRetrieveDotNetHost()
         {
-            string arch = RuntimeInformation.OSArchitecture.ToString().ToLower();
+            string dotnetExePath = Path.Combine(dotnetPath, "dotnet.exe");
+            string fullSharedPath = Path.Combine(dotnetPath, sharedPath);
 
-            var pathsToCheck = new List<string>();
+            var result = TryFindDotNet(dotnetExePath, fullSharedPath);
+            if (result != null) return result;
 
-            // 对于x64架构添加两个检查路径
-            if (arch == "x64")
+            if (RuntimeInformation.OSArchitecture == Architecture.Arm64)
             {
-                pathsToCheck.Add(dotnetPath);
-                pathsToCheck.Add(dotnetPathA64);
+                string altDotnetPath = Path.Combine(dotnetPath, "x64");
+                string altDotnetExePath = Path.Combine(altDotnetPath, "dotnet.exe");
+                string altFullSharedPath = Path.Combine(altDotnetPath, sharedPath);
+
+                result = TryFindDotNet(altDotnetExePath, altFullSharedPath);
+                if (result != null) return result;
             }
-            else
+
+            return null;
+        }
+
+        private static string TryFindDotNet(string dotnetExePath, string fullSharedPath)
+        {
+            if (!File.Exists(dotnetExePath) || !Directory.Exists(fullSharedPath))
+                return null;
+
+            var dir = FindDotNetInPath(fullSharedPath);
+            return dir != null ? dotnetExePath : null;
+        }
+
+        private static string FindDotNetInPath(string path)
+        {
+            if (Directory.Exists(path))
             {
-                pathsToCheck.Add(dotnetPath);
-            }
-
-            // 遍历所有需要检查的路径
-            foreach (var basePath in pathsToCheck)
-            {
-                string sharedRuntimePath = Path.Combine(basePath, "shared", "Microsoft.WindowsDesktop.App");
-                string dotnetExePath = Path.Combine(basePath, "dotnet.exe");
-
-                // 检查 dotnet.exe 是否存在
-                if (!File.Exists(dotnetExePath))
-                    continue;
-
-                // 检查运行时目录是否存在
-                if (!Directory.Exists(sharedRuntimePath))
-                    continue;
-
-                // 检查运行时版本 (6.0.10 ≤ version ≤ 6.0.36)
-                foreach (var versionDir in Directory.GetDirectories(sharedRuntimePath))
+                var directories = Directory.GetDirectories(path);
+                foreach (var dir in directories)
                 {
-                    string versionName = Path.GetFileName(versionDir);
-
-                    if (Version.TryParse(versionName, out Version version) &&
-                        version.Major == 6 && version.Minor == 0 && version.Build >= 10)
+                    var folderName = Path.GetFileName(dir);
+                    if (Version.TryParse(folderName, out var version))
                     {
-                        return dotnetExePath; // 返回有效的 dotnet.exe 路径
+                        if (version.Major == 6 && (version.Minor > 0 || version.Build >= 12))
+                        {
+                            return dir;
+                        }
                     }
                 }
             }
-
-            return null; // 未找到符合条件的运行时
+            return null;
         }
 
-        /// <summary>
-        /// 通过 curl 获取本机IP的国家代码(countryCode)，CN为中国大陆，其他为港澳台及海外
-        /// </summary>
-        /// <returns>国家代码，如"CN"、"HK"、"US"等，获取失败返回空字符串</returns>
         private static string GetCountryCodeByIp()
         {
             try

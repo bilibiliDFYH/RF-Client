@@ -123,6 +123,17 @@ namespace Ra2Client.DXGUI.Generic
     {
         public override void Initialize()
         {
+            var chkTerrain_Window = new XNAWindow(WindowManager);
+            chkTerrain_Window.ClientRectangle = new Rectangle(0, 146, 249, 32);
+            chkTerrain_Window.BackgroundTexture = null;
+            AddChild(chkTerrain_Window);
+
+            var chkTerrain = new XNAClientCheckBox(WindowManager);
+            chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+            chkTerrain.X = 12;
+            chkTerrain.Y = 8;
+            chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
+            chkTerrain_Window.AddChild(chkTerrain);    //生成chkTerrain//chk启用地形扩展
 
             var label = new XNALabel(WindowManager)
             {
@@ -153,6 +164,7 @@ namespace Ra2Client.DXGUI.Generic
                 var iniFile = new IniFile();
                 iniFile.AddSection("Settings");
                 iniFile.SetValue("Settings","Game", mod.FilePath);
+                iniFile.SetValue("Settings", "chkTerrain", chkTerrain.Checked);
 
                 GameProcessLogic.加载模组文件(WindowManager, iniFile);
 
@@ -1453,8 +1465,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var guideWindow = new ModSelectWindow(WindowManager);
             guideWindow.Show();
-
-            
+            guideWindow.Height = 180;
         }
 
         private void BtnStatistics_LeftClick(object sender, EventArgs e) =>

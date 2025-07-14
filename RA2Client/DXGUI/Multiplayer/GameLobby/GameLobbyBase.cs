@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1003,7 +1003,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 for (int i = 0; i < checkBox.ControlName.Count; i++)
                 {
-
                     if (checkBox.Checked)
                     {
                         GameLobbyCheckBox otherChk = CheckBoxes.Find(chk => chk.Name == checkBox.ControlName[i]);
@@ -2078,6 +2077,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             settings.SetValue("CustomLoadScreen", LoadingScreenController.GetLoadScreenName(houseInfos[myIndex].InternalSideIndex.ToString()));
             settings.SetValue("AIPlayers", AIPlayers.Count);
             settings.SetValue("Seed", RandomSeed);
+            settings.SetValue("chkTerrain", FindChild<GameLobbyCheckBox>("chkTerrain").Checked);
 
             var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
             if (cmbSw != null && cmbSw.SelectedIndex == 0 && mod.SuperWeaponBuildings == string.Empty)
@@ -2579,6 +2579,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// </summary>
         protected virtual void StartGame()
         {
+            var settings = new IniSection("Settings");
+            var chkTerrain_Checked = FindChild<XNAClientCheckBox>("chkTerrain").Checked;
+            settings.SetValue("chkTerrain", chkTerrain_Checked);
+
             // 在启动游戏前检查玩家名称(仅共辉)
             if (!IsPlayerNameValidGH())
             {
@@ -2601,6 +2605,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
+            spawnIni.AddSection(settings);
             GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
             UpdateDiscordPresence(true);
         }

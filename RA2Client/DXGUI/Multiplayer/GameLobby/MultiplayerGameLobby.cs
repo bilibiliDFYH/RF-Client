@@ -6,16 +6,17 @@ using System.Text;
 using ClientCore;
 using ClientCore.Statistics;
 using ClientGUI;
-using Ra2Client.Domain;
-using Ra2Client.Domain.Multiplayer;
-using Ra2Client.DXGUI.Generic;
 using Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ra2Client.Domain;
+using Ra2Client.Domain.Multiplayer;
+using Ra2Client.DXGUI.Generic;
+using Ra2Client.DXGUI.Multiplayer.CnCNet;
+using Ra2Client.DXGUI.Multiplayer.GameLobby.CommandHandlers;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
-using Ra2Client.DXGUI.Multiplayer.GameLobby.CommandHandlers;
-using Ra2Client.DXGUI.Multiplayer.CnCNet;
+using Rampastring.XNAUI.XNAControls;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -24,6 +25,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
     /// </summary>
     public abstract class MultiplayerGameLobby : GameLobbyBase, ISwitchable
     {
+        private GameLobbyCheckBox chkTerrain;
+
         private const int MAX_DICE = 10;
         private const int MAX_DIE_SIDES = 100;
 
@@ -201,6 +204,19 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             btnRandomMap.ClientRectangle = new Rectangle(btnLockGame.Right  + 200, btnLockGame.Y, btnLockGame.Width, btnLockGame.Height);
 
+            if (FindChild<GameLobbyCheckBox>("chkTerrain") != null)
+            {
+                chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");
+            }
+            else
+            {
+                chkTerrain = new GameLobbyCheckBox(WindowManager);
+                chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+                chkTerrain.X = FindChild<XNAClientCheckBox>("chkCorr").X;
+                chkTerrain.Y = FindChild<XNAClientCheckBox>("chkRuins").Y + 25;
+                chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
+                FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
+            }
 
             ReloadMod();
         }

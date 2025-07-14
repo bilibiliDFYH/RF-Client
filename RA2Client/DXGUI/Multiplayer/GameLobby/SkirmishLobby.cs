@@ -19,8 +19,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
     public class SkirmishLobby : GameLobbyBase, ISwitchable
     {
-        public static XNAClientCheckBox chkTerrain;   //创建chkTerrain//chk启用地形扩展
-
+        private XNAClientCheckBox chkTerrain;
         private const string SETTINGS_PATH = "Client/SkirmishSettings.ini";
 
         public SkirmishLobby(WindowManager windowManager, TopBar topBar, MapLoader mapLoader, DiscordHandler discordHandler, Random random)
@@ -73,8 +72,19 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             CmbGame_SelectedChanged(cmbGame, null);
 
-            chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");    //生成chkTerrain//chk启用地形扩展
-            GameProcessLogic.SkirmishLobby_chkTerrain = chkTerrain;
+            if (FindChild<GameLobbyCheckBox>("chkTerrain") != null)
+            {
+                chkTerrain = FindChild<GameLobbyCheckBox>("chkTerrain");
+            }
+            else
+            {
+                chkTerrain = new XNAClientCheckBox(WindowManager);
+                chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+                chkTerrain.X = FindChild<XNAClientCheckBox>("chkCorr").X;
+                chkTerrain.Y = FindChild<XNAClientCheckBox>("chkRuins").Y + 25;
+                chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
+                FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
+            }
         }
 
         protected override void ChangeMap(GameModeMap gameModeMap)
@@ -329,7 +339,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected override void BtnLaunchGame_LeftClick(object sender, EventArgs e)
         {
-            GameProcessLogic.gamemode = "Skirmish";
             List<PlayerInfo> AllPlayers = [..Players, .. AIPlayers];
 
             for (int i = 0; i < Map.Rules.Count; i++)

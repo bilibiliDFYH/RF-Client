@@ -448,14 +448,21 @@ namespace DTAConfig.OptionPanels
             }
 
             // 确保临时目录存在
-            string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
-            if (!Directory.Exists(strTmp))
-                Directory.CreateDirectory(strTmp);
-            strLocPath = Path.Combine(strTmp, _curComponent.file);
+            try
+            {
+                string strTmp = Path.Combine(ProgramConstants.GamePath, "Tmp");
 
-            if (File.Exists(strLocPath))
-                File.Delete(strLocPath);
+                if (!Directory.Exists(strTmp))
+                    Directory.CreateDirectory(strTmp);
+                strLocPath = Path.Combine(strTmp, _curComponent.file);
 
+                if (File.Exists(strLocPath))
+                    File.Delete(strLocPath);
+            }
+            catch(Exception ex) {
+            {
+                    Logger.Log(ex.ToString()); 
+            }
             int maxRetries = 3;
             int attempt = 0;
             bool downloadSuccess = false;

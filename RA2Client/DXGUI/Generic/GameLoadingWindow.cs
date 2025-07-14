@@ -5,16 +5,17 @@ using System.Linq;
 using ClientCore;
 using ClientGUI;
 using Ra2Client.Domain;
+using DTAConfig;
+using DTAConfig.Entity;
+using DTAConfig.OptionPanels;
 using Localization;
+using Localization.Tools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using NAudio.Wave;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
-using DTAConfig.Entity;
-using DTAConfig;
-using DTAConfig.OptionPanels;
-using Localization.Tools;
 
 namespace Ra2Client.DXGUI.Generic
 {
@@ -23,7 +24,8 @@ namespace Ra2Client.DXGUI.Generic
     /// </summary>
     public class GameLoadingWindow : XNAWindow
     {
-      
+        public List<bool> chkTerrain_List_bool = new List<bool>();
+
 
         public GameLoadingWindow(WindowManager windowManager, DiscordHandler discordHandler) : base(windowManager)
         {
@@ -157,7 +159,8 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("CustomLoadScreen", LoadingScreenController.GetLoadScreenName("g"));
             settings.SetValue("Firestorm","No");
             settings.SetValue("GameSpeed", UserINISettings.Instance.GameSpeed.Value);
-         
+            settings.SetValue("chkTerrain", chkTerrain_List_bool[lbSaveGameList.SelectedIndex]);
+
             spawnIni.AddSection(settings);
             
 
@@ -228,6 +231,7 @@ namespace Ra2Client.DXGUI.Generic
         public void ListSaves()
         {
             savedGames.Clear();
+            chkTerrain_List_bool.Clear();
             lbSaveGameList.ClearItems();
             lbSaveGameList.SelectedIndex = -1;
             if (!Directory.Exists(ProgramConstants.存档目录)) return;
@@ -255,12 +259,15 @@ namespace Ra2Client.DXGUI.Generic
                     var mission = saveIni.GetValue(sectionName, "Mission", string.Empty);
                     var 透明迷雾 = saveIni.GetValue(sectionName, "chkSatellite", false);
                     var 战役ID = saveIni.GetValue(sectionName, "CampaignID", -1);
-                    ParseSaveGame(file.FullName,game,mission,透明迷雾,战役ID);
+                    var chkTerrain = saveIni.GetValue(sectionName, "chkTerrain", false);
+                    chkTerrain_List_bool.Add(chkTerrain);
+                    ParseSaveGame(file.FullName, game, mission, 透明迷雾, 战役ID);
                 }
             }
 
             savedGames = savedGames.OrderBy(sg => sg.LastModified.Ticks).ToList();
             savedGames.Reverse();
+            chkTerrain_List_bool.Reverse();
 
             foreach (SavedGame sg in savedGames)
             {
@@ -271,10 +278,9 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void ParseSaveGame(string fileName,string game,string mission,bool 透明迷雾,int 战役ID)
+        private void ParseSaveGame(string fileName, string game, string mission, bool 透明迷雾, int 战役ID)
         {
             string shortName = Path.GetFileName(fileName);
-
             SavedGame sg = new SavedGame(shortName, game, mission);
             sg.FilePath = fileName;
             sg.透明迷雾 = 透明迷雾;

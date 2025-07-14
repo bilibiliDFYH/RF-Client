@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -22,10 +22,6 @@ namespace ClientGUI
     /// </summary>
     public static class GameProcessLogic
     {
-        public static XNAClientCheckBox CampaignSelector_chkTerrain;    //战役的地形扩展复选框
-        public static XNAClientCheckBox SkirmishLobby_chkTerrain;   //遭遇战的地形扩展复选框
-        public static string gamemode;
-
         public static event Action GameProcessStarted;
 
         public static event Action GameProcessStarting;
@@ -256,6 +252,7 @@ namespace ClientGUI
             var mission = spawn.GetValue<string>("Settings", "Mission", null);
             var 透明迷雾 = spawn.GetValue("Settings", "chkSatellite", false);
             var 战役ID = spawn.GetValue("Settings", "CampaignID", -1);
+            var chkTerrain = spawn.GetValue("Settings", "chkTerrain", false);
             //if (mission != null)
             //    mission = Path.GetFileName(mission);
 
@@ -277,6 +274,7 @@ namespace ClientGUI
                 iniFile.SetValue(sectionName, "chkSatellite", 透明迷雾);
                 if(战役ID!=-1)
                     iniFile.SetValue(sectionName, "CampaignID", 战役ID);
+                iniFile.SetValue(sectionName, "chkTerrain", chkTerrain);
             }
             iniFile.WriteIniFile();
             
@@ -358,21 +356,10 @@ namespace ClientGUI
 
                 var e = string.Empty;
 
-                if (gamemode == "Skirmish")
+                if (newSection.GetValue("chkTerrain", false))
                 {
-                    if (SkirmishLobby_chkTerrain.Checked == true)
-                    {
-                        int zh_location = 所有需要复制的文件.IndexOf("zh");
-                        所有需要复制的文件.Insert(zh_location, "TX");
-                    }
-                }
-                if (gamemode == "Mission")
-                {
-                    if (CampaignSelector_chkTerrain.Checked == true)
-                    {
-                        int zh_location = 所有需要复制的文件.IndexOf("zh");
-                        所有需要复制的文件.Insert(zh_location, "TX");
-                    }
+                    int zh_location = 所有需要复制的文件.IndexOf("zh");
+                    所有需要复制的文件.Insert(zh_location, "TX");
                 }
 
                 if (IsNtfs(ProgramConstants.GamePath))
@@ -448,7 +435,6 @@ namespace ClientGUI
 
             try
             {
-
                 foreach (var path in 所有需要复制的文件)
                 {
                     if (File.Exists(path))

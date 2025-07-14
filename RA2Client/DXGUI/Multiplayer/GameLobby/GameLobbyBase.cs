@@ -480,7 +480,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //w.Enable();
             //var _modManager = ModManager.GetInstance(WindowManager);
             //_modManager.打开创意工坊(1);
-            FunExtensions.OpenUrl($"https://console.yra2.com/workshop/list?token={UserINISettings.Instance.Token}&port={LocalHttpServer.Port}");
+            FunExtensions.OpenUrl($"https://console.yra2.com/workshop/map/list?token={UserINISettings.Instance.Token}&port={LocalHttpServer.Port}");
         }
 
         private void BtnLoadMaps_LeftClick(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿namespace ClientCore.Settings;
+namespace ClientCore.Settings;
 
 using ClientCore.Entity;
 using Localization.Tools;
@@ -267,6 +267,19 @@ public static class Updater
             latencyList.Add((mirror, latency >= 0 ? latency : long.MaxValue));
         }
         return latencyList.OrderBy(t => t.latency).Select(t => t.server).ToList();
+    }
+
+    /// <summary>
+    /// 获取并按优先级从高到底排序的服务器列表
+    /// </summary>
+    /// <param name="channel">更新通道</param>
+    /// <returns>排序后的服务器列表</returns>
+    private static List<UpdaterServer> GetSortedServersByPriority(int channel)
+    {
+        var mirrors = serverMirrors.Where(m => m.type == channel).ToList();
+
+        // 按priority降序排序，priority大的排前面
+        return mirrors.OrderByDescending(m => m.priority).ToList();
     }
 
     /// <summary>
@@ -716,7 +729,7 @@ public static class Updater
             }
 
             // 获取并排序服务器列表
-            var sortedServers = GetSortedServersByLatency(UserINISettings.Instance.Beta.Value);
+            var sortedServers = GetSortedServersByPriority(UserINISettings.Instance.Beta.Value);
             if (sortedServers.Count == 0)
                 throw new("没有可用的更新服务器.");
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
@@ -55,7 +55,8 @@ public class NetWorkINISettings
                         type: SettingsIni.GetIntValue(serverGroup[i], "Type", 0),
                         name: SettingsIni.GetStringValue(serverGroup[i], "Name", $"服务器#{i}"),
                         location: SettingsIni.GetStringValue(serverGroup[i], "Location", "Unkown"),
-                        url: SettingsIni.GetStringValue(serverGroup[i], "Url", "")
+                        url: SettingsIni.GetStringValue(serverGroup[i], "Url", ""),
+                        priority: SettingsIni.GetIntValue(serverGroup[i], "Priority", 0)
                         );
                     
                     UpdaterServers.Add(us);
@@ -131,6 +132,7 @@ public class NetWorkINISettings
                         iniFile.SetStringValue(sectionName, "Name", server.name);
                         iniFile.SetStringValue(sectionName, "Location", server.location);
                         iniFile.SetStringValue(sectionName, "Url", server.url);
+                        iniFile.SetValue(sectionName, "Priority", server.priority);
 
                         serverNames.Add(sectionName);
                     }

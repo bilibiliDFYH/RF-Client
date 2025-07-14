@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Input;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
+using System.Text;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -415,13 +416,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (!string.IsNullOrEmpty(GameModeMap.Map.Briefing))
             {
-                briefingBox.SetText(GameModeMap.Map.Briefing);
+                briefingBox.SetText(AutoWrapBriefing(GameModeMap.Map.Briefing));
+                //briefingBox.SetText(GameModeMap.Map.Briefing);
                 briefingBox.Enable();
                 if (IsActive)
                     briefingBox.SetAlpha(0f);
             }
             else
                 briefingBox.Disable();
+
 
             double xRatio = (Width - 2) / (double)previewTexture.Width;
             double yRatio = (Height - 2) / (double)previewTexture.Height;
@@ -516,6 +519,25 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             btnToggleFavoriteMap.HoverTexture = hoverTexture;
         }
 
+        private static string AutoWrapBriefing(string briefing, int maxLength = 25)
+        {
+            if (briefing.Contains("@"))
+                return briefing; // 已经有换行符，不处理
+
+            var result = new StringBuilder();
+            for (int i = 0; i < briefing.Length; i++)
+            {
+                result.Append(briefing[i]);
+
+                // 每 maxLength 个字符插入一个 @，但不在末尾插
+                if ((i + 1) % maxLength == 0 && (i + 1) < briefing.Length)
+                {
+                    result.Append('\r');
+                    result.Append('\n');
+                }
+            }
+            return result.ToString();
+        }
 
         public void RefreshExtraTexturesBtn()
         {

@@ -362,14 +362,6 @@ namespace ClientGUI
                     所有需要复制的文件.Insert(zh_location, "TX");
                 }
 
-                /*
-                if (game_chkTerrain_bool)
-                {
-                    int zh_location = 所有需要复制的文件.IndexOf("zh");
-                    所有需要复制的文件.Insert(zh_location, "TX");
-                }
-                */
-
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
                   e = 符号链接(所有需要复制的文件);

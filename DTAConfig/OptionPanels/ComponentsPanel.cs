@@ -1,4 +1,4 @@
-﻿using ClientCore;
+using ClientCore;
 using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
@@ -459,7 +459,7 @@ namespace DTAConfig.OptionPanels
                 if (File.Exists(strLocPath))
                     File.Delete(strLocPath);
             }
-            catch(Exception ex) {
+            catch(Exception ex) 
             {
                     Logger.Log(ex.ToString()); 
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -402,18 +402,8 @@ namespace Ra2Client.Domain.Multiplayer
                 {
                     Mod = [.. modstr.Split(',')];
                 }
-                MinPlayers = section.GetValueOrSetDefault("MinPlayers", () => 0);
-                MaxPlayers = section.GetValueOrSetDefault("MaxPlayers", () => 0);
-
-                //这里最大人数0极有可能是因为没写MaxPlayers,实际上可以通过路径点0-7来判断人数.
-                if (MaxPlayers == 0)
-                {
-                    for (int j = 0; j < 8; j++)
-                        if (section.GetValue($"Waypoint{j}", string.Empty) != string.Empty)
-                            MaxPlayers++;
-                        else
-                            break;
-                }
+                MinPlayers = section.GetValueOrSetDefault("MinPlayers", () => GetMapIni(BaseFilePath).GetValue("Basic", "MinPlayer", 0));
+                MaxPlayers = section.GetValueOrSetDefault("MaxPlayers", () => GetMapIni(BaseFilePath).GetValue("Basic", "MaxPlayer", 0));
 
                 EnforceMaxPlayers = section.GetBooleanValue("EnforceMaxPlayers", false);
                 Briefing = section.GetStringValue("Briefing", string.Empty).Replace("@", Environment.NewLine);
@@ -535,6 +525,20 @@ namespace Ra2Client.Domain.Multiplayer
                     height = section.GetIntValue("Height", 0);
                 }
 
+
+
+                if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
+                {
+                    if (GetMapIni(BaseFilePath).SectionExists("Waypoints") && MaxPlayers > 0){
+
+                        for (int j = 0; j < MaxPlayers; j++)
+                        {
+                            var r = GetMapIni(BaseFilePath).GetValue("Waypoints",j.ToString(), "000000");
+                            iniFile.SetValue(section.SectionName, $"Waypoint{j}", $"{r:000000}");
+                        }
+                    }
+                }
+
                 if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
                 {
                     var count = GenerateWaypoint(iniFile, section, GetMapIni(BaseFilePath));
@@ -611,7 +615,8 @@ namespace Ra2Client.Domain.Multiplayer
 
             for (int i = 1; i <= MAX_PLAYERS; i++)
             {
-                var waypoint = mapIni.GetStringValue("Header", $"Waypoint{i}", string.Empty);
+                var waypoint = mapIni.GetValue("Header", $"Waypoint{i}",string.Empty);
+            
                 if (waypoint.Length == 0 || waypoint == "0,0") {
 
                     playerCount--;

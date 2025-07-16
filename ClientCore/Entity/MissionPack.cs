@@ -1,4 +1,4 @@
-﻿
+
 using ClientCore;
 using Rampastring.Tools;
 using System;
@@ -126,7 +126,7 @@ public class MissionPack : InfoBaseClass
             .SetValue(ID, "Author", Author)
             .SetValue(ID, "MissionPack", ID)
             .SetValue(ID, "BuildOffAlly", true)
-            .SetValue(ID, "UpdateTime", true)
+            .SetValue(ID, "UpdateTime", UpdateTime)
             ;
 
         if (Sides != null)

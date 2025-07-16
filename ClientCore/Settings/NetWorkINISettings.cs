@@ -406,6 +406,14 @@ public class NetWorkINISettings
             response.EnsureSuccessStatusCode();
 
             using var contentStream = await response.Content.ReadAsStreamAsync();
+
+            // ✅ 确保目录存在
+            var directory = Path.GetDirectoryName(localPath);
+            if (!string.IsNullOrEmpty(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             using var fileStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 131072, true);
 
             var totalBytes = response.Content.Headers.ContentLength ?? -1L;
@@ -447,13 +455,18 @@ public class NetWorkINISettings
                 }
             }
 
+            // ✅ 下载完成后，清除任务栏进度
+            TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.NoProgress);
             return true;
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"下载失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            // ❗ 异常时也清除进度，避免一直卡住
+            TaskbarProgress.Instance.SetState(TaskbarProgress.TaskbarStates.Error);
+            Console.WriteLine(ex.ToString());
             return false;
         }
     }
+
 
 }

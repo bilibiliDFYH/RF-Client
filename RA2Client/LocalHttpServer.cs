@@ -18,6 +18,7 @@ using Rampastring.XNAUI;
 using Localization.Tools;
 using DTAConfig.OptionPanels;
 using DTAConfig.Entity;
+using SharpDX.Direct3D9;
 
 namespace Ra2Client
 {
@@ -186,7 +187,7 @@ namespace Ra2Client
 
                     var missionPackVo = JsonSerializer.Deserialize<MissionPackVo>(requestBody);
 
-                    await 写入任务包(missionPackVo);
+                    写入任务包(missionPackVo);
 
                     var result = new
                     {
@@ -384,12 +385,51 @@ namespace Ra2Client
             mapIni.WriteIniFile();
         }
 
-        private static async Task 写入任务包(MissionPackVo missionPack)
+        private static async Task 写入任务包(MissionPackVo missionPackVo)
         {
-            var r = NetWorkINISettings.DownloadFileAsync(Path.Combine(NetWorkINISettings.Address, missionPack.file),Path.Combine("tmp/missionPack.7z"));
+            try
+            {
+                var fileName = Path.GetFileName(missionPackVo.file);
+                string tmpFile = Path.Combine(ProgramConstants.GamePath, "tmp", fileName);
+                string extractDir = Path.Combine(ProgramConstants.GamePath, "tmp", "MissionPack");
 
-            SevenZip.ExtractWith7Zip("/tmp/missionPack.7z", "/tmp/missionPack");
-            ModManager.导入具体Mod("/tmp/missionPack",true,true,muVisible:false,isYR:missionPack.gameType == 1);
+                string downloadUrl = Path.Combine(NetWorkINISettings.Address, missionPackVo.file);
+
+                // 等待下载完成
+                bool success = await NetWorkINISettings.DownloadFileAsync(downloadUrl, tmpFile);
+
+                if (!success)
+                {
+                    Console.WriteLine($"❌ 下载任务包失败: {downloadUrl}");
+                    return;
+                }
+
+                // 解压文件
+                SevenZip.ExtractWith7Zip(tmpFile, extractDir, needDel:true);
+
+                var missionPack = new MissionPack()
+                {
+                     ID = missionPackVo.id,
+                     Name = missionPackVo.name,
+                    LongDescription = missionPackVo.description,
+                    UpdateTime = missionPackVo.updateTime
+                };
+
+                // 导入Mod
+                ModManager.导入具体任务包(
+                    true,
+                    true,
+                    Path.Combine(ProgramConstants.GamePath, "tmp","MissionPack"), 
+                    muVisible: false,
+                    m: missionPack
+                );
+
+                UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ 写入任务包时发生异常: {ex}");
+            }
         }
         /// <summary>
         /// 将字符串用";"分隔后写入 INI

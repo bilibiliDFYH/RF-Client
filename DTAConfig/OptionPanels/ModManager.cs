@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows.Forms;
 using ClientGUI;
@@ -509,8 +509,8 @@ public class ModManager : XNAWindow
         {
             ID = m?.ID ?? id,
             FilePath = missionPath,
-            FileName = Path.Combine(startPath,$"Maps/Cp/battle{id}.ini"),
-            Name = Path.GetFileName(missionPath),
+            FileName = Path.Combine(startPath,$"Maps/Cp/battle{m?.ID ?? id}.ini"),
+            Name = m?.Name ?? Path.GetFileName(missionPath),
             YR = isYR,
             Other = true,
             LongDescription = m?.LongDescription ?? Path.GetFileName(missionPath),

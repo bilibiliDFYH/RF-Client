@@ -30,6 +30,8 @@ namespace ClientCore.Entity
         public int gameType { get; set; }
 
         public string? link { get; set; }
+
+        public string updateTime { get; set; }
     }
 
 }

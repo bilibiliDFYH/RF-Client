@@ -222,7 +222,7 @@ namespace Ra2Client.DXGUI.Generic
             //_campaignMenu.AddItem("删除这组任务");
             _campaignMenu.AddItem(new XNAContextMenuItem
             {
-                Text = "Refresh Map List".L10N("UI:Main:RefreshMapList"),
+                Text = "刷新任务列表".L10N("UI:Main:RefreshMapList"),
                 SelectAction = () => ReadMissionList()
             });
             _campaignMenu.AddItem(new XNAContextMenuItem

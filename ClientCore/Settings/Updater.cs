@@ -277,9 +277,20 @@ public static class Updater
     private static List<UpdaterServer> GetSortedServersByPriority(int channel)
     {
         var mirrors = serverMirrors.Where(m => m.type == channel).ToList();
+        var latencyList = new List<(UpdaterServer server, int priority, long latency)>();
 
-        // 按priority降序排序，priority大的排前面
-        return mirrors.OrderByDescending(m => m.priority).ToList();
+        foreach (var mirror in mirrors)
+        {
+            long latency = MeasureLatency(mirror);
+            latencyList.Add((mirror, mirror.priority, latency >= 0 ? latency : long.MaxValue));
+        }
+
+        // 先按priority降序，再按latency升序排序
+        return latencyList
+            .OrderByDescending(t => t.priority)
+            .ThenBy(t => t.latency)
+            .Select(t => t.server)
+            .ToList();
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,25 +9,17 @@ namespace ClientCore.Entity
 {
     public record class MissionPackVo
     {
-        public long? id { get; set; }
+        public string? id { get; set; }
 
         public string name { get; set; } = "";
 
         public string? description { get; set; }
 
-        public string? camp { get; set; }
+        public List<int>? camp { get; set; }
 
         public string? tags { get; set; }
 
         public string file { get; set; } = "";
-
-        public string? img { get; set; }
-
-        public long? uploadUser { get; set; }
-
-        public string? uploadUserName { get; set; } = "";
-
-        public string? version { get; set; }
 
         public string? author { get; set; }
 
@@ -35,13 +27,9 @@ namespace ClientCore.Entity
 
         public int? year { get; set; }
 
-        public bool gameType { get; set; }
+        public int gameType { get; set; }
 
         public string? link { get; set; }
-
-        public long downCount { get; set; } = 0;
-
-        public bool enable { get; set; } = false;
     }
 
 }

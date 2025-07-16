@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -179,24 +179,32 @@ namespace Ra2Client
             else if (request.HttpMethod == "POST" && request.Url.AbsolutePath == "/downloadMissionPack")
             {
                 #region 下载任务包
-                using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
-                string requestBody = await reader.ReadToEndAsync();
-
-                var missionPackVo = JsonSerializer.Deserialize<MissionPackVo>(requestBody);
-
-                await 写入任务包(missionPackVo);
-
-                var result = new
+                try
                 {
-                    code = "200",
-                };
-                response.StatusCode = 200;
-                string jsonResult = JsonSerializer.Serialize(result);
-                byte[] buffer = Encoding.UTF8.GetBytes(jsonResult);
-                response.ContentType = "application/json";
-                response.ContentLength64 = buffer.Length;
-                await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
-                #endregion
+                    using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
+                    string requestBody = await reader.ReadToEndAsync();
+
+                    var missionPackVo = JsonSerializer.Deserialize<MissionPackVo>(requestBody);
+
+                    await 写入任务包(missionPackVo);
+
+                    var result = new
+                    {
+                        code = "200",
+                    };
+                    response.StatusCode = 200;
+                    string jsonResult = JsonSerializer.Serialize(result);
+                    byte[] buffer = Encoding.UTF8.GetBytes(jsonResult);
+                    response.ContentType = "application/json";
+                    response.ContentLength64 = buffer.Length;
+                    await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+                    #endregion
+                }
+                catch(Exception ex)
+                {
+                    Logger.Log(ex.ToString());
+                    Console.WriteLine(ex.ToString());
+                }
             }
             else if (request.HttpMethod == "GET" && request.Url.AbsolutePath == "/mapExists")
             {
@@ -378,10 +386,10 @@ namespace Ra2Client
 
         private static async Task 写入任务包(MissionPackVo missionPack)
         {
-            var r = NetWorkINISettings.DownloadFileAsync(Path.Combine(NetWorkINISettings.Address, missionPack.file),"/tmp/missionPack.7z");
+            var r = NetWorkINISettings.DownloadFileAsync(Path.Combine(NetWorkINISettings.Address, missionPack.file),Path.Combine("tmp/missionPack.7z"));
 
             SevenZip.ExtractWith7Zip("/tmp/missionPack.7z", "/tmp/missionPack");
-            ModManager.导入具体Mod("/tmp/missionPack",true,true,muVisible:false,isYR:missionPack.gameType);
+            ModManager.导入具体Mod("/tmp/missionPack",true,true,muVisible:false,isYR:missionPack.gameType == 1);
         }
         /// <summary>
         /// 将字符串用";"分隔后写入 INI

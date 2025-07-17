@@ -352,9 +352,10 @@ namespace Ra2Client.DXGUI.Generic
         /// </summary>
         public override void Initialize()
         {
-
-           // Mix.UnPackMix("/mix","E:\\Documents\\My_File\\RA2Setup\\Updater\\expandmd06.mix");
             
+
+            // Mix.UnPackMix("/mix","E:\\Documents\\My_File\\RA2Setup\\Updater\\expandmd06.mix");
+
             topBar.SetSecondarySwitch(cncnetLobby);
             GameProcessLogic.GameProcessExited += SharedUILogic_GameProcessExited;
 
@@ -1417,6 +1418,8 @@ namespace Ra2Client.DXGUI.Generic
 
         private void BtnNewCampaign_LeftClick(object sender, EventArgs e)
         {
+           
+
             innerPanel.Show(innerPanel.CampaignSelector);
 
             if (UserINISettings.Instance.StopMusicOnMenu)

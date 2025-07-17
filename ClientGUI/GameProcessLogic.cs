@@ -190,6 +190,7 @@ namespace ClientGUI
                     DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Length;
                 try
                 {
+                    ShiftClickAutoClicker.Instance.Start();
                     gameProcess.Start();
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
@@ -571,6 +572,7 @@ namespace ClientGUI
 
             proc.Exited -= Process_Exited;
             proc.Dispose();
+            ShiftClickAutoClicker.Instance.Stop();
             GameProcessExited?.Invoke();
             //var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
             //if (File.Exists(keyboardMD))

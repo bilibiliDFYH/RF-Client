@@ -1129,7 +1129,7 @@ namespace Ra2Client.DXGUI.Generic
         private void BtnCancel_LeftClick(object sender, EventArgs e)
         {
             Enabled = false;
-
+            //ShiftClickAutoClicker.Instance.Stop();
             Exited?.Invoke(this, e);
         }
 

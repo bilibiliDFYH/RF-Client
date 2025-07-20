@@ -218,7 +218,7 @@ namespace ClientCore
 
         public string Mod_AiIniPath => SafePath.CombineFilePath(clientDefinitionsIni.GetStringValue(SETTINGS, "Mod&Ai", string.Empty));
 
-        public int MaxNameLength => clientDefinitionsIni.GetIntValue(SETTINGS, "MaxNameLength", 10);
+        public int MaxNameLength => clientDefinitionsIni.GetIntValue(SETTINGS, "MaxNameLength", 12);
 
         public bool UseIsometricCells => clientDefinitionsIni.GetBooleanValue(SETTINGS, "UseIsometricCells", true);
 
@@ -321,7 +321,7 @@ namespace ClientCore
 
         public string AllowedCustomGameModes => clientDefinitionsIni.GetStringValue(SETTINGS, "AllowedCustomGameModes", "Standard,Custom Map");
 
-        public string SkillLevelOptions => clientDefinitionsIni.GetStringValue(SETTINGS, "SkillLevelOptions", "无水平要求,萌新水平,一般水平,高手水平");
+        public string SkillLevelOptions => clientDefinitionsIni.GetStringValue(SETTINGS, "SkillLevelOptions", "无,萌新,一般,高手");
         
         public int DefaultSkillLevelIndex => clientDefinitionsIni.GetIntValue(SETTINGS, "DefaultSkillLevelIndex", 0);
 

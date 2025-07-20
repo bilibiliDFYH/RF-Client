@@ -206,6 +206,11 @@ namespace Ra2Client
                     Logger.Log(ex.ToString());
                     Console.WriteLine(ex.ToString());
                 }
+                finally
+                {
+                    response.ContentType = "application/json";
+                    response.Close(); // 一定要关闭响应
+                }
             }
             else if (request.HttpMethod == "GET" && request.Url.AbsolutePath == "/mapExists")
             {

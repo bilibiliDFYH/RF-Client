@@ -25,8 +25,8 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                    // 更新段+组件段
 
 #if DEBUG
-    //public const string Address = "https://api.yra2.com/";
- public const string Address = "http://localhost:9088/";
+    public const string Address = "https://api.yra2.com/";
+ //public const string Address = "http://localhost:9088/";
 #else
     public const string Address = "https://api.yra2.com/";
 #endif

@@ -24,6 +24,7 @@ using ClientCore.Settings;
 using SharpDX.Direct2D1;
 using TsfSharp;
 using System.Threading;
+using ClientCore.Entity;
 
 namespace DTAConfig.OptionPanels;
 
@@ -521,11 +522,11 @@ public class ModManager : XNAWindow
 
         missionPack.DefaultMod = missionPack.Mod;
 
-        var mod = 导入具体Mod( missionPath, copyFile, deepImport, isYR, muVisible,startPath);
+        var mod = 导入具体Mod( missionPath, copyFile, deepImport, isYR, muVisible,startPath,modid: missionPack.ID,name:m.Name);
         if (mod != null) //说明检测到Mod
         {
-            missionPack.Mod += "," + id;
-            missionPack.DefaultMod = id;
+            missionPack.Mod += "," + mod.ID;
+            missionPack.DefaultMod = mod.ID;
             missionPack.FilePath = mod.FilePath;
         }
         else 
@@ -790,20 +791,20 @@ public class ModManager : XNAWindow
 
     }
 
-    public static Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true,string startPath = null)
+    public static Mod 导入具体Mod(string path, bool copyFile, bool deepImport, bool isYR,bool muVisible = true,string startPath = null,string modid = null,string name = null)
     {
         startPath ??= ProgramConstants.GamePath;
         var md = isYR ? "md" : null;
 
         if (!判断是否为Mod(path, isYR)) return null;
 
-        var id = Path.GetFileName(path);
+        var id = modid ?? Path.GetFileName(path);
         if (path == ProgramConstants.GamePath)
         {
             id = DateTime.Now.ToString("yyyyMMddHHmmss");
         }
 
-        var Name = id;
+        var Name = name ?? id;
         var Countries = string.Empty;
         var RandomSides = string.Empty;
         List<string> RandomSidesIndexs = [];
@@ -1494,7 +1495,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
             var p = folderDialog.SelectedPath + "\\";
             if (p.Contains(ProgramConstants.GamePath))
             {
-                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "Cannot import maps from the game folder".L10N("UI:DTAConfig:CannotImportGameFolderMaps"));
+                XNAMessageBox.Show(WindowManager, "Error".L10N("UI:Main:Error"), "不能选择重聚安装路径里的文件夹");
                 return;
             }
 

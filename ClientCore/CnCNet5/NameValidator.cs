@@ -42,8 +42,16 @@ namespace ClientCore.CnCNet5
                 if (AllowedAsciiCharacters.Contains(c))
                     continue;
 
-                // 检查是否是CJK基本区、兼容区或扩展A区汉字
+                // 英文标点符号
+                if ((c >= 0x21 && c <= 0x2F) || (c >= 0x3A && c <= 0x40) || (c >= 0x5B && c <= 0x60) || (c >= 0x7B && c <= 0x7E))
+                    continue;
+
+                // CJK 基本区、扩展A区、兼容区汉字
                 if ((c >= '\u4E00' && c <= '\u9FFF') || (c >= '\u3400' && c <= '\u4DBF') || (c >= '\uF900' && c <= '\uFAFF'))
+                    continue;
+
+                // 中文标点符号
+                if ((c >= '\u3000' && c <= '\u303F') || (c >= '\uFF00' && c <= '\uFFEF'))
                     continue;
 
                 return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +

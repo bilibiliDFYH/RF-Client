@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Text;
 using Localization;
@@ -42,35 +42,20 @@ namespace ClientCore.CnCNet5
                 if (AllowedAsciiCharacters.Contains(c))
                     continue;
 
-                byte[] bytes = GBKEncoding.GetBytes(new[] { c });
-                if (bytes.Length == 2)
-                {
-                    byte b1 = bytes[0];
-                    byte b2 = bytes[1];
+                // 英文标点符号
+                if ((c >= 0x21 && c <= 0x2F) || (c >= 0x3A && c <= 0x40) || (c >= 0x5B && c <= 0x60) || (c >= 0x7B && c <= 0x7E))
+                    continue;
 
-                    // 简体中文 GB2312 范围
-                    bool isSimplified =
-                        (b1 >= 0xB0 && b1 <= 0xD6 && b2 >= 0xA1 && b2 <= 0xFE) ||
-                        (b1 == 0xD7 && b2 >= 0xA1 && b2 <= 0xF9) ||
-                        (b1 >= 0xD8 && b1 <= 0xF7 && b2 >= 0xA1 && b2 <= 0xFE);
+                // CJK 基本区、扩展A区、兼容区汉字
+                if ((c >= '\u4E00' && c <= '\u9FFF') || (c >= '\u3400' && c <= '\u4DBF') || (c >= '\uF900' && c <= '\uFAFF'))
+                    continue;
 
-                    // 繁体中文 GBK 扩展区
-                    bool isTraditional =
-                        (b1 >= 0x81 && b1 <= 0xA0 && ((b2 >= 0x40 && b2 <= 0x7E) || (b2 >= 0x80 && b2 <= 0xFE))) ||
-                        (b1 >= 0xAA && b1 <= 0xFE && ((b2 >= 0x40 && b2 <= 0x7E) || (b2 >= 0x80 && b2 <= 0xA0)));
-
-                    // 主要GBK双字节范围
-                    bool isGBKMain = (b1 >= 0x81 && b1 <= 0xFE && b2 >= 0x40 && b2 <= 0xFE);
-
-                    // GBK扩展双字节范围
-                    bool isGBKExt = (b1 >= 0x81 && b1 <= 0xFE && b2 >= 0x80 && b2 <= 0xFE);
-
-                    if (isSimplified || isTraditional || isGBKMain || isGBKExt)
-                        continue;
-                }
+                // 中文标点符号
+                if ((c >= '\u3000' && c <= '\u303F') || (c >= '\uFF00' && c <= '\uFFEF'))
+                    continue;
 
                 return "Your player name has invalid characters in it.".L10N("UI:ClientCore:NameInvalidChar1") + Environment.NewLine +
-                       "Allowed characters are A-Z, numbers, and Chinese characters (Simplified/Traditional) encoded in GBK.".L10N("UI:ClientCore:NameInvalidChar2");
+                       "Allowed characters are A-Z, numbers, and Chinese characters (CJK Unified Ideographs, Compatibility Ideographs, Extension A)".L10N("UI:ClientCore:NameInvalidChar2");
             }
 
             if (name.Length > ClientConfiguration.Instance.MaxNameLength)

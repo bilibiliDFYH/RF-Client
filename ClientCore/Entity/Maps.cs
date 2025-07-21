@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +18,7 @@ namespace ClientCore.Entity
         public string base64 { get; set; } = null;
         public string file { get; set; } = null;
         public string createTime { get; set; } = null;
-        public string update_time { get; set; } = null;
+        public string updateTime { get; set; } = null;
         public string createUser { get; set; } = "0";
         public int enable { get; set; } = 0;
         public string downCount { get; set; } = "0";

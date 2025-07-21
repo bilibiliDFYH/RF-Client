@@ -66,7 +66,7 @@ namespace ClientGUI
                 if (shiftDown && leftDown && !_wasLeftDown)
                 {
                 //    Console.WriteLine("检测到 Shift + 鼠标左键，自动点击 5 次...");
-                    AutoClick(2);
+                    AutoClick(4);
                 }
 
                 _wasLeftDown = leftDown;

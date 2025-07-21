@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -324,10 +324,10 @@ namespace DTAConfig.OptionPanels
             chkForceEnableGameOptions.Checked = UserINISettings.Instance.ForceEnableGameOptions.Value;
         }
 
-        public bool HasChinese(string str)
-        {
-            return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
-        }
+        //public bool HasChinese(string str)
+        //{
+        //    return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
+        //}
 
         public override bool Save()
         {

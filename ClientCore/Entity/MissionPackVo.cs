@@ -17,7 +17,7 @@ namespace ClientCore.Entity
 
         public List<int>? camp { get; set; }
 
-        public string? tags { get; set; }
+        public List<string>? tags { get; set; }
 
         public string file { get; set; } = "";
 

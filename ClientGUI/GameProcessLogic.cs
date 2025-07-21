@@ -408,6 +408,17 @@ namespace ClientGUI
                 if (File.Exists("spawnmap.ini"))
                     File.Copy("spawnmap.ini", Path.Combine(ProgramConstants.游戏目录, "spawnmap.ini"), true);
 
+                try
+                {
+                    File.Copy("gamemd-spawn.exe", "Run\\gamemd-spawn.exe");
+                    if (File.Exists("Run\\WSOCK32.DLL"))
+                            File.Delete("Run\\WSOCK32.DLL");
+                }
+                catch
+                {
+
+                }
+
                 // 加载渲染插件
                 var p = Path.Combine(ProgramConstants.GamePath, "Resources\\Render", UserINISettings.Instance.Renderer.Value);
                 if (Directory.Exists(p))

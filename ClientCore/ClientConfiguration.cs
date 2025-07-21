@@ -218,7 +218,7 @@ namespace ClientCore
 
         public string Mod_AiIniPath => SafePath.CombineFilePath(clientDefinitionsIni.GetStringValue(SETTINGS, "Mod&Ai", string.Empty));
 
-        public int MaxNameLength => clientDefinitionsIni.GetIntValue(SETTINGS, "MaxNameLength", 13);
+        public int MaxNameLength => clientDefinitionsIni.GetIntValue(SETTINGS, "MaxNameLength", 12);
 
         public bool UseIsometricCells => clientDefinitionsIni.GetBooleanValue(SETTINGS, "UseIsometricCells", true);
 
@@ -302,7 +302,7 @@ namespace ClientCore
             set
             {
                 clientDefinitionsIni.SetStringValue(SETTINGS, "ExtraCommandLineParams", value);
-                clientDefinitionsIni.WriteIniFile(); // ¸ù¾ÝÐèÒª£¬±£´æ¸ü¸Äµ½ÎÄ¼þ
+                clientDefinitionsIni.WriteIniFile(); // æ ¹æ®éœ€è¦ï¼Œä¿å­˜æ›´æ”¹åˆ°æ–‡ä»¶
             }
         }
         public string GameModesIniPath => SafePath.CombineFilePath(clientDefinitionsIni.GetStringValue(SETTINGS, "GameModesIniPath", SafePath.CombineFilePath("Maps/Multi", "GameModes.ini")));
@@ -321,7 +321,7 @@ namespace ClientCore
 
         public string AllowedCustomGameModes => clientDefinitionsIni.GetStringValue(SETTINGS, "AllowedCustomGameModes", "Standard,Custom Map");
 
-        public string SkillLevelOptions => clientDefinitionsIni.GetStringValue(SETTINGS, "SkillLevelOptions", "ÎÞË®Æ½ÒªÇó,ÃÈÐÂË®Æ½,Ò»°ãË®Æ½,¸ßÊÖË®Æ½");
+        public string SkillLevelOptions => clientDefinitionsIni.GetStringValue(SETTINGS, "SkillLevelOptions", "æ— ,èŒæ–°,ä¸€èˆ¬,é«˜æ‰‹");
         
         public int DefaultSkillLevelIndex => clientDefinitionsIni.GetIntValue(SETTINGS, "DefaultSkillLevelIndex", 0);
 

@@ -902,6 +902,9 @@ namespace Ra2Client.DXGUI.Generic
                 "Reunion.dll.config",
                 "Reunion.exe",
                 "Reunion.runtimeconfig.json",
+                "License-GPLv3.txt",
+                "本游戏完全免费，祝倒卖的寿比昙花.txt",
+                "使用前必读.txt",
                 "qres.dat",
                 "qres32.dll",
                 "KeyBoardMD.ini"

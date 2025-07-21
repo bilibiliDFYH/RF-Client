@@ -187,7 +187,19 @@ namespace Ra2Client
 
                     var missionPackVo = JsonSerializer.Deserialize<MissionPackVo>(requestBody);
 
-                    写入任务包(missionPackVo);
+                    
+                    _ = Task.Run(async () =>
+                    {
+                        var messageBox = new XNAMessage(wm);
+                        messageBox.caption = "写入任务包";
+                        messageBox.description = $"正在写入任务包 {missionPackVo.name},请稍等";
+                        messageBox.Show();
+                        await 写入任务包(missionPackVo);
+                        messageBox.Disable();
+                        messageBox.Detach();
+                        messageBox.Dispose();
+                    });
+                    
 
                     var result = new
                     {
@@ -419,6 +431,8 @@ namespace Ra2Client
                     LongDescription = missionPackVo.description,
                     UpdateTime = missionPackVo.updateTime
                 };
+
+               
 
                 // 导入Mod
                 ModManager.导入具体任务包(

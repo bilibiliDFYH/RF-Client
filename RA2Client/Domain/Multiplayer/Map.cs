@@ -529,12 +529,22 @@ namespace Ra2Client.Domain.Multiplayer
 
                 if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
                 {
-                    if (GetMapIni(BaseFilePath).SectionExists("Waypoints") && MaxPlayers > 0){
+                    var count = 0;
+                    if (GetMapIni(BaseFilePath).SectionExists("Waypoints")){
 
-                        for (int j = 0; j < MaxPlayers; j++)
+                        for (int j = 0; j < MAX_PLAYERS; j++)
                         {
+                            count++;
                             var r = GetMapIni(BaseFilePath).GetValue("Waypoints",j.ToString(), "000000");
-                            iniFile.SetValue(section.SectionName, $"Waypoint{j}", $"{r:000000}");
+                            if (r != "000000")
+                                iniFile.SetValue(section.SectionName, $"Waypoint{j}", $"{r:000000}");
+                            else
+                                break;
+                        }
+                        if (MaxPlayers == 0)
+                        {
+                            MaxPlayers = count;
+                            iniFile.SetValue(section.SectionName, "MaxPlayers", count);
                         }
                     }
                 }

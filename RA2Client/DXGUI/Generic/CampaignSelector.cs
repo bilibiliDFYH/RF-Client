@@ -407,7 +407,7 @@ namespace Ra2Client.DXGUI.Generic
             _cmbCredits = FindChild<GameLobbyDropDown>("cmbCredits");
 
             chkTerrain = new XNAClientCheckBox(WindowManager);  // 地形扩展选项       ——dfyh
-            chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+            chkTerrain.Text = "扩展地形".L10N("UI:Main:chkTerrain");
             chkTerrain.X = FindChild<XNAClientCheckBox>("chkSatellite").X;
             chkTerrain.Y = FindChild<XNAClientCheckBox>("chkCorr").Y + 25;
             chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
@@ -1001,6 +1001,9 @@ namespace Ra2Client.DXGUI.Generic
 
                 if (_cmbGame.SelectedIndex == -1 || _cmbGame.SelectedItem == null)
                     _cmbGame.SelectedIndex = 0;
+
+                if (_cmbGame.Items.Count == 1) _cmbGame.AllowDropDown = false;
+                else _cmbGame.AllowDropDown = true;
 
                 CmbGame_SelectedChanged(null, null);
 

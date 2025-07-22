@@ -410,7 +410,7 @@ namespace Ra2Client.DXGUI.Generic
             chkTerrain.Text = "扩展地形".L10N("UI:Main:chkTerrain");
             chkTerrain.X = FindChild<XNAClientCheckBox>("chkSatellite").X;
             chkTerrain.Y = FindChild<XNAClientCheckBox>("chkCorr").Y + 25;
-            chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
+            chkTerrain.SetToolTipText("启用TX扩展地形，如遇到空气墙或闪退可尝试关闭此选项后重试.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
             _gameOptionsPanel.AddChild(chkTerrain);     // 添加地形扩展选项到游戏选项面板      ——dfyh
 
             _lbxInforBox.ClientRectangle = new Rectangle(_gameOptionsPanel.X, _mapPreviewBox.Y + 25, 345, _mapPreviewBox.Height - 185);

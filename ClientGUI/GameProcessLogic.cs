@@ -137,6 +137,7 @@ namespace ClientGUI
            // else
             //{
                 string arguments;
+            var 启用连点器 = true;
 
                 if (!string.IsNullOrWhiteSpace(extraCommandLine))
                     arguments = " " + additionalExecutableName + "-SPAWN " + extraCommandLine;
@@ -147,6 +148,7 @@ namespace ClientGUI
                 {
                     gameExecutableName = "Syringe.exe";
                     arguments = "\"gamemd.exe\" -SPAWN " + extraCommandLine;
+                    启用连点器 = false;
                 }
                 //else if (File.Exists("NPatch.mix"))
                 //{
@@ -190,8 +192,8 @@ namespace ClientGUI
                     DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Length;
                 try
                 {
-                    ShiftClickAutoClicker.Instance.Start();
-                    gameProcess.Start();
+                    if(启用连点器 && UserINISettings.Instance.启用连点器.Value) ShiftClickAutoClicker.Instance.Start();
+                gameProcess.Start();
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
                 }
@@ -344,8 +346,9 @@ namespace ClientGUI
                 所有需要复制的文件.Add("qres32.dll");
                 所有需要复制的文件.Add($"Resources/Voice/{UserINISettings.Instance.Voice.Value}");
 
-                
 
+                if (newSection.KeyExists("GameID"))
+                    所有需要复制的文件.Add("Reunion Anti-Cheat.dll");
                 //var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
                 //if (File.Exists(keyboardMD))
                 //    所有需要复制的文件.Add(keyboardMD);
@@ -553,8 +556,6 @@ namespace ClientGUI
 
             return string.Empty;
         }
-
-
 
         private static void 复制CSF(string path)
         {

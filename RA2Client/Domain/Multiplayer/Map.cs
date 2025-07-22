@@ -527,7 +527,7 @@ namespace Ra2Client.Domain.Multiplayer
 
 
 
-                if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
+                if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1 || MaxPlayers == 0)
                 {
                     var count = 0;
                     if (GetMapIni(BaseFilePath).SectionExists("Waypoints")){
@@ -549,7 +549,7 @@ namespace Ra2Client.Domain.Multiplayer
                     }
                 }
 
-                if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1)
+                if (section.Keys.FindIndex(key => key.Key.Contains("Waypoint")) == -1 || MaxPlayers == 0)
                 {
                     var count = GenerateWaypoint(iniFile, section, GetMapIni(BaseFilePath));
 

@@ -36,6 +36,7 @@ namespace DTAConfig.OptionPanels
         private XNAClientCheckBox chkIMEEnable;
         private XNAClientCheckBox chkMultinuclear;
         private XNAClientCheckBox chkForceEnableGameOptions;
+        private XNAClientCheckBox chk连点器;
 
         private XNAControl topBar;
 
@@ -161,6 +162,15 @@ namespace DTAConfig.OptionPanels
             tbStartCommand.ClientRectangle = new Rectangle(lblStartCommand.Right + 20, lblStartCommand.Y, 240, 20);
             tbStartCommand.Text = ClientConfiguration.Instance.ExtraExeCommandLineParameters;
             AddChild(chkShowHiddenObjects);
+
+            chk连点器 = new XNAClientCheckBox(WindowManager)
+            {
+                Name = nameof(chk连点器),
+                ClientRectangle = new Rectangle(lblStartCommand.X, lblStartCommand.Y + 60, 0, 0),
+                Text = "启用连点器"
+            };
+
+            AddChild(chk连点器);
 
             tbPlayerName = new XNATextBox(WindowManager);
             tbPlayerName.Name = nameof(tbPlayerName);
@@ -322,6 +332,7 @@ namespace DTAConfig.OptionPanels
             chkSimplifiedCSF.Checked = UserINISettings.Instance.SimplifiedCSF;
             tbPlayerName.Text = UserINISettings.Instance.PlayerName;
             chkForceEnableGameOptions.Checked = UserINISettings.Instance.ForceEnableGameOptions.Value;
+            chk连点器.Checked = UserINISettings.Instance.启用连点器.Value;
         }
 
         //public bool HasChinese(string str)
@@ -372,6 +383,7 @@ namespace DTAConfig.OptionPanels
             IniSettings.RenderPreviewImage.Value = chkRenderPreviewImage.Checked;
             IniSettings.SimplifiedCSF.Value = chkSimplifiedCSF.Checked;
             IniSettings.ForceEnableGameOptions.Value = chkForceEnableGameOptions.Checked;
+            IniSettings.启用连点器.Value = chk连点器.Checked;
             ClientConfiguration.Instance.ExtraExeCommandLineParameters = tbStartCommand.Text;
 
             return restartRequired;

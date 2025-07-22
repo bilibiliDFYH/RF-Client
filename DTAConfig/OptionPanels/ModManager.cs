@@ -522,7 +522,7 @@ public class ModManager : XNAWindow
 
         missionPack.DefaultMod = missionPack.Mod;
 
-        var mod = 导入具体Mod( missionPath, copyFile, deepImport, isYR, muVisible,startPath,modid: missionPack.ID,name:m.Name);
+        var mod = 导入具体Mod( missionPath, copyFile, deepImport, isYR, muVisible,startPath,modid: missionPack.ID,name: missionPack.Name);
         if (mod != null) //说明检测到Mod
         {
             missionPack.Mod = mod.ID;

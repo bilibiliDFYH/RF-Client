@@ -119,7 +119,7 @@ namespace Ra2Client.DXGUI.Generic
         }
     }
 
-    class ModSelectWindow(WindowManager windowManager) : XNAWindow(windowManager), ISwitchable
+    class   ModSelectWindow(WindowManager windowManager) : XNAWindow(windowManager), ISwitchable
     {
         public override void Initialize()
         {
@@ -129,10 +129,10 @@ namespace Ra2Client.DXGUI.Generic
             AddChild(chkTerrain_Window);
 
             var chkTerrain = new XNAClientCheckBox(WindowManager);
-            chkTerrain.Text = "Terrain\nExpansion".L10N("UI:Main:chkTerrain");
+            chkTerrain.Text = "扩展地形".L10N("UI:Main:chkTerrain");
             chkTerrain.X = 12;
             chkTerrain.Y = 8;
-            chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
+            chkTerrain.SetToolTipText("选中后，地形扩展将被启用，例如TX地形扩展。".L10N("UI:Main:TPchkTerrain"));
             chkTerrain_Window.AddChild(chkTerrain);    //生成chkTerrain//chk启用地形扩展
 
             var label = new XNALabel(WindowManager)
@@ -901,6 +901,7 @@ namespace Ra2Client.DXGUI.Generic
                 "Reunion.dll",
                 "Reunion.dll.config",
                 "Reunion.exe",
+                "Reunion Anti-Cheat.dll",
                 "Reunion.runtimeconfig.json",
                 "License-GPLv3.txt",
                 "本游戏完全免费，祝倒卖的寿比昙花.txt",

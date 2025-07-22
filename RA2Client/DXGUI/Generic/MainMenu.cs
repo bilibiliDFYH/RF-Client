@@ -895,6 +895,8 @@ namespace Ra2Client.DXGUI.Generic
                 List<string> whitelist = [
                     "cncnet5.dll",
                 "gamemd-spawn.exe",
+                "gamemd.exe",
+                "syringe.exe",
                 "LiteExt.dll",
                 "RA2MD.ini",
                 "Reunion.deps.json",

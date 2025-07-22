@@ -137,7 +137,7 @@ namespace ClientGUI
            // else
             //{
                 string arguments;
-            var 启用连点器 = true;
+                var 启用连点器 = true;
 
                 if (!string.IsNullOrWhiteSpace(extraCommandLine))
                     arguments = " " + additionalExecutableName + "-SPAWN " + extraCommandLine;
@@ -148,18 +148,11 @@ namespace ClientGUI
                 {
                     gameExecutableName = "Syringe.exe";
                     arguments = "\"gamemd.exe\" -SPAWN " + extraCommandLine;
+                    
+                }
+
+                if (File.Exists(Path.Combine(ProgramConstants.游戏目录, "ares.dll")))
                     启用连点器 = false;
-                }
-                //else if (File.Exists("NPatch.mix"))
-                //{
-                //    gameExecutableName = "gamemd-np.exe";
-                //    arguments = "-SPAWN " + extraCommandLine;
-                //}
-                else
-                {
-                    gameExecutableName = "gamemd-spawn.exe";
-                    arguments = "-SPAWN " + extraCommandLine;
-                }
 
                 FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.游戏目录, gameExecutableName);
                 if (!File.Exists(gameFileInfo.FullName))
@@ -332,6 +325,9 @@ namespace ClientGUI
                 所有需要复制的文件.Add("zh");
                // 所有需要复制的文件.Add("gamemd-spawn.exe");
                 所有需要复制的文件.Add("cncnet5.dll");
+                所有需要复制的文件.Add("syringe.exe");
+                所有需要复制的文件.Add("gamemd.exe");
+
                 所有需要复制的文件.Add(newGame);
                 if(newMission != newGame && newMission != string.Empty)
                     所有需要复制的文件.Add(newMission);
@@ -344,6 +340,7 @@ namespace ClientGUI
                 所有需要复制的文件.Add("LiteExt.dll");
                 所有需要复制的文件.Add("qres.dat");
                 所有需要复制的文件.Add("qres32.dll");
+                
                 所有需要复制的文件.Add($"Resources/Voice/{UserINISettings.Instance.Voice.Value}");
 
 
@@ -413,7 +410,7 @@ namespace ClientGUI
 
                 try
                 {
-                    File.Copy("gamemd-spawn.exe", "Run\\gamemd-spawn.exe");
+                  
                     if (File.Exists("Run\\WSOCK32.DLL"))
                             File.Delete("Run\\WSOCK32.DLL");
                 }
@@ -445,7 +442,7 @@ namespace ClientGUI
 
         private static string 复制文件(List<string> 所有需要复制的文件)
         {
-            所有需要复制的文件.Add("gamemd-spawn.exe");
+            //所有需要复制的文件.Add("gamemd-spawn.exe");
             Dictionary<string, string> 文件字典 = [];
 
             try
@@ -541,13 +538,13 @@ namespace ClientGUI
                     File.CreateSymbolicLink(targetPath, sourcePath);
                 }
 
-                string gamemd_spawn = Path.Combine(ProgramConstants.游戏目录);
-                gamemd_spawn = gamemd_spawn.Substring(0, gamemd_spawn.Length - 3);
-                gamemd_spawn = gamemd_spawn + "gamemd-spawn.exe"; // 获取gamemd-spawn.exe的位置
+                //string gamemd_spawn = Path.Combine(ProgramConstants.游戏目录);
+                //gamemd_spawn = gamemd_spawn.Substring(0, gamemd_spawn.Length - 3);
+                //gamemd_spawn = gamemd_spawn + "gamemd-spawn.exe"; // 获取gamemd-spawn.exe的位置
 
-                string targetPath1 = Path.Combine(ProgramConstants.游戏目录 + "\\gamemd-spawn.exe");
-                Directory.CreateDirectory(Path.GetDirectoryName(targetPath1)!);
-                FileHelper.CopyFile(gamemd_spawn, targetPath1);   // 复制gamemd-spawn.exe到运行目录
+                //string targetPath1 = Path.Combine(ProgramConstants.游戏目录 + "\\gamemd-spawn.exe");
+                //Directory.CreateDirectory(Path.GetDirectoryName(targetPath1)!);
+                //FileHelper.CopyFile(gamemd_spawn, targetPath1);   // 复制gamemd-spawn.exe到运行目录
             }
             catch (Exception ex)
             {

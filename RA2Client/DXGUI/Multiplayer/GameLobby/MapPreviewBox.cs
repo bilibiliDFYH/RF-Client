@@ -631,7 +631,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (GameModeMap != null && !string.IsNullOrEmpty(GameModeMap.Map.Briefing))
             {
-                briefingBox.SetText(GameModeMap.Map.Briefing);
+                briefingBox.SetText(AutoWrapBriefing(GameModeMap.Map.Briefing));
                 briefingBox.SetFadeVisibility(true);
             }
 

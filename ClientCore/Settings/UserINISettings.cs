@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -161,6 +161,7 @@ namespace ClientCore
           
             SimplifiedCSF = new BoolSetting(iniFile, OPTIONS, "SimplifiedCSF", true);
             ForceEnableGameOptions = new BoolSetting(iniFile, OPTIONS, "ForceEnableGameOptions", true);
+            启用连点器 = new BoolSetting(iniFile, OPTIONS, "ConnectionDevice", true);
             PreloadMapPreviews = new BoolSetting(iniFile, VIDEO, "PreloadMapPreviews", false);
             ForceLowestDetailLevel = new BoolSetting(iniFile, VIDEO, "ForceLowestDetailLevel", false);
             MinimizeWindowsOnGameStart = new BoolSetting(iniFile, OPTIONS, "MinimizeWindowsOnGameStart", true);
@@ -342,6 +343,9 @@ namespace ClientCore
         public BoolSetting SimplifiedCSF { get; private set; }
         
         public BoolSetting ForceEnableGameOptions { get; private set; }
+
+        public BoolSetting 启用连点器 { get; private set; }
+
         public BoolSetting IMEEnabled { get; private set; }
 
         public Action 重新加载地图和任务包 { get; set; }

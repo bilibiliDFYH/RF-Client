@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -264,7 +264,7 @@ namespace ClientCore
 
         public static void KillGameMdProcesses()
         {
-            string[] processNames = { "gamemd", "gamemd-spawn" };
+            string[] processNames = { "gamemd" };
 
             foreach (var processName in processNames)
             {

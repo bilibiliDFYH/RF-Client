@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -94,7 +94,6 @@ namespace ClientCore
             var 固定白名单 = new HashSet<string>
                 {
                 "KeyboardMD.ini",
-                "gamemd-spawn.exe"
                 };
 
             foreach (var file in Directory.GetFiles(游戏目录))
@@ -223,7 +222,6 @@ namespace ClientCore
                 var 白名单 = new HashSet<string>
                 {
                 "KeyboardMD.ini",
-                "gamemd-spawn.exe"
                 };
 
                 foreach (var file in Directory.GetFiles(游戏目录))

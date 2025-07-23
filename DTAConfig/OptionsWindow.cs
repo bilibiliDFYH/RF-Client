@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ClientCore;
 using ClientCore.CnCNet5;
 using ClientGUI;
@@ -12,6 +12,7 @@ using Rampastring.XNAUI.XNAControls;
 using ClientCore.Settings;
 using System.Windows.Forms;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
+using Localization.Tools;
 
 namespace DTAConfig
 {
@@ -111,7 +112,7 @@ namespace DTAConfig
                 // new LocalSkinPanel(WindowManager, UserINISettings.Instance),                        //4 "皮肤"页面
                 updaterOptionsPanel,                                                                //5 "更新器"页面
                 componentsPanel,                                                                    //6 "工坊"页面
-                new UserOptionsPanel(WindowManager, UserINISettings.Instance)                       //7 "创作"页面
+                //new UserOptionsPanel(WindowManager, UserINISettings.Instance)                       //7 "创作"页面
             ];
 
             // 找到拦截的方法再启用
@@ -178,6 +179,12 @@ namespace DTAConfig
 
         public void TabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if(tabControl.SelectedTab == 6)
+                { FunExtensions.OpenUrl($"https://console.yra2.com/workshop/map/list?token={UserINISettings.Instance.Token}");
+
+                return;
+            }
+
             foreach (var panel in optionsPanels)
                 panel.Disable();
 

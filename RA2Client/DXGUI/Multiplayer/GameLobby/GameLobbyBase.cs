@@ -636,46 +636,46 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 }
             }
 
-            foreach (var chk in CheckBoxes)
-            {
-                if (chk.Name == "chkAILimit") continue;
-                if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
-                {
-                    chk.AllowChecking = true;
-                }
-                else
-                {
-                    chk.Checked = chk.defaultValue;
-                    chk.AllowChecking = false;
-                }
+            //foreach (var chk in CheckBoxes)
+            //{
+            //    if (chk.Name == "chkAILimit") continue;
+            //    if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2")))
+            //    {
+            //        chk.AllowChecking = true;
+            //    }
+            //    else
+            //    {
+            //        chk.Checked = chk.defaultValue;
+            //        chk.AllowChecking = false;
+            //    }
 
-            }
+            //}
 
-            var chkAILimit = CheckBoxes.Find(chk => chk.Name == "chkAILimit");
-            if (mod.SuperWeaponBuildings == string.Empty)
-            {
-                chkAILimit.Checked = false;
-                chkAILimit.AllowChecking = false;
-            }
-            else
-            {
-                chkAILimit.AllowChecking = true;
-            }
+            //var chkAILimit = CheckBoxes.Find(chk => chk.Name == "chkAILimit");
+            //if (mod.SuperWeaponBuildings == string.Empty)
+            //{
+            //    chkAILimit.Checked = false;
+            //    chkAILimit.AllowChecking = false;
+            //}
+            //else
+            //{
+            //    chkAILimit.AllowChecking = true;
+            //}
 
-            foreach (var dd in DropDowns)
-            {
-                if (dd.Name == "cmbSw") continue;
-                if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2" || mod.ID == "YR+" || mod.Compatible == "YR+")))
-                {
-                    dd.AllowDropDown = true;
-                }
-                else
-                {
-                    dd.SelectedIndex = dd.defaultIndex;
-                    dd.AllowDropDown = false;
-                }
+            //foreach (var dd in DropDowns)
+            //{
+            //    if (dd.Name == "cmbSw") continue;
+            //    if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2")))
+            //    {
+            //        dd.AllowDropDown = true;
+            //    }
+            //    else
+            //    {
+            //        dd.SelectedIndex = dd.defaultIndex;
+            //        dd.AllowDropDown = false;
+            //    }
 
-            }
+            //}
 
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());

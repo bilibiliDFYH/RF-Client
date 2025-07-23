@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -19,10 +19,12 @@ namespace Reunion
         private const string LicenseFile = "License-GPLv3.txt";
         private const string RequiredFile = "使用前必读.txt";
         private const string FreeFile = "本游戏完全免费，祝倒卖的寿比昙花.txt";
-        
+        private const string AntiCheatFile = "Reunion Anti-Cheat.dll";
+
         private const string ExpectedHash_LicenseFile = "dc447a64136642636d7aa32e50c76e2465801c5f";
         private const string ExpectedHash_RequiredFile = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
         private const string ExpectedHash_FreeFile = "80a2028eb8ec8b738d5f89ec42b2f7a6";
+        private const string ExpectedHash_AntiCheatFile = "52cf7c7a9c2b976af440f4acef727c546ed68b63d05177eff144a83a94bd0599ef5870829ee904ef98b544c39e74dd8b4aa6a679707204f54b6c3bf5f1f7529e";
 
         private static readonly string dotnetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet");
         private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
@@ -43,7 +45,7 @@ namespace Reunion
 
         private static bool CheckRequiredFile()
         {
-            if (!File.Exists(RequiredFile) || !File.Exists(FreeFile) || !File.Exists(LicenseFile))
+            if (!File.Exists(RequiredFile) || !File.Exists(FreeFile) || !File.Exists(LicenseFile) || !File.Exists(AntiCheatFile))
             {
                 MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -67,6 +69,13 @@ namespace Reunion
                 }
                 string actualHash3 = ComputeFileSHA1(LicenseFile);
                 if (!actualHash3.Equals(ExpectedHash_LicenseFile, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                string actualHash4 = ComputeFileSHA512(AntiCheatFile);
+                if (!actualHash4.Equals(ExpectedHash_AntiCheatFile, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -117,6 +126,19 @@ namespace Reunion
             using (SHA256 sha256 = SHA256.Create())
             {
                 byte[] hashBytes = sha256.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
+        /// 计算文件的SHA512哈希值
+        /// </summary>
+        private static string ComputeFileSHA512(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (SHA512 sha512 = SHA512.Create())
+            {
+                byte[] hashBytes = sha512.ComputeHash(stream);
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
             }
         }

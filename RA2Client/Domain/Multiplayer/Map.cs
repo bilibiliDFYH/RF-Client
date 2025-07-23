@@ -77,6 +77,7 @@ namespace Ra2Client.Domain.Multiplayer
             //Official = string.IsNullOrEmpty(this.customMapFilePath);
         }
 
+        public string ID { get; private set; }
         /// <summary>
         /// 地图名称.
         /// </summary>
@@ -336,6 +337,7 @@ namespace Ra2Client.Domain.Multiplayer
                 
                 var section = iniFile.GetSection(sectionName);
 
+                ID = Path.GetFileNameWithoutExtension(BaseFilePath);
                 Official = whitelist.Any(sectionName.Contains);
 
                 #region 处理预览图

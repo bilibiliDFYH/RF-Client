@@ -1,4 +1,4 @@
-﻿using ClientCore;
+using ClientCore;
 using ClientCore.Entity;
 using ClientCore.Settings;
 using ClientGUI;
@@ -217,7 +217,7 @@ namespace DTAConfig.OptionPanels
             {
                 if (需要刷新)
                 {
-                    UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+                    UserINISettings.Instance.重新加载地图和任务包?.Invoke(null,null,false);
                 }
                 Disable();
             };

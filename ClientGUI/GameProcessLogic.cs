@@ -33,6 +33,8 @@ namespace ClientGUI
 
         private static string gameExecutableName;
 
+        //public static bool 游戏中 = false;
+
         private static Mod mod;
 
         private static int DebugCount = 0;
@@ -186,7 +188,8 @@ namespace ClientGUI
                 try
                 {
                     if(启用连点器 && UserINISettings.Instance.启用连点器.Value) ShiftClickAutoClicker.Instance.Start();
-                gameProcess.Start();
+                    gameProcess.Start();
+                //游戏中 = true;
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
                 }
@@ -577,8 +580,8 @@ namespace ClientGUI
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
-            
 
+            //游戏中 = false;
             proc.Exited -= Process_Exited;
             proc.Dispose();
             ShiftClickAutoClicker.Instance.Stop();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.DirectoryServices;
 using System.Globalization;
@@ -141,6 +141,8 @@ namespace Ra2Client
             gameClass.Exiting += (sender, e) =>
             {
                 LocalHttpServer.Stop();
+                ShiftClickAutoClicker.Instance.Stop();
+
             };
 
             int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;

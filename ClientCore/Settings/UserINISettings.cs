@@ -16,7 +16,7 @@ namespace ClientCore
     public class UserINISettings
     {
         private static UserINISettings _instance;
-
+        public Action 启动游戏;
         public const string VIDEO = "Video";
         public const string MULTIPLAYER = "MultiPlayer";
         public const string OPTIONS = "Options";
@@ -348,7 +348,7 @@ namespace ClientCore
 
         public BoolSetting IMEEnabled { get; private set; }
 
-        public Action 重新加载地图和任务包 { get; set; }
+        public Action<string,string,bool> 重新加载地图和任务包 { get; set; }
         public BoolSetting 第一次下载扩展 { get; set; }
 
         public bool IsGameFollowed(string gameName)

@@ -631,7 +631,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void SendMessageToHost(string message)
         {
-            if (!client.Connected)
+            if (!client?.Connected == true)
                 return;
 
             byte[] buffer = encoding.GetBytes(message + ProgramConstants.LAN_MESSAGE_SEPARATOR);

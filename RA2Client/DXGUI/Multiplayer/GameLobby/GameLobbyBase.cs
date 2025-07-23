@@ -31,6 +31,7 @@ using System.Threading;
 using SharpDX.Direct3D9;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using System.Drawing.Drawing2D;
+using ClientCore.Entity;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -359,7 +360,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
                 Text = "Refresh the map list".L10N("UI:Main:RefreshMapList"),
-                SelectAction = 刷新地图列表
+                SelectAction = () => 刷新地图列表()
             });
             mapContextMenu.AddItem(new XNAContextMenuItem
             {
@@ -911,9 +912,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             MapLoader.AgainLoadMaps();
             LocalHttpServer.RefreshInstalledMapIds();
             重新显示地图();
+
+            
         }
 
-        public void 重新显示地图()
+        public void 重新显示地图(string 游戏模式名 = null, string mapID = null,bool 自动测试 = false)
         {
 
 
@@ -929,6 +932,24 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             int i = ddGameModeMapFilter.SelectedIndex;
             ddGameModeMapFilter.SelectedIndex = 0;
             ddGameModeMapFilter.SelectedIndex = i;
+
+            if (游戏模式名 != null && mapID != null)
+            {
+                ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(i => i.Text == 游戏模式名);
+
+                for (int j = 0; j < lbGameModeMapList.ItemCount; j++)
+                {
+                    var gameModeMap = lbGameModeMapList.GetItem(1, j).Tag as GameModeMap;
+                    if (gameModeMap.Map.ID == mapID)
+                    {
+                        lbGameModeMapList.SelectedIndex = j;
+                        break;
+                    }
+                }
+            }
+
+            //if (自动测试 && !GameProcessLogic.游戏中)
+            //    UserINISettings.Instance.启动游戏?.Invoke();
         }
 
 
@@ -936,12 +957,16 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             var r = Path.GetFileNameWithoutExtension(randomMap.GetIsSave());
 
+            
+            
             if (!randomMap.Enabled && !string.IsNullOrEmpty(r))
             {
 
                 刷新地图列表();
 
                 ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(d => d.Text == "常规作战");
+
+                
 
                 for (int i = 0; i < lbGameModeMapList.ItemCount; i++)
                     if (lbGameModeMapList.GetItem(1, i).Text.Contains(r))

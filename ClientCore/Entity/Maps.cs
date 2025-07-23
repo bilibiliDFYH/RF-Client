@@ -34,6 +34,8 @@ namespace ClientCore.Entity
 
         public string allyHouse { get; set; } = "";
 
+        public bool autoStart { get; set; } = false;
+
         public Maps() { }
     }
 

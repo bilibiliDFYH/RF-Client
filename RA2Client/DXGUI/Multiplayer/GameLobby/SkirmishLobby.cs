@@ -85,6 +85,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 chkTerrain.SetToolTipText("When checked, terrain extension will be enabled, such as TX terrain extension.\nIt may cause bugs in the game. If pop-ups or air walls appear during play, you can turn this option off.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
                 FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
             }
+
+            //UserINISettings.Instance.启动游戏 += () => BtnLaunchGame_LeftClick(null,null);
         }
 
         protected override void ChangeMap(GameModeMap gameModeMap)
@@ -238,11 +240,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 return "There is a suspected problem with this map, and the client does not think there is a player spawn point.".L10N("UI:Main:MapError");
             }
 
-            if (totalPlayerCount < Map.MinPlayers)
-            {
-                return String.Format("The selected map cannot be played with less than {0} players.".L10N("UI:Main:MapInsufficientPlayers"),
-                    Map.MinPlayers);
-            }
+            //if (totalPlayerCount < Map.MinPlayers)
+            //{
+            //    return String.Format("The selected map cannot be played with less than {0} players.".L10N("UI:Main:MapInsufficientPlayers"),
+            //        Map.MinPlayers);
+            //}
 
             if (totalPlayerCount > Map.MaxPlayers)
             {

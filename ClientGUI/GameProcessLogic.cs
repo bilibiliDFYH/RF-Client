@@ -28,6 +28,8 @@ namespace ClientGUI
 
         public static event Action GameProcessExited;
 
+        public static string[] 旧存档数;
+
         public static bool UseQres { get; set; }
         public static bool SingleCoreAffinity { get; set; }
 
@@ -183,7 +185,9 @@ namespace ClientGUI
 
                 if(Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")))
                     DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Length;
-                try
+
+                旧存档数 = Directory.GetFiles(ProgramConstants.存档目录, "*.sav");
+            try
                 {
                     if(启用连点器 && UserINISettings.Instance.启用连点器.Value) ShiftClickAutoClicker.Instance.Start();
                 gameProcess.Start();
@@ -238,7 +242,9 @@ namespace ClientGUI
         private static void 获取新的存档()
         {
             if (!Directory.Exists(ProgramConstants.存档目录)) return;
-            var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav");
+
+            var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav").Where(path => !旧存档数.Contains(path)).ToArray();
+
             if (newSaves.Length == 0) return;
 
             var iniFile = new IniFile(Path.Combine(ProgramConstants.存档目录, "Save.ini"));
@@ -365,7 +371,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                  e = 符号链接(所有需要复制的文件);
+                  e = 符号链接(所有需要复制的文件,newMission);
                 }
                 else
                 {
@@ -488,7 +494,7 @@ namespace ClientGUI
           
         }
 
-        private static string 符号链接(List<string> 所有需要链接的文件)
+        private static string 符号链接(List<string> 所有需要链接的文件,string 存档目标)
         {
             Dictionary<string, string> 文件字典 = [];
 
@@ -537,6 +543,29 @@ namespace ClientGUI
 
                     File.CreateSymbolicLink(targetPath, sourcePath);
                 }
+
+                if (!string.IsNullOrEmpty(存档目标))
+                {
+                    var 目标文件夹 = Path.Combine(ProgramConstants.存档目录, Path.GetFileName(存档目标));
+                    if (!Directory.Exists(目标文件夹)) return string.Empty;
+                    var sourceFiles = Directory.GetFiles(目标文件夹, "*.sav", SearchOption.AllDirectories);
+                    var linkDirectory = ProgramConstants.存档目录;
+
+                    foreach (var sourcePath in sourceFiles)
+                    {
+                        var fileName = Path.GetFileName(sourcePath);
+                        var targetPath = Path.Combine(linkDirectory, fileName);
+
+                        // 如果目标已存在，先删除
+                        if (File.Exists(targetPath))
+                        {
+                            File.Delete(targetPath);
+                        }
+
+                        File.CreateSymbolicLink(targetPath, sourcePath);
+                    }
+                }
+
 
                 //string gamemd_spawn = Path.Combine(ProgramConstants.游戏目录);
                 //gamemd_spawn = gamemd_spawn.Substring(0, gamemd_spawn.Length - 3);

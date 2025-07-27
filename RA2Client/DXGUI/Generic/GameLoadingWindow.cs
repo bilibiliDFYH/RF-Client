@@ -180,7 +180,17 @@ namespace Ra2Client.DXGUI.Generic
             Enabled = false;
             GameProcessLogic.GameProcessExited += GameProcessExited_Callback;
 
-            File.Copy(sg.FilePath,Path.Combine(ProgramConstants.存档目录,sg.FileName),true);
+            try
+            {
+                var savFiles = Directory.GetFiles(ProgramConstants.存档目录, "*.sav");
+                foreach (var file in savFiles)
+                    File.Delete(file);
+                File.Copy(sg.FilePath, Path.Combine(ProgramConstants.存档目录, sg.FileName), true);
+            }
+            catch(Exception ex)
+            {
+                XNAMessageBox.Show(WindowManager, "唤起游戏失败", ex.ToString());
+            }
 
             GameProcessLogic.StartGameProcess(WindowManager, spawnIni);
         }
@@ -272,8 +282,8 @@ namespace Ra2Client.DXGUI.Generic
             foreach (SavedGame sg in savedGames)
             {
                 string[] item = [
-                    Renderer.GetSafeString(sg.GUIName, lbSaveGameList.FontIndex),
-                    sg.LastModified.ToString() ];
+                    Renderer.GetSafeString(sg.GUIName, lbSaveGameList.FontIndex),sg.LastModified.ToString().Replace(" ","-") ];
+                Console.WriteLine(sg.LastModified.ToString());
                 lbSaveGameList.AddItem(item, true);
             }
         }

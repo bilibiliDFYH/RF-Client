@@ -122,38 +122,41 @@ namespace Ra2Client
                     return;
                 }
 
-                if (originalStatus == 3)
+                if (originalStatus != 1 && originalStatus != 2)
                 {
-                    MessageBox.Show(
-                        "当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持",
-                        "版本确认",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning,
-                        MessageBoxDefaultButton.Button1,
-                        MessageBoxOptions.ServiceNotification
-                    );
-                }
-                else if (originalStatus == 4 || originalStatus == 5)
-                {
-                    MessageBox.Show(
-                        "当前测试版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来 官方QQ群/微信群 更新客户端以获得后续的技术支持\n\n(群号见重聚未来官网: www.yra2.com)",
-                        "版本确认",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning,
-                        MessageBoxDefaultButton.Button1,
-                        MessageBoxOptions.ServiceNotification
-                    );
-                }
-                else
-                {
-                    MessageBox.Show(
-                       "当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持",
-                       "警告",
-                       MessageBoxButtons.OK,
-                       MessageBoxIcon.Warning,
-                       MessageBoxDefaultButton.Button1,
-                       MessageBoxOptions.ServiceNotification
-                   );
+                    if (originalStatus == 3)
+                    {
+                        MessageBox.Show(
+                            "当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持",
+                            "版本确认",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button1,
+                            MessageBoxOptions.ServiceNotification
+                        );
+                    }
+                    else if (originalStatus == 4 || originalStatus == 5)
+                    {
+                        MessageBox.Show(
+                            "当前测试版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来 官方QQ群/微信群 更新客户端以获得后续的技术支持\n\n(群号见重聚未来官网: www.yra2.com)",
+                            "版本确认",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button1,
+                            MessageBoxOptions.ServiceNotification
+                        );
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                           "当前版本已停止维护! 部分功能可能无法正常使用\n请及时到重聚未来官网 www.yra2.com 更新客户端以获得后续的技术支持",
+                           "警告",
+                           MessageBoxButtons.OK,
+                           MessageBoxIcon.Warning,
+                           MessageBoxDefaultButton.Button1,
+                           MessageBoxOptions.ServiceNotification
+                       );
+                    }
                 }
                 return;
             }
@@ -353,35 +356,30 @@ namespace Ra2Client
                 _ => throw new ArgumentException("Invalid status for key code validation", nameof(status))
             };
 
-            // 注意：根据第五部分要求，本地检查已在 ParseVersionContent 中完成。
-            // 这里直接进入用户输入流程。
-
-            // 需要用户输入
             string userInputCode = PromptForKeyCode(status);
             if (string.IsNullOrEmpty(userInputCode))
             {
-                // 用户取消输入
-                // *** 修改：不再直接显示 MessageBox，而是返回 isCancelled = true ***
-                // MessageBox.Show(
-                //     "需要有效的授权码才能启动此版本。\n启动已取消。",
-                //     "启动阻止",
-                //     MessageBoxButtons.OK,
-                //     MessageBoxIcon.Warning,
-                //     MessageBoxDefaultButton.Button1,
-                //     MessageBoxOptions.ServiceNotification
-                // );
-                return (false, true); // 返回 false 和 true (用户取消)
+                if (status == 1 || status == 2)
+                {
+                    MessageBox.Show(
+                        "需要有效的授权码才能启动此版本。\n启动已取消。",
+                        "启动阻止",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning,
+                        MessageBoxDefaultButton.Button1,
+                        MessageBoxOptions.ServiceNotification
+                    );
+                }
+                return (false, true);
             }
 
-            // 首先检查是否是本地备用授权码
             if (userInputCode.Equals(LocalFallbackKeyCode, StringComparison.OrdinalIgnoreCase))
             {
                 if (DateTime.Now <= LocalFallbackKeyExpiry)
                 {
                     Logger.Log("用户输入了本地备用授权码且在有效期内。");
-                    // *** 修改：即使是万能码，也保存它 ***
                     SaveKeyCode(userInputCode);
-                    return (true, false); // 有效且非取消
+                    return (true, false);
                 }
                 else
                 {
@@ -394,17 +392,16 @@ namespace Ra2Client
                         MessageBoxDefaultButton.Button1,
                         MessageBoxOptions.ServiceNotification
                     );
-                    return (false, false); // 无效且非取消
+                    return (false, false);
                 }
             }
 
-            // 不是本地备用码，进行在线验证
             bool isInputValid = await CheckKeyCodeOnlineAsync(httpClient, keyCodeUrl, userInputCode).ConfigureAwait(false);
             if (isInputValid)
             {
-                SaveKeyCode(userInputCode); // 保存有效的授权码
+                SaveKeyCode(userInputCode);
                 Logger.Log("用户输入的授权码验证成功并已保存。");
-                return (true, false); // 有效且非取消
+                return (true, false);
             }
             else
             {
@@ -417,7 +414,7 @@ namespace Ra2Client
                     MessageBoxDefaultButton.Button1,
                     MessageBoxOptions.ServiceNotification
                 );
-                return (false, false); // 无效且非取消
+                return (false, false);
             }
         }
 

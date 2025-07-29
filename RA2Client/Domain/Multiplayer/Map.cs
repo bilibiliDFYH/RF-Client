@@ -408,7 +408,7 @@ namespace Ra2Client.Domain.Multiplayer
                 MaxPlayers = section.GetValueOrSetDefault("MaxPlayers", () => GetMapIni(BaseFilePath).GetValue("Basic", "MaxPlayer", 0));
 
                 EnforceMaxPlayers = section.GetBooleanValue("EnforceMaxPlayers", false);
-                Briefing = section.GetStringValue("Briefing", string.Empty).Replace("@", Environment.NewLine);
+                Briefing = section.GetStringValue("Briefing", string.Empty);
                 CalculateSHA();
 
                 //ExtensionOn = section.GetBooleanValue("ExtensionOn", true);

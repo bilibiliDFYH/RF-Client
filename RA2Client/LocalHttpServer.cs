@@ -357,7 +357,7 @@ namespace Ra2Client
             mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
             mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
             mapIni.SetValue(sectionName, "Author", map.author);
-            mapIni.SetValue(sectionName, "Briefing", map.description);
+            mapIni.SetValue(sectionName, "Briefing", map.description.Replace("\r\n","@"));
             mapIni.SetValue(sectionName, "UpdateTime", map.updateTime ?? "");
             try
             {

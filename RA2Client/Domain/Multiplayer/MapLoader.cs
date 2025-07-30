@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClientCore;
+using ClientCore.Entity;
 using ClientGUI;
 using DTAConfig;
 using Localization;
@@ -62,6 +63,10 @@ namespace Ra2Client.Domain.Multiplayer
 
         private TaskbarProgress tbp;
 
+        public MapLoader()
+        {
+            UserINISettings.Instance.添加一个地图 += 添加一个地图;
+        }
         /// <summary>
         /// Loads multiplayer map info asynchonously.
         /// </summary>
@@ -77,6 +82,8 @@ namespace Ra2Client.Domain.Multiplayer
 
             AddMapToGameModes(map, false);
         }
+
+
 
         public void LoadMaps2()
         {
@@ -98,8 +105,47 @@ namespace Ra2Client.Domain.Multiplayer
 
             LoadRootMaps(exceptions);
             LoadMultiMaps(exceptions);
+            整理游戏模式(exceptions);
 
-           
+
+
+
+            Logger.Log("地图加载完成。");
+            WindowManager.Report();
+
+            if (!exceptions.IsEmpty)
+            {
+                Logger.Log("执行过程中出现以下错误:");
+                foreach (var ex in exceptions)
+                {
+                    Logger.Log(ex.Message);
+                }
+            }
+
+            //if (UserINISettings.Instance.RenderPreviewImage.Value)
+            //    Task.Run(() =>
+            //    {
+                    RenderImage.RenderImages();
+            //    });
+
+        }
+
+        
+
+        public void 添加一个地图(string path)
+        {
+            var ini = $"Maps\\Multi\\MPMapsMapLibrary.ini";
+            var mpMapsIni = new IniFile(ini, Map.ANNOTATION);
+            LoadMultiMaps2(mpMapsIni, path);
+            mpMapsIni.WriteIniFile();
+            GameModeMaps = new GameModeMapCollection(GameModes);
+             
+            GameModeMaps.Reverse();
+            UserINISettings.Instance.重新显示地图?.Invoke("地图库",Path.GetFileNameWithoutExtension(path));
+        }
+
+        private void 整理游戏模式(ConcurrentBag<Exception> exceptions = null)
+        {
             // 使用ConcurrentBag代替List
             var concurrentGameModes = new ConcurrentBag<GameMode>(GameModes);
             WindowManager.progress.Report(string.Empty);
@@ -129,8 +175,8 @@ namespace Ra2Client.Domain.Multiplayer
                     }
                 }
                 catch (Exception ex)
-                {
-                    exceptions.Add(ex);
+                {   if(exceptions!=null)
+                        exceptions.Add(ex);
                 }
             });
 
@@ -149,25 +195,6 @@ namespace Ra2Client.Domain.Multiplayer
             GameModeMaps = new GameModeMapCollection(GameModes);
 
             GameModeMaps.Reverse();
-
-            Logger.Log("地图加载完成。");
-            WindowManager.Report();
-
-            if (!exceptions.IsEmpty)
-            {
-                Logger.Log("执行过程中出现以下错误:");
-                foreach (var ex in exceptions)
-                {
-                    Logger.Log(ex.Message);
-                }
-            }
-
-            //if (UserINISettings.Instance.RenderPreviewImage.Value)
-            //    Task.Run(() =>
-            //    {
-                    RenderImage.RenderImages();
-            //    });
-
         }
 
         private void LoadMultiMaps(ConcurrentBag<Exception> exceptions)

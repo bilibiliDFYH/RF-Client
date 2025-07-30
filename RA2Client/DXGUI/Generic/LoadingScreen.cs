@@ -100,7 +100,7 @@ namespace Ra2Client.DXGUI.Generic
                 PlayLoadMusic();
             }
 
-            UserINISettings.Instance.重新加载地图和任务包 += (_,_,_) => mapLoader.AgainLoadMaps();
+            UserINISettings.Instance.重新加载地图和任务包 += (_,_) => mapLoader.AgainLoadMaps();
 
             base.Initialize();
 

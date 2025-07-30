@@ -282,6 +282,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             lbGameModeMapList.FontIndex = 1;
 
             UserINISettings.Instance.重新加载地图和任务包 += 重新显示地图;
+            UserINISettings.Instance.重新显示地图 += 重新显示地图;
 
             ModMenu = new XNAContextMenu(WindowManager);
             ModMenu.Name = nameof(ModMenu);
@@ -864,11 +865,39 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private List<GameModeMap> GetFavoriteGameModeMaps() =>
             GameModeMaps.Where(gmm => gmm.IsFavorite).ToList();
 
-        private Func<List<GameModeMap>> GetGameModeMaps(GameMode gm) => () =>
-            GameModeMaps.Where(gmm => gmm.GameMode == gm).ToList();
+        private List<GameModeMap> GetGameModeMapsInternal(GameMode gm)
+        {
+            var r = GameModeMaps
+                .Where(gmm => gmm.GameMode == gm)
+                .ToList();
 
-        private Func<List<GameModeMap>> GetPeopleGameModeMaps(string gm, int i) => () =>
-            [.. GameModeMaps.Where(gmm => gmm.Map!=null && gmm.GameMode!=null && (gmm.Map.MaxPlayers == (i+1) || i == 0) && (gmm.GameMode.UIName == gm || (gmm.IsFavorite && gm == "最爱的地图")))];
+            return r;
+        }
+
+        private Func<List<GameModeMap>> GetGameModeMaps(GameMode gm)
+        {
+            return () => GetGameModeMapsInternal(gm);
+        }
+
+        private List<GameModeMap> FilterGameModeMaps(string gm, int i)
+        {
+            // 在这里打断点
+            var validMaps = GameModeMaps
+                .Where(gmm => gmm.Map != null && gmm.GameMode != null);
+
+            var playerFiltered = validMaps
+                .Where(gmm => gmm.Map.MaxPlayers == (i + 1) || i == 0);
+
+            var finalFiltered = playerFiltered
+                .Where(gmm => gmm.GameMode.UIName == gm || (gmm.IsFavorite && gm == "最爱的地图"));
+
+            return finalFiltered.ToList();
+        }
+
+        private Func<List<GameModeMap>> GetPeopleGameModeMaps(string gm, int i)
+        {
+            return () => FilterGameModeMaps(gm, i);
+        }
 
         private void RefreshBtnPlayerExtraOptionsOpenTexture()
         {
@@ -916,10 +945,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             
         }
 
-        public void 重新显示地图(string 游戏模式名 = null, string mapID = null,bool 自动测试 = false)
+        public void 重新显示地图(string 游戏模式名 = null, string mapID = null)
         {
-
-
             ddGameModeMapFilter.Items.Clear();
 
             ddGameModeMapFilter.AddItem(CreateGameFilterItem(FavoriteMapsLabel, new GameModeMapFilter(GetFavoriteGameModeMaps)));

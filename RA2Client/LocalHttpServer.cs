@@ -146,19 +146,21 @@ namespace Ra2Client
                     messageBox?.Dispose();
                     messageBox?.Detach();
 
-                    if (map.autoStart)
-                    {
-                        UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), true);
-                    }
-                    else
-                    {
-                        messageBox = new XNAMessageBox(wm, "新增地图", "检测到新地图，是否刷新地图列表？", XNAMessageBoxButtons.YesNo);
-                        messageBox.YesClickedAction += (_) =>
-                        {
-                            UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), false);
-                        };
-                        messageBox.Show();
-                    }
+                    //if (map.autoStart)
+                    //{
+                    //    UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), true);
+                    //}
+                    //else
+                    //{
+                    //    messageBox = new XNAMessageBox(wm, "新增地图", "检测到新地图，是否刷新地图列表？", XNAMessageBoxButtons.YesNo);
+                    //    messageBox.YesClickedAction += (_) =>
+                    //    {
+                    //        UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), false);
+                    //    };
+                    //    messageBox.Show();
+                    //}
+
+                    UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps/Multi/MapLibrary/", $"{map.id}.map"));
 
                     var result = new
                     {
@@ -453,7 +455,7 @@ namespace Ra2Client
                     m: missionPack
                 );
 
-                UserINISettings.Instance.重新加载地图和任务包?.Invoke(null,null, false);
+                UserINISettings.Instance.重新加载地图和任务包?.Invoke(null,null);
             }
             catch (Exception ex)
             {

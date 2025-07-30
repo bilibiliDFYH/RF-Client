@@ -348,7 +348,12 @@ namespace ClientCore
 
         public BoolSetting IMEEnabled { get; private set; }
 
-        public Action<string,string,bool> 重新加载地图和任务包 { get; set; }
+        public Action<string, string> 重新加载地图和任务包 { get; set; }
+
+        public Action<string> 添加一个地图 { get; set; }
+
+        public Action<string,string> 重新显示地图 { get; set; }
+
         public BoolSetting 第一次下载扩展 { get; set; }
 
         public bool IsGameFollowed(string gameName)

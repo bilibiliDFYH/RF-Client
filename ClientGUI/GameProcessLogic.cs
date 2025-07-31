@@ -374,7 +374,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                  e = 符号链接(所有需要复制的文件,newMission);
+                  e = 存档文件(所有需要复制的文件,newMission);
                 }
                 else
                 {
@@ -497,7 +497,7 @@ namespace ClientGUI
           
         }
 
-        private static string 符号链接(List<string> 所有需要链接的文件,string 存档目标)
+        private static string 存档文件(List<string> 所有需要链接的文件, string 存档目标)
         {
             Dictionary<string, string> 文件字典 = [];
 
@@ -544,7 +544,7 @@ namespace ClientGUI
                     if (File.Exists(targetPath))
                         File.Delete(targetPath);
 
-                    File.CreateSymbolicLink(targetPath, sourcePath);
+                    FileHelper.CopyFile(sourcePath, targetPath);
                 }
 
                 if (!string.IsNullOrEmpty(存档目标))
@@ -565,7 +565,7 @@ namespace ClientGUI
                             File.Delete(targetPath);
                         }
 
-                        File.CreateSymbolicLink(targetPath, sourcePath);
+                        FileHelper.CopyFile(sourcePath, targetPath);
                     }
                 }
 
@@ -588,7 +588,7 @@ namespace ClientGUI
 
         private static void 复制CSF(string path)
         {
-            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
+            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理   .ToArray();
             foreach (var csf in csfs)
             {
                 var tagCsf = Path.GetFileName(csf).ToLower();

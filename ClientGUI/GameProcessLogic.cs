@@ -374,7 +374,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                  e = 存档文件(所有需要复制的文件,newMission);
+                  e = 复制存档(所有需要复制的文件, newMission);
                 }
                 else
                 {
@@ -497,13 +497,13 @@ namespace ClientGUI
           
         }
 
-        private static string 存档文件(List<string> 所有需要链接的文件, string 存档目标)
+        private static string 复制存档(List<string> 所有需要复制的文件, string 存档目标)
         {
             Dictionary<string, string> 文件字典 = [];
 
             try
             {
-                foreach (var path in 所有需要链接的文件)
+                foreach (var path in 所有需要复制的文件)
                 {
                     if (File.Exists(path))
                     {

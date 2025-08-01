@@ -1,7 +1,7 @@
-﻿namespace Rampastring.Tools;
+namespace Rampastring.Tools;
 
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 
 public interface IIniFile
 {

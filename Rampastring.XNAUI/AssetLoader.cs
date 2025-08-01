@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework.Audio;
@@ -104,10 +104,19 @@ public static class AssetLoader
         if (texture != null)
         {
             textureCache.Add(texture);
+            texture.Disposing += CachedTexture_Disposing;
             return texture;
         }
 
         return CreateDummyTexture();
+    }
+
+    private static void CachedTexture_Disposing(object sender, EventArgs e)
+    {
+        var texture = (Texture2D)sender;
+        Logger.Log("AssetLoader: Removing disposed cached texture " + texture.Name);
+        textureCache.Remove(texture);
+        texture.Disposing -= CachedTexture_Disposing;
     }
 
     /// <summary>

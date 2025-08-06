@@ -716,7 +716,7 @@ namespace DTAConfig.OptionPanels
         public override bool Save()
         {
             if (需要刷新)
-                UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+                UserINISettings.Instance.重新加载地图和任务包?.Invoke(null,null);
             需要刷新 = false;
             return false;
         }

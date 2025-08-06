@@ -26,11 +26,11 @@
 	<OutputPath>..\Bin\Resources\Binaries</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Rampastring.Tools-2.0.6\Rampastring.Tools.csproj" />
+    <ProjectReference Include="..\Rampastring.Tools\Rampastring.Tools.csproj" />
   </ItemGroup>
 </Project>

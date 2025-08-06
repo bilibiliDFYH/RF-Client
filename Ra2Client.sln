@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.XNAUI", "Rampas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientUpdater", "ClientUpdater\ClientUpdater.csproj", "{D033D895-4A81-4F20-B24C-93FA240A1737}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.Tools", "Rampastring.Tools-2.0.6\Rampastring.Tools.csproj", "{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.Tools", "Rampastring.Tools\Rampastring.Tools.csproj", "{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomMapGenerator", "RandomMapGenerator\RandomMapGenerator.csproj", "{551789CD-3FF6-4259-B2F1-551B1CC722DB}"
 EndProject

@@ -145,10 +145,22 @@ namespace Ra2Client
                     messageBox?.Disable();
                     messageBox?.Dispose();
                     messageBox?.Detach();
-                    
-                    messageBox = new XNAMessageBox(wm, "新增地图", "检测到新地图，是否刷新地图列表？", XNAMessageBoxButtons.YesNo);
-                    messageBox.YesClickedAction += (_) => { UserINISettings.Instance.重新加载地图和任务包?.Invoke(); };
-                    messageBox.Show();
+
+                    //if (map.autoStart)
+                    //{
+                    //    UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), true);
+                    //}
+                    //else
+                    //{
+                    //    messageBox = new XNAMessageBox(wm, "新增地图", "检测到新地图，是否刷新地图列表？", XNAMessageBoxButtons.YesNo);
+                    //    messageBox.YesClickedAction += (_) =>
+                    //    {
+                    //        UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), false);
+                    //    };
+                    //    messageBox.Show();
+                    //}
+
+                    UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps/Multi/MapLibrary/", $"{map.id}.map"));
 
                     var result = new
                     {
@@ -347,7 +359,7 @@ namespace Ra2Client
             mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
             mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
             mapIni.SetValue(sectionName, "Author", map.author);
-            mapIni.SetValue(sectionName, "Briefing", map.description);
+            mapIni.SetValue(sectionName, "Briefing", map.description.Replace("\r\n","@"));
             mapIni.SetValue(sectionName, "UpdateTime", map.updateTime ?? "");
             try
             {
@@ -443,7 +455,7 @@ namespace Ra2Client
                     m: missionPack
                 );
 
-                UserINISettings.Instance.重新加载地图和任务包?.Invoke();
+                UserINISettings.Instance.重新加载地图和任务包?.Invoke(null,null);
             }
             catch (Exception ex)
             {

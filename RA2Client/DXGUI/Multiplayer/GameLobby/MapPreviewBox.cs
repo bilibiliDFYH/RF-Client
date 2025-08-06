@@ -522,7 +522,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private static string AutoWrapBriefing(string briefing, int maxLength = 25)
         {
             if (briefing.Contains("@"))
-                return briefing; // 已经有换行符，不处理
+                return briefing.Replace("@", Environment.NewLine); // 已经有换行符，不处理
 
             var result = new StringBuilder();
             for (int i = 0; i < briefing.Length; i++)

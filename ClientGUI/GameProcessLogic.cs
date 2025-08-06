@@ -28,10 +28,14 @@ namespace ClientGUI
 
         public static event Action GameProcessExited;
 
+        public static string[] 旧存档数;
+
         public static bool UseQres { get; set; }
         public static bool SingleCoreAffinity { get; set; }
 
         private static string gameExecutableName;
+
+        //public static bool 游戏中 = false;
 
         private static Mod mod;
 
@@ -183,10 +187,13 @@ namespace ClientGUI
 
                 if(Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")))
                     DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Length;
-                try
+
+                旧存档数 = Directory.GetFiles(ProgramConstants.存档目录, "*.sav");
+            try
                 {
                     if(启用连点器 && UserINISettings.Instance.启用连点器.Value) ShiftClickAutoClicker.Instance.Start();
-                gameProcess.Start();
+                    gameProcess.Start();
+                //游戏中 = true;
                     WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
                 }
@@ -238,7 +245,9 @@ namespace ClientGUI
         private static void 获取新的存档()
         {
             if (!Directory.Exists(ProgramConstants.存档目录)) return;
-            var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav");
+
+            var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav").Where(path => !旧存档数.Contains(path)).ToArray();
+
             if (newSaves.Length == 0) return;
 
             var iniFile = new IniFile(Path.Combine(ProgramConstants.存档目录, "Save.ini"));
@@ -365,7 +374,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                  e = 符号链接(所有需要复制的文件);
+                  e = 复制存档(所有需要复制的文件, newMission);
                 }
                 else
                 {
@@ -488,13 +497,13 @@ namespace ClientGUI
           
         }
 
-        private static string 符号链接(List<string> 所有需要链接的文件)
+        private static string 复制存档(List<string> 所有需要复制的文件, string 存档目标)
         {
             Dictionary<string, string> 文件字典 = [];
 
             try
             {
-                foreach (var path in 所有需要链接的文件)
+                foreach (var path in 所有需要复制的文件)
                 {
                     if (File.Exists(path))
                     {
@@ -535,8 +544,31 @@ namespace ClientGUI
                     if (File.Exists(targetPath))
                         File.Delete(targetPath);
 
-                    File.CreateSymbolicLink(targetPath, sourcePath);
+                    FileHelper.CopyFile(sourcePath, targetPath);
                 }
+
+                if (!string.IsNullOrEmpty(存档目标))
+                {
+                    var 目标文件夹 = Path.Combine(ProgramConstants.存档目录, Path.GetFileName(存档目标));
+                    if (!Directory.Exists(目标文件夹)) return string.Empty;
+                    var sourceFiles = Directory.GetFiles(目标文件夹, "*.sav", SearchOption.AllDirectories);
+                    var linkDirectory = ProgramConstants.存档目录;
+
+                    foreach (var sourcePath in sourceFiles)
+                    {
+                        var fileName = Path.GetFileName(sourcePath);
+                        var targetPath = Path.Combine(linkDirectory, fileName);
+
+                        // 如果目标已存在，先删除
+                        if (File.Exists(targetPath))
+                        {
+                            File.Delete(targetPath);
+                        }
+
+                        FileHelper.CopyFile(sourcePath, targetPath);
+                    }
+                }
+
 
                 //string gamemd_spawn = Path.Combine(ProgramConstants.游戏目录);
                 //gamemd_spawn = gamemd_spawn.Substring(0, gamemd_spawn.Length - 3);
@@ -556,7 +588,7 @@ namespace ClientGUI
 
         private static void 复制CSF(string path)
         {
-            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理                                       .ToArray();
+            var csfs = Directory.GetFiles(path, "*.csf").OrderBy(f => f); // 按文件名升序处理   .ToArray();
             foreach (var csf in csfs)
             {
                 var tagCsf = Path.GetFileName(csf).ToLower();
@@ -577,8 +609,8 @@ namespace ClientGUI
 
             WindowManager.progress.Report(string.Empty);
             Logger.Log("GameProcessLogic: Process exited.");
-            
 
+            //游戏中 = false;
             proc.Exited -= Process_Exited;
             proc.Dispose();
             ShiftClickAutoClicker.Instance.Stop();

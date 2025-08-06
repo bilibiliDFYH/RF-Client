@@ -369,7 +369,7 @@ namespace Ra2Client.DXGUI.Generic
 
             ReadMissionList();
 
-            UserINISettings.Instance.重新加载地图和任务包 += ReadMissionList;
+            UserINISettings.Instance.重新加载地图和任务包 += (_,_) => ReadMissionList();
 
             //ReadDrop();
 

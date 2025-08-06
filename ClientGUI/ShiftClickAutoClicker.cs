@@ -29,6 +29,13 @@ namespace ClientGUI
         [DllImport("user32.dll")]
         private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
 
+        private readonly int[] _blockedKeys =
+        [
+            0x5A,       // Z 键
+            0x11,       // Ctrl 键（左Ctrl和右Ctrl虚拟键码相同）
+            0x12,       // Alt 键
+        ];
+
         /// <summary>
         /// 启动监听
         /// </summary>
@@ -55,6 +62,18 @@ namespace ClientGUI
             _monitorThread?.Join();
             Console.WriteLine("ShiftClickAutoClicker 已停止监听。");
         }
+         
+        private bool IsBlockedKeyDown()
+        {
+            foreach (var key in _blockedKeys)
+            {
+                if ((GetAsyncKeyState(key) & 0x8000) != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         private void MonitorLoop()
         {
@@ -63,9 +82,8 @@ namespace ClientGUI
                 bool shiftDown = (GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0;
                 bool leftDown = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) != 0;
 
-                if (shiftDown && leftDown && !_wasLeftDown)
+                if (shiftDown && leftDown && !_wasLeftDown && !IsBlockedKeyDown())
                 {
-                //    Console.WriteLine("检测到 Shift + 鼠标左键，自动点击 5 次...");
                     AutoClick(4);
                 }
 

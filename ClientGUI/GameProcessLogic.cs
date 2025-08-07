@@ -161,8 +161,9 @@ namespace ClientGUI
                 FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.游戏目录, gameExecutableName);
                 if (!File.Exists(gameFileInfo.FullName))
                 {
-                    XNAMessageBox.Show(windowManager, "错误", $"{gameFileInfo.FullName}不存在，请前往设置清理游戏缓存后重试。");
-                    return;
+                //XNAMessageBox.Show(windowManager, "错误", $"{gameFileInfo.FullName}不存在，请前往设置清理游戏缓存后重试。");
+                    File.Copy("syringe.exe", gameFileInfo.FullName);
+                  //  return;
                 }
 
                 ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments)
@@ -330,9 +331,9 @@ namespace ClientGUI
                     所有需要复制的文件.Add(sourceFile);
                 }
 
-               // 所有需要复制的文件.Add("TX");先注释了，改成只有启用地形扩展时再添加
+               // 所有需要链接的文件.Add("TX");先注释了，改成只有启用地形扩展时再添加
                 所有需要复制的文件.Add("zh");
-               // 所有需要复制的文件.Add("gamemd-spawn.exe");
+               // 所有需要链接的文件.Add("gamemd-spawn.exe");
                 所有需要复制的文件.Add("cncnet5.dll");
                 所有需要复制的文件.Add("syringe.exe");
                 所有需要复制的文件.Add("gamemd.exe");
@@ -357,7 +358,7 @@ namespace ClientGUI
                     所有需要复制的文件.Add("Reunion Anti-Cheat.dll");
                 //var keyboardMD = Path.Combine(ProgramConstants.GamePath, "KeyboardMD.ini");
                 //if (File.Exists(keyboardMD))
-                //    所有需要复制的文件.Add(keyboardMD);
+                //    所有需要链接的文件.Add(keyboardMD);
 
                 if (newSection.KeyExists("CampaignID") && newSection.GetValue("chkSatellite", false))
                 {
@@ -374,7 +375,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                  e = 复制存档(所有需要复制的文件, newMission);
+                  e = 符号链接(所有需要复制的文件, newMission);
                 }
                 else
                 {
@@ -451,7 +452,7 @@ namespace ClientGUI
 
         private static string 复制文件(List<string> 所有需要复制的文件)
         {
-            //所有需要复制的文件.Add("gamemd-spawn.exe");
+            //所有需要链接的文件.Add("gamemd-spawn.exe");
             Dictionary<string, string> 文件字典 = [];
 
             try
@@ -497,13 +498,13 @@ namespace ClientGUI
           
         }
 
-        private static string 复制存档(List<string> 所有需要复制的文件, string 存档目标)
+        private static string 符号链接(List<string> 所有需要链接的文件, string 存档目标)
         {
             Dictionary<string, string> 文件字典 = [];
 
             try
             {
-                foreach (var path in 所有需要复制的文件)
+                foreach (var path in 所有需要链接的文件)
                 {
                     if (File.Exists(path))
                     {
@@ -544,7 +545,7 @@ namespace ClientGUI
                     if (File.Exists(targetPath))
                         File.Delete(targetPath);
 
-                    FileHelper.CopyFile(sourcePath, targetPath);
+                    File.CreateSymbolicLink(targetPath, sourcePath);
                 }
 
                 if (!string.IsNullOrEmpty(存档目标))

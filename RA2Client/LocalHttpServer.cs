@@ -206,7 +206,7 @@ namespace Ra2Client
                         messageBox.caption = "写入任务包";
                         messageBox.description = $"正在写入任务包 {missionPackVo.name},请稍等";
                         messageBox.Show();
-                        await 写入任务包(missionPackVo);
+                        await 写入任务包(missionPackVo,wm);
                         messageBox.Disable();
                         messageBox.Detach();
                         messageBox.Dispose();
@@ -414,7 +414,7 @@ namespace Ra2Client
             mapIni.WriteIniFile();
         }
 
-        private static async Task 写入任务包(MissionPackVo missionPackVo)
+        private static async Task 写入任务包(MissionPackVo missionPackVo, WindowManager wm)
         {
             try
             {
@@ -447,7 +447,7 @@ namespace Ra2Client
                
 
                 // 导入Mod
-                ModManager.导入具体任务包(
+                ModManager.GetInstance(wm).导入任务包(
                     true,
                     true,
                     Path.Combine(ProgramConstants.GamePath, "tmp","MissionPack"), 

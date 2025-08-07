@@ -1,0 +1,15 @@
+E:\Documents\My_File\RF-Client\Bin\Resources\Binaries\Rampastring.Tools.deps.json
+E:\Documents\My_File\RF-Client\Bin\Resources\Binaries\Rampastring.Tools.dll
+E:\Documents\My_File\RF-Client\Bin\Resources\Binaries\Rampastring.Tools.pdb
+E:\Documents\My_File\RF-Client\Bin\Resources\Binaries\Rampastring.Tools.xml
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.GeneratedMSBuildEditorConfig.editorconfig
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.AssemblyInfoInputs.cache
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.AssemblyInfo.cs
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.csproj.CoreCompileInputs.cache
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.sourcelink.json
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.dll
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\refint\Rampastring.Tools.dll
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.xml
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.pdb
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\ref\Rampastring.Tools.dll
+E:\Documents\My_File\RF-Client\Rampastring.Tools-2.0.6\obj\Debug\Rampastring.Tools.csproj.AssemblyReference.cache

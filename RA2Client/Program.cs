@@ -43,9 +43,9 @@ namespace Ra2Client
         private static string COMMON_LIBRARY_PATH;
         private static string SPECIFIC_LIBRARY_PATH;
 
-        private static readonly string VerifyUrl = "https://api.ru2023.top/verify.txt";
-        private static readonly string BetaKeyCodeUrl = "https://api.ru2023.top/beta/key.txt";
-        private static readonly string DevKeyCodeUrl = "https://api.ru2023.top/dev/key.txt";
+        private static readonly string VerifyUrl = "https://www.yra2.com/v9/verify.txt";
+        private static readonly string BetaKeyCodeUrl = "https://www.yra2.com/v9/beta/key.txt";
+        private static readonly string DevKeyCodeUrl = "https://www.yra2.com/v9/dev/key.txt";
 
         private static readonly string AuthKeyFileName = "auth.key";
 

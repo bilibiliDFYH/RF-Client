@@ -170,6 +170,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             lbChatMessages = FindChild<ChatListBox>(nameof(lbChatMessages));
+            lbChatMessages.LineHeight = 20;
 
             tbChatInput = FindChild<XNAChatTextBox>(nameof(tbChatInput));
             tbChatInput.MaximumTextLength = 150;

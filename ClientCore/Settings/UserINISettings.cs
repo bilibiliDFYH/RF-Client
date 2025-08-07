@@ -350,7 +350,7 @@ namespace ClientCore
 
         public Action<string, string> 重新加载地图和任务包 { get; set; }
 
-        public Action<string> 添加一个地图 { get; set; }
+        public Action<string,string,string> 添加一个地图 { get; set; }
 
         public Action<string,string> 重新显示地图 { get; set; }
 

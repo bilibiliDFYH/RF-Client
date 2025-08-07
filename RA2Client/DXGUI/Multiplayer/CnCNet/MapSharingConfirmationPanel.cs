@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ClientGUI;
 using Localization;
 using Rampastring.XNAUI;
@@ -13,6 +13,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
     {
         public MapSharingConfirmationPanel(WindowManager windowManager) : base(windowManager)
         {
+            CnCNetLobby.下载完成 += (_,_) => { btnDownload.Enabled = true; };
         }
 
         private readonly string MapSharingRequestText =
@@ -54,7 +55,10 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             btnDownload.Y = lblDescription.Bottom + UIDesignConstants.EMPTY_SPACE_TOP * 2;
             btnDownload.Text = "Download_Notice".L10N("UI:Main:ButtonDownload");
             //下载
-            btnDownload.LeftClick += (s, e) => MapDownloadConfirmed?.Invoke(this, EventArgs.Empty);
+            btnDownload.LeftClick += (s, e) => {
+                btnDownload.Enabled = false;
+                MapDownloadConfirmed?.Invoke(this, EventArgs.Empty);
+            };
             AddChild(btnDownload);
             btnDownload.CenterOnParentHorizontally();
 

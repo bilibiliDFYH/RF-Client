@@ -160,7 +160,7 @@ namespace Ra2Client
                     //    messageBox.Show();
                     //}
 
-                    UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps/Multi/MapLibrary/", $"{map.id}.map"));
+                    UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps/Multi/MapLibrary/", $"{map.id}.map"), "MapLibrary","地图库");
 
                     var result = new
                     {

@@ -148,7 +148,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var btnDownLoad = new XNAClientButton(WindowManager)
             {
-                Text = "Download Mission Packs".L10N("UI:Main:DownloadMissionPacks"),
+                Text = "下载房主传输的地图 Mission Packs".L10N("UI:Main:DownloadMissionPacks"),
                 ClientRectangle = new Rectangle(btnImport.Right + 10, 32, UIDesignConstants.BUTTON_WIDTH_133, UIDesignConstants.BUTTON_HEIGHT)
             };
             btnDownLoad.LeftClick += BtnDownLoad_LeftClick;

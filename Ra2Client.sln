@@ -20,8 +20,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.XNAUI", "Rampas
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientUpdater", "ClientUpdater\ClientUpdater.csproj", "{D033D895-4A81-4F20-B24C-93FA240A1737}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rampastring.Tools", "Rampastring.Tools\Rampastring.Tools.csproj", "{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomMapGenerator", "RandomMapGenerator\RandomMapGenerator.csproj", "{551789CD-3FF6-4259-B2F1-551B1CC722DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reunion", "Reunion\Reunion.csproj", "{60C4767F-C794-4A30-90BB-3D36674F2BAC}"
@@ -30,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rampastring.Tools", "Rampastring.Tools\Rampastring.Tools.csproj", "{08FEDE16-0C77-4B19-A993-F36F08AD2EA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +65,6 @@ Global
 		{D033D895-4A81-4F20-B24C-93FA240A1737}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D033D895-4A81-4F20-B24C-93FA240A1737}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D033D895-4A81-4F20-B24C-93FA240A1737}.Release|Any CPU.Build.0 = Release|Any CPU
-		{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{137386C2-2DDB-4E4B-8D54-E7E76E1076EC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{551789CD-3FF6-4259-B2F1-551B1CC722DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{551789CD-3FF6-4259-B2F1-551B1CC722DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{551789CD-3FF6-4259-B2F1-551B1CC722DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -77,6 +73,10 @@ Global
 		{60C4767F-C794-4A30-90BB-3D36674F2BAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60C4767F-C794-4A30-90BB-3D36674F2BAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60C4767F-C794-4A30-90BB-3D36674F2BAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08FEDE16-0C77-4B19-A993-F36F08AD2EA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08FEDE16-0C77-4B19-A993-F36F08AD2EA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08FEDE16-0C77-4B19-A993-F36F08AD2EA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08FEDE16-0C77-4B19-A993-F36F08AD2EA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

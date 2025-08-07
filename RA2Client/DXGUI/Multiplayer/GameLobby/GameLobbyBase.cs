@@ -2399,6 +2399,13 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
                 mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
 
+            if(mod.md == string.Empty)
+            {
+                mapIni.SetIntValue("MindControl", "Damage", 1);
+                mapIni.SetIntValue("SuperMindControl", "Damage", 1);
+            }
+
+
             if(Name == "SkirmishLobby")
                 IniFile.ConsolidateIniFiles(mapIni, new IniFile("Client/custom_rules_all.ini"));
 
@@ -2434,12 +2441,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             
             mapIni.WriteIniFile(spawnMapIniFile.FullName, Encoding.GetEncoding("Big5"));
 
-            //if (chkExtension.Checked)
-            //{
-            //    var inifile = new IniFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, "spawnmap.ini"));
-            //    inifile.RenameSection("Countries", "YBCountry");
-            //    inifile.Save();
-            //}
+
         }
 
         /// <summary>

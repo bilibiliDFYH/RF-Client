@@ -432,7 +432,7 @@ public class ModManager : XNAWindow
     /// <summary>
     /// 导入任务包.
     /// </summary>
-    public string 导入任务包(bool copyFile, bool deepImport, string filePath)
+    public string 导入任务包(bool copyFile, bool deepImport, string filePath,bool muVisible = false, string startPath = null, MissionPack m = null)
     {
 
         List<string> mapFiles = [];
@@ -451,7 +451,7 @@ public class ModManager : XNAWindow
 
                     if (判断是否为任务包(item))
                     {
-                        var r = 导入具体任务包(copyFile, deepImport, item);
+                        var r = 导入具体任务包(copyFile, deepImport, item, muVisible,startPath,m);
                         if (r != null)
                         {
                             id = r.ID;

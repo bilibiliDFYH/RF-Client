@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -59,14 +59,15 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 new StringCommandHandler(ProgramConstants.GAME_INVITE_CTCP_COMMAND, HandleGameInviteCommand),
                 new NoParamCommandHandler(ProgramConstants.GAME_INVITATION_FAILED_CTCP_COMMAND, HandleGameInvitationFailedNotification),
                  new StringCommandHandler(ProgramConstants.MAP_DOWNLOAD_NOTICE,(_,s) => {Download_Notice?.Invoke(s,null); }),
-                 new StringCommandHandler(ProgramConstants.MAP_DOWNLOAD,(_,s) => {Download?.Invoke(s,null); })
+                 new StringCommandHandler(ProgramConstants.MAP_DOWNLOAD,(_,s) => {下载房主传输的地图?.Invoke(s,null); })
             ];
 
             topBar.LogoutEvent += LogoutEvent;
         }
 
         public static event EventHandler Download_Notice;
-        public static event EventHandler Download;
+        public static event EventHandler 下载房主传输的地图;
+        public static EventHandler 下载完成;
         private CnCNetManager connectionManager;
         private CnCNetUserData cncnetUserData;
         private readonly OptionsWindow optionsWindow;
@@ -206,6 +207,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             lbGameList.BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 128), 1, 1);
             lbGameList.DoubleLeftClick += LbGameList_DoubleLeftClick;
             lbGameList.RightClick += LbGameList_RightClick;
+            lbGameList.LineHeight = 20;
             lbGameList.AllowMultiLineItems = false;
             lbGameList.ClientRectangleUpdated += GameList_ClientRectangleUpdated;
 
@@ -216,7 +218,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 btnLogout.Y - 26);
             lbPlayerList.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
             lbPlayerList.BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 128), 1, 1);
-            lbPlayerList.LineHeight = 16;
+            lbPlayerList.LineHeight = 20;
             lbPlayerList.DoubleLeftClick += LbPlayerList_DoubleLeftClick;
             lbPlayerList.RightClick += LbPlayerList_RightClick;
 
@@ -229,7 +231,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
                 lbPlayerList.X - lbGameList.Right - 24, lbPlayerList.Height);
             lbChatMessages.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
             lbChatMessages.BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 128), 1, 1);
-            lbChatMessages.LineHeight = 16;
+            lbChatMessages.LineHeight = 20;
             lbChatMessages.LeftClick += (sender, args) => lbGameList.SelectedIndex = -1;
             lbChatMessages.RightClick += LbChatMessages_RightClick;
 

@@ -962,7 +962,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             if (游戏模式名 != null && mapID != null)
             {
-                ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(i => i.Text == 游戏模式名);
+                ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(i => i.Text == 游戏模式名.Split(',')[^1]);
 
                 for (int j = 0; j < lbGameModeMapList.ItemCount; j++)
                 {
@@ -982,25 +982,26 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void randomMap_EnabledChanged(object sender, EventArgs e)
         {
-            var r = Path.GetFileNameWithoutExtension(randomMap.GetIsSave());
+            var r = randomMap.GetIsSave();
 
             
             
             if (!randomMap.Enabled && !string.IsNullOrEmpty(r))
             {
 
-                刷新地图列表();
+                //刷新地图列表();
 
-                ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(d => d.Text == "常规作战");
+                //ddGameModeMapFilter.SelectedIndex = ddGameModeMapFilter.Items.FindIndex(d => d.Text == "常规作战");
 
-                
+                var path = Path.Combine(ProgramConstants.GamePath, r + ".map");
 
-                for (int i = 0; i < lbGameModeMapList.ItemCount; i++)
-                    if (lbGameModeMapList.GetItem(1, i).Text.Contains(r))
-                    {
-                        lbGameModeMapList.SelectedIndex = i;
-                        break;
-                    }
+                //for (int i = 0; i < lbGameModeMapList.ItemCount; i++)
+                //    if (lbGameModeMapList.GetItem(1, i).Text.Contains(r))
+                //    {
+                //        lbGameModeMapList.SelectedIndex = i;
+                //        break;
+                //    }
+                UserINISettings.Instance.添加一个地图?.Invoke(path,"custom","常规作战");
             }
         }
 

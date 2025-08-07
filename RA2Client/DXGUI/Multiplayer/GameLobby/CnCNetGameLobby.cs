@@ -22,6 +22,7 @@ using Rampastring.XNAUI.XNAControls;
 using ClientCore.Settings;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ClientCore.Entity;
 
 namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 {
@@ -104,7 +105,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             ];
 
             CnCNetLobby.Download_Notice += HandleMapDownloadNotice;
-            CnCNetLobby.Download += HandleMapDownload;
+            CnCNetLobby.下载房主传输的地图 += HandleMapDownload;
+            
 
             MapSharer.MapDownloadFailed += MapSharer_MapDownloadFailed;
             MapSharer.MapDownloadComplete += MapSharer_MapDownloadComplete;
@@ -114,7 +116,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChatBoxCommand(new ChatBoxCommand("TUNNELINFO",
                 "View tunnel server information".L10N("UI:Main:TunnelInfo"), false, PrintTunnelServerInformation));
             AddChatBoxCommand(new ChatBoxCommand("GAMENAME",
-                "Change a game's name (game host only). Example: \"/gamename 2v2 3v3\"".L10N("UI:Main:ChangeGameNameCommand"), true, s => ChangeGameName(s)));
+                "Change a game's fileMame (game host only). Example: \"/gamename 2v2 3v3\"".L10N("UI:Main:ChangeGameNameCommand"), true, s => ChangeGameName(s)));
             AddChatBoxCommand(new ChatBoxCommand("CHANGETUNNEL",
                 "Change the used CnCNet tunnel server (game host only)".L10N("UI:Main:ChangeTunnel"),
                 true, (s) => ShowTunnelSelectionWindow("Select tunnel server:".L10N("UI:Main:SelectTunnelServer"))));
@@ -126,18 +128,26 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private async void HandleMapDownload(object sender, EventArgs e)
         {
             var s = (sender as string)?.Split(";");
-            if (s == null || s.Length != 2) return;
+            if (s == null || s.Length != 7){
+                CnCNetLobby.下载完成?.Invoke(s, null);
+                return; 
+            }
 
             var sha = s[1];
-            var name = s[0];
+            var fileMame = s[0];
+            var d = Path.GetFileName(Path.GetDirectoryName(s[2]));
+            var gameMode = s[3];
+            var name = s[4];
+            var author = s[5];
+            var maxPlayers = s[6];
 
             char replaceUnsafeCharactersWith = '-';
             HashSet<char> invalidChars = new HashSet<char>(Path.GetInvalidFileNameChars());
             string timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-            string safeName = $"{timestamp}_{new string(name.Select(c => invalidChars.Contains(c) ? replaceUnsafeCharactersWith : c).ToArray())}";
+            string safeName = $"{timestamp}_{new string(fileMame.Select(c => invalidChars.Contains(c) ? replaceUnsafeCharactersWith : c).ToArray())}";
 
             var baseUrl = $"{ProgramConstants.CUR_SERVER_URL}/Client/Custom_Map/{sha}.map";
-            string strLocPath = Path.Combine(ProgramConstants.GamePath, "Maps", "Multi", "Custom", safeName);
+            string strLocPath = Path.Combine(ProgramConstants.GamePath, "Maps", "Multi", d, safeName);
             string dir = Path.GetDirectoryName(strLocPath);
             if (!Directory.Exists(dir))
             {
@@ -171,16 +181,27 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     await response.Content.CopyToAsync(fs);
                 }
 
-                刷新地图列表();
-                //MapLoader.AgainLoadMaps();
+                var ini = new IniFile($"Maps\\Multi\\MPMaps{d}.ini");
+                var sectionName = $@"Maps/Multi/{d}/{Path.GetFileNameWithoutExtension(safeName)}";
+                ini.AddSection(sectionName);
+                ini.SetValue(sectionName, "Description", name)
+                    .SetValue(sectionName, "GameModes", gameMode)
+                    .SetValue(sectionName, "MaxPlayers",maxPlayers)
+                    .SetValue(sectionName, "Author",author)
+                    ;
+                ini.WriteIniFile();
 
-                GameModeMap = GameModeMaps.Find(gmm => gmm.Map.SHA1 == sha);
-                ChangeMap(GameModeMap);
+                
+                UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps", "Multi", d, safeName),d,gameMode);
             }
             catch (Exception ex)
             {
                 AddNotice("地图下载失败: " + ex.Message, Color.Red);
                 Console.WriteLine(ex);
+            }
+            finally
+            {
+                CnCNetLobby.下载完成?.Invoke(s, null);
             }
         }
 
@@ -220,7 +241,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                     var customMapDto = new MultipartFormDataContent
                     {
-                        { fileNameContent, "name" },
+                        { fileNameContent, "fileMame" },
                         { fileContent, "file", Path.GetFileName(path) }
                     };
 
@@ -234,7 +255,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                                 AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
                                 return;
                             }
-                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1}";
+                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{map.BaseFilePath};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers}";
                             connectionManager.SendCustomMessage(new QueuedMessage(
                                 "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
                             ));
@@ -262,6 +283,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             messageBox.NoClickedAction += (_) =>
             {
+                string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} ";
+                connectionManager.SendCustomMessage(new QueuedMessage(
+                    "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+                ));
                 pendingMapTransferDialogs.Remove(requester);
                 messageBox.Dispose();
             };
@@ -319,7 +344,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private string lastMapSHA1;
 
         /// <summary>
-        /// The map name of the latest selected map.
+        /// The map fileMame of the latest selected map.
         /// Used for map sharing.
         /// </summary>
         private string lastMapName;
@@ -628,7 +653,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 PlayerInfo player = Players[index];
                 player.Name = e.User.Name;
                 ddPlayerNames[index].Items[0].Text = player.Name;
-                AddNotice(string.Format("Player {0} changed their name to {1}".L10N("UI:Main:PlayerRename"), e.OldUserName, e.User.Name));
+                AddNotice(string.Format("Player {0} changed their fileMame to {1}".L10N("UI:Main:PlayerRename"), e.OldUserName, e.User.Name));
             }
         }
 
@@ -1838,7 +1863,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void HandleGameNameChangeMessage(string sender, string newGameName)
         {
-            AddNotice(String.Format("The game host has changed the game name to {0}".L10N("UI:Main:HostGameNameChanged"), newGameName));
+            AddNotice(String.Format("The game host has changed the game fileMame to {0}".L10N("UI:Main:HostGameNameChanged"), newGameName));
             channel.UIName = newGameName;
         }
 
@@ -1883,7 +1908,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <summary>
         /// Changes the tunnel server used for the game.
         /// </summary>
-        /// <param name="tunnel">The new tunnel server to use.</param>
+        /// <param fileMame="tunnel">The new tunnel server to use.</param>
         private void HandleTunnelServerChange(CnCNetTunnel tunnel)
         {
             tunnelHandler.CurrentTunnel = tunnel;
@@ -1993,8 +2018,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <summary>
         /// Handles a map upload request sent by a player.
         /// </summary>
-        /// <param name="sender">The sender of the request.</param>
-        /// <param name="mapSHA1">The SHA1 of the requested map.</param>
+        /// <param fileMame="sender">The sender of the request.</param>
+        /// <param fileMame="mapSHA1">The SHA1 of the requested map.</param>
         private void HandleMapUploadRequest(string sender, string mapSHA1)
         {
             // 已上传或正在上传，直接通知请求者去服务器下载
@@ -2105,9 +2130,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// - http://mapdb.cncnet.org/search.php?game=GAME_ID&search=MAP_NAME_SEARCH_STRING
         ///
         /// </summary>
-        /// <param name="parameters">
-        /// This is a string beginning with the sha1 hash map ID, and (optionally) the name to use as a local filename for the map file.
-        /// Every character after the first space will be treated as part of the map name.
+        /// <param fileMame="parameters">
+        /// This is a string beginning with the sha1 hash map ID, and (optionally) the fileMame to use as a local filename for the map file.
+        /// Every character after the first space will be treated as part of the map fileMame.
         ///
         /// "?" characters are removed from the sha1 due to weird copy and paste behavior from the map search endpoint.
         /// </param>
@@ -2120,18 +2145,18 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             // Make sure no spaces at the beginning or end of the string will mess up arg parsing.
             parameters = parameters.Trim();
             // Check if the parameter's contain spaces.
-            // The presence of spaces indicates a user-specified map name.
+            // The presence of spaces indicates a user-specified map fileMame.
             int firstSpaceIndex = parameters.IndexOf(' ');
 
             if (firstSpaceIndex == -1)
             {
-                // The user did not supply a map name.
+                // The user did not supply a map fileMame.
                 sha1 = parameters;
                 mapName = "user_chat_command_download";
             }
             else
             {
-                // User supplied a map name.
+                // User supplied a map fileMame.
                 sha1 = parameters.Substring(0, firstSpaceIndex);
                 mapName = parameters.Substring(firstSpaceIndex + 1);
                 mapName = mapName.Trim();
@@ -2177,28 +2202,28 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         /// <summary>
         /// Handles changing the UIName
         /// </summary>
-        /// <param name="gameName">The new name for the hosted game.</param>
+        /// <param fileMame="gameName">The new fileMame for the hosted game.</param>
         private void ChangeGameName(string gameName)
         {
             var gameNameValid = NameValidator.IsGameNameValid(gameName);
 
             if (!string.IsNullOrEmpty(gameNameValid))
             {
-                XNAMessageBox.Show(WindowManager, "Invalid game name".L10N("UI:Main:GameNameInvalid"),
+                XNAMessageBox.Show(WindowManager, "Invalid game fileMame".L10N("UI:Main:GameNameInvalid"),
                     gameNameValid);
                 return;
             }
 
             channel.UIName = gameName;
 
-            // broadcast new name to all players
+            // broadcast new fileMame to all players
             AccelerateGameBroadcasting();
 
             // inform the players in the room
             channel.SendCTCPMessage(GAME_NAME_CHANGED + " " + gameName, QueuedMessageType.SYSTEM_MESSAGE, priority: 9);
 
             // inform ourself
-            AddNotice(String.Format("Game name changed to {0}.".L10N("UI:Main:GameNameChanged"), gameName));
+            AddNotice(String.Format("Game fileMame changed to {0}.".L10N("UI:Main:GameNameChanged"), gameName));
         }
 
         /// <summary>

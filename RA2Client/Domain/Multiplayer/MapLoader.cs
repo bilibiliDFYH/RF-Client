@@ -132,16 +132,16 @@ namespace Ra2Client.Domain.Multiplayer
 
         
 
-        public void 添加一个地图(string path)
+        public void 添加一个地图(string path,string d = "MapLibrary", string gameMode = "地图库")
         {
-            var ini = $"Maps\\Multi\\MPMapsMapLibrary.ini";
+            var ini = $"Maps\\Multi\\MPMaps{d}.ini";
             var mpMapsIni = new IniFile(ini, Map.ANNOTATION);
             LoadMultiMaps2(mpMapsIni, path);
             mpMapsIni.WriteIniFile();
             GameModeMaps = new GameModeMapCollection(GameModes);
              
             GameModeMaps.Reverse();
-            UserINISettings.Instance.重新显示地图?.Invoke("地图库",Path.GetFileNameWithoutExtension(path));
+            UserINISettings.Instance.重新显示地图?.Invoke(gameMode, Path.GetFileNameWithoutExtension(path));
         }
 
         private void 整理游戏模式(ConcurrentBag<Exception> exceptions = null)

@@ -28,7 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Rampastring.Tools-2.0.6\Rampastring.Tools.csproj" />
+		<ProjectReference Include="..\Rampastring.Tools\Rampastring.Tools.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -31,6 +31,40 @@ namespace Localization.Tools
             }
         }
 
+        public static string FindDeepestMainDir(string startDir)
+        {
+            var dirQueue = new Queue<string>();
+            dirQueue.Enqueue(startDir);
+
+            while (dirQueue.Count > 0)
+            {
+                var currentDir = dirQueue.Dequeue();
+
+                // 文件数量
+                var fileCount = Directory.GetFiles(currentDir).Length;
+                if (fileCount >= 2)
+                {
+                    return currentDir; // 找到主目录
+                }
+
+                // 如果只有一个子目录，继续深入
+                var subDirs = Directory.GetDirectories(currentDir);
+                if (subDirs.Length == 1)
+                {
+                    dirQueue.Enqueue(subDirs[0]);
+                }
+                else if (subDirs.Length > 1)
+                {
+                    // 多个子目录时，如果文件少，也可以认为当前就是主目录
+                    return currentDir;
+                }
+            }
+
+            // 如果没找到，返回起始目录
+            return startDir;
+        }
+
+
         /// <summary>
         /// 判断字符串是否包含中文
         /// </summary>

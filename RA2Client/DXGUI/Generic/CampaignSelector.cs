@@ -1219,7 +1219,7 @@ namespace Ra2Client.DXGUI.Generic
             Logger.Log("About to write spawn.ini.");
 
             var spawnIni = new IniFile();
-
+            var mod = ((Mod)_cmbGame.SelectedItem.Tag);
             if (_gameOptionsPanel.Visible)
             {
                 var mapName = SafePath.CombineFilePath(ProgramConstants.GamePath, Path.Combine(mission.Path, mission.Scenario));
@@ -1254,6 +1254,33 @@ namespace Ra2Client.DXGUI.Generic
                             mapIni.AddSection("General");
                         if (mapIni.GetIntValue("General", "MaximumQueuedObjects", 0) == 0)
                             mapIni.SetIntValue("General", "MaximumQueuedObjects", 100);
+
+                        if(mod.md == string.Empty)
+                        {
+                            mapIni.SetIntValue("MindControl", "Damage", 1);
+                            mapIni.SetIntValue("SuperMindControl", "Damage", 1);
+
+                            mapIni.AddSection("AlliedOccupyW")
+                                .SetValue("Damage",30)
+                                .SetValue("ROF", 15)
+                                .SetValue("Range", 7)
+                                .SetValue("Projectile", "InvisibleHigh")
+                                .SetValue("Warhead", "SSAB")
+                                .SetValue("Report", "AlliedOccupiedAttack")
+                                .SetValue("OccupantAnim", "UCFLASH")
+                                ;
+
+                            mapIni.AddSection("SovietOccupyW")
+                                  .SetValue("Damage", 20)
+                                  .SetValue("ROF", 20)
+                                  .SetValue("Range", 7)
+                                  .SetValue("Projectile", "InvisibleHigh")
+                                  .SetValue("Warhead", "SSAB")
+                                  .SetValue("Report", "SovietOccupiedAttack")
+                                  .SetValue("OccupantAnim", "UCFLASH")
+                                  ;
+                        }
+
 
                         var difficultyIni = new Rampastring.Tools.IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, DifficultyIniPaths[_trbDifficultySelector.Value]));
                         //
@@ -1302,7 +1329,7 @@ namespace Ra2Client.DXGUI.Generic
             string newMission = mission.Path;
 
           
-            var mod = ((Mod)_cmbGame.SelectedItem.Tag);
+            
 
             var newGame = mod.FilePath;
 

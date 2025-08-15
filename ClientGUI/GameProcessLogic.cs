@@ -152,21 +152,26 @@ namespace ClientGUI
                 {
                     gameExecutableName = "Syringe.exe";
                     arguments = "\"gamemd.exe\" -SPAWN " + extraCommandLine;
-                    
+
+                }
+                else
+                {
+                    gameExecutableName = "gamemd-spawn.exe";
+                    arguments = "-SPAWN " + extraCommandLine;
                 }
 
-                if (File.Exists(Path.Combine(ProgramConstants.游戏目录, "ares.dll")))
+            if (File.Exists(Path.Combine(ProgramConstants.游戏目录, "ares.dll")))
                     启用连点器 = false;
 
-                FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.游戏目录, gameExecutableName);
-                if (!File.Exists(gameFileInfo.FullName))
-                {
-                //XNAMessageBox.Show(windowManager, "错误", $"{gameFileInfo.FullName}不存在，请前往设置清理游戏缓存后重试。");
-                    File.Copy("syringe.exe", gameFileInfo.FullName);
-                  //  return;
-                }
+                //FileInfo gameFileInfo = SafePath.GetFile(ProgramConstants.游戏目录, gameExecutableName);
+                //if (!File.Exists(gameFileInfo.FullName))
+                //{
+                ////XNAMessageBox.Show(windowManager, "错误", $"{gameFileInfo.FullName}不存在，请前往设置清理游戏缓存后重试。");
+                //    File.Copy("syringe.exe", gameFileInfo.FullName);
+                //  //  return;
+                //}
 
-                ProcessStartInfo info = new ProcessStartInfo(gameFileInfo.FullName, arguments)
+                ProcessStartInfo info = new ProcessStartInfo(gameExecutableName, arguments)
                 {
                     UseShellExecute = true,
                     WindowStyle = ProcessWindowStyle.Hidden,
@@ -194,14 +199,15 @@ namespace ClientGUI
                 {
                     if(启用连点器 && UserINISettings.Instance.启用连点器.Value) ShiftClickAutoClicker.Instance.Start();
                     gameProcess.Start();
-                //游戏中 = true;
-                    WindowManager.progress.Report("游戏进行中....");
+               
+                WindowManager.progress.Report("游戏进行中....");
                     Logger.Log("游戏处理逻辑: 进程开始.");
+                
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log("Error launching " + gameFileInfo.Name + ": " + ex.Message);
-                    XNAMessageBox.Show(windowManager, "Error launching game", "Error launching " + gameFileInfo.Name + ". Please check that your anti-virus isn't blocking the CnCNet Client. " +
+                    Logger.Log("Error launching " + gameExecutableName + ": " + ex.Message);
+                    XNAMessageBox.Show(windowManager, "Error launching game", "Error launching " + gameExecutableName + ". Please check that your anti-virus isn't blocking the CnCNet Client. " +
                         "You can also try running the client as an administrator." + Environment.NewLine + Environment.NewLine + "You are unable to participate in this match." +
                         Environment.NewLine + Environment.NewLine + "Returned error: " + ex.Message);
                     Process_Exited(gameProcess, EventArgs.Empty);
@@ -313,8 +319,11 @@ namespace ClientGUI
             FileHelper.KillGameMdProcesses();
             string newGame = newSection.GetValue("Game", string.Empty);
             string newMission = newSection.GetValue("Mission", string.Empty);
+            bool Ares = newSection.GetValue("chkAres", false);
+            var otherFile = newSection.GetValue("OtherFile", string.Empty);
 
-          
+
+
             try
             {   List<string> 所有需要复制的文件 = [];
                     
@@ -333,18 +342,31 @@ namespace ClientGUI
 
                // 所有需要链接的文件.Add("TX");先注释了，改成只有启用地形扩展时再添加
                 所有需要复制的文件.Add("zh");
-               // 所有需要链接的文件.Add("gamemd-spawn.exe");
                 所有需要复制的文件.Add("cncnet5.dll");
+
+                if(!Ares && !File.Exists(Path.Combine(newGame,"ares.dll")))
+                    所有需要复制的文件.Add("gamemd.exe");
+
+                if (Ares)
+                {
+                    所有需要复制的文件.Add("Ares");
+                }
+
                 所有需要复制的文件.Add("syringe.exe");
-                所有需要复制的文件.Add("gamemd.exe");
 
                 所有需要复制的文件.Add(newGame);
+
                 if(newMission != newGame && newMission != string.Empty)
                     所有需要复制的文件.Add(newMission);
 
                 if (newSection.KeyExists("CampaignID"))
                 {
                     所有需要复制的文件.Add(SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\"));
+                }
+
+                if(otherFile != string.Empty)
+                {
+                    所有需要复制的文件.Add(otherFile);
                 }
 
                 所有需要复制的文件.Add("LiteExt.dll");
@@ -545,7 +567,8 @@ namespace ClientGUI
                     if (File.Exists(targetPath))
                         File.Delete(targetPath);
 
-                    File.CreateSymbolicLink(targetPath, sourcePath);
+                     File.CreateSymbolicLink(targetPath, sourcePath);
+                   // FileHelper.CopyFile(sourcePath, targetPath);
                 }
 
                 if (!string.IsNullOrEmpty(存档目标))
@@ -570,14 +593,6 @@ namespace ClientGUI
                     }
                 }
 
-
-                //string gamemd_spawn = Path.Combine(ProgramConstants.游戏目录);
-                //gamemd_spawn = gamemd_spawn.Substring(0, gamemd_spawn.Length - 3);
-                //gamemd_spawn = gamemd_spawn + "gamemd-spawn.exe"; // 获取gamemd-spawn.exe的位置
-
-                //string targetPath1 = Path.Combine(ProgramConstants.游戏目录 + "\\gamemd-spawn.exe");
-                //Directory.CreateDirectory(Path.GetDirectoryName(targetPath1)!);
-                //FileHelper.CopyFile(gamemd_spawn, targetPath1);   // 复制gamemd-spawn.exe到运行目录
             }
             catch (Exception ex)
             {

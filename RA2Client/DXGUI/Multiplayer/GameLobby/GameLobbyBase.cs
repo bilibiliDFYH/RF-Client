@@ -170,6 +170,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         protected XNAContextMenu mapContextMenu;
         private XNAContextMenuItem toggleFavoriteItem;
+        private GameLobbyCheckBox chkAres;
 
         protected XNAClientStateButton<SortDirection> btnMapSortAlphabetically;
 
@@ -465,7 +466,10 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             DropDowns.ForEach(dd => dd.SelectedIndexChanged += Dropdown_SelectedIndexChanged);
             //RenderImage.RenderImagesAsync() += () => RenderImage.RenderImagesAsync();
 
-           
+            chkAres = FindChild<GameLobbyCheckBox>(nameof(chkAres));
+            chkAres.CheckedChanged += ChkAres_CheckedChanged;
+
+
             //RenderImage.CancelRendering += RenderImage.CancelRendering;
 
             RemoveChild(MapPreviewBox);
@@ -474,6 +478,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             InitializeGameOptionPresetUI();
 
             CmbGame_SelectedChanged(cmbGame, null);
+        }
+
+        private void ChkAres_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBoxes.FindAll(chk => chk.Ares == true).ForEach(chk => chk.Visible = chkAres.Checked);
         }
 
         private void BtnDownLoad_LeftClick(object sender, EventArgs e)
@@ -546,7 +555,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private void 打开地图位置()
         {
-            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{Map.BaseFilePath}\"");
+            var path = Path.Combine(ProgramConstants.GamePath, Map.BaseFilePath);
+            System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
         }
 
         private void 删除重复地图()
@@ -627,57 +637,35 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             Mod mod = ((Mod)cmbGame.SelectedItem.Tag);
 
-            if (mod.ID == "GH" || mod.Compatible == "GH")
+            //if (mod.ID == "GH" || mod.Compatible == "GH")
+            //{
+            //    // 检查玩家名称是否只包含英文和数字(仅共辉)
+            //    if (!IsPlayerNameValidGH())
+            //    {
+            //        XNAMessageBox.Show(WindowManager,
+            //            "Invalid Player Name".L10N("UI:Main:InvalidPlayerName"),
+            //            "In Glory of the Republic, player names can only contain English letters and numbers.".L10N("UI:Main:InvalidPlayerNameGHText"));
+            //    }
+            //}
+
+            if (File.Exists(Path.Combine(mod.FilePath, "ares.dll")))
             {
-                // 检查玩家名称是否只包含英文和数字(仅共辉)
-                if (!IsPlayerNameValidGH())
-                {
-                    XNAMessageBox.Show(WindowManager,
-                        "Invalid Player Name".L10N("UI:Main:InvalidPlayerName"),
-                        "In Glory of the Republic, player names can only contain English letters and numbers.".L10N("UI:Main:InvalidPlayerNameGHText"));
-                }
+                chkAres.AllowChecking = false;
+                chkAres.Checked = true;
+            }
+            else if(Map?.Ares == true)
+            {
+                chkAres.AllowChecking = false;
+                chkAres.Checked = true;
+                cmbGame.SelectedIndex = 0;
+                cmbGame.AllowDropDown = false;
+            }
+            else
+            {
+                cmbGame.AllowDropDown = true;
+                chkAres.AllowChecking = true;
             }
 
-            //foreach (var chk in CheckBoxes)
-            //{
-            //    if (chk.Name == "chkAILimit") continue;
-            //    if ((chk.standard || (mod.ID == "RA2" || mod.Compatible == "RA2")))
-            //    {
-            //        chk.AllowChecking = true;
-            //    }
-            //    else
-            //    {
-            //        chk.Checked = chk.defaultValue;
-            //        chk.AllowChecking = false;
-            //    }
-
-            //}
-
-            //var chkAILimit = CheckBoxes.Find(chk => chk.Name == "chkAILimit");
-            //if (mod.SuperWeaponBuildings == string.Empty)
-            //{
-            //    chkAILimit.Checked = false;
-            //    chkAILimit.AllowChecking = false;
-            //}
-            //else
-            //{
-            //    chkAILimit.AllowChecking = true;
-            //}
-
-            //foreach (var dd in DropDowns)
-            //{
-            //    if (dd.Name == "cmbSw") continue;
-            //    if ((dd.standard || (mod.ID == "RA2" || mod.Compatible == "RA2")))
-            //    {
-            //        dd.AllowDropDown = true;
-            //    }
-            //    else
-            //    {
-            //        dd.SelectedIndex = dd.defaultIndex;
-            //        dd.AllowDropDown = false;
-            //    }
-
-            //}
 
 
             MPColors = MultiplayerColor.LoadColors(mod.Colors?.Split('|')?.ToList());
@@ -1408,6 +1396,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             // if(GameModeMap != null)
             ChangeMap(GameModeMap);
 
+
             //CmbGame_SelectedChanged(cmbGame, null);
             //},token);
         }
@@ -2092,7 +2081,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             // string newExtension = string.Empty;
 
-            string newMission = Map?.Mission ?? string.Empty;
 
             if (Map != null && Map.IsCoop)
             {
@@ -2116,13 +2104,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             //写入新游戏
             settings.SetValue("Game", newGame);
           
-            settings.SetValue("Mission", newMission);
 
             settings.SetValue("Name", ProgramConstants.PLAYERNAME);
             settings.SetValue("Scenario", ProgramConstants.SPAWNMAP_INI);
             settings.SetValue("UIGameMode", GameMode.UIName);
             settings.SetValue("UIMapName", Map.Name);
             settings.SetValue("PlayerCount", Players.Count);
+            settings.SetValue("chkAres", chkAres.Checked);
+            settings.SetValue("OtherFile",Map.OtherFile);
             int myIndex = Players.FindIndex(c => c.Name == ProgramConstants.PLAYERNAME);
             settings.SetValue("Side", houseInfos[myIndex].InternalSideIndex);
             settings.SetValue("IsSpectator", houseInfos[myIndex].IsSpectator);
@@ -2376,8 +2365,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             IniFile globalCodeIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "INI", "MapCode", "GlobalCode.ini"));
 
-            MapCodeHelper.ApplyMapCode(mapIni, GameMode.GetMapRulesIniFile());
+            //MapCodeHelper.ApplyMapCode(mapIni, GameMode.GetMapRulesIniFile());
+            MapCodeHelper.ApplyMapCode(mapIni, new IniFile("E:\\Documents\\My_File\\RF-Client\\Bin\\INI\\Multi\\MapCode\\toolkit.ini"));
             MapCodeHelper.ApplyMapCode(mapIni, globalCodeIni);
+
+
 
             if (isMultiplayer)
             {
@@ -2403,6 +2395,28 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 mapIni.SetIntValue("MindControl", "Damage", 1);
                 mapIni.SetIntValue("SuperMindControl", "Damage", 1);
+
+                
+                mapIni.AddSection("AlliedOccupyW")
+                    .SetValue("Damage", 30)
+                    .SetValue("ROF", 15)
+                    .SetValue("Range", 7)
+                    .SetValue("Projectile", "InvisibleHigh")
+                    .SetValue("Warhead", "SSAB")
+                    .SetValue("Report", "AlliedOccupiedAttack")
+                    .SetValue("OccupantAnim", "UCFLASH")
+                    ;
+
+                mapIni.AddSection("SovietOccupyW")
+                        .SetValue("Damage", 20)
+                        .SetValue("ROF", 20)
+                        .SetValue("Range", 7)
+                        .SetValue("Projectile", "InvisibleHigh")
+                        .SetValue("Warhead", "SSAB")
+                        .SetValue("Report", "SovietOccupiedAttack")
+                        .SetValue("OccupantAnim", "UCFLASH")
+                        ;
+                
             }
 
 
@@ -2638,14 +2652,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             var chkTerrain_Checked = FindChild<XNAClientCheckBox>("chkTerrain").Checked;
             settings.SetValue("chkTerrain", chkTerrain_Checked);
 
-            // 在启动游戏前检查玩家名称(仅共辉)
-            if (!IsPlayerNameValidGH())
-            {
-                XNAMessageBox.Show(WindowManager,
-                    "Cannot start the game".L10N("UI:Main:LaunchGameErrorTitle"),
-                    "In Glory of the Republic, player names can only contain English letters and numbers.".L10N("UI:Main:InvalidPlayerNameGHText"));
-                return;
-            }
+            //// 在启动游戏前检查玩家名称(仅共辉)
+            //if (!IsPlayerNameValidGH())
+            //{
+            //    XNAMessageBox.Show(WindowManager,
+            //        "Cannot start the game".L10N("UI:Main:LaunchGameErrorTitle"),
+            //        "In Glory of the Republic, player names can only contain English letters and numbers.".L10N("UI:Main:InvalidPlayerNameGHText"));
+            //    return;
+            //}
 
             PlayerHouseInfo[] houseInfos = [];
 
@@ -2969,7 +2983,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             foreach (var checkBox in CheckBoxes)
                 checkBox.AllowChecking = true;
 
-            CmbGame_SelectedChanged(null, null);
+        
+
+            
             // We could either pass the CheckBoxes and DropDowns of this class
             // to the Map and GameMode instances and let them apply their forced
             // options, or we could do it in this class with helper functions.
@@ -3058,7 +3074,17 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             CheckDisallowedSides();
+            CmbGame_SelectedChanged(null, null);
 
+            if (!string.IsNullOrEmpty(Map.OtherFile))
+            {
+                cmbGame.SelectedIndex = 0;
+                cmbGame.AllowDropDown = false;
+            }
+            else
+            {
+                cmbGame.AllowDropDown = true;
+            }
 
             if (Map.CoopInfo != null)
             {

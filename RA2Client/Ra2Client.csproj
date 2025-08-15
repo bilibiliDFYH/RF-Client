@@ -9,8 +9,8 @@
 		<Product>Ra2Client</Product>
 		<Copyright>Copyright © Snowy Studio 2022-2025</Copyright>
 		<Trademark>Ra2Client</Trademark>
-		<Version>1.5.1.33</Version>
-		<FileVersion>1.5.1.33</FileVersion>
+		<Version>1.5.1.34</Version>
+		<FileVersion>1.5.1.34</FileVersion>
 		<AssemblyName>Ra2Client</AssemblyName>
 		<RootNamespace>Ra2Client</RootNamespace>
 		<Nullable>disable</Nullable>
@@ -24,13 +24,21 @@
 		<ApplicationIcon>clienticon.ico</ApplicationIcon>
 		<UseWindowsForms>True</UseWindowsForms>
 		<IsPublishable>False</IsPublishable>
+		<Platforms>AnyCPU;x86</Platforms>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<Optimize>False</Optimize>
 		<OutputPath>..\Bin\Resources\Binaries\</OutputPath>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+	  <Optimize>False</Optimize>
+	  <OutputPath>..\Bin\Resources\Binaries\</OutputPath>
+	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<OutputPath>..\Bin\Resources\Binaries\</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+	  <OutputPath>..\Bin\Resources\Binaries\</OutputPath>
 	</PropertyGroup>
 	<ItemGroup>
 		<Content Include="..\Bin\Resources\clienticon.ico" />

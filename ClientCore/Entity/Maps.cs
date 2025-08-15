@@ -17,6 +17,7 @@ namespace ClientCore.Entity
         public int type { get; set; } = 0;
         public string base64 { get; set; } = null;
         public string file { get; set; } = null;
+        public string otherFile { get; set; } = null;
         public string createTime { get; set; } = null;
         public string updateTime { get; set; } = null;
         public string createUser { get; set; } = "0";
@@ -29,6 +30,8 @@ namespace ClientCore.Entity
 
         public string typeName { get; set; } = "";
         public string rules { get; set; }
+
+        public int ares { get; set; }
 
         public string enemyHouse { get; set; } = "";
 

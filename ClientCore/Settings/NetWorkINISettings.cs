@@ -25,8 +25,8 @@ public class NetWorkINISettings
     private const string secUpdater = "Updater";                    // 更新段+组件段
 
 #if DEBUG
-    public const string Address = "https://api.yra2.com/";
- //public const string Address = "http://localhost:9088/";
+    //public const string Address = "https://api.yra2.com/";
+ public const string Address = "http://localhost:9088/";
 #else
     public const string Address = "https://api.yra2.com/";
 #endif
@@ -308,44 +308,41 @@ public class NetWorkINISettings
             return default;
         }
     }
-    public static async Task<(bool, string)> DownLoad(string url, string outputPath)
+    public static async Task<(bool, string)> DownLoad(string url, string outputPath, bool useToken = true)
     {
         using var client = new HttpClient();
 
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserINISettings.Instance.Token.Value);
+        if (useToken)
+        {
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", UserINISettings.Instance.Token.Value);
+        }
 
         try
         {
-            // 发送 GET 请求并获取响应
-            var response = await client.GetAsync($"{Address}{url}").ConfigureAwait(false);
+            var fullUrl = new Uri(new Uri(Address.TrimEnd('/') + "/"), url.TrimStart('/'));
+            Console.WriteLine($"下载地址: {fullUrl}");
 
-            if (response.IsSuccessStatusCode)
+            var response = await client.GetAsync(fullUrl).ConfigureAwait(false);
+
+            Console.WriteLine($"状态码: {(int)response.StatusCode} {response.ReasonPhrase}");
+
+            if (!response.IsSuccessStatusCode)
             {
-
-                // 读取响应流并将其保存为文件
-                await using (var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                await using (var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
-                {
-                    await contentStream.CopyToAsync(fileStream).ConfigureAwait(false);
-                }
-
-                // 返回文件下载成功的消息
-                return (true, "文件下载成功");
+                return (false, $"下载失败: {(int)response.StatusCode} {response.ReasonPhrase}");
             }
-            else
-            {
-                return (false, "用户信息过期, 请重新登录");
-            }
-        }
-        catch (HttpRequestException ex)
-        {
-            // 处理请求异常
-            Console.WriteLine($"请求失败：{ex.Message}");
-            return (false, ex.Message);
+
+            // 确保目录存在
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+
+            await using var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            await using var fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+            await contentStream.CopyToAsync(fileStream).ConfigureAwait(false);
+
+            return (true, "文件下载成功");
         }
         catch (Exception ex)
         {
-            // 处理其他异常
             Console.WriteLine($"发生错误：{ex.Message}");
             return (false, ex.Message);
         }

@@ -52,8 +52,8 @@ namespace Ra2Client.DXGUI.Generic
             lbSaveGameList = new XNAMultiColumnListBox(WindowManager);
             lbSaveGameList.Name = nameof(lbSaveGameList);
             lbSaveGameList.ClientRectangle = new Rectangle(13, 13, 574, 317);
-            lbSaveGameList.AddColumn("SAVED GAME NAME".L10N("UI:Main:SavedGameNameColumnHeader"), 400);
-            lbSaveGameList.AddColumn("DATE / TIME".L10N("UI:Main:SavedGameDateTimeColumnHeader"), 174);
+            lbSaveGameList.AddColumn("SAVED GAME NAME".L10N("UI:Main:SavedGameNameColumnHeader"), 380);
+            lbSaveGameList.AddColumn("DATE / TIME".L10N("UI:Main:SavedGameDateTimeColumnHeader"), 194);
             lbSaveGameList.BackgroundTexture = AssetLoader.CreateTexture(new Color(0, 0, 0, 128), 1, 1);
             lbSaveGameList.PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.STRETCHED;
             lbSaveGameList.SelectedIndexChanged += ListBox_SelectedIndexChanged;
@@ -133,6 +133,7 @@ namespace Ra2Client.DXGUI.Generic
             var newGame = sg.Game;
             var newMission = sg.Mission;
 
+
             if((newGame != string.Empty &&!Directory.Exists(newGame)) || (newMission != string.Empty && !Directory.Exists(newMission)))
             {
                 XNAMessageBox.Show(WindowManager,"Error".L10N("UI:Main:Error"), "The mission pack file or mod file has been deleted and the save cannot be loaded.".L10N("UI:Main:CannotLoadedSave"));
@@ -146,7 +147,9 @@ namespace Ra2Client.DXGUI.Generic
             //写入新游戏
             settings.SetValue("Game", newGame);
 
-            settings.SetValue("Mission", newMission); 
+            settings.SetValue("Mission", newMission);
+
+            settings.SetValue("OtherFile", newMission);
 
             settings.SetValue("Ra2Mode",false);
             settings.SetValue("chkSatellite",sg.透明迷雾);
@@ -267,6 +270,8 @@ namespace Ra2Client.DXGUI.Generic
                     var sectionName = $"{Path.GetFileName(file.FullName)}-{Path.GetFileName(d)}";
                     var game = saveIni.GetValue(sectionName, "Game", string.Empty);
                     var mission = saveIni.GetValue(sectionName, "Mission", string.Empty);
+                    if(mission == string.Empty)
+                        mission = saveIni.GetValue(sectionName, "OtherFile", string.Empty);
                     var 透明迷雾 = saveIni.GetValue(sectionName, "chkSatellite", false);
                     var 战役ID = saveIni.GetValue(sectionName, "CampaignID", -1);
                     var chkTerrain = saveIni.GetValue(sectionName, "chkTerrain", false);

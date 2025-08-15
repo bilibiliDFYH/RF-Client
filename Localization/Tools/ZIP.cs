@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -289,6 +289,7 @@ public class SevenZip
             Console.WriteLine($"Error compressing files to {archivePath} with 7z.exe: {ex.Message}");
         }
     }
+
 
     public static List<string> GetFile(string path)
     {

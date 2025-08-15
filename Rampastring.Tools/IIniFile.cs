@@ -8,8 +8,8 @@ public interface IIniFile
     bool AllowNewSections { get; set; }
     string FileName { get; set; }
 
-    IniFile AddSection(IniSection section);
-    IniFile AddSection(string sectionName);
+    IniSection AddSection(IniSection section);
+    IniSection AddSection(string sectionName);
     IniFile RemoveSection(string sectionName);
     IniFile CombineSections(string firstSectionName, string secondSectionName);
     IniFile EraseSectionKeys(string sectionName);

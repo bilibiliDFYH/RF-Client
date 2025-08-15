@@ -10,10 +10,6 @@
 /ClientGUI/bin
 /ClientGUI/obj
 /DTAConfig/bin
-/ReunionServer/ReunionServer/bin
-/ReunionServer/ReunionServer/obj
-/ReunionServer/ReunionShareModel/bin
-/ReunionServer/ReunionShareModel/obj
 /DTAConfig/obj
 /DTAConfig/bin
 /Localization/bin
@@ -36,3 +32,4 @@
 /Render/CNCMaps.Engine/obj
 /Render/CNCMaps.FileFormats/obj
 /Render/CNCMaps.Shared/obj
+Rampastring.Tools/obj

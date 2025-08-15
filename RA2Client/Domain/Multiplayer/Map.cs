@@ -18,6 +18,7 @@ using Rampastring.Tools;
 using Rampastring.XNAUI;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using static System.Collections.Specialized.BitVector32;
 using Color = Microsoft.Xna.Framework.Color;
 using Point = Microsoft.Xna.Framework.Point;
 using Utilities = Rampastring.Tools.Utilities;
@@ -133,6 +134,9 @@ namespace Ra2Client.Domain.Multiplayer
         [JsonInclude]
         public string Author { get; private set; }
 
+
+        public bool Ares { get; private set; }
+
         /// <summary>
         /// The calculated SHA1 of the map.
         /// </summary>
@@ -157,6 +161,8 @@ namespace Ra2Client.Domain.Multiplayer
         /// </summary>
         [JsonInclude]
         public string PreviewPath { get; set; }
+
+        public string OtherFile { get; set; }
 
         /// <summary>
         /// If set, this map cannot be played on Skirmish.
@@ -245,8 +251,6 @@ namespace Ra2Client.Domain.Multiplayer
         [JsonInclude]
         public List<string> Waypoint = new List<string>();
 
-        [JsonInclude]
-        public string Mission = string.Empty;
 
         public int Money = 0;
 
@@ -396,9 +400,6 @@ namespace Ra2Client.Domain.Multiplayer
                 else
                     GameModes = (section.GetStringValue("GameModes", "常规作战")).Split(',');
 
-                Mission = section.GetStringValue("Mission", string.Empty);
-                if(!Directory.Exists(Mission))
-                    section.RemoveKey("Mission");
                 string modstr = section.GetStringValue("Mod", string.Empty);
                 if (!string.IsNullOrEmpty(modstr))
                 {
@@ -430,9 +431,13 @@ namespace Ra2Client.Domain.Multiplayer
                 {
                     Bases = Convert.ToInt32(Conversions.BooleanFromString(bases, false));
                 }
-
-
                 Rules = LoadRulesFromSection(section);
+
+                Ares = section.GetValue("Ares", false);
+
+                OtherFile = section.GetValue("OtherFile", string.Empty);
+                if(OtherFile == string.Empty)
+                    OtherFile = section.GetValue("Mission", string.Empty);
 
                 int i = 0;
                 while (true)

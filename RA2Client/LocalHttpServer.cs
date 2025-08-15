@@ -140,25 +140,7 @@ namespace Ra2Client
                     await 写入地图(map);
 
                     response.StatusCode = 200;
-                    RefreshInstalledMapIds();
-
-                    messageBox?.Disable();
-                    messageBox?.Dispose();
-                    messageBox?.Detach();
-
-                    //if (map.autoStart)
-                    //{
-                    //    UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), true);
-                    //}
-                    //else
-                    //{
-                    //    messageBox = new XNAMessageBox(wm, "新增地图", "检测到新地图，是否刷新地图列表？", XNAMessageBoxButtons.YesNo);
-                    //    messageBox.YesClickedAction += (_) =>
-                    //    {
-                    //        UserINISettings.Instance.重新加载地图和任务包?.Invoke("地图库", map.id.ToString(), false);
-                    //    };
-                    //    messageBox.Show();
-                    //}
+                    addMapId(map.id, map.updateTime);
 
                     UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps/Multi/MapLibrary/", $"{map.id}.map"), "MapLibrary","地图库");
 
@@ -322,7 +304,7 @@ namespace Ra2Client
             }
         }
 
-        private static async Task 写入地图(Maps map)
+        public static async Task 写入地图(Maps map)
         {
             if (map.file.StartsWith('u'))
             {
@@ -342,20 +324,13 @@ namespace Ra2Client
                 string imageSavePath = await NetWorkINISettings.DownloadImageAsync(imageUrl, "Maps/Multi/MapLibrary/", $"{map.id}.jpg");
             }
 
-
-            //if (imageSavePath == null)
-            //{
-            //    Console.WriteLine("❌ 图片下载失败");
-            //    response.StatusCode = 500;
-            //    return;
-            //}
-
             // 3. 写入 INI 配置
             var mapIni = new IniFile("Maps\\Multi\\MPMapsMapLibrary.ini");
             string sectionName = $"Maps/Multi/MapLibrary/{map.id}";
 
 
             mapIni.SetValue(sectionName, "MaxPlayers", map.maxPlayers);
+            mapIni.SetValue(sectionName, "Ares", map.ares == 1);
             mapIni.SetValue(sectionName, "Description", $"[{map.maxPlayers}]{map.name}");
             mapIni.SetValue(sectionName, "GameModes", "常规作战,地图库");
             mapIni.SetValue(sectionName, "Author", map.author);
@@ -376,23 +351,52 @@ namespace Ra2Client
                     // 重新创建目录
                     Directory.CreateDirectory(baseDir);
 
-                    //byte[] fileBytes = Convert.FromBase64String(map.csf);
-
-                    //string filePath = Path.Combine(baseDir, "ra2md.csf");
-
-                    //File.WriteAllBytes(filePath, fileBytes);
-
 
                     // 路径使用正斜杠，符合配置格式
                     string relativePath = $"Maps/Multi/MapLibrary/{map.id}";
-                    mapIni.SetValue(sectionName, "Mission", relativePath);
+                    mapIni.SetValue(sectionName, "OtherFile", relativePath);
                     string csfURL = Path.Combine(NetWorkINISettings.Address, map.csf).Replace("\\", "/");
                     string imageSavePath = await NetWorkINISettings.DownloadImageAsync(csfURL, relativePath, "ra2md.csf");
                 }
-                else
+                else if(!string.IsNullOrEmpty(map.otherFile))
                 {
-                    Console.WriteLine("map.csf为空或null，跳过写文件");
+                    string baseDir = Path.Combine("Maps", "Multi", "MapLibrary", map.id.ToString());
+
+                    // 如果目录存在，删除整个目录及内容（慎用，确认安全）
+                    if (Directory.Exists(baseDir))
+                    {
+                        Directory.Delete(baseDir, recursive: true);
+                    }
+
+                    // 重新创建目录
+                    Directory.CreateDirectory(baseDir);
+
+
+                    // 路径使用正斜杠，符合配置格式
+               
+                    mapIni.SetValue(sectionName, "Mission", baseDir);
+                    string csfURL = Path.Combine(NetWorkINISettings.Address, map.otherFile).Replace("\\", "/");
+                    await NetWorkINISettings.DownLoad(csfURL, Path.Combine("tmp", $"{map.id}.zip"));
+                    SevenZip.ExtractWith7Zip(Path.Combine("tmp", $"{map.id}.zip"),Path.Combine("tmp", $"{map.id}"));
+                    var mainDir = FunExtensions.FindDeepestMainDir(Path.Combine("tmp", $"{map.id}"));
+              
+                    // 复制文件
+                    foreach (var file in Directory.GetFiles(mainDir, "*", SearchOption.AllDirectories))
+                    {
+                        // 计算相对路径
+                        var relativePath = Path.GetRelativePath(mainDir, file);
+                        var targetPath = Path.Combine(baseDir, relativePath);
+
+                        // 确保目标目录存在
+                        Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
+
+                        File.Copy(file, targetPath, true);
+                    }
+
+                    mapIni.SetValue(sectionName, "OtherFile", baseDir);
                 }
+
+
             }
             catch (FormatException fe)
             {
@@ -410,6 +414,8 @@ namespace Ra2Client
 
             if (!string.IsNullOrEmpty(map.enemyHouse + map.allyHouse))
                 mapIni.SetValue(sectionName, "IsCoopMission", true);
+
+
 
             mapIni.WriteIniFile();
         }
@@ -492,6 +498,18 @@ namespace Ra2Client
                     id => id,
                     id => ini.GetValue(id.ToString(), "updateTime", string.Empty)
                 );
+        }
+
+        public static void addMapId(string id, string updateTime)
+        {
+            if (_installedMapIds.ContainsKey(id))
+            {
+                _installedMapIds[id] = updateTime;
+            }
+            else
+            {
+                _installedMapIds.Add(id, updateTime);
+            }
         }
 
     }

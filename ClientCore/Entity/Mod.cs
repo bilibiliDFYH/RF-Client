@@ -1,4 +1,4 @@
-﻿
+
 using ClientCore;
 using Rampastring.Tools;
 using System.Collections.Generic;
@@ -14,21 +14,20 @@ public class Mod : InfoBaseClass
     /// </summary>
     public override void Create()
     {
-       var iniFile = new IniFile(FileName ?? $"Mod&AI\\Mod&AI{ID}.ini", ANNOTATION).
-            SetValue("Mod", ID, ID).
-            AddSection(ID).
-            SetValue(ID, "Name", Name).
-            SetValue(ID, "Description", Description).
-            SetValue(ID, "FilePath", FilePath).
-            SetValue(ID, "Version", Version). 
-            SetValue(ID, "MuVisible", MuVisible).
-            SetValue(ID, "CpVisible", CpVisible).
-            SetValue(ID, "Compatible", Compatible).
-            SetValue(ID, "YR", md.Equals("md")).
-            SetValue(ID, "Sides", Countries).
-            SetValue(ID, "Author", Author).
-            SetValue(ID, "SettingsFile", SettingsFile).
-            SetValue(ID, "RandomSides", RandomSides);
+        var iniFile = new IniFile(FileName ?? $"Mod&AI\\Mod&AI{ID}.ini", ANNOTATION).
+             SetValue("Mod", ID, ID);
+        iniFile.AddSection(ID).
+            SetValue("Description", Description).
+            SetValue("FilePath", FilePath).
+            SetValue("Version", Version). 
+            SetValue("MuVisible", MuVisible).
+            SetValue("CpVisible", CpVisible).
+            SetValue("Compatible", Compatible).
+            SetValue("YR", md.Equals("md")).
+            SetValue("Sides", Countries).
+            SetValue("Author", Author).
+            SetValue("SettingsFile", SettingsFile).
+            SetValue("RandomSides", RandomSides);
 
         for (int i = 0; i < RandomSidesIndexs.Count;i++)
         {

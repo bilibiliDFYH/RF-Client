@@ -27,11 +27,15 @@ namespace ClientCore
 
         public static readonly List<int> VersionValley = [22000, 22621, 22631, 26100, 26120, 26200];
 
+        
+
         public static string CUR_SERVER_URL = "https://autopatch1-zh-tcdn.yra2.com";
 
         public static bool SkipLogo = false;
 
         public static readonly string GamePath = SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName);
+
+        public static readonly string MapEditorPath = Path.Combine(SafePath.CombineDirectoryPath(SafePath.GetDirectory(StartupPath).Parent.Parent.FullName), "Resources\\FA2SP_HDM_Edition_1.1.8\\RunFA2sp.bat");
 
         //MOD游戏数据默认存放的MIX
         public static readonly string MOD_MIX = "EXPANDMD01.MIX";

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClientGUI;
@@ -67,9 +67,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private string customIniPath;
 
-        public bool standard;
+        public bool Ares;
 
-        public bool expandable;
+
 
         private bool reversed;
 
@@ -157,11 +157,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 case "Special":
                     Special = bool.Parse(value);
                     return;
-                case "Standard":
-                    standard = Conversions.BooleanFromString(value, false);
-                    return;
-                case "Expandable":
-                    expandable = Conversions.BooleanFromString(value, false);
+                case "Ares":
+                    Ares = Conversions.BooleanFromString(value, false);
                     return;
                 case "DisallowedSideIndex":
                 case "DisallowedSideIndices":

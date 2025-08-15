@@ -128,18 +128,35 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         private async void HandleMapDownload(object sender, EventArgs e)
         {
             var s = (sender as string)?.Split(";");
-            if (s == null || s.Length != 7){
+            if (s == null || s.Length != 9){
                 CnCNetLobby.下载完成?.Invoke(s, null);
                 return; 
             }
 
             var sha = s[1];
             var fileMame = s[0];
-            var d = Path.GetFileName(Path.GetDirectoryName(s[2]));
+            var d = s[2];
             var gameMode = s[3];
             var name = s[4];
             var author = s[5];
             var maxPlayers = s[6];
+            var ares = s[7];
+            var mapID = s[8];
+
+            if (!string.IsNullOrEmpty(mapID))
+            {
+                var map = NetWorkINISettings.Get<Maps>($"map/getMapInfo?id={mapID}").Result.Item1;
+                if(map != null)
+                {
+                    await LocalHttpServer.写入地图(map);
+                    LocalHttpServer.addMapId(map.id,map.updateTime);
+
+                    UserINISettings.Instance.添加一个地图?.Invoke(Path.Combine("Maps/Multi/MapLibrary/", $"{map.id}.map"), "MapLibrary", "地图库");
+                    return;
+
+                }
+                
+            }
 
             char replaceUnsafeCharactersWith = '-';
             HashSet<char> invalidChars = new HashSet<char>(Path.GetInvalidFileNameChars());
@@ -188,6 +205,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     .SetValue(sectionName, "GameModes", gameMode)
                     .SetValue(sectionName, "MaxPlayers",maxPlayers)
                     .SetValue(sectionName, "Author",author)
+                    .SetValue(sectionName, "Ares", ares)
                     ;
                 ini.WriteIniFile();
 
@@ -231,6 +249,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 XNAMessageBoxButtons.YesNo
             );
 
+            var d = Path.GetFileName(Path.GetDirectoryName(map.BaseFilePath));
+            var id = string.Empty;
+            if (d == "MapLibrary")
+                id = map.ID;
+
             messageBox.YesClickedAction += (_) =>
             {
                 try
@@ -255,7 +278,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                                 AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
                                 return;
                             }
-                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{map.BaseFilePath};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers}";
+                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{d};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers};{map.Ares};{id}";
                             connectionManager.SendCustomMessage(new QueuedMessage(
                                 "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
                             ));

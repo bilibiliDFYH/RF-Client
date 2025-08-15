@@ -1,4 +1,4 @@
-﻿using ClientCore;
+using ClientCore;
 using ClientGUI;
 using DTAConfig.Entity;
 using Localization.Tools;
@@ -235,10 +235,10 @@ namespace DTAConfig
                     inifile.
                         SetValue("Themes", section, section).
                         AddSection(section).
-                        SetValue(section, "Name", $"THEME:{section}").
-                        SetValue(section, "CName", Path.GetFileNameWithoutExtension(fileName)).
-                        SetValue(section, "Sound", section).
-                        SetValue(section, "Normal", true);
+                        SetValue("Name", $"THEME:{section}").
+                        SetValue("CName", Path.GetFileNameWithoutExtension(fileName)).
+                        SetValue("Sound", section).
+                        SetValue("Normal", true);
                 }
 
                 inifile.WriteIniFile();

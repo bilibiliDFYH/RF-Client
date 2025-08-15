@@ -253,7 +253,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     N = int.Parse(People[7]),
                     DamangedBuilding = cbDamage.Checked,
                     Type = Generate,
-                    Gamemode = "standard",
+                    Gamemode = "Ares",
                     输出目录 = ProgramConstants.GamePath + "Maps\\Multi\\Custom\\",
                 };
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClientGUI;
@@ -45,12 +45,11 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         public string[] DisallowedSideIndiex;
         public string[] DisallowedSide;
 
-        public string Extension = string.Empty;
-
         public List<string> ControlName;
 
         public List<string> ControlIndex;
-        public bool standard;
+
+        public bool Ares;
 
         public override void Initialize()
         {
@@ -119,10 +118,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 case "Special":
                     Special = bool.Parse(value);
                     break;
-
-                case "Extension":
-                    Extension = value;
-                    return;
                 case "DataWriteMode":
                     if (value.ToUpper() == "INDEX")
                         dataWriteMode = DropDownDataWriteMode.INDEX;
@@ -137,8 +132,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     spawnIniOption = value;
                     return;
 
-                case "Standard":
-                    standard = Conversions.BooleanFromString(value, false);
+                case "Ares":
+                    Ares = Conversions.BooleanFromString(value, false);
                     return;
                 case "Expandable":
                     expandable = Conversions.BooleanFromString(value, false);

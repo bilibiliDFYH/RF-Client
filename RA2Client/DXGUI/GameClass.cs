@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using ClientCore;
@@ -46,6 +46,8 @@ namespace Ra2Client.DXGUI
             graphics.SynchronizeWithVerticalRetrace = false;
             graphics.HardwareModeSwitch = false;
             content = new ContentManager(Services);
+
+            
         }
 
         ~GameClass() 
@@ -225,7 +227,12 @@ namespace Ra2Client.DXGUI
             wm.AddAndInitializeControl(ls);
             ls.ClientRectangle = new Rectangle((wm.RenderResolutionX - ls.Width) / 2,
                (wm.RenderResolutionY - ls.Height) / 2, ls.Width, ls.Height);
+            Exiting += (sender, e) =>
+            {
+                LocalHttpServer.Stop();
+                ShiftClickAutoClicker.Instance.Stop();
 
+            };
             Task.Run(() =>
             {
                 LocalHttpServer.Start(wm);

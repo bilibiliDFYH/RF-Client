@@ -138,12 +138,14 @@ namespace Ra2Client
             var gameClass = new GameClass();
             // UserINISettings.标题改变 += gameClass.ChangeTiTle;
 
-            gameClass.Exiting += (sender, e) =>
-            {
-                LocalHttpServer.Stop();
-                ShiftClickAutoClicker.Instance.Stop();
+            //gameClass.Exiting += (sender, e) =>
+            //{
+            //    LocalHttpServer.Stop();
+            //    ShiftClickAutoClicker.Instance.Stop();
 
-            };
+            //};
+
+         
 
             int currentWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             int currentHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
@@ -157,6 +159,9 @@ namespace Ra2Client
             }
             catch (Exception ex)
             {
+               
+                LocalHttpServer.Stop();
+                ShiftClickAutoClicker.Instance.Stop();
                 PreStartup.LogException(ex);
                 CDebugView.OutputDebugInfo(ex.Message);
             }

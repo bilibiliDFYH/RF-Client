@@ -129,35 +129,42 @@ public class IniFile : IIniFile
     /// Creates and adds a section into the INI file.
     /// </summary>
     /// <param name="sectionName">The name of the section to add.</param>
-    public IniFile AddSection(string sectionName)
+    public IniSection AddSection(string sectionName)
     {
-        Sections.Add(new IniSection(sectionName));
+        var section = new IniSection(sectionName);
+        Sections.Add(section);
 
-        return this;
+        return section;
     }
 
-    public IniFile AddSection(string sectionName, int index)
+    public IniSection AddSection(string sectionName, int index)
     {
-        Sections.Insert(index, new IniSection(sectionName));
+        var section = new IniSection(sectionName);
 
-        return this;
+        Sections.Insert(index, section);
+
+        return section;
     }
 
     /// <summary>
     /// Adds a section into the INI file.
     /// </summary>
     /// <param name="section">The section to add.</param>
-    public IniFile AddSection(IniSection section)
+    public IniSection AddSection(IniSection section)
     {
         if (!Sections.Exists(s => s.SectionName == section.SectionName))
+        {
             Sections.Add(section);
+            return section;
+        }
         else
         {
             IniSection s = Sections.Find(s => s.SectionName == section.SectionName);
             s.Keys.AddRange(section.Keys);
+            return s;
         }
 
-        return this;
+        
     }
 
     /// <summary>
@@ -1031,11 +1038,11 @@ public class IniFile : IIniFile
 
                     if (currentLine[0] == '[')
                     {
-                        int sectionNameEndIndex = currentLine.LastIndexOf(']');
+                        int sectionNameEndIndex = currentLine.TrimEnd().LastIndexOf(']');
                         if (sectionNameEndIndex == -1)
                             //throw new IniParseException("Invalid INI section definition: " + currentLine);
                             continue;
-                        if (sectionNameEndIndex == currentLine.Length - 1)
+                        if (sectionNameEndIndex == currentLine.TrimEnd().Length - 1)
                         {
                             string sectionName = currentLine.Substring(1, sectionNameEndIndex - 1);
                             int index = Sections.FindIndex(c => c.SectionName == sectionName);

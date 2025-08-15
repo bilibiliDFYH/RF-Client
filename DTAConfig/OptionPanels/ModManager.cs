@@ -941,13 +941,13 @@ public class ModManager : XNAWindow
             File.Copy(BattleFilePath, newBattleFilePath, true);
             var ini = new IniFile(newBattleFilePath);
             ini.AddSection("MissionPack")
-                .SetValue(mod.ID, "Mod", mod.ID)
-                .SetValue(mod.ID,"Name", mod.Name)
-                .SetValue(mod.ID, "Other",true)
-                .SetValue(mod.ID, "Mission", mod.FilePath)
-                .SetValue(mod.ID, "Description", mod.Name)
-                .SetValue(mod.ID, "LongDescription", mod.Name)
-                .SetValue(mod.ID, "BuildOffAlly", mod.Name)
+                .SetValue("Mod", mod.ID)
+                .SetValue("Name", mod.Name)
+                .SetValue("Other",true)
+                .SetValue("Mission", mod.FilePath)
+                .SetValue("Description", mod.Name)
+                .SetValue("LongDescription", mod.Name)
+                .SetValue("BuildOffAlly", mod.Name)
                 ;
             
             ini.GetSections().ToList().ForEach(section => {

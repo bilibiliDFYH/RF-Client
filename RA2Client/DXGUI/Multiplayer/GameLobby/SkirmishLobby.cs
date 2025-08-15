@@ -496,7 +496,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 {
                     foreach (GameLobbyDropDown dd in DropDowns)
                     {
-                        skirmishSettingsIni.SetStringValue("GameOptions", dd.Name, dd.UserSelectedIndex + "");
+                        skirmishSettingsIni.SetStringValue("GameOptions", dd.Name, dd.SelectedIndex + "");
                     }
 
                     foreach (GameLobbyCheckBox cb in CheckBoxes)

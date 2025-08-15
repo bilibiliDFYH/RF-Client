@@ -24,7 +24,7 @@ namespace Reunion
         private const string ExpectedHash_LicenseFile = "dc447a64136642636d7aa32e50c76e2465801c5f";
         private const string ExpectedHash_RequiredFile = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
         private const string ExpectedHash_FreeFile = "80a2028eb8ec8b738d5f89ec42b2f7a6";
-        private const string ExpectedHash_AntiCheatFile = "52cf7c7a9c2b976af440f4acef727c546ed68b63d05177eff144a83a94bd0599ef5870829ee904ef98b544c39e74dd8b4aa6a679707204f54b6c3bf5f1f7529e";
+        private const string ExpectedHash_AntiCheatFile = "555193a60f2d5067478c5d4b7b1aafb4e5cd3b91ef55a23b454346efddbd51eea240e4375dc113b24d067c52bf5b5d8ff13b96f3d4c62fdf4e9c4d2efeaa51bb";
 
         private static readonly string dotnetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet");
         private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";

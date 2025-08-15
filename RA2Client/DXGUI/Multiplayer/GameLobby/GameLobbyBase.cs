@@ -2365,8 +2365,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
             IniFile globalCodeIni = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, "INI", "MapCode", "GlobalCode.ini"));
 
-            //MapCodeHelper.ApplyMapCode(mapIni, GameMode.GetMapRulesIniFile());
-            MapCodeHelper.ApplyMapCode(mapIni, new IniFile("E:\\Documents\\My_File\\RF-Client\\Bin\\INI\\Multi\\MapCode\\toolkit.ini"));
+            MapCodeHelper.ApplyMapCode(mapIni, GameMode.GetMapRulesIniFile());
+           
             MapCodeHelper.ApplyMapCode(mapIni, globalCodeIni);
 
 

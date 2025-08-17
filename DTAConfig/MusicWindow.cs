@@ -252,7 +252,7 @@ namespace DTAConfig
             return extension switch
             {
                 ".mp3" => new Mp3FileReader(filePath),
-                ".wav" => new WaveFileReader(filePath),
+                ".wav" => new MediaFoundationReader(filePath),
                 ".ogg" => new VorbisWaveReader(filePath),
                 ".flac" => new FlacReader(filePath),
                 ".wma" => new MediaFoundationReader(filePath),

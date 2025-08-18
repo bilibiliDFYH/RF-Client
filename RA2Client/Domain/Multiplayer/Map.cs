@@ -344,6 +344,10 @@ namespace Ra2Client.Domain.Multiplayer
                 ID = Path.GetFileNameWithoutExtension(BaseFilePath);
                 Official = whitelist.Any(sectionName.Contains);
 
+                OtherFile = section.GetValue("OtherFile", string.Empty);
+                if (OtherFile == string.Empty)
+                    OtherFile = section.GetValue("Mission", string.Empty);
+
                 #region 处理预览图
 
                 if (section != null)
@@ -357,7 +361,7 @@ namespace Ra2Client.Domain.Multiplayer
                     {
                         if (!File.Exists($"{sectionName}.jpg") && UserINISettings.Instance.RenderPreviewImage.Value)
                         {
-                            RenderImage.需要渲染的地图列表.Add(BaseFilePath);
+                            RenderImage.需要渲染的地图列表.Add(BaseFilePath,OtherFile);
                         }
                         PreviewPath = SafePath.CombineFilePath(SafePath.GetFile(BaseFilePath).DirectoryName, FormattableString.Invariant($"{previewImage}.jpg"));
                     }
@@ -435,9 +439,7 @@ namespace Ra2Client.Domain.Multiplayer
 
                 Ares = section.GetValue("Ares", false);
 
-                OtherFile = section.GetValue("OtherFile", string.Empty);
-                if(OtherFile == string.Empty)
-                    OtherFile = section.GetValue("Mission", string.Empty);
+              
 
                 int i = 0;
                 while (true)

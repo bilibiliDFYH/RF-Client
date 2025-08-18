@@ -473,7 +473,7 @@ public class ModManager : XNAWindow
         return id;
     }
 
-    public void 刷新并渲染(List<string> mapFiles)
+    public void 刷新并渲染(List<string> mapFiles,string modPath = "")
     {
 
         ReLoad();
@@ -482,7 +482,7 @@ public class ModManager : XNAWindow
        // if (UserINISettings.Instance.RenderPreviewImage.Value)
             Task.Run(() =>
             {
-                _ = RenderImage.RenderPreviewImageAsync(mapFiles.ToArray());
+                _ = RenderImage.RenderPreviewImageAsync(mapFiles.ToArray(), modPath);
                 return Task.CompletedTask;
             });
 
@@ -1444,7 +1444,7 @@ public class 导入选择窗口(WindowManager windowManager) : XNAWindow(windowM
     {
         if (lblPath.Text == string.Empty)
         {
-            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "Please click the button above to select the target first".L10N("UI:DTAConfig:SelectTarget"));
+            XNAMessageBox.Show(WindowManager, "Tips".L10N("UI:Main:Tips"), "请先点击上方按钮选择目标".L10N("UI:DTAConfig:SelectTarget"));
             return;
         }
 

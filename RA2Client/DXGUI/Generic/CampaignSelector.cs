@@ -1220,24 +1220,25 @@ namespace Ra2Client.DXGUI.Generic
 
             var spawnIni = new IniFile();
             var mod = ((Mod)_cmbGame.SelectedItem.Tag);
+
+            var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
+            if (!Directory.Exists(战役临时目录))
+                Directory.CreateDirectory(战役临时目录);
+            else if (Directory.GetFiles(战役临时目录).Length > 0)
+            {
+                Directory.Delete(战役临时目录, true);
+                Directory.CreateDirectory(战役临时目录);
+            }
+
             if (_gameOptionsPanel.Visible)
             {
                 var mapName = SafePath.CombineFilePath(ProgramConstants.GamePath, Path.Combine(mission.Path, mission.Scenario));
                 if (!File.Exists(mapName)) return;
 
-                var 战役临时目录 = SafePath.CombineFilePath(ProgramConstants.GamePath, "Resources\\MissionCache\\");
-                if(!Directory.Exists(战役临时目录))
-                    Directory.CreateDirectory(战役临时目录);
-                else if (Directory.GetFiles(战役临时目录).Length > 0)
-                {
-                    Directory.Delete(战役临时目录, true);
-                    Directory.CreateDirectory(战役临时目录);
-                }
-
                 foreach (var m in mission.MPack.Missions)
                 {
                     if (m.Scenario == string.Empty) continue;
-                    var mapIni = new IniFile(SafePath.CombineFilePath(mission.MPack.FilePath, m.Scenario));
+                    var mapIni = new IniFile(SafePath.CombineFilePath(mission.MPack.FilePath, m.Scenario), Encoding.GetEncoding("GBK"));
                     if (mapIni.GetSections().Count == 0)
                     {
                         File.Copy(SafePath.CombineFilePath(mission.MPack.FilePath, m.Scenario), SafePath.CombineFilePath(战役临时目录, m.Scenario));
@@ -1312,7 +1313,7 @@ namespace Ra2Client.DXGUI.Generic
                         //        mapIni.RenameSection("Countries", "YBCountry");
                         //}
 
-                        mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario), Encoding.GetEncoding("Big5"));
+                        mapIni.WriteIniFile(SafePath.CombineFilePath(战役临时目录, m.Scenario), Encoding.GetEncoding("GBK"));
                     }
                 }
               
@@ -1327,9 +1328,6 @@ namespace Ra2Client.DXGUI.Generic
             #region 切换文件
 
             string newMission = mission.Path;
-
-          
-            
 
             var newGame = mod.FilePath;
 

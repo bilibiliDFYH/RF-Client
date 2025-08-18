@@ -28,7 +28,7 @@ namespace ClientGUI
 
         public static event Action GameProcessExited;
 
-        public static string[] 旧存档数;
+        //public static string[] 旧存档数;
 
         public static bool UseQres { get; set; }
         public static bool SingleCoreAffinity { get; set; }
@@ -141,7 +141,7 @@ namespace ClientGUI
            // else
             //{
                 string arguments;
-                var 启用连点器 = true;
+                var 启用连点器 = false; //不启用连点
 
                 if (!string.IsNullOrWhiteSpace(extraCommandLine))
                     arguments = " " + additionalExecutableName + "-SPAWN " + extraCommandLine;
@@ -194,7 +194,7 @@ namespace ClientGUI
                 if(Directory.Exists(Path.Combine(ProgramConstants.游戏目录, "Debug")))
                     DebugCount = Directory.GetDirectories(Path.Combine(ProgramConstants.游戏目录,"Debug")).Length;
 
-                旧存档数 = Directory.GetFiles(ProgramConstants.存档目录, "*.sav");
+                //旧存档数 = Directory.GetFiles(ProgramConstants.存档目录, "*.sav");
             try
                 {
                     if(启用连点器 && UserINISettings.Instance.启用连点器.Value) ShiftClickAutoClicker.Instance.Start();
@@ -253,7 +253,7 @@ namespace ClientGUI
         {
             if (!Directory.Exists(ProgramConstants.存档目录)) return;
 
-            var newSaves = Directory.GetFiles(ProgramConstants.存档目录,"*.sav").Where(path => !旧存档数.Contains(path)).ToArray();
+            var newSaves = Directory.GetFiles(ProgramConstants.存档目录, "*.sav");
 
             if (newSaves.Length == 0) return;
 
@@ -265,6 +265,7 @@ namespace ClientGUI
             var 透明迷雾 = spawn.GetValue("Settings", "chkSatellite", false);
             var 战役ID = spawn.GetValue("Settings", "CampaignID", -1);
             var chkTerrain = spawn.GetValue("Settings", "chkTerrain", false);
+            var chkAres = spawn.GetValue("Settings", "chkAres", false);
             //if (mission != null)
             //    mission = Path.GetFileName(mission);
 
@@ -287,6 +288,7 @@ namespace ClientGUI
                 if(战役ID!=-1)
                     iniFile.SetValue(sectionName, "CampaignID", 战役ID);
                 iniFile.SetValue(sectionName, "chkTerrain", chkTerrain);
+                iniFile.SetValue(sectionName, "chkAres", chkAres);
             }
             iniFile.WriteIniFile();
             
@@ -322,8 +324,6 @@ namespace ClientGUI
             bool Ares = newSection.GetValue("chkAres", false);
             var otherFile = newSection.GetValue("OtherFile", string.Empty);
 
-
-
             try
             {   List<string> 所有需要复制的文件 = [];
                     
@@ -353,6 +353,7 @@ namespace ClientGUI
                 }
 
                 所有需要复制的文件.Add("syringe.exe");
+       
 
                 所有需要复制的文件.Add(newGame);
 
@@ -397,7 +398,7 @@ namespace ClientGUI
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {
-                  e = 符号链接(所有需要复制的文件, newMission);
+                  e = 符号链接(所有需要复制的文件, newMission, ["syringe.exe"]);
                 }
                 else
                 {
@@ -520,9 +521,9 @@ namespace ClientGUI
           
         }
 
-        private static string 符号链接(List<string> 所有需要链接的文件, string 存档目标)
+        private static string 符号链接(List<string> 所有需要链接的文件, string 存档目标, List<string> 白名单)
         {
-            Dictionary<string, string> 文件字典 = [];
+            Dictionary<string, string> 文件字典 = new();
 
             try
             {
@@ -555,7 +556,9 @@ namespace ClientGUI
                 var 去重后的文件列表 = 文件字典.ToList();
 
                 // 清理之前目标目录中已有的目标路径文件
-                ProgramConstants.清理游戏目录(去重后的文件列表.Select(kv => Path.Combine(ProgramConstants.游戏目录, kv.Key)).ToList());
+                ProgramConstants.清理游戏目录(
+                    去重后的文件列表.Select(kv => Path.Combine(ProgramConstants.游戏目录, kv.Key)).ToList()
+                );
 
                 foreach (var kv in 去重后的文件列表)
                 {
@@ -567,12 +570,23 @@ namespace ClientGUI
                     if (File.Exists(targetPath))
                         File.Delete(targetPath);
 
-                     File.CreateSymbolicLink(targetPath, sourcePath);
-                   // FileHelper.CopyFile(sourcePath, targetPath);
+                    // ⚡ 白名单判断只用文件名
+                    string fileName = Path.GetFileName(kv.Key);
+                    if (白名单.Any(w => string.Equals(w, fileName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        FileHelper.CopyFile(sourcePath, targetPath);
+                    }
+                    else
+                    {
+                        File.CreateSymbolicLink(targetPath, sourcePath);
+                    }
                 }
 
-                if (!string.IsNullOrEmpty(存档目标))
-                {
+                //if (!string.IsNullOrEmpty(存档目标))
+
+                //{
+                if (存档目标 == string.Empty) 存档目标 = "Other";
+
                     var 目标文件夹 = Path.Combine(ProgramConstants.存档目录, Path.GetFileName(存档目标));
                     if (!Directory.Exists(目标文件夹)) return string.Empty;
                     var sourceFiles = Directory.GetFiles(目标文件夹, "*.sav", SearchOption.AllDirectories);
@@ -583,7 +597,6 @@ namespace ClientGUI
                         var fileName = Path.GetFileName(sourcePath);
                         var targetPath = Path.Combine(linkDirectory, fileName);
 
-                        // 如果目标已存在，先删除
                         if (File.Exists(targetPath))
                         {
                             File.Delete(targetPath);
@@ -591,8 +604,7 @@ namespace ClientGUI
 
                         FileHelper.CopyFile(sourcePath, targetPath);
                     }
-                }
-
+              //  }
             }
             catch (Exception ex)
             {
@@ -601,6 +613,7 @@ namespace ClientGUI
 
             return string.Empty;
         }
+
 
         private static void 复制CSF(string path)
         {

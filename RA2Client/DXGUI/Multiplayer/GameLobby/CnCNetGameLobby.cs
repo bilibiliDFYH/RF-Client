@@ -104,7 +104,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                  
             ];
 
-            CnCNetLobby.Download_Notice += HandleMapDownloadNotice;
+           // CnCNetLobby.Download_Notice += HandleMapDownloadNotice;
             CnCNetLobby.下载房主传输的地图 += HandleMapDownload;
             
 
@@ -123,10 +123,102 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChatBoxCommand(new ChatBoxCommand("DOWNLOADMAP",
                 "Download_Notice a map from CNCNet's map server using a map ID and an optional filename.\nExample: \"/downloadmap MAPID [2] My Battle Map\"".L10N("UI:Main:DownloadMapCommandDescription"),
                 false, DownloadMapByIdCommand));
+
+            
+        }
+
+        private void 发送地图给其他玩家(object sender, EventArgs e)
+        {
+           
+            var map = GameModeMap?.Map;
+            if (map == null)
+                return;
+
+            var path = $"{ProgramConstants.GamePath}{map.BaseFilePath}";
+
+            var messageBox = new XNAMessageBox(
+                WindowManager,"传输地图",
+                $"是否向其他玩家传输地图: {map.Name}",
+                XNAMessageBoxButtons.YesNo
+            );
+
+            var d = Path.GetFileName(Path.GetDirectoryName(map.BaseFilePath));
+            var id = string.Empty;
+            if (d == "MapLibrary")
+                id = map.ID;
+
+            messageBox.YesClickedAction += (_) =>
+            {
+                try
+                {
+                    using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    var fileContent = new StreamContent(fileStream);
+                    var fileNameContent = new StringContent(Path.GetFileName(path));
+
+                    var customMapDto = new MultipartFormDataContent
+                    {
+                        { fileNameContent, "fileMame" },
+                        { fileContent, "file", Path.GetFileName(path) }
+                    };
+
+                    var task = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
+                            if (string.IsNullOrEmpty(result.Item1))
+                            {
+                                AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
+                                return;
+                            }
+                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{d};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers};{map.Ares};{id}";
+                            Players.ForEach(p =>
+                            {
+                                if (p.Name != hostName)
+
+                                connectionManager.SendCustomMessage(new QueuedMessage(
+                                    "PRIVMSG " + p.Name + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+                                ));
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            AddNotice("地图上传失败: " + ex.Message, Color.Red);
+                            Console.WriteLine(ex);
+                        }
+                    });
+
+                    task.Wait();
+                }
+                catch (Exception ex)
+                {
+                    AddNotice("地图上传失败: " + ex.Message, Color.Red);
+                    Console.WriteLine(ex);
+                }
+                finally
+                {
+                 
+                    messageBox.Dispose();
+                }
+            };
+
+            //messageBox.NoClickedAction += (_) =>
+            //{
+            //    string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} ";
+            //    connectionManager.SendCustomMessage(new QueuedMessage(
+            //        "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+            //    ));
+               
+            //    messageBox.Dispose();
+            //};
+
+            messageBox.Show();
+    
         }
 
         private async void HandleMapDownload(object sender, EventArgs e)
         {
+            if (GameModeMap != null) return;
             var s = (sender as string)?.Split(";");
             if (s == null || s.Length != 9){
                 CnCNetLobby.下载完成?.Invoke(s, null);
@@ -226,97 +318,97 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
         private Dictionary<string, XNAMessageBox> pendingMapTransferDialogs = new Dictionary<string, XNAMessageBox>();
 
-        private void HandleMapDownloadNotice(object sender, EventArgs e)
-        {
-            string requester = sender as string;
-            if (requester == null)
-                return;
+        //private void HandleMapDownloadNotice(object sender, EventArgs e)
+        //{
+        //    string requester = sender as string;
+        //    if (requester == null)
+        //        return;
 
-            // 如果该请求已存在，则忽略重复请求
-            if (pendingMapTransferDialogs.ContainsKey(requester))
-                return;
+        //    // 如果该请求已存在，则忽略重复请求
+        //    if (pendingMapTransferDialogs.ContainsKey(requester))
+        //        return;
 
-            var map = GameModeMap?.Map;
-            if (map == null)
-                return;
+        //    var map = GameModeMap?.Map;
+        //    if (map == null)
+        //        return;
 
-            var path = $"{ProgramConstants.GamePath}{map.BaseFilePath}";
+        //    var path = $"{ProgramConstants.GamePath}{map.BaseFilePath}";
 
-            var messageBox = new XNAMessageBox(
-                WindowManager,
-                "Request a map transfer".L10N("UI:Main:RequestMapTransfer"),
-                $"{requester} 请求传输地图: {map.Name}",
-                XNAMessageBoxButtons.YesNo
-            );
+        //    var messageBox = new XNAMessageBox(
+        //        WindowManager,
+        //        "Request a map transfer".L10N("UI:Main:RequestMapTransfer"),
+        //        $"{requester} 请求传输地图: {map.Name}",
+        //        XNAMessageBoxButtons.YesNo
+        //    );
 
-            var d = Path.GetFileName(Path.GetDirectoryName(map.BaseFilePath));
-            var id = string.Empty;
-            if (d == "MapLibrary")
-                id = map.ID;
+        //    var d = Path.GetFileName(Path.GetDirectoryName(map.BaseFilePath));
+        //    var id = string.Empty;
+        //    if (d == "MapLibrary")
+        //        id = map.ID;
 
-            messageBox.YesClickedAction += (_) =>
-            {
-                try
-                {
-                    using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-                    var fileContent = new StreamContent(fileStream);
-                    var fileNameContent = new StringContent(Path.GetFileName(path));
+        //    messageBox.YesClickedAction += (_) =>
+        //    {
+        //        try
+        //        {
+        //            using var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        //            var fileContent = new StreamContent(fileStream);
+        //            var fileNameContent = new StringContent(Path.GetFileName(path));
 
-                    var customMapDto = new MultipartFormDataContent
-                    {
-                        { fileNameContent, "fileMame" },
-                        { fileContent, "file", Path.GetFileName(path) }
-                    };
+        //            var customMapDto = new MultipartFormDataContent
+        //            {
+        //                { fileNameContent, "fileMame" },
+        //                { fileContent, "file", Path.GetFileName(path) }
+        //            };
 
-                    var task = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
-                            if (string.IsNullOrEmpty(result.Item1))
-                            {
-                                AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
-                                return;
-                            }
-                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{d};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers};{map.Ares};{id}";
-                            connectionManager.SendCustomMessage(new QueuedMessage(
-                                "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
-                            ));
-                        }
-                        catch (Exception ex)
-                        {
-                            AddNotice("地图上传失败: " + ex.Message, Color.Red);
-                            Console.WriteLine(ex);
-                        }
-                    });
+        //            var task = Task.Run(async () =>
+        //            {
+        //                try
+        //                {
+        //                    var result = await NetWorkINISettings.Post<string>("custom_map/upload", customMapDto);
+        //                    if (string.IsNullOrEmpty(result.Item1))
+        //                    {
+        //                        AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
+        //                        return;
+        //                    }
+        //                    string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{d};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers};{map.Ares};{id}";
+        //                    connectionManager.SendCustomMessage(new QueuedMessage(
+        //                        "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+        //                    ));
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    AddNotice("地图上传失败: " + ex.Message, Color.Red);
+        //                    Console.WriteLine(ex);
+        //                }
+        //            });
 
-                    task.Wait();
-                }
-                catch (Exception ex)
-                {
-                    AddNotice("地图上传失败: " + ex.Message, Color.Red);
-                    Console.WriteLine(ex);
-                }
-                finally
-                {
-                    pendingMapTransferDialogs.Remove(requester);
-                    messageBox.Dispose();
-                }
-            };
+        //            task.Wait();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            AddNotice("地图上传失败: " + ex.Message, Color.Red);
+        //            Console.WriteLine(ex);
+        //        }
+        //        finally
+        //        {
+        //            pendingMapTransferDialogs.Remove(requester);
+        //            messageBox.Dispose();
+        //        }
+        //    };
 
-            messageBox.NoClickedAction += (_) =>
-            {
-                string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} ";
-                connectionManager.SendCustomMessage(new QueuedMessage(
-                    "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
-                ));
-                pendingMapTransferDialogs.Remove(requester);
-                messageBox.Dispose();
-            };
+        //    messageBox.NoClickedAction += (_) =>
+        //    {
+        //        string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} ";
+        //        connectionManager.SendCustomMessage(new QueuedMessage(
+        //            "PRIVMSG " + requester + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
+        //        ));
+        //        pendingMapTransferDialogs.Remove(requester);
+        //        messageBox.Dispose();
+        //    };
 
-            messageBox.Show();
-            pendingMapTransferDialogs.Add(requester, messageBox);
-        }
+        //    messageBox.Show();
+        //    pendingMapTransferDialogs.Add(requester, messageBox);
+        //}
 
 
         public event EventHandler GameLeft;
@@ -424,7 +516,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChild(btnClosePass);
             PostInitialize();
 
-            
+            btnSend.LeftClick += 发送地图给其他玩家;
         }
 
         private void BtnClosePass_LeftClick(object sender, EventArgs e)
@@ -1349,10 +1441,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
 
                 if (!string.IsNullOrEmpty(mapSHA1))
                 {
-                    //if (!isMapOfficial)
                         RequestMap(mapSHA1);
-                    //else
-                    //    ShowOfficialMapMissingMessage(mapSHA1);
                 }
             }
             else if (GameModeMap != currentGameModeMap)
@@ -1494,7 +1583,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             string messageBody = ProgramConstants.MAP_DOWNLOAD_NOTICE +" " + $"{ProgramConstants.PLAYERNAME}";
             connectionManager.SendCustomMessage(new QueuedMessage(
                 "PRIVMSG " + hostName + " :\u0001" + messageBody + "\u0001", QueuedMessageType.CHAT_MESSAGE, 0
-            ));
+            )); 
             //Console.WriteLine(messageBody);
             //Console.WriteLine("PRIVMSG " + hostName + " :\u0001" + messageBody + "\u0001");
         }

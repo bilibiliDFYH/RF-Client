@@ -150,7 +150,7 @@ namespace Ra2Client.DXGUI.Generic
                 Name = "ddMod",
             };
 
-            Mod.Mods.ForEach(m => ddMod.AddItem(m.Name,m));
+            Mod.Mods.FindAll(m=>m.MuVisible).ForEach(m => ddMod.AddItem(m.Name,m));
 
             ddMod.SelectedIndex = 0;
 
@@ -831,7 +831,7 @@ namespace Ra2Client.DXGUI.Generic
                     if (m != null)
                     {
                         清理根目录();
-                        modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
+                        modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList(),m.FilePath);
                         if (_timer != null)
                             _timer.Elapsed += TimerElapsedHandler;
                     }
@@ -844,7 +844,7 @@ namespace Ra2Client.DXGUI.Generic
                 if (m != null)
                 {
                     清理根目录();
-                    modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList());
+                    modManager.刷新并渲染(Directory.GetFiles(m.FilePath, "*.map").ToList(),m.FilePath);
                     if (_timer != null)
                         _timer.Elapsed += TimerElapsedHandler;
                 }

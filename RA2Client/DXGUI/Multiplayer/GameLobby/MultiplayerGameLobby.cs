@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using ClientCore;
 using ClientCore.Statistics;
 using ClientGUI;
@@ -14,6 +16,7 @@ using Ra2Client.Domain.Multiplayer;
 using Ra2Client.DXGUI.Generic;
 using Ra2Client.DXGUI.Multiplayer.CnCNet;
 using Ra2Client.DXGUI.Multiplayer.GameLobby.CommandHandlers;
+using Ra2Client.Online;
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using Rampastring.XNAUI.XNAControls;
@@ -26,6 +29,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
     public abstract class MultiplayerGameLobby : GameLobbyBase, ISwitchable
     {
         private GameLobbyCheckBox chkTerrain;
+
+        protected XNAClientButton btnSend;
 
         private const int MAX_DICE = 10;
         private const int MAX_DIE_SIDES = 100;
@@ -219,8 +224,15 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 FindChild<XNAPanel>("ChkOptionsPanel").AddChild(chkTerrain);
             }
 
+            btnSend = new XNAClientButton(WindowManager);
+            btnSend.Text = "发送地图给其他玩家";
+            btnSend.ClientRectangle = new Rectangle(btnRandomMap.Right + 30, btnRandomMap.Y,UIDesignConstants.BUTTON_WIDTH_160,UIDesignConstants.BUTTON_HEIGHT);
+            
+            AddChild(btnSend);
+
             ReloadMod();
         }
+
 
         /// <summary>
         /// Performs initialization that is necessary after derived 
@@ -490,7 +502,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 if (RemoveStartingLocations)
                     AddNotice("The game host has enabled completely random starting locations (only works for regular maps).".L10N("UI:Main:HostEnabledRandomStartLocation"));
                 else
-                    AddNotice("The game host has disabled completely random starting locations.".L10N("UI:Main:HostDisabledRandomStartLocation"));
+                    AddNotice("The game host has disa bled completely random starting locations.".L10N("UI:Main:HostDisabledRandomStartLocation"));
             }
         }
 
@@ -637,6 +649,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 btnLockGame.Text = "Lock Game".L10N("UI:Main:ButtonLockGame");
                 btnLockGame.Enabled = true;
                 btnLockGame.Visible = true;
+                btnSend.Visible = true;
                 btnRandomMap.Enable();
                 chkAutoReady.Disable();
 
@@ -660,6 +673,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 BtnSaveLoadGameOptions?.Disable();
                 ddPeople.Visible = false;
                 lblscreen.Visible = false;
+                btnSend.Visible = false;
                 btnRandomMap.Disable();
                 btnLockGame.Enabled = false;
                 btnLockGame.Visible = false;

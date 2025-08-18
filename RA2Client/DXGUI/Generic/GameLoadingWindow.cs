@@ -132,7 +132,7 @@ namespace Ra2Client.DXGUI.Generic
 
             var newGame = sg.Game;
             var newMission = sg.Mission;
-
+            var ares = sg.Ares;
 
             if((newGame != string.Empty &&!Directory.Exists(newGame)) || (newMission != string.Empty && !Directory.Exists(newMission)))
             {
@@ -148,6 +148,7 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("Game", newGame);
 
             settings.SetValue("Mission", newMission);
+            settings.SetValue("chkAres", ares);
 
             settings.SetValue("OtherFile", newMission);
 
@@ -275,8 +276,9 @@ namespace Ra2Client.DXGUI.Generic
                     var 透明迷雾 = saveIni.GetValue(sectionName, "chkSatellite", false);
                     var 战役ID = saveIni.GetValue(sectionName, "CampaignID", -1);
                     var chkTerrain = saveIni.GetValue(sectionName, "chkTerrain", false);
+                    var ares = saveIni.GetValue(sectionName, "chkAres", false);
                     chkTerrain_List_bool.Add(chkTerrain);
-                    ParseSaveGame(file.FullName, game, mission, 透明迷雾, 战役ID);
+                    ParseSaveGame(file.FullName, game, mission, 透明迷雾, 战役ID, ares);
                 }
             }
 
@@ -293,10 +295,10 @@ namespace Ra2Client.DXGUI.Generic
             }
         }
 
-        private void ParseSaveGame(string fileName, string game, string mission, bool 透明迷雾, int 战役ID)
+        private void ParseSaveGame(string fileName, string game, string mission, bool 透明迷雾, int 战役ID,bool ares)
         {
             string shortName = Path.GetFileName(fileName);
-            SavedGame sg = new SavedGame(shortName, game, mission);
+            SavedGame sg = new SavedGame(shortName, game, mission, ares);
             sg.FilePath = fileName;
             sg.透明迷雾 = 透明迷雾;
             sg.战役ID = 战役ID;

@@ -16,9 +16,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             CnCNetLobby.下载完成 += (_,_) => { btnDownload.Enabled = true; };
         }
 
-        private readonly string MapSharingRequestText =
-            ("The game host has selected a map that" + Environment.NewLine +
-            "doens't exist on your local installation.").L10N("UI:Main:MapSharingRequestText");
+        private readonly string MapSharingRequestText = "房主选择了你没有的地图，\n 等等房主点击预览图下方的分享按钮将地图分享给您。";
 
         private readonly string MapSharingDownloadText =
             "Downloading map...".L10N("UI:Main:MapSharingDownloadText");
@@ -38,7 +36,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             PanelBackgroundDrawMode = PanelBackgroundImageDrawMode.TILED;
 
             Name = nameof(MapSharingConfirmationPanel);
-            BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
+            //BackgroundTexture = AssetLoader.LoadTexture("msgboxform.png");
 
             lblDescription = new XNALabel(WindowManager);
             lblDescription.Name = nameof(lblDescription);
@@ -53,6 +51,7 @@ namespace Ra2Client.DXGUI.Multiplayer.CnCNet
             btnDownload.Name = nameof(btnDownload);
             btnDownload.Width = UIDesignConstants.BUTTON_WIDTH_92;
             btnDownload.Y = lblDescription.Bottom + UIDesignConstants.EMPTY_SPACE_TOP * 2;
+            btnDownload.Visible = false;
             btnDownload.Text = "Download_Notice".L10N("UI:Main:ButtonDownload");
             //下载
             btnDownload.LeftClick += (s, e) => {

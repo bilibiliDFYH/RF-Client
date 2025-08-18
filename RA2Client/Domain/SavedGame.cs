@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using ClientCore;
 using DTAConfig.Entity;
@@ -14,15 +14,17 @@ namespace Ra2Client.Domain
     {
         
 
-        public SavedGame(string fileName,string game,string mission)
+        public SavedGame(string fileName,string game,string mission,bool ares)
         {
             Game = game;
             Mission = mission;
             FileName = fileName;
+            Ares = ares;
         }
         public string FilePath { get; set; }
         public string FileName { get; private set; }
         public string GUIName { get; private set; }
+        public bool Ares { get; private set; }
 
         public bool 透明迷雾 { get; set; }
 

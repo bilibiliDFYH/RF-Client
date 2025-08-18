@@ -1,4 +1,4 @@
-﻿
+
 using Rampastring.Tools;
 using Rampastring.XNAUI;
 using System;
@@ -20,8 +20,8 @@ namespace ClientCore
         public static CancellationTokenSource cts = new CancellationTokenSource();
         public static ManualResetEventSlim pauseEvent = new ManualResetEventSlim(true); // 初始为可运行状态
 
-        public static HashSet<string> 需要渲染的地图列表 = [];
-        public static HashSet<string> 正在渲染的地图列表 = [];
+        public static Dictionary<string, string> 需要渲染的地图列表 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public static Dictionary<string,string> 正在渲染的地图列表 = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         public static bool RenderOneImage(string mapPath)
         {
@@ -62,9 +62,6 @@ namespace ClientCore
             process.StartInfo.CreateNoWindow = true;
             WindowManager.progress.Report($"正在渲染预览图{mapName}...");
 
-            Console.WriteLine(strCmdText);
-
-
             process.Start();
             process.WaitForExit();
             process.Close();
@@ -91,7 +88,7 @@ namespace ClientCore
 
             return true;
         }
-
+        public static string 当前Mod;
         // 渲染多张图片的方法
         public static void RenderImages()
         {
@@ -122,15 +119,16 @@ namespace ClientCore
                             {
                                 continue;
                             }
-                            正在渲染的地图列表.Add(map);
-                            RenderOneImage(map);
+                            正在渲染的地图列表.Add(map.Key,map.Value);
+                            设置Mod(map.Value);
+                            RenderOneImage(map.Key);
                             Interlocked.Increment(ref RenderCount);
                             TaskbarProgress.Instance.SetValue(RenderCount, 需要渲染的地图列表.Count);
                             WindowManager.Report("");
                             lock (需要渲染的地图列表)
                             {
-                                正在渲染的地图列表.Remove(map);
-                                需要渲染的地图列表.Remove(map);
+                                正在渲染的地图列表.Remove(map.Key);
+                                需要渲染的地图列表.Remove(map.Key);
                             }
                         }
                         catch (Exception ex)
@@ -152,8 +150,63 @@ namespace ClientCore
             }
         }
 
+        private static void 设置Mod(string path)
+        {
+            foreach (var file in Directory.GetFiles(UserINISettings.Instance.YRPath))
+            {
+                string fileName = Path.GetFileName(file);
+                if (ProgramConstants.PureHashes.ContainsKey(fileName))
+                {
+                    Console.WriteLine($"白名单文件，跳过删除: {fileName}");
+                    continue;
+                }
+
+                try
+                {
+                    File.Delete(file);
+                    Console.WriteLine($"已删除: {file}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"删除失败: {file}, 错误: {ex.Message}");
+                }
+            }
+
+            if (!Directory.Exists(path))
+            {
+                return;
+            }
+
+            if (!Directory.Exists(UserINISettings.Instance.YRPath))
+            {
+                return;
+            }
+
+            foreach (var file in Directory.GetFiles(path))
+            {
+                string fileName = Path.GetFileName(file);
+                string linkPath = Path.Combine(UserINISettings.Instance.YRPath, fileName);
+
+                if (File.Exists(linkPath))
+                {
+                    Console.WriteLine($"已存在，跳过: {linkPath}");
+                    continue;
+                }
+
+                try
+                {
+                    File.CreateSymbolicLink(linkPath, file);
+                    Console.WriteLine($"符号链接成功: {linkPath} -> {file}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"创建符号链接失败: {linkPath} -> {file}, 错误: {ex.Message}");
+                }
+            }
+        }
+
         public static bool IsCancelled = false;
-        public static Task RenderPreviewImageAsync(string[] mapFiles)
+        public static Task RenderPreviewImageAsync(string[] mapFiles,string modPath = "")
         {
 
             if (mapFiles.Length == 0)
@@ -163,7 +216,10 @@ namespace ClientCore
         
             foreach (var map in mapFiles)
             {
-                需要渲染的地图列表.Add(map);
+                if (!需要渲染的地图列表.ContainsKey(map))
+                {
+                    需要渲染的地图列表.Add(map, modPath);
+                }
             }
             CancelRendering();
             RenderImages();

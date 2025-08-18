@@ -73,7 +73,9 @@ public class MissionPack : InfoBaseClass
                 var png = Path.GetFileNameWithoutExtension(map) + ".png";
                 var jpg = Path.GetFileNameWithoutExtension(map) + ".jpg";
                 if (File.Exists(Path.Combine(FilePath, png)) || File.Exists(Path.Combine(FilePath, jpg))) continue;
-                RenderImage.需要渲染的地图列表.Add(map);
+
+                if(!RenderImage.需要渲染的地图列表.ContainsKey(map))
+                     RenderImage.需要渲染的地图列表.Add(map,FilePath);
 
         }
     }

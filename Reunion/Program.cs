@@ -21,10 +21,10 @@ namespace Reunion
         private const string FreeFile = "本游戏完全免费，祝倒卖的寿比昙花.txt";
         private const string AntiCheatFile = "Reunion Anti-Cheat.dll";
 
-        private const string ExpectedHash_LicenseFile = "dc447a64136642636d7aa32e50c76e2465801c5f";
-        private const string ExpectedHash_RequiredFile = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
-        private const string ExpectedHash_FreeFile = "80a2028eb8ec8b738d5f89ec42b2f7a6";
-        private const string ExpectedHash_AntiCheatFile = "555193a60f2d5067478c5d4b7b1aafb4e5cd3b91ef55a23b454346efddbd51eea240e4375dc113b24d067c52bf5b5d8ff13b96f3d4c62fdf4e9c4d2efeaa51bb";
+        private const string LicenseFileHash = "dc447a64136642636d7aa32e50c76e2465801c5f";
+        private const string RequiredFileHash = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
+        private const string FreeFileHash = "80a2028eb8ec8b738d5f89ec42b2f7a6";
+        private const string AntiCheatFileHash = "a8467ae500965eb453941aded8fef2a74838823bfc185cea50417e97a61a643f2b9075289bee9ec7848f74eafa44b5c4445b693c30b13b3fffb5a6ec93ee42b9";
 
         private static readonly string dotnetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet");
         private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
@@ -54,28 +54,28 @@ namespace Reunion
             try
             {
                 string actualHash1 = ComputeFileSHA256(RequiredFile);
-                if (!actualHash1.Equals(ExpectedHash_RequiredFile, StringComparison.OrdinalIgnoreCase))
+                if (!actualHash1.Equals(RequiredFileHash, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
                 string actualHash2 = ComputeFileMD5(FreeFile);
-                if (!actualHash2.Equals(ExpectedHash_FreeFile, StringComparison.OrdinalIgnoreCase))
+                if (!actualHash2.Equals(FreeFileHash, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
                 string actualHash3 = ComputeFileSHA1(LicenseFile);
-                if (!actualHash3.Equals(ExpectedHash_LicenseFile, StringComparison.OrdinalIgnoreCase))
+                if (!actualHash3.Equals(LicenseFileHash, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
                 string actualHash4 = ComputeFileSHA512(AntiCheatFile);
-                if (!actualHash4.Equals(ExpectedHash_AntiCheatFile, StringComparison.OrdinalIgnoreCase))
+                if (!actualHash4.Equals(AntiCheatFileHash, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);

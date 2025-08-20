@@ -428,7 +428,11 @@ namespace Ra2Client
                 string tmpFile = Path.Combine(ProgramConstants.GamePath, "tmp", fileName);
                 string extractDir = Path.Combine(ProgramConstants.GamePath, "tmp", "MissionPack");
 
-                string downloadUrl = Path.Combine(NetWorkINISettings.Address, missionPackVo.file);
+                string downloadUrl;
+                if (missionPackVo.file.StartsWith("u"))
+                    downloadUrl = Path.Combine(NetWorkINISettings.Address, missionPackVo.file);
+                else
+                    downloadUrl = missionPackVo.file;
 
                 // 等待下载完成
                 bool success = await NetWorkINISettings.DownloadFileAsync(downloadUrl, tmpFile);
@@ -438,9 +442,11 @@ namespace Ra2Client
                     Console.WriteLine($"❌ 下载任务包失败: {downloadUrl}");
                     return;
                 }
-
-                // 解压文件
-                SevenZip.ExtractWith7Zip(tmpFile, extractDir, needDel:true);
+                if (missionPackVo.file.StartsWith("u"))
+                    // 解压文件
+                    SevenZip.ExtractWith7Zip(tmpFile, extractDir, needDel:true);
+                else
+                    SevenZip.ExtractWith7Zip(tmpFile, "./", needDel: true);
 
                 var missionPack = new MissionPack()
                 {
@@ -451,15 +457,18 @@ namespace Ra2Client
                 };
 
                
+                if(missionPackVo.file.StartsWith("u"))
+                    // 导入Mod
+                    ModManager.GetInstance(wm).导入任务包(
+                        true,
+                        true,
+                        Path.Combine(ProgramConstants.GamePath, "tmp","MissionPack"), 
+                        muVisible: false,
+                        m: missionPack
+                    );
 
-                // 导入Mod
-                ModManager.GetInstance(wm).导入任务包(
-                    true,
-                    true,
-                    Path.Combine(ProgramConstants.GamePath, "tmp","MissionPack"), 
-                    muVisible: false,
-                    m: missionPack
-                );
+                if(Directory.Exists(Path.Combine(ProgramConstants.GamePath, "tmp", "MissionPack")))
+                    Directory.Delete(Path.Combine(ProgramConstants.GamePath, "tmp", "MissionPack"),true);
 
                 UserINISettings.Instance.重新加载地图和任务包?.Invoke(null,null);
             }

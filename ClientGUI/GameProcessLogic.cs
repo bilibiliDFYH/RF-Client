@@ -141,7 +141,7 @@ namespace ClientGUI
            // else
             //{
                 string arguments;
-                var 启用连点器 = false; //不启用连点
+                var 启用连点器 = true; //不启用连点
 
                 if (!string.IsNullOrWhiteSpace(extraCommandLine))
                     arguments = " " + additionalExecutableName + "-SPAWN " + extraCommandLine;
@@ -644,9 +644,7 @@ namespace ClientGUI
             proc.Dispose();
             ShiftClickAutoClicker.Instance.Stop();
             GameProcessExited?.Invoke();
-            //var keyboardMD = Path.Combine(ProgramConstants.游戏目录, "KeyboardMD.ini");
-            //if (File.Exists(keyboardMD))
-            //    File.Copy(keyboardMD, "KeyboardMD.ini", true);
+     
 
             var RA2MD = Path.Combine(ProgramConstants.游戏目录, mod.SettingsFile);
             if (File.Exists(RA2MD))

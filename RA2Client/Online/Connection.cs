@@ -54,10 +54,10 @@ namespace Ra2Client.Online
             new Server("b-root.wt.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
             new Server("c-root.vb.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
             new Server("d-root.bt.cn.ru2023.top", "Reunion China Prefix-v4", new int[1] { 6697 }),
-            new Server("a6-root.ctzn.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 }),
-            new Server("b6-root.cths.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 }),
+            new Server("a6-root.ct.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 }),
+            new Server("b6-root.bgp.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 }),
             //最后这个节点有问题,不能正确检测用户IP,不对外开放
-            //new Server("c6-root.ctgg.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 })
+            //new Server("c6-root.spc.cn.ru2023.top", "Reunion China Prefix-v6", new int[1] { 6697 })
         }.AsReadOnly();
 
         bool _isConnected = false;

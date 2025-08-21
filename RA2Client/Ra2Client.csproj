@@ -50,7 +50,7 @@
 		<Copy SourceFiles="@(ResourceFiles)" DestinationFolder="..\Bin\%(RecursiveDir)" SkipUnchangedFiles="true" />
 	</Target>
 	<ItemGroup>
-		<PackageReference Include="DiscordRichPresence" Version="1.4.1.37" />
+		<PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
 		<PackageReference Include="lzo.net" Version="0.0.6" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
 		<PackageReference Include="Microsoft.NETCore.App" Version="2.1.30" />

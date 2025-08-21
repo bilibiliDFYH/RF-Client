@@ -134,7 +134,7 @@ namespace DTAConfig.OptionPanels
                 Text = "上传地图",
                 ClientRectangle = new Rectangle(ddType.Right + 25,ddType.Y,UIDesignConstants.BUTTON_WIDTH_92,UIDesignConstants.BUTTON_HEIGHT)
             };
-            上传地图.LeftClick += (_, _) => { FunExtensions.OpenUrl("https://console.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token); };
+            上传地图.LeftClick += (_, _) => { FunExtensions.OpenUrl("https://creator.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token); };
 
             // 地图列表容器
             mapPanel = new XNAMultiColumnListBox(WindowManager)

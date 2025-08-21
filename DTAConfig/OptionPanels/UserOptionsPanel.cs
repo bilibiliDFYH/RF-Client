@@ -529,7 +529,7 @@ namespace DTAConfig.OptionPanels
 #if DEBUG
             FunExtensions.OpenUrl("http://localhost:83/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
 #else
-            FunExtensions.OpenUrl("https://console.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
+            FunExtensions.OpenUrl("https://creator.yra2.com/workshop/submit/upload?token=" + UserINISettings.Instance.Token);
 #endif
             return;
 

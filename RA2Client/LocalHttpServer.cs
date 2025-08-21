@@ -31,7 +31,7 @@ namespace Ra2Client
 
         private static Dictionary<string, string> _installedMapIds = [];
 
-        private static XNAMessageBox messageBox;
+        //private static XNAMessageBox messageBox;
 
         public static void Start(WindowManager wm, int startPort = 27123, int maxTries = 10)
         {
@@ -519,6 +519,12 @@ namespace Ra2Client
             {
                 _installedMapIds.Add(id, updateTime);
             }
+        }
+
+        public static void removeMapId(string id)
+        {
+            if (_installedMapIds.ContainsKey(id))
+                _installedMapIds.Remove(id);
         }
 
     }

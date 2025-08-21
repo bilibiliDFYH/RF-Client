@@ -812,6 +812,9 @@ namespace Ra2Client.DXGUI.Generic
 
         private void 检查根目录下是否有玩家放入的Mod或任务包或多人图()
         {
+
+            return;
+
             if(_timer!=null)
                 _timer.Elapsed -= TimerElapsedHandler;
             var modManager = ModManager.GetInstance(WindowManager);
@@ -1142,7 +1145,7 @@ namespace Ra2Client.DXGUI.Generic
             检查管理员权限();
             检查地编();
             检查根目录下是否有玩家放入的Mod或任务包或多人图();
-            监控根目录();
+            //监控根目录();
             try
             {
                 if (Directory.Exists("./tmp"))

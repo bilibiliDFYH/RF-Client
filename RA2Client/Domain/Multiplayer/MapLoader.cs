@@ -486,6 +486,13 @@ namespace Ra2Client.Domain.Multiplayer
                     File.Delete(imagePath);
             }
 
+            var mapINI = new IniFile(gameModeMap.Map.filePath);
+            mapINI.RemoveSection(gameModeMap.Map.BaseFilePath.Remove(gameModeMap.Map.BaseFilePath.Length - 4).Replace('\\', '/'));
+            mapINI.WriteIniFile();
+
+            if (gameModeMap.Map.filePath == "Maps\\Multi\\MPMapsMapLibrary.ini")
+                LocalHttpServer.removeMapId(gameModeMap.Map.ID);
+
             // 从各个模式中移除该地图
             foreach (GameMode gameMode in GameModeMaps.GameModes)
             {

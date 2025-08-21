@@ -315,6 +315,8 @@ namespace Ra2Client.Domain.Multiplayer
 
         readonly List<string> whitelist = ["WorkShop", "Standard", "MadHQ", "DDLY"];
 
+        public string filePath;
+
         /// <summary>
         /// This is used to load a map from the MPMaps.ini (default name) file.
         /// </summary>
@@ -323,7 +325,7 @@ namespace Ra2Client.Domain.Multiplayer
         public  bool SetInfoFromMpMapsINI(IniFile iniFile,string gameMode)
         {
             if(iniFile == null) return false;
-
+            filePath = iniFile.FileName;
             try
             {
                 IniFile mapini = null;

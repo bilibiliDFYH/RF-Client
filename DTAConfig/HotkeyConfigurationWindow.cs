@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ClientCore;
 using ClientGUI;
@@ -293,9 +293,9 @@ namespace DTAConfig
 
         private void LoadKeyboardINI()
         {
-            keyboardINI = new IniFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, ClientConfiguration.Instance.KeyboardINI));
+            keyboardINI = new IniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, ClientConfiguration.Instance.KeyboardINI));
 
-            if (SafePath.GetFile(ProgramConstants.游戏目录, ClientConfiguration.Instance.KeyboardINI).Exists)
+            if (SafePath.GetFile(ProgramConstants.GamePath, ClientConfiguration.Instance.KeyboardINI).Exists)
             {
                 foreach (var command in gameCommands)
                 {
@@ -489,7 +489,7 @@ namespace DTAConfig
                 keyboardIni.SetStringValue("Hotkey", command.ININame, command.Hotkey.GetTSEncoded().ToString());
             }
 
-            keyboardIni.WriteIniFile(SafePath.CombineFilePath(ProgramConstants.游戏目录, ClientConfiguration.Instance.KeyboardINI));
+            keyboardIni.WriteIniFile(SafePath.CombineFilePath(ProgramConstants.GamePath, ClientConfiguration.Instance.KeyboardINI));
         }
 
         /// <summary>

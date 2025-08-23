@@ -8,6 +8,8 @@ namespace ClientCore.Entity
 {
     public class Maps
     {
+        public int tx { get; set; }
+
         public string img { get; set; } = null;
         public string csf { get; set; } = null;
         public string id { get; set; } = "0";

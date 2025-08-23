@@ -410,6 +410,7 @@ namespace Ra2Client.DXGUI.Generic
             chkTerrain.Text = "扩展地形".L10N("UI:Main:chkTerrain");
             chkTerrain.X = FindChild<XNAClientCheckBox>("chkSatellite").X;
             chkTerrain.Y = FindChild<XNAClientCheckBox>("chkCorr").Y + 25;
+           
             chkTerrain.SetToolTipText("启用TX扩展地形，如遇到空气墙或闪退可尝试关闭此选项后重试.\nThis option must be enabled for some map campaigns.".L10N("UI:Main:TPchkTerrain"));
             _gameOptionsPanel.AddChild(chkTerrain);     // 添加地形扩展选项到游戏选项面板      ——dfyh
 
@@ -442,7 +443,12 @@ namespace Ra2Client.DXGUI.Generic
             RemoveChild(_mapPreviewBox);
             AddChild(_mapPreviewBox);
 
+            _ddDifficulty.ClickSoundEffect = _cmbCredits.ClickSoundEffect;
+            _ddSide.ClickSoundEffect = _cmbCredits.ClickSoundEffect;
+            _ddMissionPack.ClickSoundEffect = _cmbCredits.ClickSoundEffect;
 
+            chkTerrain.Visible = false;
+            chkTerrain.Checked = false;
         }
 
         private void _lbxInforBox_DoubleLeftClick(object sender, EventArgs e)
@@ -1356,7 +1362,7 @@ namespace Ra2Client.DXGUI.Generic
             settings.SetValue("BuildOffAlly", mission.BuildOffAlly);
             settings.SetValue("DifficultyModeHuman", (mission.PlayerAlwaysOnNormalDifficulty ? "1" : _trbDifficultySelector.Value.ToString()));
             settings.SetValue("DifficultyModeComputer", GetComputerDifficulty());
-            settings.SetValue("chkTerrain", chkTerrain.Checked);
+            settings.SetValue("chkTerrain", false);
 
             spawnIni.AddSection(settings);
 

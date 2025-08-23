@@ -171,7 +171,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                                 AddNotice("地图上传失败，服务器未返回有效SHA1", Color.Red);
                                 return;
                             }
-                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{d};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers};{map.Ares};{id}";
+                            string messageBody = $"{ProgramConstants.MAP_DOWNLOAD} {Path.GetFileName(path)};{result.Item1};{d};{string.Join(",", map.GameModes)};{map.Name};{map.Author};{map.MaxPlayers};{map.Ares};{map.TX};{id}";
                             Players.ForEach(p =>
                             {
                                 if (p.Name != hostName)
@@ -220,7 +220,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         {
             if (GameModeMap != null) return;
             var s = (sender as string)?.Split(";");
-            if (s == null || s.Length != 9){
+            if (s == null || s.Length != 10){
                 CnCNetLobby.下载完成?.Invoke(s, null);
                 return; 
             }
@@ -233,7 +233,8 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             var author = s[5];
             var maxPlayers = s[6];
             var ares = s[7];
-            var mapID = s[8];
+            var tx = s[8];
+            var mapID = s[9];
 
             if (!string.IsNullOrEmpty(mapID))
             {
@@ -298,6 +299,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                     .SetValue(sectionName, "MaxPlayers",maxPlayers)
                     .SetValue(sectionName, "Author",author)
                     .SetValue(sectionName, "Ares", ares)
+                    .SetValue(sectionName,"TX",tx)
                     ;
                 ini.WriteIniFile();
 

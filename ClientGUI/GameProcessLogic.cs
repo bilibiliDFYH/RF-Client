@@ -340,7 +340,11 @@ namespace ClientGUI
                     所有需要复制的文件.Add(sourceFile);
                 }
 
-               // 所有需要链接的文件.Add("TX");先注释了，改成只有启用地形扩展时再添加
+                // 所有需要链接的文件.Add("TX");先注释了，改成只有启用地形扩展时再添加
+                if (newSection.GetValue("chkTerrain", false))
+                {
+                    所有需要复制的文件.Add("TX");
+                }
                 所有需要复制的文件.Add("zh");
                 所有需要复制的文件.Add("cncnet5.dll");
 
@@ -389,12 +393,6 @@ namespace ClientGUI
                 }
 
                 var e = string.Empty;
-
-                if (newSection.GetValue("chkTerrain", false))
-                {
-                    int zh_location = 所有需要复制的文件.IndexOf("zh");
-                    所有需要复制的文件.Insert(zh_location, "TX");
-                }
 
                 if (IsNtfs(ProgramConstants.GamePath))
                 {

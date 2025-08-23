@@ -22,8 +22,8 @@ namespace Reunion
         private const string AntiCheatFile = "Reunion Anti-Cheat.dll";
 
         private const string LicenseFileHash = "dc447a64136642636d7aa32e50c76e2465801c5f";
-        private const string RequiredFileHash = "9716d81792f5b5777e8b9fee7d445bcc442ba7cf31f57c41b8cd778bce6a6948";
-        private const string FreeFileHash = "80a2028eb8ec8b738d5f89ec42b2f7a6";
+        private const string RequiredFileHash = "29a892cb6dcd71f5f6cfa848b358beca6b942f335701acf88601e28d794e6e60";
+        private const string FreeFileHash = "f2cb57866606921ecda36aa005a06b35";
         private const string AntiCheatFileHash = "a8467ae500965eb453941aded8fef2a74838823bfc185cea50417e97a61a643f2b9075289bee9ec7848f74eafa44b5c4445b693c30b13b3fffb5a6ec93ee42b9";
 
         private static readonly string dotnetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet");

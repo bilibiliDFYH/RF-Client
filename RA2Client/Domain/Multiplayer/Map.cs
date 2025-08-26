@@ -189,6 +189,8 @@ namespace Ra2Client.Domain.Multiplayer
         [JsonInclude]
         public bool ForceNoTeams { get; private set; }
 
+        public bool TX { get; private set; }
+
         /// <summary>
         /// The name of an extra INI file in INI\MapCode\ that should be
         /// embedded into this map's INI code when a game is started.
@@ -347,9 +349,16 @@ namespace Ra2Client.Domain.Multiplayer
                 ID = Path.GetFileNameWithoutExtension(BaseFilePath);
                 Official = whitelist.Any(sectionName.Contains);
 
-                OtherFile = section.GetValue("OtherFile", string.Empty);
-                if (OtherFile == string.Empty)
-                    OtherFile = section.GetValue("Mission", string.Empty);
+                if (section != null)
+                {
+                    OtherFile = section.GetValue("OtherFile", string.Empty);
+                    if (string.IsNullOrEmpty(OtherFile))
+                        OtherFile = section.GetValue("Mission", string.Empty);
+                }
+                else
+                {
+                    OtherFile = string.Empty;
+                }
 
                 #region 处理预览图
 
@@ -380,7 +389,7 @@ namespace Ra2Client.Domain.Multiplayer
                     iniFile.AddSection(sectionName);
 
                 section = iniFile.GetSection(sectionName);
-
+                TX = section.GetValue("TX", false);
                 Author = section.GetValue("Author", string.Empty);
                 if (Author == string.Empty)
                 {

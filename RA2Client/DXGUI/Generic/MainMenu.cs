@@ -966,7 +966,7 @@ namespace Ra2Client.DXGUI.Generic
             using WindowsIdentity identity = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new(identity);
             if (!principal.IsInRole(WindowsBuiltInRole.Administrator))
-                XNAMessageBox.Show(WindowManager, "提示","当前不是管理员运行，建议以管理员身份运行，否则可能会出现异常");
+                XNAMessageBox.Show(WindowManager, "无法开始游戏","当前不是管理员运行，将无法开始游戏");
         }
 
         /// <summary>

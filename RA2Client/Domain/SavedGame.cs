@@ -14,17 +14,19 @@ namespace Ra2Client.Domain
     {
         
 
-        public SavedGame(string fileName,string game,string mission,bool ares)
+        public SavedGame(string fileName,string game,string mission,bool ares,bool tx)
         {
             Game = game;
             Mission = mission;
             FileName = fileName;
             Ares = ares;
+            Tx = tx;
         }
         public string FilePath { get; set; }
         public string FileName { get; private set; }
         public string GUIName { get; private set; }
         public bool Ares { get; private set; }
+        public bool Tx { get; private set; }
 
         public bool 透明迷雾 { get; set; }
 

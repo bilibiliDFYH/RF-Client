@@ -97,8 +97,8 @@ namespace ClientCore
             // 写死的白名单（不区分大小写）
             var 固定白名单 = new HashSet<string>
                 {
-                "syringe.exe",
-                "KeyboardMD.ini",
+                //"syringe.exe",
+                //"KeyboardMD.ini",
                 };
 
             foreach (var file in Directory.GetFiles(游戏目录))

@@ -156,7 +156,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected XNADropDown ddPeople;
 
         protected GameLobbyDropDown cmbGame;
-
+        private XNAClientCheckBox chkTerrain;
         protected MapPreviewBox MapPreviewBox;
 
         protected int count = 0;
@@ -316,8 +316,9 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             AddChild(ModMenu);
 
             cmbGame = FindChild<GameLobbyDropDown>(nameof(cmbGame));
+            chkTerrain = FindChild<XNAClientCheckBox>("chkTerrain");
 
-            foreach(var mod in Mod.Mods.FindAll(mod => mod.MuVisible))
+            foreach (var mod in Mod.Mods.FindAll(mod => mod.MuVisible))
             {
                 cmbGame.AddItem(new XNADropDownItem()
                 {
@@ -716,6 +717,17 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             {
                 cmbGame.AllowDropDown = true;
                 chkAres.AllowChecking = true;
+            }
+
+            if (Map?.TX == true)
+            {
+                chkTerrain.Checked = true;
+                chkTerrain.AllowChecking = false;
+            }
+            else
+            {
+                chkTerrain.Checked = false;
+                chkTerrain.AllowChecking = true;
             }
 
 
@@ -2172,7 +2184,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             settings.SetValue("CustomLoadScreen", LoadingScreenController.GetLoadScreenName(houseInfos[myIndex].InternalSideIndex.ToString()));
             settings.SetValue("AIPlayers", AIPlayers.Count);
             settings.SetValue("Seed", RandomSeed);
-            settings.SetValue("chkTerrain", FindChild<GameLobbyCheckBox>("chkTerrain").Checked);
+            settings.SetValue("chkTerrain", chkTerrain.Checked);
 
             var cmbSw = DropDowns.Find(cmb => cmb.Name == "cmbSw");
             if (cmbSw != null && cmbSw.SelectedIndex == 0 && mod.SuperWeaponBuildings == string.Empty)
@@ -2702,7 +2714,7 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
         protected virtual void StartGame()
         {
             var settings = new IniSection("Settings");
-            var chkTerrain_Checked = FindChild<XNAClientCheckBox>("chkTerrain").Checked;
+            var chkTerrain_Checked = chkTerrain.Checked;
             settings.SetValue("chkTerrain", chkTerrain_Checked);
 
             //// 在启动游戏前检查玩家名称(仅共辉)
@@ -3127,7 +3139,6 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
             }
 
             CheckDisallowedSides();
-            CmbGame_SelectedChanged(null, null);
 
             if (!string.IsNullOrEmpty(Map.OtherFile))
             {
@@ -3139,6 +3150,14 @@ namespace Ra2Client.DXGUI.Multiplayer.GameLobby
                 cmbGame.AllowDropDown = true;
             }
 
+            if (Map.Ares)
+            {
+                cmbGame.SelectedIndex = 0;
+            }
+
+            CmbGame_SelectedChanged(null, null);
+
+           
             if (Map.CoopInfo != null)
             {
                 // Co-Op map disallowed color logic

@@ -20,11 +20,15 @@ namespace Reunion
         private const string RequiredFile = "使用前必读.txt";
         private const string FreeFile = "本游戏完全免费，祝倒卖的寿比昙花.txt";
         private const string AntiCheatFile = "Reunion Anti-Cheat.dll";
+        private const string CollectionFile = "Resources\\GameCollectionConfig.ini";
+        private const string DefinitionsFile = "Resources\\ClientDefinitions.ini";
 
         private const string LicenseFileHash = "dc447a64136642636d7aa32e50c76e2465801c5f";
         private const string RequiredFileHash = "29a892cb6dcd71f5f6cfa848b358beca6b942f335701acf88601e28d794e6e60";
         private const string FreeFileHash = "f2cb57866606921ecda36aa005a06b35";
         private const string AntiCheatFileHash = "a8467ae500965eb453941aded8fef2a74838823bfc185cea50417e97a61a643f2b9075289bee9ec7848f74eafa44b5c4445b693c30b13b3fffb5a6ec93ee42b9";
+        private const string CollectionFileHash = "d24183f83167c23364ddcedb7bc2b857859ee2967081d7ba6357e32dfadda587daf3f700d768f711256343bba30b9701";
+        private const string DefinitionsFileHash = "98cda8c180c880bfec86b002f962cf5f2b3852e8";
 
         private static readonly string dotnetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet");
         private static string sharedPath = @"shared\Microsoft.WindowsDesktop.App";
@@ -45,7 +49,7 @@ namespace Reunion
 
         private static bool CheckRequiredFile()
         {
-            if (!File.Exists(RequiredFile) || !File.Exists(FreeFile) || !File.Exists(LicenseFile) || !File.Exists(AntiCheatFile))
+            if (!File.Exists(RequiredFile) || !File.Exists(FreeFile) || !File.Exists(LicenseFile) || !File.Exists(AntiCheatFile) || !File.Exists(CollectionFile) || !File.Exists(DefinitionsFile))
             {
                 MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -76,6 +80,20 @@ namespace Reunion
                 }
                 string actualHash4 = ComputeFileSHA512(AntiCheatFile);
                 if (!actualHash4.Equals(AntiCheatFileHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                string actualHash5 = ComputeFileSHA384(CollectionFile);
+                if (!actualHash4.Equals(CollectionFileHash, StringComparison.OrdinalIgnoreCase))
+                {
+                    MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+                string actualHash6 = ComputeFileRipeMd160(DefinitionsFile);
+                if (!actualHash4.Equals(DefinitionsFileHash, StringComparison.OrdinalIgnoreCase))
                 {
                     MessageBox.Show("发现未知错误，请联系重聚未来制作组", "错误",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -131,6 +149,19 @@ namespace Reunion
         }
 
         /// <summary>
+        /// 计算文件的SHA384哈希值
+        /// </summary>
+        private static string ComputeFileSHA384(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (SHA384 sha384 = SHA384.Create())
+            {
+                byte[] hashBytes = sha384.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
         /// 计算文件的SHA512哈希值
         /// </summary>
         private static string ComputeFileSHA512(string filePath)
@@ -139,6 +170,19 @@ namespace Reunion
             using (SHA512 sha512 = SHA512.Create())
             {
                 byte[] hashBytes = sha512.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            }
+        }
+
+        /// <summary>
+        /// 计算文件的RIPEMD160哈希值
+        /// </summary>
+        public static string ComputeFileRipeMd160(string filePath)
+        {
+            using (FileStream stream = File.OpenRead(filePath))
+            using (RIPEMD160 ripeMd160 = new RIPEMD160Managed())
+            {
+                byte[] hashBytes = ripeMd160.ComputeHash(stream);
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
             }
         }

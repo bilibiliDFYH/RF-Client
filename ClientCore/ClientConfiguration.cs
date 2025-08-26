@@ -210,7 +210,7 @@ namespace ClientCore
 
         // public string LongGameName => clientDefinitionsIni.GetStringValue(SETTINGS, "LongGameName", "Reunion");
 
-        public string LongGameName => "Reunion";
+        public string LongGameName => "红色警戒2 重聚未来";
 
         public string LongSupportURL => clientDefinitionsIni.GetStringValue(SETTINGS, "LongSupportURL", "");
 
